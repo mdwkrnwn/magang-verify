@@ -1,7 +1,7 @@
-<section class="bg-white py-14 border-t border-gray-100">
-    <div class="max-w-7xl mx-auto px-6">
+<section class="bg-white py-12 sm:py-14 border-t border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
 
-        <div class="grid grid-cols-4 gap-8 text-center">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10 lg:gap-8 text-center">
 
             <!-- Feature 1 -->
             <div class="flex flex-col items-center">
@@ -10,7 +10,6 @@
                             flex items-center justify-center
                             text-blue-600 mb-4">
 
-                    <!-- Graduation Cap -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="w-10 h-10"
@@ -42,7 +41,6 @@
                             flex items-center justify-center
                             text-blue-600 mb-4">
 
-                    <!-- Building -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="w-10 h-10"
@@ -73,7 +71,6 @@
                             flex items-center justify-center
                             text-blue-600 mb-4">
 
-                    <!-- Shield -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="w-10 h-10"
@@ -104,7 +101,6 @@
                             flex items-center justify-center
                             text-blue-600 mb-4">
 
-                    <!-- Users -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         class="w-10 h-10"

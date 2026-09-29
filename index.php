@@ -1,52 +1,65 @@
 <?php
-// 1. Muat konfigurasi database
-require_once 'config/database.php';
 
-// 2. Sekarang kita ubah halaman DEFAULT-nya menjadi 'landing'
-$page = isset($_GET['page']) ? $_GET['page'] : 'landing';
+require_once __DIR__ . '/config/app.php';
+require_once __DIR__ . '/function/Helpers.php';
+require_once __DIR__ . '/routes/web.php';
 
-?>
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magang Verify</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body>
 
-    <?php 
-    // 3. Panggil Navbar (Otomatis muncul di semua halaman)
-    include 'components/Navbar.php'; 
-    ?>
+$matchedRoute = route($_SERVER['REQUEST_URI']);
 
-    <main class="container">
-        <?php
-        // 4. Sistem Routing Dinamis
-        switch ($page) {
-            case 'landing':
-                // Memanggil file landing page Anda di pages/index.php
-                include 'pages/index.php'; 
-                break;
+if (!$matchedRoute) {
+    require __DIR__ . '/pages/errors/404.php';
+    exit;
+}
 
-            case 'mahasiswa':
-                // Memanggil halaman data mahasiswa
-                include 'pages/mahasiswa/index.php';
-                break;
+$route = $matchedRoute['route'];
+$params = $matchedRoute['params'];
 
-            default:
-                echo "<h2 style='text-align:center; margin-top:50px;'>404 - Halaman Tidak Ditemukan</h2>";
-                break;
-        }
-        ?>
-    </main>
 
-    <?php 
-    // 5. Panggil Footer (Otomatis muncul di semua halaman)
-    include 'components/Footer.php'; 
-    ?>
+/*
+|--------------------------------------------------------------------------
+| View
+|--------------------------------------------------------------------------
+*/
 
-    <script src="assets/js/script.js"></script>
-</body>
-</html>
+if (!empty($route['view'])) {
+
+    require __DIR__ . '/' . $route['view'];
+
+    exit;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Controller
+|--------------------------------------------------------------------------
+*/
+
+if (
+    !empty($route['controller']) &&
+    !empty($route['method'])
+) {
+
+    $controllerClass = $route['controller'];
+    $method = $route['method'];
+
+    $controller = new $controllerClass();
+
+    $controller->$method($params);
+
+    exit;
+}
+
+
+/*
+|--------------------------------------------------------------------------
+| Invalid Route
+|--------------------------------------------------------------------------
+*/
+
+http_response_code(500);
+
+echo '<h1>500 - Konfigurasi Route Tidak Valid</h1>';
+
+exit;
