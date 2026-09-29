@@ -1,6 +1,6 @@
 <nav class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
 
-    <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 
         <!-- Logo -->
         <a href="/" class="flex items-center">

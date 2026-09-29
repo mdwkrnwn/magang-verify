@@ -1,7 +1,7 @@
 <section class="relative overflow-hidden bg-white">
-    <div class="max-w-6xl mx-auto px-6">
+    <div class="max-w-7xl mx-auto px-6">
 
-        <div class="min-h-[500px] flex items-center">
+        <div class="min-h-[600px] flex items-center">
 
             <!-- LEFT CONTENT -->
             <div class="w-1/2 relative z-10">
@@ -20,7 +20,7 @@
                     </span>
                 </h1>
                 <!-- Description -->
-                <p class="mt-5 max-w-lg text-sm leading-6 text-slate-500">
+                <p class="mt-5 max-w-lg text-md leading-6 text-slate-500">
                     VerifyMagang adalah platform yang menghubungkan
                     mahasiswa, kampus, dan mitra industri dalam satu ekosistem
                     untuk pengelolaan portofolio dan proses magang.
@@ -31,14 +31,14 @@
 
                     <a
                         href="pages/mahasiswa.php"
-                        class="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition">
+                        class="inline-flex items-center gap-2 px-5 py-4 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition">
                         Lihat Daftar Mahasiswa
                         <span>→</span>
                     </a>
 
                     <a
                         href="#tentang"
-                        class="px-5 py-3 border border-blue-500 text-blue-600 text-sm font-medium rounded-md hover:bg-blue-50 transition">
+                        class="px-5 py-4 border border-blue-500 text-blue-600 text-sm font-medium rounded-md hover:bg-blue-50 transition">
                         Pelajari Sistem
                     </a>
 

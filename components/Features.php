@@ -1,19 +1,19 @@
 <section class="bg-white py-14 border-t border-gray-100">
-    <div class="max-w-6xl mx-auto px-6">
+    <div class="max-w-7xl mx-auto px-6">
 
         <div class="grid grid-cols-4 gap-8 text-center">
 
             <!-- Feature 1 -->
             <div class="flex flex-col items-center">
 
-                <div class="w-14 h-14 rounded-full bg-blue-50
+                <div class="w-20 h-20 rounded-full bg-blue-50
                             flex items-center justify-center
                             text-blue-600 mb-4">
 
                     <!-- Graduation Cap -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="w-7 h-7"
+                        class="w-10 h-10"
                         viewBox="0 0 24 24"
                         fill="currentColor"
                     >
@@ -23,7 +23,7 @@
 
                 </div>
 
-                <h3 class="text-sm font-bold text-slate-900">
+                <h3 class="text-medium font-bold text-slate-900">
                     Profil Mahasiswa
                 </h3>
 
@@ -38,14 +38,14 @@
             <!-- Feature 2 -->
             <div class="flex flex-col items-center">
 
-                <div class="w-14 h-14 rounded-full bg-blue-50
+                <div class="w-20 h-20 rounded-full bg-blue-50
                             flex items-center justify-center
                             text-blue-600 mb-4">
 
                     <!-- Building -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="w-7 h-7"
+                        class="w-10 h-10"
                         viewBox="0 0 24 24"
                         fill="currentColor"
                     >
@@ -54,7 +54,7 @@
 
                 </div>
 
-                <h3 class="text-sm font-bold text-slate-900">
+                <h3 class="text-medium font-bold text-slate-900">
                     Mitra Terpercaya
                 </h3>
 
@@ -69,14 +69,14 @@
             <!-- Feature 3 -->
             <div class="flex flex-col items-center">
 
-                <div class="w-14 h-14 rounded-full bg-blue-50
+                <div class="w-20 h-20 rounded-full bg-blue-50
                             flex items-center justify-center
                             text-blue-600 mb-4">
 
                     <!-- Shield -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="w-7 h-7"
+                        class="w-10 h-10"
                         viewBox="0 0 24 24"
                         fill="currentColor"
                     >
@@ -85,7 +85,7 @@
 
                 </div>
 
-                <h3 class="text-sm font-bold text-slate-900">
+                <h3 class="text-medium font-bold text-slate-900">
                     Informasi Jelas
                 </h3>
 
@@ -100,14 +100,14 @@
             <!-- Feature 4 -->
             <div class="flex flex-col items-center">
 
-                <div class="w-14 h-14 rounded-full bg-blue-50
+                <div class="w-20 h-20 rounded-full bg-blue-50
                             flex items-center justify-center
                             text-blue-600 mb-4">
 
                     <!-- Users -->
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="w-7 h-7"
+                        class="w-10 h-10"
                         viewBox="0 0 24 24"
                         fill="currentColor"
                     >
@@ -116,7 +116,7 @@
 
                 </div>
 
-                <h3 class="text-sm font-bold text-slate-900">
+                <h3 class="text-medium font-bold text-slate-900">
                     Mendukung Karir
                 </h3>
 
