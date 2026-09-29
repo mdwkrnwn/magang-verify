@@ -1,0 +1,12 @@
+# 1. Mengaktifkan mesin penulisan ulang URL (URL Rewriting)
+RewriteEngine On
+
+# 2. Tentukan folder dasar proyek Anda (sesuaikan dengan nama folder di Laragon)
+RewriteBase /magang-verify/
+
+# 3. Jika user mengakses file asli (seperti gambar, css, js), abaikan aturan ini
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# 4. Ubah URL cantik menjadi parameter ?page= di latar belakang
+RewriteRule ^([a-zA-Z0-9-_]+)/?$ index.php?page=$1 [L,QSA]
