@@ -31,7 +31,6 @@ function icon($name, $class = 'w-5 h-5') {
 }
 
 function foto($m) {
-    // Taruh foto di assets/images/mahasiswa/<nama-tanpa-spasi>.jpg, misal ahmadrizki.jpg
     $slug = strtolower(str_replace(' ', '', $m['nama']));
     if (empty($m['foto']) && is_file(__DIR__ . "/../assets/images/mahasiswa/$slug.jpg")) return "../assets/images/mahasiswa/$slug.jpg";
     return !empty($m['foto']) ? $m['foto']
@@ -59,7 +58,6 @@ $mahasiswa = [
     ['id'=>8,'nama'=>'Aisyah Fitri','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2024,'skills'=>['Artificial Intelligence','Data Science','Python','SQL'],'proyek'=>8,'sertifikat'=>5],
 ];
 
-// ---- Detail profil mahasiswa lain (dummy). Format: [tentang, keahlian, pengalaman, proyek, sertifikat] ----
 $extra = [
  2 => ['motto'=>'Data bercerita, kita yang menyimak',
    'tentang'=>'Mahasiswa D4 Teknik Informatika yang fokus pada analisis data dan machine learning. Terbiasa mengolah data mentah menjadi wawasan yang mudah dipahami tim.',
@@ -104,6 +102,7 @@ $extra = [
    'proyek'=>['SampahLens','Aplikasi pengenal jenis sampah dari foto menggunakan model klasifikasi gambar.',['Python','TensorFlow','Streamlit']],
    'sertifikat'=>['TensorFlow Developer Certificate','Google','Mar 2025']],
 ];
+
 foreach ($mahasiswa as &$m) {
     $d = $extra[$m['id']] ?? null;
     if (!$d) continue;
