@@ -6,15 +6,9 @@ $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 $basePath = rtrim(APP_URL, '/');
 
-/*
-|--------------------------------------------------------------------------
-| Hilangkan base URL dari path
-|--------------------------------------------------------------------------
-*/
-
 if (
     $basePath !== '' &&
-    str_starts_with($path, $basePath)
+    ($path === $basePath || str_starts_with($path, $basePath . '/'))
 ) {
     $path = substr($path, strlen($basePath));
 }
@@ -25,22 +19,27 @@ if ($path === '' || $path === false) {
 
 /*
 |--------------------------------------------------------------------------
-| Serve static files directly
+| Static files
 |--------------------------------------------------------------------------
 */
 
 $file = __DIR__ . $path;
 
-if (
-    $path !== '/' &&
-    is_file($file)
-) {
-    return false;
+if ($path !== '/' && is_file($file)) {
+
+    $mime = mime_content_type($file);
+
+    header('Content-Type: ' . $mime);
+    header('Content-Length: ' . filesize($file));
+
+    readfile($file);
+
+    exit;
 }
 
 /*
 |--------------------------------------------------------------------------
-| Semua request lainnya ke front controller
+| Application
 |--------------------------------------------------------------------------
 */
 

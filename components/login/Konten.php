@@ -72,11 +72,11 @@
     <!-- Gambar kampus + tulisan tangan (hanya desktop) -->
     <div class="relative mt-8 hidden lg:block h-56">
 
-        <img
-            src="<?= url('/assets/images/kampus.png') ?>"
-            alt="Gedung kampus"
-            class="absolute bottom-0 left-0 h-full w-auto max-w-none object-contain object-left-bottom"
-        >
+    <img
+    src="<?= url('/assets/images/gedung-polinema.jpeg') ?>"
+    alt="Gedung Polinema"
+    class="absolute bottom-0 left-0 h-full w-auto max-w-none object-contain object-left-bottom"
+>
 
         <p class="absolute right-10 top-0 -rotate-12 text-2xl leading-7 text-blue-600 font-[Caveat]">
             Dari Kampus<br>
