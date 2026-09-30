@@ -4,7 +4,7 @@ require_once __DIR__ . '/../controllers/LandingPageController.php';
 require_once __DIR__ . '/../controllers/MahasiswaController.php';
 require_once __DIR__ . '/../controllers/MahasiswaProfilController.php';
 require_once __DIR__ . '/../controllers/LoginController.php';
-
+require_once __DIR__ . '/../controllers/DashboardController.php';
 
 $routes = [
 
@@ -42,6 +42,11 @@ $routes = [
         'controller' => LoginController::class,
         'method' => 'index',
     ],
+    '/dashboard' => [
+        'controller' => DashboardController::class,
+        'method' => 'index',
+    ],
+
 ];
 
 
