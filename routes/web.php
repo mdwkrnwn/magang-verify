@@ -4,7 +4,7 @@ require_once __DIR__ . '/../controllers/LandingPageController.php';
 require_once __DIR__ . '/../controllers/MahasiswaController.php';
 require_once __DIR__ . '/../controllers/MahasiswaProfilController.php';
 require_once __DIR__ . '/../controllers/LoginController.php';
-require_once __DIR__ . '/../controllers/DashboardController.php';
+require_once __DIR__ . '/../controllers/MahasiswaDashboardController.php';
 
 $routes = [
 
@@ -42,10 +42,40 @@ $routes = [
         'controller' => LoginController::class,
         'method' => 'index',
     ],
-    '/dashboard' => [
-        'controller' => DashboardController::class,
+       '/dashboard/mahasiswa' => [
+        'controller' => MahasiswaDashboardController::class,
         'method' => 'index',
     ],
+
+    '/dashboard/mahasiswa/profil' => [
+        'controller' => MahasiswaDashboardController::class,
+        'method' => 'profil',
+    ],
+
+    '/dashboard/mahasiswa/portofolio' => [
+        'controller' => MahasiswaDashboardController::class,
+        'method' => 'portofolio',
+    ],
+
+    // '/dashboard/mahasiswa/sertifikat' => [
+    //     'controller' => MahasiswaDashboardController::class,
+    //     'method' => 'sertifikat',
+    // ],
+
+    // '/dashboard/mahasiswa/formasi-magang' => [
+    //     'controller' => MahasiswaDashboardController::class,
+    //     'method' => 'formasiMagang',
+    // ],
+
+    // '/dashboard/mahasiswa/pengajuan' => [
+    //     'controller' => MahasiswaDashboardController::class,
+    //     'method' => 'pengajuan',
+    // ],
+
+    // '/dashboard/mahasiswa/logbook' => [
+    //     'controller' => MahasiswaDashboardController::class,
+    //     'method' => 'logbook',
+    // ],
 
 ];
 

@@ -39,12 +39,16 @@
 
             <!-- Dashboard -->
             <a
-                href="<?= url('/dashboard') ?>"
+                href="<?= url('/dashboard/mahasiswa') ?>"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl
-                <?= $active === 'dashboard'
-                ? 'bg-blue-50 text-blue-600 font-semibold'
-                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <?= $active === 'dashboard'
+        ? 'bg-blue-50 text-blue-600 font-semibold'
+        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg
+                    class="w-5 h-5 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -57,11 +61,19 @@
                 </span>
             </a>
 
+
             <!-- Profil -->
             <a
-                href="#"
-                class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                href="<?= url('/dashboard/mahasiswa/profil') ?>"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl
+    <?= $active === 'profil'
+        ? 'bg-blue-50 text-blue-600 font-semibold'
+        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg
+                    class="w-5 h-5 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -74,11 +86,19 @@
                 </span>
             </a>
 
+
             <!-- Portofolio -->
             <a
-                href="#"
-                class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                href="<?= url('/dashboard/mahasiswa/portofolio') ?>"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl
+    <?= $active === 'portofolio'
+        ? 'bg-blue-50 text-blue-600 font-semibold'
+        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg
+                    class="w-5 h-5 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -91,11 +111,19 @@
                 </span>
             </a>
 
+
             <!-- Sertifikat -->
             <a
-                href="#"
-                class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                href="<?= url('/dashboard/mahasiswa/sertifikat') ?>"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl
+    <?= $active === 'sertifikat'
+        ? 'bg-blue-50 text-blue-600 font-semibold'
+        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg
+                    class="w-5 h-5 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -108,11 +136,19 @@
                 </span>
             </a>
 
-            <!-- Formasi -->
+
+            <!-- Formasi Magang -->
             <a
-                href="#"
-                class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                href="<?= url('/dashboard/mahasiswa/formasi-magang') ?>"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl
+    <?= $active === 'formasi-magang'
+        ? 'bg-blue-50 text-blue-600 font-semibold'
+        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg
+                    class="w-5 h-5 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -125,11 +161,19 @@
                 </span>
             </a>
 
-            <!-- Pengajuan -->
+
+            <!-- Pengajuan Saya -->
             <a
-                href="#"
-                class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                href="<?= url('/dashboard/mahasiswa/pengajuan') ?>"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl
+    <?= $active === 'pengajuan'
+        ? 'bg-blue-50 text-blue-600 font-semibold'
+        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg
+                    class="w-5 h-5 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
@@ -142,11 +186,19 @@
                 </span>
             </a>
 
+
             <!-- Logbook -->
             <a
-                href="#"
-                class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-xl hover:bg-gray-50">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                href="<?= url('/dashboard/mahasiswa/logbook') ?>"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl
+       <?= $active === 'logbook'
+        ? 'bg-blue-50 text-blue-600 font-semibold'
+        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg
+                    class="w-5 h-5 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
