@@ -75,10 +75,10 @@
     <img
     src="<?= url('/assets/images/gedung-polinema.jpeg') ?>"
     alt="Gedung Polinema"
-    class="absolute bottom-0 left-0 h-full w-auto max-w-none object-contain object-left-bottom"
+    class="absolute bottom-0 left-0 h-full rounded-xl opacity-25 w-auto max-w-none object-contain object-left-bottom"
 >
 
-        <p class="absolute right-10 top-0 -rotate-12 text-2xl leading-7 text-blue-600 font-[Caveat]">
+        <p class="absolute right-20 top-0 -rotate-12 text-2xl leading-7 text-blue-600 font-[Caveat]">
             Dari Kampus<br>
             Untuk Masa Depan<br>
             yang Lebih Baik

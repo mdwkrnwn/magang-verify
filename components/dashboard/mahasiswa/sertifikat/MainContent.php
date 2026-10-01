@@ -44,19 +44,16 @@
         <!-- Sertifikat Grid -->
         <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
 
-
             <!-- Sertifikat 1 -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
-                        flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
+                flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
-                <!-- Image -->
+                <!-- Inisial Sertifikat -->
                 <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
-                            bg-slate-100 overflow-hidden">
+                    bg-blue-50 text-blue-600 text-3xl font-bold
+                    flex items-center justify-center">
 
-                    <img
-                        src="<?= url('/assets/images/sertifikat/web-development.jpg') ?>"
-                        alt="Web Development Basic"
-                        class="w-full h-full object-cover">
+                    WD
 
                 </div>
 
@@ -81,10 +78,10 @@
                         <a
                             href="<?= url('/sertifikat/web-development-basic') ?>"
                             class="inline-flex items-center px-3 py-1.5
-                                   text-sm font-medium text-blue-600
-                                   border border-blue-200 rounded-lg
-                                   hover:bg-blue-50 hover:border-blue-300
-                                   transition">
+                           text-sm font-medium text-blue-600
+                           border border-blue-200 rounded-lg
+                           hover:bg-blue-50 hover:border-blue-300
+                           transition">
                             Lihat Sertifikat
                         </a>
 
@@ -92,10 +89,10 @@
                             href="<?= url('/sertifikat/download/web-development-basic') ?>"
                             title="Unduh Sertifikat"
                             class="inline-flex items-center justify-center
-                                   w-9 h-9 text-blue-600
-                                   border border-blue-200 rounded-lg
-                                   hover:bg-blue-50 hover:border-blue-300
-                                   transition">
+                           w-9 h-9 text-blue-600
+                           border border-blue-200 rounded-lg
+                           hover:bg-blue-50 hover:border-blue-300
+                           transition">
 
                             <svg
                                 class="w-4 h-4"
@@ -120,18 +117,18 @@
 
             <!-- Sertifikat 2 -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
-                        flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
+                flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
+                <!-- Inisial Sertifikat -->
                 <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
-                            bg-slate-100 overflow-hidden">
+                    bg-blue-50 text-blue-600 text-3xl font-bold
+                    flex items-center justify-center">
 
-                    <img
-                        src="<?= url('/assets/images/sertifikat/cyber-security.jpg') ?>"
-                        alt="Cyber Security Essentials"
-                        class="w-full h-full object-cover">
+                    CS
 
                 </div>
 
+                <!-- Content -->
                 <div class="flex flex-col flex-1 min-w-0">
 
                     <h2 class="text-lg font-bold text-gray-900 break-words">
@@ -146,15 +143,16 @@
                         Diterbitkan: 20 Mar 2025
                     </p>
 
+                    <!-- Button -->
                     <div class="mt-4 flex flex-wrap items-center gap-2">
 
                         <a
                             href="<?= url('/sertifikat/cyber-security-essentials') ?>"
                             class="inline-flex items-center px-3 py-1.5
-                                   text-sm font-medium text-blue-600
-                                   border border-blue-200 rounded-lg
-                                   hover:bg-blue-50 hover:border-blue-300
-                                   transition">
+                           text-sm font-medium text-blue-600
+                           border border-blue-200 rounded-lg
+                           hover:bg-blue-50 hover:border-blue-300
+                           transition">
                             Lihat Sertifikat
                         </a>
 
@@ -162,10 +160,10 @@
                             href="<?= url('/sertifikat/download/cyber-security-essentials') ?>"
                             title="Unduh Sertifikat"
                             class="inline-flex items-center justify-center
-                                   w-9 h-9 text-blue-600
-                                   border border-blue-200 rounded-lg
-                                   hover:bg-blue-50 hover:border-blue-300
-                                   transition">
+                           w-9 h-9 text-blue-600
+                           border border-blue-200 rounded-lg
+                           hover:bg-blue-50 hover:border-blue-300
+                           transition">
 
                             <svg
                                 class="w-4 h-4"
@@ -190,18 +188,18 @@
 
             <!-- Sertifikat 3 -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
-                        flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
+                flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
+                <!-- Inisial Sertifikat -->
                 <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
-                            bg-slate-100 overflow-hidden">
+                    bg-blue-50 text-blue-600 text-3xl font-bold
+                    flex items-center justify-center">
 
-                    <img
-                        src="<?= url('/assets/images/sertifikat/ui-ux.jpg') ?>"
-                        alt="UI/UX Design Fundamental"
-                        class="w-full h-full object-cover">
+                    UD
 
                 </div>
 
+                <!-- Content -->
                 <div class="flex flex-col flex-1 min-w-0">
 
                     <h2 class="text-lg font-bold text-gray-900 break-words">
@@ -216,15 +214,16 @@
                         Diterbitkan: 5 Feb 2025
                     </p>
 
+                    <!-- Button -->
                     <div class="mt-4 flex flex-wrap items-center gap-2">
 
                         <a
                             href="<?= url('/sertifikat/ui-ux-design-fundamental') ?>"
                             class="inline-flex items-center px-3 py-1.5
-                                   text-sm font-medium text-blue-600
-                                   border border-blue-200 rounded-lg
-                                   hover:bg-blue-50 hover:border-blue-300
-                                   transition">
+                           text-sm font-medium text-blue-600
+                           border border-blue-200 rounded-lg
+                           hover:bg-blue-50 hover:border-blue-300
+                           transition">
                             Lihat Sertifikat
                         </a>
 
@@ -232,10 +231,10 @@
                             href="<?= url('/sertifikat/download/ui-ux-design-fundamental') ?>"
                             title="Unduh Sertifikat"
                             class="inline-flex items-center justify-center
-                                   w-9 h-9 text-blue-600
-                                   border border-blue-200 rounded-lg
-                                   hover:bg-blue-50 hover:border-blue-300
-                                   transition">
+                           w-9 h-9 text-blue-600
+                           border border-blue-200 rounded-lg
+                           hover:bg-blue-50 hover:border-blue-300
+                           transition">
 
                             <svg
                                 class="w-4 h-4"
@@ -248,25 +247,30 @@
                                     stroke-width="2"
                                     d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
                             </svg>
+
                         </a>
+
                     </div>
+
                 </div>
+
             </div>
 
 
             <!-- Sertifikat 4 -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
-                        flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
+                flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
+                <!-- Inisial Sertifikat -->
                 <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
-                            bg-slate-100 overflow-hidden">
+                    bg-blue-50 text-blue-600 text-3xl font-bold
+                    flex items-center justify-center">
 
-                    <img
-                        src="<?= url('/assets/images/sertifikat/java-programming.jpg') ?>"
-                        alt="Java Programming"
-                        class="w-full h-full object-cover">
+                    JP
+
                 </div>
 
+                <!-- Content -->
                 <div class="flex flex-col flex-1 min-w-0">
 
                     <h2 class="text-lg font-bold text-gray-900 break-words">
@@ -281,15 +285,16 @@
                         Diterbitkan: 25 Apr 2025
                     </p>
 
+                    <!-- Button -->
                     <div class="mt-4 flex flex-wrap items-center gap-2">
 
                         <a
                             href="<?= url('/sertifikat/java-programming') ?>"
                             class="inline-flex items-center px-3 py-1.5
-                                   text-sm font-medium text-blue-600
-                                   border border-blue-200 rounded-lg
-                                   hover:bg-blue-50 hover:border-blue-300
-                                   transition">
+                           text-sm font-medium text-blue-600
+                           border border-blue-200 rounded-lg
+                           hover:bg-blue-50 hover:border-blue-300
+                           transition">
                             Lihat Sertifikat
                         </a>
 
@@ -297,10 +302,10 @@
                             href="<?= url('/sertifikat/download/java-programming') ?>"
                             title="Unduh Sertifikat"
                             class="inline-flex items-center justify-center
-                                   w-9 h-9 text-blue-600
-                                   border border-blue-200 rounded-lg
-                                   hover:bg-blue-50 hover:border-blue-300
-                                   transition">
+                           w-9 h-9 text-blue-600
+                           border border-blue-200 rounded-lg
+                           hover:bg-blue-50 hover:border-blue-300
+                           transition">
 
                             <svg
                                 class="w-4 h-4"
@@ -313,14 +318,14 @@
                                     stroke-width="2"
                                     d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" />
                             </svg>
-                        </a>
 
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
         <?php include __DIR__ . "/../Footer.php"; ?>
-        
+
     </div>
 </main>

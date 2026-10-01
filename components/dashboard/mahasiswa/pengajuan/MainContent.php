@@ -3,19 +3,16 @@
     <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-[1600px]">
 
         <!-- Page Header -->
-        <div class="mb-6 sm:mb-8">
+        <?php include __DIR__ . "/PageHeader.php"; ?>
 
-            <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                Pengajuan Saya
-            </h1>
 
-            <p class="mt-2 text-sm text-gray-500 sm:text-base">
-                Pantau status pengajuan magang Anda.
-            </p>
+        <!-- Daftar Pengajuan -->
+        <?php include __DIR__ . "/PengajuanList.php"; ?>
 
-        </div>
 
+        <!-- Footer -->
         <?php include __DIR__ . "/../Footer.php"; ?>
-        
+
     </div>
+
 </main>

@@ -49,13 +49,22 @@
                         flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
                 <!-- Image -->
+                <!-- Inisial Otomatis -->
                 <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
-                            bg-slate-100 overflow-hidden">
+                    bg-blue-50 text-blue-600 text-3xl font-bold
+                    flex items-center justify-center">
 
-                    <img
-                        src="<?= url('/assets/images/portfolio/ecommerce.jpg') ?>"
-                        alt="Website E-Commerce Sederhana"
-                        class="w-full h-full object-cover">
+                    <?php
+                    $nama = 'Website E-Commerce Sederhana';
+                    $namaParts = preg_split('/\s+/', trim($nama));
+                    $inisial = '';
+
+                    foreach (array_slice($namaParts, 0, 2) as $part) {
+                        $inisial .= strtoupper(substr($part, 0, 1));
+                    }
+                    ?>
+
+                    <?= e($inisial) ?>
 
                 </div>
 
@@ -111,13 +120,24 @@
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
                         flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
-                <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
-                            bg-slate-100 overflow-hidden">
 
-                    <img
-                        src="<?= url('/assets/images/portfolio/ddos.jpg') ?>"
-                        alt="Sistem Deteksi Serangan DDoS"
-                        class="w-full h-full object-cover">
+
+                <!-- Inisial Otomatis -->
+                <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
+                    bg-blue-50 text-blue-600 text-3xl font-bold
+                    flex items-center justify-center">
+
+                    <?php
+                    $nama = ' Sistem Deteksi Serangan DDoS';
+                    $namaParts = preg_split('/\s+/', trim($nama));
+                    $inisial = '';
+
+                    foreach (array_slice($namaParts, 0, 2) as $part) {
+                        $inisial .= strtoupper(substr($part, 0, 1));
+                    }
+                    ?>
+
+                    <?= e($inisial) ?>
 
                 </div>
 
@@ -167,19 +187,20 @@
 
 
             <!-- Portfolio 3 -->
+            <!-- Portfolio 3 -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
-                        flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
+            flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
+                <!-- Inisial Portfolio -->
                 <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
-                            bg-slate-100 overflow-hidden">
+                bg-blue-50 text-blue-600 text-3xl font-bold
+                flex items-center justify-center">
 
-                    <img
-                        src="<?= url('/assets/images/portfolio/catatan.jpg') ?>"
-                        alt="Aplikasi Catatan Harian"
-                        class="w-full h-full object-cover">
+                    AC
 
                 </div>
 
+                <!-- Content -->
                 <div class="flex flex-col flex-1 min-w-0">
 
                     <h2 class="text-lg font-bold text-gray-900 break-words">
@@ -192,27 +213,31 @@
                     </p>
 
                     <div class="mt-3 flex flex-wrap gap-2">
+
                         <span class="px-2.5 py-1 text-xs font-medium
-                                     rounded-md bg-blue-50 text-blue-600">
+                         rounded-md bg-blue-50 text-blue-600">
                             Flutter
                         </span>
 
                         <span class="px-2.5 py-1 text-xs font-medium
-                                     rounded-md bg-blue-50 text-blue-600">
+                         rounded-md bg-blue-50 text-blue-600">
                             Firebase
                         </span>
+
                     </div>
 
-                    <div class="mt-auto pt-4 flex justify-end">
+                    <div class="mt-4 flex justify-end">
+
                         <a
                             href="<?= url('/portofolio/detail') ?>"
                             class="inline-flex items-center gap-1 px-3 py-1.5
-                            text-sm font-medium text-blue-600
-                            border border-blue-200 rounded-lg
-                            hover:bg-blue-50 hover:border-blue-300
-                            transition">
+                       text-sm font-medium text-blue-600
+                       border border-blue-200 rounded-lg
+                       hover:bg-blue-50 hover:border-blue-300
+                       transition">
                             Lihat Detail
                         </a>
+
                     </div>
 
                 </div>
@@ -221,19 +246,20 @@
 
 
             <!-- Portfolio 4 -->
+            <!-- Portfolio 4 -->
             <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
-                        flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
+            flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
+                <!-- Inisial Portfolio -->
                 <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
-                            bg-slate-100 overflow-hidden">
+                bg-blue-50 text-blue-600 text-3xl font-bold
+                flex items-center justify-center">
 
-                    <img
-                        src="<?= url('/assets/images/portfolio/dashboard.jpg') ?>"
-                        alt="Dashboard Analisis Data"
-                        class="w-full h-full object-cover">
+                    DA
 
                 </div>
 
+                <!-- Content -->
                 <div class="flex flex-col flex-1 min-w-0">
 
                     <h2 class="text-lg font-bold text-gray-900 break-words">
@@ -246,27 +272,31 @@
                     </p>
 
                     <div class="mt-3 flex flex-wrap gap-2">
+
                         <span class="px-2.5 py-1 text-xs font-medium
-                                     rounded-md bg-blue-50 text-blue-600">
+                         rounded-md bg-blue-50 text-blue-600">
                             JavaScript
                         </span>
 
                         <span class="px-2.5 py-1 text-xs font-medium
-                                     rounded-md bg-blue-50 text-blue-600">
+                         rounded-md bg-blue-50 text-blue-600">
                             Chart.js
                         </span>
+
                     </div>
 
-                    <div class="mt-auto pt-4 flex justify-end">
+                    <div class="mt-4 flex justify-end">
+
                         <a
                             href="<?= url('/portofolio/detail') ?>"
                             class="inline-flex items-center gap-1 px-3 py-1.5
-                            text-sm font-medium text-blue-600
-                            border border-blue-200 rounded-lg
-                            hover:bg-blue-50 hover:border-blue-300
-                            transition">
+                       text-sm font-medium text-blue-600
+                       border border-blue-200 rounded-lg
+                       hover:bg-blue-50 hover:border-blue-300
+                       transition">
                             Lihat Detail
                         </a>
+
                     </div>
 
                 </div>

@@ -3,19 +3,19 @@
     <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-[1600px]">
 
         <!-- Page Header -->
-        <div class="mb-6 sm:mb-8">
+        <?php include __DIR__ . "/PageHeader.php"; ?>
 
-            <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                Formasi Magang
-            </h1>
 
-            <p class="mt-2 text-sm text-gray-500 sm:text-base">
-                Tentukan posisi magang yang sensual dengan minat dan keahlian anda.
-            </p>
+        <!-- Search & Filter -->
+        <?php include __DIR__ . "/SearchFilter.php"; ?>
 
-        </div>
 
-        <?php include __DIR__ . "/../Footer.php"; ?>        
+        <!-- Daftar Formasi -->
+        <?php include __DIR__ . "/FormasiList.php"; ?>
+
+
+        <!-- Footer -->
+        <?php include __DIR__ . "/../Footer.php"; ?>
 
     </div>
 
