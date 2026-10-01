@@ -9,7 +9,6 @@
         <!-- Perusahaan & Posisi -->
         <div class="flex items-center gap-4 min-w-0">
 
-            <!-- Logo -->
             <div
                 class="flex items-center justify-center
                        w-16 h-16 flex-shrink-0
@@ -23,7 +22,6 @@
             </div>
 
 
-            <!-- Informasi -->
             <div class="min-w-0">
 
                 <h2 class="text-sm font-semibold text-slate-800">

@@ -52,3 +52,31 @@ function slugify($text)
 
     return trim($text, '-');
 }
+
+/*
+|-----------------------
+| Initials Helper
+|-----------------------
+*/
+
+function initials($name)
+{
+    $name = trim((string) $name);
+
+    if ($name === '') {
+        return '';
+    }
+
+    $words = preg_split('/\s+/', $name);
+
+    if (count($words) === 1) {
+        return strtoupper(
+            mb_substr($words[0], 0, 1)
+        );
+    }
+
+    return strtoupper(
+        mb_substr($words[0], 0, 1)
+        . mb_substr($words[1], 0, 1)
+    );
+}

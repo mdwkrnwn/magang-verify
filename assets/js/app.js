@@ -1,3 +1,5 @@
+// Detail Portofolio
+
 document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('profil-sidebar');
 
@@ -21,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!sections.length) {
         return;
     }
-
 
     /*
      * ==========================================
@@ -59,7 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         );
     };
 
-
     /*
      * ==========================================
      * 2. SECTION YANG TERLIHAT = MENU AKTIF
@@ -92,11 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             setActive(active.item);
 
-            /*
-             * Saat menu aktif berubah,
-             * menu sidebar ikut bergeser supaya
-             * item aktif selalu terlihat.
-             */
             active.item.scrollIntoView({
                 behavior: 'smooth',
                 block: 'nearest',
@@ -105,21 +100,14 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             root: null,
-
-            /*
-             * Area aktif sedikit di bawah navbar.
-             */
             rootMargin: '-120px 0px -55% 0px',
-
             threshold: 0
         }
     );
 
-
     sections.forEach(({ section }) => {
         observer.observe(section);
     });
-
 
     /*
      * ==========================================
@@ -128,23 +116,387 @@ document.addEventListener('DOMContentLoaded', () => {
      */
 
     menuItems.forEach(item => {
-
         item.addEventListener('click', () => {
-
             setActive(item);
 
-            /*
-             * Sidebar ikut menggeser item yang
-             * diklik agar tetap terlihat.
-             */
             item.scrollIntoView({
                 behavior: 'smooth',
                 block: 'nearest',
                 inline: 'center'
             });
-
         });
-
     });
+});
 
+// Landing Page - Mahasiswa Filter
+
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById(
+        'mahasiswa-filter-form'
+    );
+
+    if (!form) {
+        return;
+    }
+
+    const searchInput = document.getElementById(
+        'mahasiswa-search'
+    );
+
+    const filterSelects = form.querySelectorAll(
+        'select[name="jurusan"], ' +
+        'select[name="prodi"], ' +
+        'select[name="angkatan"]'
+    );
+
+    const keahlianToggle =
+        document.getElementById(
+            'keahlian-toggle'
+        );
+
+    const keahlianMenu =
+        document.getElementById(
+            'keahlian-menu'
+        );
+
+    const keahlianSearch =
+        document.getElementById(
+            'keahlian-search'
+        );
+
+    const keahlianLabel =
+        document.getElementById(
+            'keahlian-label'
+        );
+
+    const keahlianArrow =
+        document.getElementById(
+            'keahlian-arrow'
+        );
+
+    const keahlianOptions =
+        form.querySelectorAll(
+            '.keahlian-option'
+        );
+
+    const keahlianCheckboxes =
+        form.querySelectorAll(
+            '.keahlian-checkbox'
+        );
+
+    const keahlianEmpty =
+        document.getElementById(
+            'keahlian-empty'
+        );
+
+    let searchTimer;
+
+    /*
+     * ==========================================
+     * RESET FILTER SAAT REFRESH
+     * ==========================================
+     */
+
+    const navigation =
+        performance.getEntriesByType(
+            'navigation'
+        )[0];
+
+    if (
+        navigation &&
+        navigation.type === 'reload' &&
+        window.location.search !== ''
+    ) {
+        window.location.replace(
+            window.location.pathname
+        );
+
+        return;
+    }
+
+    /*
+     * ==========================================
+     * SEARCH NAMA MAHASISWA
+     * ==========================================
+     */
+
+    if (searchInput) {
+        searchInput.addEventListener(
+            'input',
+            () => {
+                clearTimeout(searchTimer);
+
+                searchTimer = setTimeout(
+                    () => {
+                        form.submit();
+                    },
+                    400
+                );
+            }
+        );
+    }
+
+    /*
+     * ==========================================
+     * FILTER JURUSAN / PRODI / ANGKATAN
+     * ==========================================
+     */
+
+    filterSelects.forEach(
+        select => {
+            select.addEventListener(
+                'change',
+                () => {
+                    form.submit();
+                }
+            );
+        }
+    );
+
+    /*
+     * ==========================================
+     * KEAHLIAN - BUKA / TUTUP DROPDOWN
+     * ==========================================
+     */
+
+    if (
+        keahlianToggle &&
+        keahlianMenu
+    ) {
+        keahlianToggle.addEventListener(
+            'click',
+            event => {
+                event.stopPropagation();
+
+                const isHidden =
+                    keahlianMenu.classList.contains(
+                        'hidden'
+                    );
+
+                keahlianMenu.classList.toggle(
+                    'hidden'
+                );
+
+                if (keahlianArrow) {
+                    keahlianArrow.classList.toggle(
+                        'rotate-180',
+                        isHidden
+                    );
+                }
+
+                /*
+                 * Fokus otomatis ke search
+                 * ketika dropdown dibuka.
+                 */
+                if (
+                    isHidden &&
+                    keahlianSearch
+                ) {
+                    setTimeout(() => {
+                        keahlianSearch.focus();
+                    }, 50);
+                }
+            }
+        );
+    }
+
+    /*
+     * ==========================================
+     * SEARCH DI DALAM KEAHLIAN
+     * ==========================================
+     */
+
+    if (keahlianSearch) {
+        keahlianSearch.addEventListener(
+            'input',
+            () => {
+                const keyword =
+                    keahlianSearch.value
+                        .trim()
+                        .toLowerCase();
+
+                let visibleCount = 0;
+
+                keahlianOptions.forEach(
+                    option => {
+                        const skill =
+                            option.dataset.skill || '';
+
+                        const cocok =
+                            skill.includes(
+                                keyword
+                            );
+
+                        option.classList.toggle(
+                            'hidden',
+                            !cocok
+                        );
+
+                        if (cocok) {
+                            visibleCount++;
+                        }
+                    }
+                );
+
+                if (keahlianEmpty) {
+                    keahlianEmpty.classList.toggle(
+                        'hidden',
+                        visibleCount !== 0
+                    );
+                }
+            }
+        );
+    }
+
+    /*
+     * ==========================================
+     * UPDATE JUMLAH KEAHLIAN DIPILIH
+     * ==========================================
+     */
+
+    const updateKeahlianLabel = () => {
+        if (!keahlianLabel) {
+            return;
+        }
+
+        const selected =
+            form.querySelectorAll(
+                '.keahlian-checkbox:checked'
+            );
+
+        if (selected.length === 0) {
+            keahlianLabel.textContent =
+                'Semua Keahlian';
+
+            return;
+        }
+
+        keahlianLabel.textContent =
+            `${selected.length} keahlian dipilih`;
+    };
+    
+    /*
+     * ==========================================
+     * TUTUP DROPDOWN SAAT KLIK DI LUAR
+     * ==========================================
+     */
+
+    document.addEventListener(
+        'click',
+        event => {
+            if (
+                !keahlianMenu ||
+                !keahlianToggle
+            ) {
+                return;
+            }
+
+            if (
+                !keahlianMenu.contains(
+                    event.target
+                ) &&
+                !keahlianToggle.contains(
+                    event.target
+                )
+            ) {
+                keahlianMenu.classList.add(
+                    'hidden'
+                );
+
+                if (keahlianArrow) {
+                    keahlianArrow.classList.remove(
+                        'rotate-180'
+                    );
+                }
+            }
+        }
+    );
+});
+
+// Dashboard Mahasiswa
+
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById(
+        'pengajuan-filter-form'
+    );
+
+    if (!form) {
+        return;
+    }
+
+    const searchInput = document.getElementById(
+        'pengajuan-search'
+    );
+
+    const statusSelect = document.getElementById(
+        'pengajuan-status'
+    );
+
+    const sortSelect = document.getElementById(
+        'pengajuan-sort'
+    );
+
+    let searchTimer;
+
+    /*
+     * ==========================================
+     * RESET FILTER SAAT BROWSER DI-REFRESH
+     * ==========================================
+     */
+
+    const navigation = performance.getEntriesByType(
+        'navigation'
+    )[0];
+
+    if (
+        navigation &&
+        navigation.type === 'reload' &&
+        window.location.search !== ''
+    ) {
+        window.location.replace(
+            window.location.pathname
+        );
+
+        return;
+    }
+
+    /*
+     * ==========================================
+     * SEARCH REALTIME
+     * ==========================================
+     */
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+
+            searchTimer = setTimeout(() => {
+                form.submit();
+            }, 400);
+        });
+    }
+
+    /*
+     * ==========================================
+     * STATUS REALTIME
+     * ==========================================
+     */
+
+    if (statusSelect) {
+        statusSelect.addEventListener('change', () => {
+            form.submit();
+        });
+    }
+
+    /*
+     * ==========================================
+     * SORTING REALTIME
+     * ==========================================
+     */
+
+    if (sortSelect) {
+        sortSelect.addEventListener('change', () => {
+            form.submit();
+        });
+    }
 });

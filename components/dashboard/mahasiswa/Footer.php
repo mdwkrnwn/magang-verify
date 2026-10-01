@@ -17,3 +17,5 @@
     </div>
 
 </footer>
+
+<?php include __DIR__ . '/Script.php'; ?>

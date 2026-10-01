@@ -1,13 +1,27 @@
 <?php
 
+/* Login */
+
+require_once __DIR__ . '/../controllers/LoginController.php';
+
+/* Landing Page */
+
 require_once __DIR__ . '/../controllers/LandingPageController.php';
 require_once __DIR__ . '/../controllers/MahasiswaController.php';
 require_once __DIR__ . '/../controllers/MahasiswaProfilController.php';
-require_once __DIR__ . '/../controllers/LoginController.php';
-require_once __DIR__ . '/../controllers/MahasiswaDashboardController.php';
 require_once __DIR__ . '/../controllers/MitraController.php';
 require_once __DIR__ . '/../controllers/MitraProfilController.php';
 require_once __DIR__ . '/../controllers/TentangController.php';
+
+/* Dashboard Mahasiswa */
+
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/DashboardController.php';
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/ProfilController.php';
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PortofolioController.php';
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/SertifikatController.php';
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/FormasiMagangController.php';
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengajuanController.php';
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LogbookController.php';
 
 $routes = [
 
@@ -65,39 +79,46 @@ $routes = [
         'controller' => LoginController::class,
         'method' => 'index',
     ],
-       '/dashboard/mahasiswa' => [
-        'controller' => MahasiswaDashboardController::class,
+
+    /*
+    |---------------------
+    | Dashboard Mahasiswa
+    |---------------------
+    */
+
+    '/dashboard/mahasiswa' => [
+        'controller' => DashboardController::class,
         'method' => 'index',
     ],
 
     '/dashboard/mahasiswa/profil' => [
-        'controller' => MahasiswaDashboardController::class,
-        'method' => 'profil',
+        'controller' => ProfilController::class,
+        'method' => 'index',
     ],
 
     '/dashboard/mahasiswa/portofolio' => [
-        'controller' => MahasiswaDashboardController::class,
-        'method' => 'portofolio',
+        'controller' => PortofolioController::class,
+        'method' => 'index',
     ],
 
     '/dashboard/mahasiswa/sertifikat' => [
-        'controller' => MahasiswaDashboardController::class,
-        'method' => 'sertifikat',
+        'controller' => SertifikatController::class,
+        'method' => 'index',
     ],
 
     '/dashboard/mahasiswa/formasi-magang' => [
-        'controller' => MahasiswaDashboardController::class,
-        'method' => 'formasiMagang',
+        'controller' => FormasiMagangController::class,
+        'method' => 'index',
     ],
 
     '/dashboard/mahasiswa/pengajuan' => [
-        'controller' => MahasiswaDashboardController::class,
-        'method' => 'pengajuan',
+        'controller' => PengajuanController::class,
+        'method' => 'index',
     ],
 
     '/dashboard/mahasiswa/logbook' => [
-        'controller' => MahasiswaDashboardController::class,
-        'method' => 'logbook',
+        'controller' => LogbookController::class,
+        'method' => 'index',
     ],
 
 ];
@@ -193,32 +214,60 @@ function route($uri)
     }
 
     /*
-|-----------------------
-| Profil Mitra
-|-----------------------
-|
-| Contoh:
-| /mitra/detail/pt-semarsoft-technology-indonesia
-|
-*/
+    |-----------------------
+    | Profil Mitra
+    |-----------------------
+    |
+    | Contoh:
+    | /mitra/detail/pt-semarsoft-technology-indonesia
+    |
+    */
 
-if (preg_match(
-    '#^/mitra/detail/([^/]+)$#',
-    $path,
-    $matches
-)) {
+    if (preg_match(
+        '#^/mitra/detail/([^/]+)$#',
+        $path,
+        $matches
+    )) {
 
-    return [
-        'route' => [
-            'controller' => MitraProfilController::class,
-            'method' => 'index',
-        ],
+        return [
+            'route' => [
+                'controller' => MitraProfilController::class,
+                'method' => 'index',
+            ],
 
-        'params' => [
-            'slug' => $matches[1],
-        ],
-    ];
-}
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+    /*
+    |-----------------------
+    | Detail Pengajuan
+    |-----------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/pengajuan/detail/semarsoft
+    |
+    */
+
+    if (preg_match(
+        '#^/dashboard/mahasiswa/pengajuan/detail/([^/]+)$#',
+        $path,
+        $matches
+    )) {
+
+        return [
+            'route' => [
+                'controller' => PengajuanController::class,
+                'method' => 'detail',
+            ],
+
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
 
     /*
     |----------------------

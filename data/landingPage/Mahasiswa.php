@@ -30,13 +30,30 @@ function icon($name, $class = 'w-5 h-5') {
     return '<svg class="' . $class . '" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="' . ($p[$name] ?? '') . '"/></svg>';
 }
 
-function foto($m) {
-    $slug = strtolower(str_replace(' ', '', $m['nama']));
-    if (empty($m['foto']) && is_file(__DIR__ . "/../assets/images/mahasiswa/$slug.jpg")) return url("/assets/images/mahasiswa/$slug.jpg");;
-    return !empty($m['foto']) ? $m['foto']
-        : 'https://ui-avatars.com/api/?background=dbeafe&color=1d4ed8&size=256&name=' . urlencode($m['nama']);
-}
+function foto($m)
+{
+    $slug = strtolower(
+        str_replace(' ', '', $m['nama'])
+    );
 
+    // Jika ada URL foto yang diberikan langsung
+    if (!empty($m['foto'])) {
+        return $m['foto'];
+    }
+
+    // Jika ada file foto lokal berdasarkan nama mahasiswa
+    $fotoPath = __DIR__ .
+        "/../assets/images/mahasiswa/$slug.jpg";
+
+    if (is_file($fotoPath)) {
+        return url(
+            "/assets/images/mahasiswa/$slug.jpg"
+        );
+    }
+
+    // Tidak ada foto
+    return '';
+}
 $mahasiswa = [
     ['id'=>1,'nama'=>'Ahmad Rizki','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2025,
      'skills'=>['Web Development','UI/UX','Cloud Computing','Problem Solving'],'proyek'=>5,'sertifikat'=>2,
@@ -56,6 +73,82 @@ $mahasiswa = [
     ['id'=>6,'nama'=>'Nabila Rahma','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2023,'skills'=>['Cyber Security','Network','Linux'],'proyek'=>3,'sertifikat'=>2],
     ['id'=>7,'nama'=>'Dimas Saputra','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2025,'skills'=>['UI/UX','Product Design','Figma'],'proyek'=>4,'sertifikat'=>1],
     ['id'=>8,'nama'=>'Aisyah Fitri','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2024,'skills'=>['Artificial Intelligence','Data Science','Python','SQL'],'proyek'=>8,'sertifikat'=>5],
+    ['id'=>9,'nama'=>'Raka Aditya','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2025,
+    'skills'=>['Web Development','Laravel','PHP','MySQL'],'proyek'=>4,'sertifikat'=>2],
+
+   ['id'=>10,'nama'=>'Nadia Permata','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2025,
+    'skills'=>['UI/UX','Figma','JavaScript','Frontend Development'],'proyek'=>5,'sertifikat'=>3],
+
+   ['id'=>11,'nama'=>'Bagas Prakoso','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2024,
+    'skills'=>['Backend Development','Node.js','Express','PostgreSQL'],'proyek'=>6,'sertifikat'=>2],
+
+   ['id'=>12,'nama'=>'Citra Maharani','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2024,
+    'skills'=>['Data Science','Python','Machine Learning','Pandas'],'proyek'=>7,'sertifikat'=>4],
+
+   ['id'=>13,'nama'=>'Fajar Ramadhan','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2023,
+    'skills'=>['DevOps','Docker','Linux','CI/CD'],'proyek'=>6,'sertifikat'=>3],
+
+   ['id'=>14,'nama'=>'Intan Lestari','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2023,
+    'skills'=>['Mobile Development','Flutter','Dart','Firebase'],'proyek'=>5,'sertifikat'=>2],
+
+   ['id'=>15,'nama'=>'Yoga Pratama','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2022,
+    'skills'=>['Cyber Security','Network Security','Linux','Python'],'proyek'=>9,'sertifikat'=>5],
+
+   ['id'=>16,'nama'=>'Maya Salsabila','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2022,
+    'skills'=>['Cloud Computing','AWS','Docker','Kubernetes'],'proyek'=>8,'sertifikat'=>4],
+
+   ['id'=>17,'nama'=>'Daffa Kurniawan','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2025,
+    'skills'=>['Mobile Development','Kotlin','Android','Firebase'],'proyek'=>3,'sertifikat'=>1],
+
+   ['id'=>18,'nama'=>'Naufal Hakim','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2024,
+    'skills'=>['Artificial Intelligence','Computer Vision','Python','TensorFlow'],'proyek'=>7,'sertifikat'=>3],
+
+   ['id'=>19,'nama'=>'Siti Aulia','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2023,
+    'skills'=>['Software Testing','Quality Assurance','API Testing','Postman'],'proyek'=>5,'sertifikat'=>2],
+
+   ['id'=>20,'nama'=>'Reza Firmansyah','prodi'=>'D4 Teknik Informatika','jurusan'=>'Teknologi Informasi','angkatan'=>2022,
+    'skills'=>['Web Development','React','Next.js','TypeScript'],'proyek'=>8,'sertifikat'=>4],
+
+
+   // =========================================================
+   // D4 SISTEM INFORMASI BISNIS
+   // =========================================================
+
+   ['id'=>21,'nama'=>'Aldi Saputra','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2025,
+    'skills'=>['Business Analysis','Microsoft Excel','SQL','Documentation'],'proyek'=>4,'sertifikat'=>2],
+
+   ['id'=>22,'nama'=>'Bella Maharani','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2025,
+    'skills'=>['UI/UX','Figma','Product Design','User Research'],'proyek'=>5,'sertifikat'=>3],
+
+   ['id'=>23,'nama'=>'Kevin Pratama','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2024,
+    'skills'=>['Business Intelligence','Power BI','SQL','Data Analysis'],'proyek'=>7,'sertifikat'=>4],
+
+   ['id'=>24,'nama'=>'Nisa Rahmawati','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2024,
+    'skills'=>['Project Management','Scrum','Jira','Business Analysis'],'proyek'=>6,'sertifikat'=>3],
+
+   ['id'=>25,'nama'=>'Rizky Maulana','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2023,
+    'skills'=>['ERP','SAP','Business Process','Database'],'proyek'=>8,'sertifikat'=>4],
+
+   ['id'=>26,'nama'=>'Anisa Putri','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2023,
+    'skills'=>['Digital Marketing','SEO','Analytics','Content Strategy'],'proyek'=>5,'sertifikat'=>3],
+
+   ['id'=>27,'nama'=>'Galih Ramadhan','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2022,
+    'skills'=>['Business Intelligence','Tableau','Python','Data Visualization'],'proyek'=>9,'sertifikat'=>5],
+
+   ['id'=>28,'nama'=>'Vina Oktaviani','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2022,
+    'skills'=>['Product Management','Figma','Agile','Market Research'],'proyek'=>7,'sertifikat'=>4],
+
+   ['id'=>29,'nama'=>'Arif Hidayat','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2025,
+    'skills'=>['Database','SQL','Business Analysis','Power BI'],'proyek'=>4,'sertifikat'=>2],
+
+   ['id'=>30,'nama'=>'Salsa Amelia','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2024,
+    'skills'=>['UI/UX','Figma','Business Process','Prototyping'],'proyek'=>6,'sertifikat'=>3],
+
+   ['id'=>31,'nama'=>'Fikri Akbar','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2023,
+    'skills'=>['ERP','Oracle','SQL','Business Process'],'proyek'=>8,'sertifikat'=>4],
+
+   ['id'=>32,'nama'=>'Dinda Maharani','prodi'=>'D4 Sistem Informasi Bisnis','jurusan'=>'Teknologi Informasi','angkatan'=>2022,
+    'skills'=>['Data Analysis','Python','Excel','Power BI'],'proyek'=>7,'sertifikat'=>5],
 ];
 
 $extra = [

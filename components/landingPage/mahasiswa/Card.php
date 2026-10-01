@@ -7,11 +7,24 @@
             <!-- Identitas -->
             <div class="flex items-center gap-3 sm:gap-4 min-h-[64px]">
 
-                <img
-                    src="<?= e(foto($m)) ?>"
-                    alt="Foto <?= e($m['nama']) ?>"
-                    class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover bg-blue-50 shrink-0"
-                >
+                <?php $fotoMahasiswa = foto($m); ?>
+
+                <?php if (!empty($fotoMahasiswa)): ?>
+
+                    <img
+                        src="<?= e($fotoMahasiswa) ?>"
+                        alt="Foto <?= e($m['nama']) ?>"
+                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover bg-blue-50 shrink-0">
+
+                <?php else: ?>
+
+                    <div
+                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center font-semibold text-lg shrink-0"
+                        aria-label="Inisial <?= e($m['nama']) ?>">
+                        <?= e(initials($m['nama'])) ?>
+                    </div>
+
+                <?php endif; ?>
 
                 <div class="min-w-0 flex-1">
 
@@ -96,8 +109,7 @@
                     href="<?= url('/mahasiswa/profil/' . e($m['slug'])) ?>"
                     class="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-lg
                     border border-blue-500 bg-blue-50/60 text-blue-600 text-sm font-medium
-                    hover:bg-blue-100 transition"
-                >
+                    hover:bg-blue-100 transition">
                     Lihat Profil
                     <?= icon('arrow', 'w-4 h-4') ?>
                 </a>
