@@ -5,8 +5,8 @@ $active = $active ?? '';
 
 $navD = fn($k) =>
 $active === $k
-    ? 'relative h-full flex items-center text-sm font-semibold text-blue-600'
-    : 'h-full flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition';
+    ? 'relative h-full flex items-center text-sm font-semibold text-blue-600 whitespace-nowrap'
+    : 'h-full flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition whitespace-nowrap';
 
 
 $navM = fn($k) =>
@@ -40,29 +40,30 @@ $navLogin = url('/login');
 
 <nav class="fixed top-0 left-0 right-0 z-50 bg-white border-b border-gray-100">
 
-    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between gap-4">
 
         <!-- Logo -->
-        <a href="<?= url('/') ?>" class="flex items-center">
+        <a href="<?= url('/') ?>" class="flex items-center min-w-0">
             <img
                 src="<?= url('/assets/images/icon.png') ?>"
                 alt="VerifyMagang"
-                class="h-14 w-auto">
+                class="h-14 w-auto shrink-0">
 
-            <div class="ml-3 flex flex-col">
+            <div class="ml-3 flex flex-col min-w-0">
                 <h2 class="font-bold text-lg leading-tight">
                     VerifyMagang
                 </h2>
 
-                <p class="text-xs text-gray-500 mt-1">
+                <!-- Tagline disembunyikan di HP supaya tidak sesak -->
+                <p class="hidden sm:block text-xs text-gray-500 mt-1">
                     Portofolio Terverifikasi, Masa Depan Lebih Dekat
                 </p>
             </div>
         </a>
 
 
-        <!-- Desktop -->
-        <div class="hidden md:flex items-center gap-10 h-full">
+        <!-- Desktop (mulai 1024px) -->
+        <div class="hidden lg:flex items-center gap-6 xl:gap-10 h-full shrink-0">
 
             <?php foreach ($navLinks as [$key, $label, $href]): ?>
 
@@ -79,19 +80,19 @@ $navLogin = url('/login');
 
             <a
                 href="<?= $navLogin ?>"
-                class="ml-8 px-7 py-2.5 border border-blue-500 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-50 transition">
+                class="ml-2 xl:ml-8 px-6 xl:px-7 py-2.5 border border-blue-500 text-blue-600 rounded-md text-sm font-medium whitespace-nowrap hover:bg-blue-50 transition">
                 Masuk
             </a>
 
         </div>
 
 
-        <!-- Mobile Button -->
+        <!-- Mobile / Tablet Button -->
         <button
             id="menu-button"
             type="button"
             aria-label="Buka menu"
-            class="md:hidden p-2 text-gray-700 hover:text-blue-600">
+            class="lg:hidden p-2 text-gray-700 hover:text-blue-600 shrink-0">
 
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -114,13 +115,13 @@ $navLogin = url('/login');
     <!-- Overlay -->
     <div
         id="menu-overlay"
-        class="fixed inset-0 z-40 bg-black/30 opacity-0 invisible transition-all duration-300 md:hidden"></div>
+        class="fixed inset-0 z-40 bg-black/30 opacity-0 invisible transition-all duration-300 lg:hidden"></div>
 
 
-    <!-- Mobile Menu -->
+    <!-- Mobile / Tablet Menu -->
     <div
         id="mobile-menu"
-        class="fixed top-0 right-0 z-50 h-full w-[min(18rem,85vw)] bg-white shadow-xl translate-x-full transition-transform duration-300 md:hidden">
+        class="fixed top-0 right-0 z-50 h-full w-[min(18rem,85vw)] overflow-y-auto bg-white shadow-xl translate-x-full transition-transform duration-300 lg:hidden">
 
         <div class="p-6">
 
@@ -216,4 +217,10 @@ $navLogin = url('/login');
         'click',
         closeMobileMenu
     );
+
+
+    // Tutup menu otomatis saat layar membesar ke desktop
+    window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
+        if (e.matches) closeMobileMenu();
+    });
 </script>
