@@ -30,18 +30,22 @@ http_response_code(404);
 
         <div class="max-w-7xl mx-auto px-6 py-5">
 
-            <a
-                href="<?= url('/') ?>"
-                class="inline-flex items-center gap-3"
-            >
+            <a href="<?= url('/') ?>" class="flex items-center">
+            <img
+                src="<?= url('/assets/images/icon.png') ?>"
+                alt="VerifyMagang"
+                class="h-14 w-auto">
 
-                <img
-                    src="<?= url('/assets/images/logo.png') ?>"
-                    alt="MagangVerify"
-                    class="h-10 w-auto"
-                >
+            <div class="ml-3 flex flex-col">
+                <h2 class="font-bold text-lg leading-tight">
+                    VerifyMagang
+                </h2>
 
-            </a>
+                <p class="text-xs text-gray-500 mt-1">
+                    Portofolio Terverifikasi, Masa Depan Lebih Dekat
+                </p>
+            </div>
+        </a>
 
         </div>
 

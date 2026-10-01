@@ -1,7 +1,7 @@
 <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
     <a href="<?= url('/') ?>" class="flex items-center gap-3 min-w-0">
-        <!-- <img src="<?= url('/assets/images/logo.png') ?>" alt="Logo MagangVerify" class="h-12 w-auto"> -->
+        <img src="<?= url('/assets/images/icon.png') ?>" alt="Logo MagangVerify" class="h-12 w-auto">
 
         <div class="min-w-0">
             <p class="text-xl font-bold leading-tight text-slate-900">
