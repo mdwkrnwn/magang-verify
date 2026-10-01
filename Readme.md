@@ -1,6 +1,6 @@
-# VerifyMagang
+# MagangVerify
 
-Aplikasi web VerifyMagang menggunakan PHP Native.
+Aplikasi web MagangVerify menggunakan PHP Native.
 
 ## Menjalankan di Windows dengan Laragon
 

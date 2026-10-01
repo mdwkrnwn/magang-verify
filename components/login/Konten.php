@@ -7,7 +7,7 @@
     </h1>
 
     <p class="mt-5 max-w-md leading-7 text-slate-500">
-        Masuk untuk mengakses semua fitur VerifyMagang sesuai dengan peran Anda di kampus.
+        Masuk untuk mengakses semua fitur MagangVerify sesuai dengan peran Anda di kampus.
     </p>
 
     <?php

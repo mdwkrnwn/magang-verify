@@ -13,11 +13,11 @@ http_response_code(404);
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Halaman Tidak Ditemukan — VerifyMagang</title>
+    <title>Halaman Tidak Ditemukan — MagangVerify</title>
 
     <meta
         name="description"
-        content="Halaman yang Anda cari tidak ditemukan di VerifyMagang."
+        content="Halaman yang Anda cari tidak ditemukan di MagangVerify."
     >
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -37,7 +37,7 @@ http_response_code(404);
 
                 <img
                     src="<?= url('/assets/images/logo.png') ?>"
-                    alt="VerifyMagang"
+                    alt="MagangVerify"
                     class="h-10 w-auto"
                 >
 
@@ -176,7 +176,7 @@ http_response_code(404);
                 <div class="mt-10 pt-6 border-t border-slate-200">
 
                     <p class="text-xs text-slate-400">
-                        VerifyMagang · Portofolio Terverifikasi, Masa Depan Lebih Dekat
+                        MagangVerify · Portofolio Terverifikasi, Masa Depan Lebih Dekat
                     </p>
 
                 </div>

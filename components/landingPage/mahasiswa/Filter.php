@@ -66,17 +66,40 @@
         );
         ?>
 
-        <!-- Button -->
-        <button
-            type="submit"
-            class="sm:col-span-2 lg:col-span-1 h-11 px-6
+<?php
+// Variabel ini sudah dibuat oleh Process.php
+$adaFilter = $q !== '' || $fJurusan !== '' || $fProdi !== ''
+          || $fAngkatan !== '' || $fSkill !== '';
+?>
+
+<!-- Button -->
+<div class="sm:col-span-2 lg:col-span-1 flex gap-2">
+
+    <button
+        type="submit"
+        class="flex-1 h-11 px-6 whitespace-nowrap
+        inline-flex items-center justify-center gap-2
+        rounded-lg bg-blue-600 text-white text-sm font-medium
+        hover:bg-blue-700 transition"
+    >
+        <?= icon('filter', 'w-4 h-4') ?>
+        Terapkan Filter
+    </button>
+
+    <?php if ($adaFilter): ?>
+        <a
+            href="<?= url('/mahasiswa') ?>"
+            class="h-11 px-4 whitespace-nowrap
             inline-flex items-center justify-center gap-2
-            rounded-lg bg-blue-600 text-white text-sm font-medium
-            hover:bg-blue-700 transition"
+            rounded-lg border border-slate-200 bg-stone-* text-slate-600 text-sm font-medium
+            hover:bg-slate-50 transition"
         >
-            <?= icon('filter', 'w-4 h-4') ?>
-            Terapkan Filter
-        </button>
+            <?= icon('reset', 'w-4 h-4') ?>
+            Reset
+        </a>
+    <?php endif; ?>
+
+</div>
 
         <input
             type="hidden"

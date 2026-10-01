@@ -2,7 +2,7 @@
     <div class="rounded-3xl bg-white/90 p-6 sm:p-10 shadow-xl shadow-blue-900/5 ring-1 ring-blue-50">
 
         <h2 class="text-3xl font-bold text-slate-900">
-            Masuk ke VerifyMagang
+            Masuk ke MagangVerify
         </h2>
 
         <p class="mt-2 text-sm text-slate-500">

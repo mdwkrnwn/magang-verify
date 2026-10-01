@@ -22,7 +22,7 @@
 
                 <!-- Description -->
                 <p class="mt-5 max-w-lg text-sm sm:text-base leading-6 text-slate-500">
-                    VerifyMagang adalah platform yang menghubungkan
+                    MagangVerify adalah platform yang menghubungkan
                     mahasiswa, kampus, dan mitra industri dalam satu ekosistem
                     untuk pengelolaan portofolio dan proses magang.
                 </p>
@@ -58,7 +58,7 @@
 
                 <img
                     src="<?= url('/assets/images/hero.png') ?>"
-                    alt="Mahasiswa VerifyMagang"
+                    alt="Mahasiswa MagangVerify"
                     class="relative z-10 w-auto max-w-full max-h-[400px] sm:max-h-[450px] lg:max-h-[500px] object-contain"
                 >
 

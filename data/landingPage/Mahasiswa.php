@@ -11,7 +11,7 @@ function icon($name, $class = 'w-5 h-5') {
         'right' => 'm8.25 4.5 7.5 7.5-7.5 7.5',
         'shield' => 'M9 12.75 11.25 15 15 9.75m-3-7A12 12 0 0 1 3.6 6 12 12 0 0 0 3 9.75c0 5.6 3.8 10.3 9 11.6 5.2-1.3 9-6 9-11.6 0-1.3-.2-2.6-.6-3.75h-.15A12 12 0 0 1 12 2.7Z',
         'briefcase' => 'M3.75 7.5h16.5v11.25H3.75zM8.25 7.5V5.25h7.5V7.5M3.75 12.75h16.5',
-        'award' => 'M12 3.75a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0 9ZM8.5 12.5l-1 7.75L12 18l4.5 2.25-1-7.75',
+        'award' => 'M12 3.75a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9ZM8.5 12.5l-1 7.75L12 18l4.5 2.25-1-7.75',
         'user' => 'M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.1a7.5 7.5 0 0 1 15 0',
         'folder' => 'M3.75 6.75h6l1.5 2.25h9v9.75h-16.5z',
         'layers' => 'M12 3 3 8l9 5 9-5-9-5ZM3 12.5l9 5 9-5M3 16.5l9 5 9-5',
@@ -32,7 +32,7 @@ function icon($name, $class = 'w-5 h-5') {
 
 function foto($m) {
     $slug = strtolower(str_replace(' ', '', $m['nama']));
-    if (empty($m['foto']) && is_file(__DIR__ . "/../assets/images/mahasiswa/$slug.jpg")) return "../assets/images/mahasiswa/$slug.jpg";
+    if (empty($m['foto']) && is_file(__DIR__ . "/../assets/images/mahasiswa/$slug.jpg")) return url("/assets/images/mahasiswa/$slug.jpg");;
     return !empty($m['foto']) ? $m['foto']
         : 'https://ui-avatars.com/api/?background=dbeafe&color=1d4ed8&size=256&name=' . urlencode($m['nama']);
 }

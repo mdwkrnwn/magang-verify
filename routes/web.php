@@ -5,6 +5,9 @@ require_once __DIR__ . '/../controllers/MahasiswaController.php';
 require_once __DIR__ . '/../controllers/MahasiswaProfilController.php';
 require_once __DIR__ . '/../controllers/LoginController.php';
 require_once __DIR__ . '/../controllers/MahasiswaDashboardController.php';
+require_once __DIR__ . '/../controllers/MitraController.php';
+require_once __DIR__ . '/../controllers/MitraProfilController.php';
+require_once __DIR__ . '/../controllers/TentangController.php';
 
 $routes = [
 
@@ -31,6 +34,26 @@ $routes = [
         'method' => 'index',
     ],
 
+    /*
+    |---------------------
+    | Mitra
+    |---------------------
+    */
+
+    '/mitra' => [
+        'controller' => MitraController::class,
+        'method' => 'index',
+    ],
+
+    '/mitra/detail' => [
+        'controller' => MitraProfilController::class,
+        'method' => 'index',
+    ],
+
+    '/tentang' => [
+        'controller' => TentangController::class,
+        'method' => 'index',
+    ],
 
     /*
     |---------------------
@@ -169,6 +192,33 @@ function route($uri)
         ];
     }
 
+    /*
+|-----------------------
+| Profil Mitra
+|-----------------------
+|
+| Contoh:
+| /mitra/detail/pt-semarsoft-technology-indonesia
+|
+*/
+
+if (preg_match(
+    '#^/mitra/detail/([^/]+)$#',
+    $path,
+    $matches
+)) {
+
+    return [
+        'route' => [
+            'controller' => MitraProfilController::class,
+            'method' => 'index',
+        ],
+
+        'params' => [
+            'slug' => $matches[1],
+        ],
+    ];
+}
 
     /*
     |----------------------

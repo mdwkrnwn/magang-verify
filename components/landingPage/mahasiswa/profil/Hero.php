@@ -9,15 +9,12 @@
         class="hidden lg:block absolute right-0 top-0 h-full w-1/3 object-cover opacity-70 [mask-image:linear-gradient(to_right,transparent,black)]"
     >
 
-
     <div class="relative flex flex-col md:flex-row items-center md:items-start gap-5 sm:gap-6 md:gap-10">
-
         <img
             src="<?= e(foto($m)) ?>"
             alt="Foto <?= e($m['nama']) ?>"
             class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full object-cover border-4 border-white shadow bg-blue-100 shrink-0"
         >
-
 
         <div class="min-w-0 w-full text-center md:text-left">
 

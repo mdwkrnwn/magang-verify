@@ -58,7 +58,7 @@
             <div class="flex-shrink-0">
 
                 <a
-                    href="#"
+                    href="<?=url('login')?>"
                     class="inline-flex items-center justify-center
                            px-7 py-3 bg-blue-600 text-white
                            text-sm font-semibold rounded-md

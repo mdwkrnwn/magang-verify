@@ -9,7 +9,7 @@
                     alt="VerifyMagang"
                     class="h-14 w-auto"
                 >
-
+                
                 <div class="ml-3 flex flex-col w-max">
                     <h2 class="font-bold text-lg leading-tight">
                         VerifyMagang
@@ -130,7 +130,7 @@
         <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col items-center justify-center gap-2 text-xs text-slate-500 text-center">
 
             <span>
-                © <?= date('Y') ?> VerifyMagang. All rights reserved.
+                © <?= date('Y') ?> MagangVerify. All rights reserved.
             </span>
 
             <span class="flex items-center justify-center gap-5">

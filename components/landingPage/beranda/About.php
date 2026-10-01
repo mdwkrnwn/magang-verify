@@ -31,7 +31,7 @@
 
                 <!-- Button -->
                 <a
-                    href="#"
+                    href="<?=url('/tentang')?>"
                     class="inline-flex items-center mt-5 justify-center gap-2
                            px-5 py-4 bg-blue-600 text-white text-sm font-medium
                            rounded-md hover:bg-blue-700 transition">
