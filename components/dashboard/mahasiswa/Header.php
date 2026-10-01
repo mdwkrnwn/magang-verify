@@ -1,43 +1,49 @@
-<header class="fixed top-0 right-0 z-30 h-20 bg-white border-b border-gray-200 left-64">
+<header class="fixed inset-x-0 top-0 z-30 h-20 bg-white border-b border-gray-200 lg:left-64">
 
-    <div class="flex items-center justify-end h-full px-8">
+    <div class="flex items-center justify-between h-full px-4 sm:px-8">
+
+        <!-- Hamburger (hanya mobile/tablet) -->
+        <button
+            id="sidebar-toggle"
+            type="button"
+            aria-label="Buka menu"
+            class="flex items-center justify-center text-gray-600 transition bg-white border border-gray-200 w-11 h-11 rounded-xl hover:bg-gray-50 lg:hidden">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
 
         <!-- Right -->
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-3 ml-auto sm:gap-6">
 
             <!-- Notification -->
             <button
                 type="button"
-                class="relative flex items-center justify-center w-11 h-11 text-gray-500 transition bg-white border border-gray-200 rounded-xl hover:bg-gray-50"
-            >
+                class="relative flex items-center justify-center text-gray-500 transition bg-white border border-gray-200 w-11 h-11 rounded-xl hover:bg-gray-50">
 
                 <svg
                     class="w-5 h-5"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
+                    viewBox="0 0 24 24">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
-                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
-                    />
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
 
                 <!-- Notification indicator -->
-                <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                <span class="absolute w-2 h-2 bg-red-500 rounded-full top-2 right-2"></span>
 
             </button>
 
-
             <!-- Profile -->
-            <div class="flex items-center gap-3 pl-6 border-l border-gray-200">
+            <div class="flex items-center gap-3 pl-3 border-l border-gray-200 sm:pl-6">
 
                 <!-- Avatar -->
                 <div
-                    class="flex items-center justify-center w-11 h-11 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full"
-                >
+                    class="flex items-center justify-center text-sm font-semibold text-blue-600 bg-blue-100 rounded-full w-11 h-11 shrink-0">
                     AR
                 </div>
 
@@ -56,17 +62,15 @@
 
                 <!-- Dropdown Icon -->
                 <svg
-                    class="w-4 h-4 ml-1 text-gray-400"
+                    class="hidden w-4 h-4 ml-1 text-gray-400 sm:block"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24"
-                >
+                    viewBox="0 0 24 24">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         stroke-width="2"
-                        d="M19 9l-7 7-7-7"
-                    />
+                        d="M19 9l-7 7-7-7" />
                 </svg>
 
             </div>

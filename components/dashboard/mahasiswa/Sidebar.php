@@ -1,7 +1,10 @@
-<aside class="fixed top-0 left-0 z-40 w-64 h-screen bg-white border-r border-gray-200">
+<aside
+    id="sidebar"
+    class="fixed inset-y-0 left-0 z-40 flex flex-col w-64 max-w-[85vw] bg-white border-r border-gray-200
+           -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
 
     <!-- Logo -->
-    <div class="flex items-center h-20 px-7 border-b border-gray-100">
+    <div class="flex items-center h-20 px-7 border-b border-gray-100 shrink-0">
         <div class="flex items-center gap-3">
 
             <!-- Logo -->
@@ -26,7 +29,7 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="px-4 py-6">
+    <nav class="flex-1 min-h-0 px-4 py-6 overflow-y-auto overscroll-contain">
 
         <p class="px-3 mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase">
             Menu Utama
@@ -258,3 +261,45 @@
     </nav>
 
 </aside>
+
+<!-- Overlay (mobile/tablet) -->
+<div
+    id="sidebar-overlay"
+    class="fixed inset-0 z-[35] hidden bg-black/50 lg:hidden"></div>
+
+<script>
+    (function () {
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        if (!sidebar || !overlay) return;
+
+        const open = () => {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        };
+
+        const close = () => {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        };
+
+        // Tombol hamburger ada di Header.php, jadi pakai event delegation
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#sidebar-toggle')) open();
+        });
+
+        overlay.addEventListener('click', close);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') close();
+        });
+
+        // Tutup drawer saat layar membesar ke desktop
+        window.matchMedia('(min-width: 1024px)').addEventListener('change', (e) => {
+            if (e.matches) close();
+        });
+    })();
+</script>
