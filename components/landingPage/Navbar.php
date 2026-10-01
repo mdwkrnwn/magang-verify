@@ -4,15 +4,15 @@ $active = $active ?? '';
 
 
 $navD = fn($k) =>
-    $active === $k
-        ? 'relative h-full flex items-center text-sm font-semibold text-blue-600'
-        : 'h-full flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition';
+$active === $k
+    ? 'relative h-full flex items-center text-sm font-semibold text-blue-600'
+    : 'h-full flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition';
 
 
 $navM = fn($k) =>
-    $active === $k
-        ? 'block py-3 text-sm font-semibold text-blue-600'
-        : 'block py-3 text-sm font-medium text-gray-700 hover:text-blue-600';
+$active === $k
+    ? 'block py-3 text-sm font-semibold text-blue-600'
+    : 'block py-3 text-sm font-medium text-gray-700 hover:text-blue-600';
 
 
 $navUnderline =
@@ -45,10 +45,19 @@ $navLogin = url('/login');
         <!-- Logo -->
         <a href="<?= url('/') ?>" class="flex items-center">
             <img
-                src="<?= url('/assets/images/logo.png') ?>"
+                src="<?= url('/assets/images/icon.png') ?>"
                 alt="VerifyMagang"
-                class="h-11 w-auto"
-            >
+                class="h-14 w-auto">
+
+            <div class="ml-3 flex flex-col">
+                <h2 class="font-bold text-lg leading-tight">
+                    VerifyMagang
+                </h2>
+
+                <p class="text-xs text-gray-500 mt-1">
+                    Portofolio Terverifikasi, Masa Depan Lebih Dekat
+                </p>
+            </div>
         </a>
 
 
@@ -59,8 +68,7 @@ $navLogin = url('/login');
 
                 <a
                     href="<?= $href ?>"
-                    class="<?= $navD($key) ?>"
-                >
+                    class="<?= $navD($key) ?>">
                     <?= $label ?>
 
                     <?= $active === $key ? $navUnderline : '' ?>
@@ -71,8 +79,7 @@ $navLogin = url('/login');
 
             <a
                 href="<?= $navLogin ?>"
-                class="ml-8 px-7 py-2.5 border border-blue-500 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-50 transition"
-            >
+                class="ml-8 px-7 py-2.5 border border-blue-500 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-50 transition">
                 Masuk
             </a>
 
@@ -84,8 +91,7 @@ $navLogin = url('/login');
             id="menu-button"
             type="button"
             aria-label="Buka menu"
-            class="md:hidden p-2 text-gray-700 hover:text-blue-600"
-        >
+            class="md:hidden p-2 text-gray-700 hover:text-blue-600">
 
             <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -93,13 +99,11 @@ $navLogin = url('/login');
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
-                stroke-width="2"
-            >
+                stroke-width="2">
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    d="M4 6h16M4 12h16M4 18h16"
-                />
+                    d="M4 6h16M4 12h16M4 18h16" />
             </svg>
 
         </button>
@@ -110,15 +114,13 @@ $navLogin = url('/login');
     <!-- Overlay -->
     <div
         id="menu-overlay"
-        class="fixed inset-0 z-40 bg-black/30 opacity-0 invisible transition-all duration-300 md:hidden"
-    ></div>
+        class="fixed inset-0 z-40 bg-black/30 opacity-0 invisible transition-all duration-300 md:hidden"></div>
 
 
     <!-- Mobile Menu -->
     <div
         id="mobile-menu"
-        class="fixed top-0 right-0 z-50 h-full w-[min(18rem,85vw)] bg-white shadow-xl translate-x-full transition-transform duration-300 md:hidden"
-    >
+        class="fixed top-0 right-0 z-50 h-full w-[min(18rem,85vw)] bg-white shadow-xl translate-x-full transition-transform duration-300 md:hidden">
 
         <div class="p-6">
 
@@ -128,8 +130,7 @@ $navLogin = url('/login');
                     id="close-menu"
                     type="button"
                     aria-label="Tutup menu"
-                    class="p-2 text-gray-600 hover:text-blue-600"
-                >
+                    class="p-2 text-gray-600 hover:text-blue-600">
                     ✕
                 </button>
 
@@ -142,8 +143,7 @@ $navLogin = url('/login');
 
                     <a
                         href="<?= $href ?>"
-                        class="<?= $navM($key) ?>"
-                    >
+                        class="<?= $navM($key) ?>">
                         <?= $label ?>
                     </a>
 
@@ -152,8 +152,7 @@ $navLogin = url('/login');
 
                 <a
                     href="<?= $navLogin ?>"
-                    class="block text-center mt-5 px-5 py-2.5 border border-blue-500 text-blue-600 rounded-md text-sm font-medium"
-                >
+                    class="block text-center mt-5 px-5 py-2.5 border border-blue-500 text-blue-600 rounded-md text-sm font-medium">
                     Masuk
                 </a>
 
@@ -167,7 +166,6 @@ $navLogin = url('/login');
 
 
 <script>
-
     const menuButton = document.getElementById('menu-button');
     const mobileMenu = document.getElementById('mobile-menu');
     const closeMenu = document.getElementById('close-menu');
@@ -218,5 +216,4 @@ $navLogin = url('/login');
         'click',
         closeMobileMenu
     );
-
 </script>

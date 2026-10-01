@@ -47,7 +47,7 @@
             <div class="flex justify-center lg:justify-end">
 
                 <img
-                    src="/images/tentang-verify-magang.png"
+                 src="<?= url('/assets/images/about.png') ?>"
                     alt="Tentang VerifyMagang"
                     class="w-full max-w-lg object-contain"
                 >

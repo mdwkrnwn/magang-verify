@@ -3,20 +3,16 @@
     <!-- Logo -->
     <div class="flex items-center h-20 px-7 border-b border-gray-100">
         <div class="flex items-center gap-3">
-            <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-600">
-                <svg
-                    class="w-6 h-6 text-white"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622C17.176 19.29 21 14.591 21 9c0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
+
+            <!-- Logo -->
+            <div class="flex items-center justify-center w-10 h-10 rounded-xl overflow-hidden">
+                <img
+                    src="<?= url('/assets/images/icon.png') ?>"
+                    alt="VerifyMagang"
+                    class="w-14 h-14 object-contain">
             </div>
 
+            <!-- Nama -->
             <div>
                 <h1 class="text-lg font-bold text-gray-900">
                     VerifyMagang
@@ -25,6 +21,7 @@
                     Mahasiswa
                 </p>
             </div>
+
         </div>
     </div>
 
@@ -192,8 +189,8 @@
                 href="<?= url('/dashboard/mahasiswa/logbook') ?>"
                 class="flex items-center gap-3 px-4 py-3 rounded-xl
        <?= $active === 'logbook'
-        ? 'bg-blue-50 text-blue-600 font-semibold'
-        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+            ? 'bg-blue-50 text-blue-600 font-semibold'
+            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
                 <svg
                     class="w-5 h-5 shrink-0"
                     fill="none"

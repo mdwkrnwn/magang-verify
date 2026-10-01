@@ -43,27 +43,23 @@
                             <button
                                 type="button"
                                 class="absolute bottom-1 right-1 flex items-center justify-center w-10 h-10 text-white transition bg-blue-600 border-4 border-white rounded-full shadow-sm hover:bg-blue-700"
-                                title="Edit foto profil"
-                            >
+                                title="Edit foto profil">
                                 <svg
                                     class="w-5 h-5"
                                     fill="none"
                                     stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
+                                    viewBox="0 0 24 24">
                                     <path
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
                                         stroke-width="2"
-                                        d="M3 7h2l2-3h6l2 3h4a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z"
-                                    />
+                                        d="M3 7h2l2-3h6l2 3h4a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z" />
 
                                     <circle
                                         cx="12"
                                         cy="13"
                                         r="3"
-                                        stroke-width="2"
-                                    />
+                                        stroke-width="2" />
                                 </svg>
                             </button>
 
@@ -77,12 +73,18 @@
                                 Ahmad Rizki
                             </h2>
 
-                            <p class="mt-1 text-sm text-gray-500">
-                                234567890
-                            </p>
+                            <div class="">
 
-                            <span class="inline-flex px-3 py-1 mt-3 text-xs font-semibold text-green-700 bg-green-50 rounded-full">
-                                Mahasiswa
+
+                                
+                                <p class="mt-1 text-sm text-gray-500">
+                                   NIM 234567890
+                                </p>
+
+                            </div>
+
+                            <span class="inline-flex px-3 py-1 mt-3 text-xs font-semibold text-[#4B94FE] bg-[#E3F0FE] rounded-full">
+                                Mahasiswa Aktif 
                             </span>
 
                         </div>
@@ -95,7 +97,7 @@
 
 
                     <!-- Pendidikan -->
-                    <div class="space-y-5">
+                    <div class="space-y-5 bg-[#EFF7FE] rounded-lg p-6">
 
                         <div>
 
@@ -156,21 +158,18 @@
                         <button
                             type="button"
                             class="flex items-center justify-center w-10 h-10 text-gray-500 transition border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-blue-600"
-                            title="Edit data diri"
-                        >
+                            title="Edit data diri">
 
                             <svg
                                 class="w-5 h-5"
                                 fill="none"
                                 stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
+                                viewBox="0 0 24 24">
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
-                                />
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                             </svg>
 
                         </button>
@@ -279,14 +278,12 @@
                                             class="w-4 h-4"
                                             fill="none"
                                             stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
+                                            viewBox="0 0 24 24">
                                             <path
                                                 stroke-linecap="round"
                                                 stroke-linejoin="round"
                                                 stroke-width="2"
-                                                d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                                            />
+                                                d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                         </svg>
 
                                     </div>
@@ -315,14 +312,12 @@
                                             class="w-4 h-4"
                                             fill="none"
                                             stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
+                                            viewBox="0 0 24 24">
                                             <path
                                                 stroke-linecap="round"
                                                 stroke-linejoin="round"
                                                 stroke-width="2"
-                                                d="M3 5a2 2 0 012-2h3.28a2 2 0 011.789 1.106l1.063 2.126a2 2 0 01-.363 2.31L9.5 9.81a16.016 16.016 0 006.69 6.69l1.268-1.269a2 2 0 012.31-.363l2.126 1.063A2 2 0 0123 17.72V21a2 2 0 01-2 2h-1C10.163 23 1 13.837 1 3V2a2 2 0 012-2z"
-                                            />
+                                                d="M3 5a2 2 0 012-2h3.28a2 2 0 011.789 1.106l1.063 2.126a2 2 0 01-.363 2.31L9.5 9.81a16.016 16.016 0 006.69 6.69l1.268-1.269a2 2 0 012.31-.363l2.126 1.063A2 2 0 0123 17.72V21a2 2 0 01-2 2h-1C10.163 23 1 13.837 1 3V2a2 2 0 012-2z" />
                                         </svg>
 
                                     </div>
@@ -351,31 +346,27 @@
                                             class="w-4 h-4"
                                             fill="none"
                                             stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                        >
+                                            viewBox="0 0 24 24">
                                             <rect
                                                 x="3"
                                                 y="3"
                                                 width="18"
                                                 height="18"
                                                 rx="5"
-                                                stroke-width="2"
-                                            />
+                                                stroke-width="2" />
 
                                             <circle
                                                 cx="12"
                                                 cy="12"
                                                 r="4"
-                                                stroke-width="2"
-                                            />
+                                                stroke-width="2" />
 
                                             <circle
                                                 cx="17.5"
                                                 cy="6.5"
                                                 r="1"
                                                 fill="currentColor"
-                                                stroke="none"
-                                            />
+                                                stroke="none" />
                                         </svg>
 
                                     </div>
@@ -418,21 +409,18 @@
                         <button
                             type="button"
                             class="flex items-center justify-center w-10 h-10 text-gray-500 transition border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-blue-600"
-                            title="Edit bio"
-                        >
+                            title="Edit bio">
 
                             <svg
                                 class="w-5 h-5"
                                 fill="none"
                                 stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
+                                viewBox="0 0 24 24">
                                 <path
                                     stroke-linecap="round"
                                     stroke-linejoin="round"
                                     stroke-width="2"
-                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
-                                />
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
                             </svg>
 
                         </button>

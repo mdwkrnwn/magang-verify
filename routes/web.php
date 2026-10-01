@@ -57,25 +57,25 @@ $routes = [
         'method' => 'portofolio',
     ],
 
-    // '/dashboard/mahasiswa/sertifikat' => [
-    //     'controller' => MahasiswaDashboardController::class,
-    //     'method' => 'sertifikat',
-    // ],
+    '/dashboard/mahasiswa/sertifikat' => [
+        'controller' => MahasiswaDashboardController::class,
+        'method' => 'sertifikat',
+    ],
 
-    // '/dashboard/mahasiswa/formasi-magang' => [
-    //     'controller' => MahasiswaDashboardController::class,
-    //     'method' => 'formasiMagang',
-    // ],
+    '/dashboard/mahasiswa/formasi-magang' => [
+        'controller' => MahasiswaDashboardController::class,
+        'method' => 'formasiMagang',
+    ],
 
-    // '/dashboard/mahasiswa/pengajuan' => [
-    //     'controller' => MahasiswaDashboardController::class,
-    //     'method' => 'pengajuan',
-    // ],
+    '/dashboard/mahasiswa/pengajuan' => [
+        'controller' => MahasiswaDashboardController::class,
+        'method' => 'pengajuan',
+    ],
 
-    // '/dashboard/mahasiswa/logbook' => [
-    //     'controller' => MahasiswaDashboardController::class,
-    //     'method' => 'logbook',
-    // ],
+    '/dashboard/mahasiswa/logbook' => [
+        'controller' => MahasiswaDashboardController::class,
+        'method' => 'logbook',
+    ],
 
 ];
 

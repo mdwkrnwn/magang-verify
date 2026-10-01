@@ -4,24 +4,26 @@ $mahasiswaUnggulan = [
     [
         'nama' => 'Ahmad Rizki',
         'jurusan' => 'D4 Teknik Informatika',
-        'foto' => 'assets/images/ahmad.jpg',
+        'foto' => 'https://api.dicebear.com/10.x/lorelei/svg?seed=Ahmad-Rizki',
         'keahlian' => ['Web Development', 'UI/UX'],
         'link' => '#'
     ],
+
     [
         'nama' => 'Salsabila Putri',
         'jurusan' => 'D4 Teknik Informatika',
-        'foto' => 'assets/images/salsabila.jpg',
+        'foto' => 'https://api.dicebear.com/10.x/lorelei/svg?seed=Salsabila-Putri',
         'keahlian' => ['Data Analysis', 'Machine Learning'],
         'link' => '#'
     ],
+
     [
         'nama' => 'Farhan Maulana',
         'jurusan' => 'D4 Teknik Informatika',
-        'foto' => 'assets/images/farhan.jpg',
+        'foto' => 'https://api.dicebear.com/10.x/lorelei/svg?seed=Farhan-Maulana',
         'keahlian' => ['Mobile Development', 'Database'],
         'link' => '#'
-    ],
+    ],      
     //  [
     //     'nama' => 'Farhan Maulana',
     //     'jurusan' => 'D4 Teknik Informatika',

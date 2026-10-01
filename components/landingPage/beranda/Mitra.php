@@ -1,4 +1,4 @@
-<section class="py-16 w-full overflow-hidden">
+<section class="py-16 max-w-7xl mx-auto overflow-hidden">
     <div class="w-full mx-auto px-6">
 
         <div class="text-center">
@@ -23,97 +23,108 @@
 
         <!-- Logo Slider -->
         <div class="mt-12 relative overflow-hidden">
-
             <div class="flex animate-slide gap-6 w-max">
 
-                <!-- Logo -->
+                <!-- Logo Mitra -->
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-1.png"
-                         alt="Logo Perusahaan 1"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/dicoding.png') ?>"
+                        alt="Dicoding"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
 
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-2.png"
-                         alt="Logo Perusahaan 2"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/freeport.png') ?>"
+                        alt="Freeport"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
 
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-3.png"
-                         alt="Logo Perusahaan 3"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/gojek.png') ?>"
+                        alt="Gojek"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
 
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-4.png"
-                         alt="Logo Perusahaan 4"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/otsuka.png') ?>"
+                        alt="Otsuka"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
 
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-5.png"
-                         alt="Logo Perusahaan 5"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/pertamina.png') ?>"
+                        alt="Pertamina"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
 
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-6.png"
-                         alt="Logo Perusahaan 6"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/telkom.png') ?>"
+                        alt="Telkom"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
+
 
                 <!-- Duplikasi untuk infinite animation -->
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-1.png"
-                         alt="Logo Perusahaan 1"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/dicoding.png') ?>"
+                        alt="Dicoding"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
 
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-2.png"
-                         alt="Logo Perusahaan 2"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/freeport.png') ?>"
+                        alt="Freeport"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
 
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-3.png"
-                         alt="Logo Perusahaan 3"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/gojek.png') ?>"
+                        alt="Gojek"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
 
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-4.png"
-                         alt="Logo Perusahaan 4"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/otsuka.png') ?>"
+                        alt="Otsuka"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
 
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-5.png"
-                         alt="Logo Perusahaan 5"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/pertamina.png') ?>"
+                        alt="Pertamina"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
 
                 <div class="w-44 h-24 flex-shrink-0 flex items-center justify-center
-                            rounded-xl border border-slate-200 bg-white">
-                    <img src="/images/logo-6.png"
-                         alt="Logo Perusahaan 6"
-                         class="max-w-[120px] max-h-[60px] object-contain">
+                    rounded-xl  bg-white">
+                    <img
+                        src="<?= url('/assets/images/mitra/telkom.png') ?>"
+                        alt="Telkom"
+                        class="max-w-[120px] max-h-[60px] object-contain">
                 </div>
 
             </div>
-
         </div>
     </div>
 </section>
