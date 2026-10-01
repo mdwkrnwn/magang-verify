@@ -1,22 +1,21 @@
-<main class="min-h-screen pt-20 ml-64 bg-slate-50">
+<main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
 
-    <div class="px-8 py-8 mx-auto max-w-[1600px]">
+    <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-[1600px]">
 
         <!-- Page Header -->
-        <div class="mb-8">
+        <div class="mb-6 sm:mb-8">
 
-            <h1 class="text-3xl font-bold tracking-tight text-gray-900">
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
                 Formasi Magang
             </h1>
 
-            <p class="mt-2 text-base text-gray-500">
+            <p class="mt-2 text-sm text-gray-500 sm:text-base">
                 Tentukan posisi magang yang sensual dengan minat dan keahlian anda.
             </p>
 
         </div>
 
-
-        
+        <?php include __DIR__ . "/../Footer.php"; ?>        
 
     </div>
 

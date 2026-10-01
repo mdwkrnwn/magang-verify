@@ -1,15 +1,15 @@
-<main class="min-h-screen pt-20 ml-64 bg-slate-50">
+<main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
 
-    <div class="px-8 py-8 mx-auto max-w-[1600px]">
+    <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-[1600px]">
 
         <!-- Page Header -->
-        <div class="mb-8">
+        <div class="mb-6 sm:mb-8">
 
-            <h1 class="text-3xl font-bold tracking-tight text-gray-900">
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
                 Profil Saya
             </h1>
 
-            <p class="mt-2 text-base text-gray-500">
+            <p class="mt-2 text-sm text-gray-500 sm:text-base">
                 Kelola informasi pribadi Anda
             </p>
 
@@ -17,14 +17,14 @@
 
 
         <!-- Profile Grid -->
-        <div class="grid grid-cols-1 gap-6 xl:grid-cols-12">
+        <div class="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-12">
 
             <!-- ================================================= -->
             <!-- KOLOM 1 : PROFILE -->
             <!-- ================================================= -->
             <div class="xl:col-span-3">
 
-                <div class="h-full p-7 bg-white border border-gray-100 shadow-sm rounded-2xl">
+                <div class="h-full p-5 bg-white border border-gray-100 shadow-sm sm:p-7 rounded-2xl">
 
                     <!-- Foto -->
                     <div class="flex flex-col items-center">
@@ -69,22 +69,22 @@
                         <!-- Identitas -->
                         <div class="mt-5 text-center">
 
-                            <h2 class="text-xl font-bold text-gray-900">
+                            <h2 class="text-xl font-bold text-gray-900 break-words">
                                 Ahmad Rizki
                             </h2>
 
                             <div class="">
 
 
-                                
+
                                 <p class="mt-1 text-sm text-gray-500">
-                                   NIM 234567890
+                                    NIM 234567890
                                 </p>
 
                             </div>
 
                             <span class="inline-flex px-3 py-1 mt-3 text-xs font-semibold text-[#4B94FE] bg-[#E3F0FE] rounded-full">
-                                Mahasiswa Aktif 
+                                Mahasiswa Aktif
                             </span>
 
                         </div>
@@ -93,11 +93,11 @@
 
 
                     <!-- Divider -->
-                    <div class="my-7 border-t border-gray-100"></div>
+                    <div class="my-6 border-t border-gray-100 sm:my-7"></div>
 
 
                     <!-- Pendidikan -->
-                    <div class="space-y-5 bg-[#EFF7FE] rounded-lg p-6">
+                    <div class="space-y-5 bg-[#EFF7FE] rounded-lg p-5 sm:p-6">
 
                         <div>
 
@@ -136,12 +136,12 @@
             <!-- ================================================= -->
             <div class="xl:col-span-6">
 
-                <div class="h-full p-7 bg-white border border-gray-100 shadow-sm rounded-2xl">
+                <div class="h-full p-5 bg-white border border-gray-100 shadow-sm sm:p-7 rounded-2xl">
 
                     <!-- Header -->
-                    <div class="flex items-center justify-between mb-7">
+                    <div class="flex items-start justify-between gap-3 mb-6 sm:mb-7">
 
-                        <div>
+                        <div class="min-w-0">
 
                             <h2 class="text-lg font-bold text-gray-900">
                                 Data Diri
@@ -157,7 +157,7 @@
                         <!-- Edit Data -->
                         <button
                             type="button"
-                            class="flex items-center justify-center w-10 h-10 text-gray-500 transition border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-blue-600"
+                            class="flex items-center justify-center w-10 h-10 text-gray-500 transition border border-gray-200 rounded-xl shrink-0 hover:bg-gray-50 hover:text-blue-600"
                             title="Edit data diri">
 
                             <svg
@@ -185,10 +185,10 @@
                         </h3>
 
 
-                        <div class="grid grid-cols-1 gap-x-8 gap-y-6 md:grid-cols-2">
+                        <div class="grid grid-cols-1 gap-x-6 gap-y-5 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-6">
 
                             <!-- Nama -->
-                            <div>
+                            <div class="min-w-0">
                                 <p class="text-xs font-medium text-gray-400">
                                     Nama Lengkap
                                 </p>
@@ -200,7 +200,7 @@
 
 
                             <!-- NIM -->
-                            <div>
+                            <div class="min-w-0">
                                 <p class="text-xs font-medium text-gray-400">
                                     NIM
                                 </p>
@@ -212,7 +212,7 @@
 
 
                             <!-- Jenis Kelamin -->
-                            <div>
+                            <div class="min-w-0">
                                 <p class="text-xs font-medium text-gray-400">
                                     Jenis Kelamin
                                 </p>
@@ -224,7 +224,7 @@
 
 
                             <!-- Tanggal Lahir -->
-                            <div>
+                            <div class="min-w-0">
                                 <p class="text-xs font-medium text-gray-400">
                                     Tanggal Lahir
                                 </p>
@@ -236,13 +236,13 @@
 
 
                             <!-- Alamat -->
-                            <div class="md:col-span-2">
+                            <div class="min-w-0 sm:col-span-2">
 
                                 <p class="text-xs font-medium text-gray-400">
                                     Alamat
                                 </p>
 
-                                <p class="mt-1.5 text-sm font-medium leading-relaxed text-gray-800">
+                                <p class="mt-1.5 text-sm font-medium leading-relaxed text-gray-800 break-words">
                                     Jl. Contoh Alamat No. 123, Kota Malang, Jawa Timur
                                 </p>
 
@@ -254,7 +254,7 @@
 
 
                     <!-- Divider -->
-                    <div class="my-7 border-t border-gray-100"></div>
+                    <div class="my-6 border-t border-gray-100 sm:my-7"></div>
 
 
                     <!-- Kontak -->
@@ -265,14 +265,14 @@
                         </h3>
 
 
-                        <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
+                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-3 sm:gap-6">
 
                             <!-- Email -->
-                            <div>
+                            <div class="min-w-0">
 
                                 <div class="flex items-center gap-2">
 
-                                    <div class="flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-50 rounded-lg">
+                                    <div class="flex items-center justify-center w-8 h-8 text-blue-600 bg-blue-50 rounded-lg shrink-0">
 
                                         <svg
                                             class="w-4 h-4"
@@ -302,11 +302,11 @@
 
 
                             <!-- No HP -->
-                            <div>
+                            <div class="min-w-0">
 
                                 <div class="flex items-center gap-2">
 
-                                    <div class="flex items-center justify-center w-8 h-8 text-green-600 bg-green-50 rounded-lg">
+                                    <div class="flex items-center justify-center w-8 h-8 text-green-600 bg-green-50 rounded-lg shrink-0">
 
                                         <svg
                                             class="w-4 h-4"
@@ -336,11 +336,11 @@
 
 
                             <!-- Instagram -->
-                            <div>
+                            <div class="min-w-0">
 
                                 <div class="flex items-center gap-2">
 
-                                    <div class="flex items-center justify-center w-8 h-8 text-pink-600 bg-pink-50 rounded-lg">
+                                    <div class="flex items-center justify-center w-8 h-8 text-pink-600 bg-pink-50 rounded-lg shrink-0">
 
                                         <svg
                                             class="w-4 h-4"
@@ -377,7 +377,7 @@
 
                                 </div>
 
-                                <p class="mt-2 text-sm font-medium text-gray-800">
+                                <p class="mt-2 text-sm font-medium text-gray-800 break-all">
                                     @ahmadrizki
                                 </p>
 
@@ -397,10 +397,10 @@
             <!-- ================================================= -->
             <div class="xl:col-span-3">
 
-                <div class="h-full p-7 bg-white border border-gray-100 shadow-sm rounded-2xl">
+                <div class="h-full p-5 bg-white border border-gray-100 shadow-sm sm:p-7 rounded-2xl">
 
                     <!-- Header -->
-                    <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center justify-between gap-3 mb-6">
 
                         <h2 class="text-lg font-bold text-gray-900">
                             Bio
@@ -408,7 +408,7 @@
 
                         <button
                             type="button"
-                            class="flex items-center justify-center w-10 h-10 text-gray-500 transition border border-gray-200 rounded-xl hover:bg-gray-50 hover:text-blue-600"
+                            class="flex items-center justify-center w-10 h-10 text-gray-500 transition border border-gray-200 rounded-xl shrink-0 hover:bg-gray-50 hover:text-blue-600"
                             title="Edit bio">
 
                             <svg
@@ -429,7 +429,7 @@
 
 
                     <!-- Bio Content -->
-                    <div class="p-5 bg-gray-50 rounded-xl">
+                    <div class="p-4 bg-gray-50 sm:p-5 rounded-xl">
 
                         <p class="text-sm leading-7 text-gray-600">
                             Saya adalah mahasiswa D4 Teknik Informatika
@@ -444,7 +444,7 @@
 
 
                     <!-- Additional Info -->
-                    <div class="mt-7">
+                    <div class="mt-6 sm:mt-7">
 
                         <p class="text-xs font-medium tracking-wide text-gray-400 uppercase">
                             Keahlian
@@ -478,27 +478,7 @@
 
         </div>
 
-
-        <!-- Footer -->
-        <footer class="flex flex-col justify-between gap-3 py-8 mt-8 text-sm text-gray-400 border-t border-gray-200 md:flex-row">
-
-            <p>
-                © 2026 VerifyMagang. All rights reserved.
-            </p>
-
-            <div class="flex gap-6">
-
-                <a href="#" class="hover:text-gray-600">
-                    Privasi
-                </a>
-
-                <a href="#" class="hover:text-gray-600">
-                    Syarat dan Ketentuan
-                </a>
-
-            </div>
-
-        </footer>
+        <?php include __DIR__ . "/../Footer.php"; ?>
 
     </div>
 

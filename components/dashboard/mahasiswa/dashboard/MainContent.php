@@ -1,15 +1,15 @@
-<main class="min-h-screen pt-20 ml-64 bg-slate-50">
+<main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
 
-    <div class="px-8 py-8 mx-auto max-w-[1600px]">
+    <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-[1600px]">
 
         <!-- Page Header -->
-        <div class="mb-8">
+        <div class="mb-6 sm:mb-8">
 
-            <h1 class="text-3xl font-bold tracking-tight text-gray-900">
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
                 Dashboard
             </h1>
 
-            <p class="mt-2 text-base text-gray-500">
+            <p class="mt-2 text-sm text-gray-500 sm:text-base">
                 Ringkasan aktivitas magang Anda.
             </p>
 
@@ -17,14 +17,14 @@
 
 
         <!-- Statistics -->
-        <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
+        <div class="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 sm:gap-6 sm:mb-8 xl:grid-cols-4">
 
             <!-- Portfolio -->
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-6 rounded-2xl">
 
-                <div class="flex items-start justify-between">
+                <div class="flex items-start justify-between gap-3">
 
-                    <div>
+                    <div class="min-w-0">
                         <p class="text-sm font-medium text-gray-500">
                             Portofolio
                         </p>
@@ -38,7 +38,7 @@
                         </p>
                     </div>
 
-                    <div class="flex items-center justify-center w-12 h-12 text-blue-600 bg-blue-50 rounded-xl">
+                    <div class="flex items-center justify-center w-12 h-12 text-blue-600 bg-blue-50 rounded-xl shrink-0">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 stroke-linecap="round"
@@ -55,11 +55,11 @@
 
 
             <!-- Sertifikat -->
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-6 rounded-2xl">
 
-                <div class="flex items-start justify-between">
+                <div class="flex items-start justify-between gap-3">
 
-                    <div>
+                    <div class="min-w-0">
                         <p class="text-sm font-medium text-gray-500">
                             Sertifikat
                         </p>
@@ -73,7 +73,7 @@
                         </p>
                     </div>
 
-                    <div class="flex items-center justify-center w-12 h-12 text-green-600 bg-green-50 rounded-xl">
+                    <div class="flex items-center justify-center w-12 h-12 text-green-600 bg-green-50 rounded-xl shrink-0">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 stroke-linecap="round"
@@ -90,11 +90,11 @@
 
 
             <!-- Pengajuan -->
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-6 rounded-2xl">
 
-                <div class="flex items-start justify-between">
+                <div class="flex items-start justify-between gap-3">
 
-                    <div>
+                    <div class="min-w-0">
                         <p class="text-sm font-medium text-gray-500">
                             Pengajuan Magang
                         </p>
@@ -108,7 +108,7 @@
                         </span>
                     </div>
 
-                    <div class="flex items-center justify-center w-12 h-12 text-orange-600 bg-orange-50 rounded-xl">
+                    <div class="flex items-center justify-center w-12 h-12 text-orange-600 bg-orange-50 rounded-xl shrink-0">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 stroke-linecap="round"
@@ -125,11 +125,11 @@
 
 
             <!-- Logbook -->
-            <div class="p-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-6 rounded-2xl">
 
-                <div class="flex items-start justify-between">
+                <div class="flex items-start justify-between gap-3">
 
-                    <div>
+                    <div class="min-w-0">
                         <p class="text-sm font-medium text-gray-500">
                             Logbook
                         </p>
@@ -143,7 +143,7 @@
                         </p>
                     </div>
 
-                    <div class="flex items-center justify-center w-12 h-12 text-purple-600 bg-purple-50 rounded-xl">
+                    <div class="flex items-center justify-center w-12 h-12 text-purple-600 bg-purple-50 rounded-xl shrink-0">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path
                                 stroke-linecap="round"
@@ -162,14 +162,14 @@
 
 
         <!-- Bottom Content -->
-        <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
+        <div class="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-2">
 
             <!-- Pengajuan Terbaru -->
-            <div class="p-7 bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-7 rounded-2xl">
 
-                <div class="flex items-center justify-between mb-6">
+                <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
 
-                    <div>
+                    <div class="min-w-0">
                         <h2 class="text-lg font-semibold text-gray-900">
                             Pengajuan Magang Terbaru
                         </h2>
@@ -179,15 +179,15 @@
                         </p>
                     </div>
 
-                    <span class="px-3 py-1 text-xs font-medium text-yellow-700 bg-yellow-50 rounded-full">
+                    <span class="px-3 py-1 text-xs font-medium text-yellow-700 bg-yellow-50 rounded-full whitespace-nowrap">
                         Dalam Proses
                     </span>
 
                 </div>
 
-                <div class="p-5 border border-gray-100 rounded-xl">
+                <div class="p-4 border border-gray-100 sm:p-5 rounded-xl">
 
-                    <h3 class="text-base font-semibold text-gray-900">
+                    <h3 class="text-base font-semibold text-gray-900 break-words">
                         PT. Semarsoft Technology Indonesia
                     </h3>
 
@@ -209,7 +209,7 @@
 
 
             <!-- Aktivitas -->
-            <div class="p-7 bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-7 rounded-2xl">
 
                 <div class="mb-6">
                     <h2 class="text-lg font-semibold text-gray-900">
@@ -228,7 +228,7 @@
                             ✓
                         </div>
 
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-sm font-medium text-gray-800">
                                 Menambahkan logbook baru
                             </p>
@@ -244,7 +244,7 @@
                             ✓
                         </div>
 
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-sm font-medium text-gray-800">
                                 Sertifikat berhasil ditambahkan
                             </p>
@@ -260,7 +260,7 @@
                             ✓
                         </div>
 
-                        <div>
+                        <div class="min-w-0">
                             <p class="text-sm font-medium text-gray-800">
                                 Portofolio diperbarui
                             </p>
@@ -279,7 +279,7 @@
 
 
         <!-- CTA -->
-        <div class="flex flex-col items-start justify-between gap-5 p-7 mt-6 bg-blue-600 shadow-sm rounded-2xl md:flex-row md:items-center">
+        <div class="flex flex-col items-start justify-between gap-5 p-5 mt-4 bg-blue-600 shadow-sm sm:p-7 sm:mt-6 rounded-2xl md:flex-row md:items-center">
 
             <div>
                 <h2 class="text-lg font-semibold text-white">
@@ -293,7 +293,7 @@
 
             <a
                 href="#"
-                class="inline-flex items-center gap-2 px-5 py-3 text-sm font-semibold text-blue-600 bg-white rounded-xl hover:bg-blue-50"
+                class="inline-flex items-center justify-center w-full gap-2 px-5 py-3 text-sm font-semibold text-blue-600 bg-white rounded-xl hover:bg-blue-50 md:w-auto md:shrink-0"
             >
                 Tambah Logbook
 
@@ -302,25 +302,7 @@
 
         </div>
 
-
-        <!-- Footer -->
-        <footer class="flex flex-col justify-between gap-3 py-8 mt-8 text-sm text-gray-400 border-t border-gray-200 md:flex-row">
-
-            <p>
-                © 2026 VerifyMagang. All rights reserved.
-            </p>
-
-            <div class="flex gap-6">
-                <a href="#" class="hover:text-gray-600">
-                    Privasi
-                </a>
-
-                <a href="#" class="hover:text-gray-600">
-                    Syarat dan Ketentuan
-                </a>
-            </div>
-
-        </footer>
+        <?php include __DIR__ . "/../Footer.php"; ?>
 
     </div>
 

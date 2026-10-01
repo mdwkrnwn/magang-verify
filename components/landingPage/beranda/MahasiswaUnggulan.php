@@ -23,7 +23,7 @@ $mahasiswaUnggulan = [
         'foto' => 'https://api.dicebear.com/10.x/lorelei/svg?seed=Farhan-Maulana',
         'keahlian' => ['Mobile Development', 'Database'],
         'link' => '#'
-    ],      
+    ],
     //  [
     //     'nama' => 'Farhan Maulana',
     //     'jurusan' => 'D4 Teknik Informatika',
@@ -65,7 +65,7 @@ $mahasiswaUnggulan = [
 
             <!-- Lihat Semua -->
             <a
-                href="<?=url('/mahasiswa')?>"
+                href="<?= url('/mahasiswa') ?>"
                 class="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition">
                 Lihat Semua
 
@@ -86,51 +86,49 @@ $mahasiswaUnggulan = [
                     class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm hover:shadow-md transition duration-300">
 
                     <!-- PROFILE -->
-<div class="flex items-center gap-4">
+                    <div class="flex items-center gap-4">
 
-<?php
-$foto = $mahasiswa['foto'] ?? '';
+                        <?php
+                        $foto = $mahasiswa['foto'] ?? '';
 
-$fotoPath = __DIR__ . '/../../' . ltrim($foto, '/');
-$hasFoto = !empty($foto) && is_file($fotoPath);
+                        $fotoPath = __DIR__ . '/../../' . ltrim($foto, '/');
+                        $hasFoto = !empty($foto) && is_file($fotoPath);
 
-$namaParts = preg_split('/\s+/', trim($mahasiswa['nama']));
-$inisial = '';
+                        $namaParts = preg_split('/\s+/', trim($mahasiswa['nama']));
+                        $inisial = '';
 
-foreach (array_slice($namaParts, 0, 2) as $part) {
-    $inisial .= strtoupper(substr($part, 0, 1));
-}
-?>
+                        foreach (array_slice($namaParts, 0, 2) as $part) {
+                            $inisial .= strtoupper(substr($part, 0, 1));
+                        }
+                        ?>
 
-<?php if ($hasFoto): ?>
+                        <?php if ($hasFoto): ?>
 
-    <img
-        src="<?= url('/' . ltrim($foto, '/')) ?>"
-        alt="<?= e($mahasiswa['nama']) ?>"
-        class="w-20 h-20 rounded-full object-cover bg-blue-50 shrink-0"
-    >
+                            <img
+                                src="<?= url('/' . ltrim($foto, '/')) ?>"
+                                alt="<?= e($mahasiswa['nama']) ?>"
+                                class="w-20 h-20 rounded-full object-cover bg-blue-50 shrink-0">
 
-<?php else: ?>
+                        <?php else: ?>
 
-    <span
-        class="w-20 h-20 rounded-full bg-blue-50 text-blue-600 text-xl font-bold grid place-items-center shrink-0"
-    >
-        <?= e($inisial) ?>
-    </span>
+                            <span
+                                class="w-20 h-20 rounded-full bg-blue-50 text-blue-600 text-xl font-bold grid place-items-center shrink-0">
+                                <?= e($inisial) ?>
+                            </span>
 
-<?php endif; ?>
+                        <?php endif; ?>
 
-</div>
+                    </div>
 
-<div>
-<h3 class="text-lg font-bold text-slate-900">
-    <?= e($mahasiswa['nama']) ?>
-</h3>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">
+                            <?= e($mahasiswa['nama']) ?>
+                        </h3>
 
-<p class="mt-1 text-sm text-slate-500">
-    <?= e($mahasiswa['jurusan']) ?>
-</p>
-</div>
+                        <p class="mt-1 text-sm text-slate-500">
+                            <?= e($mahasiswa['jurusan']) ?>
+                        </p>
+                    </div>
 
                     <!-- SKILLS -->
                     <div class="flex flex-wrap gap-2 mt-5">

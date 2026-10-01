@@ -1,16 +1,16 @@
-<main class="min-h-screen pt-20 ml-64 bg-slate-50">
+<main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
 
-    <div class="px-8 py-8 mx-auto max-w-[1600px]">
+    <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-[1600px]">
 
         <!-- Page Header -->
-        <div class="mb-8 flex items-end justify-between">
+        <div class="mb-6 sm:mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
 
             <div>
-                <h1 class="text-3xl font-bold tracking-tight text-gray-900">
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
                     Portofolio
                 </h1>
 
-                <p class="mt-2 text-base text-gray-500">
+                <p class="mt-2 text-sm text-gray-500 sm:text-base">
                     Tampilkan karya dan project yang pernah Anda kerjakan.
                 </p>
             </div>
@@ -18,7 +18,8 @@
             <!-- Tambah Portofolio -->
             <a
                 href="<?= url('/portofolio/tambah') ?>"
-                class="inline-flex items-center gap-2 px-5 py-4
+                class="inline-flex items-center justify-center gap-2 w-full sm:w-auto
+                       px-5 py-3 sm:py-4 shrink-0
                        bg-blue-600 text-white text-sm font-semibold
                        rounded-lg hover:bg-blue-700 transition">
 
@@ -41,14 +42,14 @@
 
 
         <!-- Portfolio Grid -->
-        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
 
             <!-- Portfolio 1 -->
-            <div class="bg-white border border-slate-200 rounded-xl p-5
-                        flex gap-5 hover:shadow-sm transition">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
+                        flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
                 <!-- Image -->
-                <div class="w-40 h-32 flex-shrink-0 rounded-lg
+                <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
                             bg-slate-100 overflow-hidden">
 
                     <img
@@ -61,7 +62,7 @@
                 <!-- Content -->
                 <div class="flex flex-col flex-1 min-w-0">
 
-                    <h2 class="text-lg font-bold text-gray-900">
+                    <h2 class="text-lg font-bold text-gray-900 break-words">
                         Website E-Commerce Sederhana
                     </h2>
 
@@ -107,10 +108,10 @@
 
 
             <!-- Portfolio 2 -->
-            <div class="bg-white border border-slate-200 rounded-xl p-5
-                        flex gap-5 hover:shadow-sm transition">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
+                        flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
-                <div class="w-40 h-32 flex-shrink-0 rounded-lg
+                <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
                             bg-slate-100 overflow-hidden">
 
                     <img
@@ -122,7 +123,7 @@
 
                 <div class="flex flex-col flex-1 min-w-0">
 
-                    <h2 class="text-lg font-bold text-gray-900">
+                    <h2 class="text-lg font-bold text-gray-900 break-words">
                         Sistem Deteksi Serangan DDoS
                     </h2>
 
@@ -166,10 +167,10 @@
 
 
             <!-- Portfolio 3 -->
-            <div class="bg-white border border-slate-200 rounded-xl p-5
-                        flex gap-5 hover:shadow-sm transition">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
+                        flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
-                <div class="w-40 h-32 flex-shrink-0 rounded-lg
+                <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
                             bg-slate-100 overflow-hidden">
 
                     <img
@@ -181,7 +182,7 @@
 
                 <div class="flex flex-col flex-1 min-w-0">
 
-                    <h2 class="text-lg font-bold text-gray-900">
+                    <h2 class="text-lg font-bold text-gray-900 break-words">
                         Aplikasi Catatan Harian
                     </h2>
 
@@ -220,10 +221,10 @@
 
 
             <!-- Portfolio 4 -->
-            <div class="bg-white border border-slate-200 rounded-xl p-5
-                        flex gap-5 hover:shadow-sm transition">
+            <div class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
+                        flex flex-col sm:flex-row gap-4 sm:gap-5 hover:shadow-sm transition">
 
-                <div class="w-40 h-32 flex-shrink-0 rounded-lg
+                <div class="w-full h-44 sm:w-40 sm:h-32 flex-shrink-0 rounded-lg
                             bg-slate-100 overflow-hidden">
 
                     <img
@@ -235,7 +236,7 @@
 
                 <div class="flex flex-col flex-1 min-w-0">
 
-                    <h2 class="text-lg font-bold text-gray-900">
+                    <h2 class="text-lg font-bold text-gray-900 break-words">
                         Dashboard Analisis Data
                     </h2>
 
@@ -273,6 +274,8 @@
             </div>
 
         </div>
+
+        <?php include __DIR__ . "/../Footer.php"; ?>
 
     </div>
 
