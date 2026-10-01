@@ -8,6 +8,6 @@ class MitraProfilController
     {
         global $mitra;
 
-        require __DIR__ . '/../pages/landingPage/mitra/detail.php';
+        require __DIR__ . '/../pages/landingPage/mitra/profil/index.php';
     }
 }

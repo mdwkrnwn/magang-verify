@@ -10,11 +10,27 @@
     >
 
     <div class="relative flex flex-col md:flex-row items-center md:items-start gap-5 sm:gap-6 md:gap-10">
-        <img
-            src="<?= e(foto($m)) ?>"
-            alt="Foto <?= e($m['nama']) ?>"
-            class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full object-cover border-4 border-white shadow bg-blue-100 shrink-0"
-        >
+
+        <?php $fotoMahasiswa = foto($m); ?>
+
+        <?php if ($fotoMahasiswa): ?>
+
+            <img
+                src="<?= e($fotoMahasiswa) ?>"
+                alt="Foto <?= e($m['nama']) ?>"
+                class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full object-cover border-4 border-white shadow bg-blue-100 shrink-0"
+            >
+
+        <?php else: ?>
+
+            <div
+                class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full border-4 border-white shadow bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 font-bold text-3xl sm:text-4xl md:text-5xl"
+                aria-label="Inisial <?= e($m['nama']) ?>"
+            >
+                <?= e(initials($m['nama'])) ?>
+            </div>
+
+        <?php endif; ?>
 
         <div class="min-w-0 w-full text-center md:text-left">
 
@@ -33,18 +49,15 @@
 
             </h1>
 
-
             <p class="mt-1 text-sm sm:text-base text-slate-700">
                 <?= e($m['prodi']) ?>
                 <br>
                 Politeknik Negeri Malang
             </p>
 
-
             <p class="mt-3 text-sm text-slate-600 leading-relaxed max-w-xl mx-auto md:mx-0">
                 <?= e($m['bio'] ?? '') ?>
             </p>
-
 
             <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-4">
 
@@ -59,7 +72,6 @@
             </div>
 
         </div>
-
 
         <?php if (!empty($m['motto'])): ?>
 

@@ -42,54 +42,57 @@ function judul($ic, $t)
 
 <body class="bg-slate-50/60 font-[Poppins] pt-20 text-gray-900">
 
-<?php include __DIR__ . '/../../../../components/landingPage/Navbar.php'; ?>
+    <?php include __DIR__ . '/../../../../components/landingPage/Navbar.php'; ?>
 
 
-<div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:px-6">
 
-    <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Breadcrumb.php'; ?>
+        <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Breadcrumb.php'; ?>
 
-    <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Hero.php'; ?>
-
-
-    <div class="mt-5 sm:mt-6 grid gap-4 sm:gap-6 lg:grid-cols-[210px_minmax(0,1fr)_290px] items-start">
-
-        <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Sidebar.php'; ?>
+        <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Hero.php'; ?>
 
 
-        <main class="space-y-4 min-w-0">
+        <div
+            id="profil-content-area"
+            class="relative mt-5 sm:mt-6 grid gap-4 sm:gap-6 lg:grid-cols-[210px_minmax(0,1fr)_290px] items-start">
 
-            <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Tentang.php'; ?>
-
-            <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Keahlian.php'; ?>
-
-            <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Pengalaman.php'; ?>
-
-            <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Proyek.php'; ?>
-
-            <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Sertifikat.php'; ?>
-
-            <?php if (empty($m['tentang'])): ?>
-
-                <p class="text-sm text-slate-500 text-center py-6">
-                    Profil lengkap mahasiswa ini belum diisi.
-                </p>
-
-            <?php endif; ?>
-
-        </main>
+            <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Sidebar.php'; ?>
 
 
-        <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Kontak.php'; ?>
+            <main class="space-y-4 min-w-0">
+
+                <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Tentang.php'; ?>
+
+                <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Keahlian.php'; ?>
+
+                <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Pengalaman.php'; ?>
+
+                <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Proyek.php'; ?>
+
+                <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Sertifikat.php'; ?>
+
+                <?php if (empty($m['tentang'])): ?>
+
+                    <p class="text-sm text-slate-500 text-center py-6">
+                        Profil lengkap mahasiswa ini belum diisi.
+                    </p>
+
+                <?php endif; ?>
+
+            </main>
+
+
+            <?php include __DIR__ . '/../../../../components/landingPage/mahasiswa/profil/Kontak.php'; ?>
+
+        </div>
 
     </div>
 
-</div>
 
+    <?php include __DIR__ . '/../../../../components/landingPage/Footer.php'; ?>
 
-<?php include __DIR__ . '/../../../../components/landingPage/Footer.php'; ?>
-
-<?php include __DIR__ . '/../../../../components/landingPage/Script.php'; ?>
+    <?php include __DIR__ . '/../../../../components/landingPage/Script.php'; ?>
 
 </body>
+
 </html>

@@ -6,8 +6,8 @@ $card = 'bg-white rounded-2xl border border-slate-100 shadow-sm p-5 md:p-6 scrol
 
 $judul = function ($ic, $t) {
     echo '<h2 class="flex items-center gap-3 font-semibold text-slate-900 mb-4">'
-       . '<span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 grid place-items-center">' . icon($ic, 'w-4 h-4') . '</span>'
-       . $t . '</h2>';
+        . '<span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 grid place-items-center">' . icon($ic, 'w-4 h-4') . '</span>'
+        . $t . '</h2>';
 };
 
 $cek = fn($ok, $teks) => '<li class="flex gap-2.5 text-sm text-slate-700">'
@@ -51,8 +51,7 @@ $alur = [
                 <img
                     src="<?= url('/assets/images/mitra/' . e($m['logo'])) ?>"
                     alt="Logo <?= e($m['nama']) ?>"
-                    class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-white border border-blue-100 object-contain p-3 shrink-0"
-                >
+                    class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-white border border-blue-100 object-contain p-3 shrink-0">
             <?php else: ?>
                 <span class="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl bg-white border border-blue-100 text-blue-600 text-4xl font-bold grid place-items-center shrink-0">
                     <?= e($inisial) ?>
@@ -101,26 +100,31 @@ $alur = [
     </section>
 
 
-    <div class="mt-6 grid gap-6 lg:grid-cols-[210px_1fr_290px] items-start">
+    <div
+        id="profil-content-area"
+        class="relative mt-6 grid gap-6 lg:grid-cols-[210px_1fr_290px] items-start">
 
-        <!-- Menu samping (app.js: #profil-sidebar, .profil-menu-item, data-section) -->
-        <nav
-            id="profil-sidebar"
-            class="lg:sticky lg:top-24 flex lg:flex-col gap-1 overflow-x-auto bg-white rounded-2xl border border-slate-100 p-2"
-            aria-label="Bagian detail mitra"
-        >
-            <?php foreach ($menu as $i => [$id, $label, $ic]): ?>
-                <a
-                    href="#<?= $id ?>"
-                    data-section="<?= $id ?>"
-                    class="profil-menu-item flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm whitespace-nowrap
-                    <?= $i === 0 ? 'bg-blue-50 text-blue-600 font-medium border-l-4 border-blue-600' : 'text-slate-700 hover:bg-slate-50' ?>"
-                >
-                    <?= icon($ic, 'w-5 h-5') ?>
-                    <?= $label ?>
-                </a>
-            <?php endforeach; ?>
-        </nav>
+        <!-- Menu samping -->
+        <aside class="hidden lg:block w-[210px] min-w-0">
+            <nav
+                id="profil-sidebar"
+                class="absolute top-0 left-0 w-[210px] flex flex-col gap-1 bg-white rounded-2xl border border-slate-100 p-2 shadow-sm"
+                aria-label="Bagian detail mitra">
+                <?php foreach ($menu as $i => [$id, $label, $ic]): ?>
+                    <a
+                        href="#<?= e($id) ?>"
+                        data-section="<?= e($id) ?>"
+                        class="profil-menu-item flex items-center gap-3 px-3 sm:px-4 py-2.5 rounded-lg text-sm whitespace-nowrap
+                <?= $i === 0
+                        ? 'bg-blue-50 text-blue-600 font-medium border-l-4 border-blue-600'
+                        : 'text-slate-700 hover:bg-slate-50'
+                ?>">
+                        <?= icon($ic, 'w-5 h-5 shrink-0') ?>
+                        <span><?= e($label) ?></span>
+                    </a>
+                <?php endforeach; ?>
+            </nav>
+        </aside>
 
 
         <!-- Konten utama -->
@@ -135,12 +139,14 @@ $alur = [
                 </p>
 
                 <dl class="grid sm:grid-cols-2 gap-4 mt-5 pt-5 border-t border-slate-100 text-sm">
-                    <?php foreach ([
-                        ['Kategori perusahaan', $m['kategori'] ?? '-'],
-                        ['Skala perusahaan', $m['skala'] ?? '-'],
-                        ['Wilayah', $m['wilayah']],
-                        ['Tahun akademik', $m['tahun_akademik']],
-                    ] as [$l, $v]): ?>
+                    <?php foreach (
+                        [
+                            ['Kategori perusahaan', $m['kategori'] ?? '-'],
+                            ['Skala perusahaan', $m['skala'] ?? '-'],
+                            ['Wilayah', $m['wilayah']],
+                            ['Tahun akademik', $m['tahun_akademik']],
+                        ] as [$l, $v]
+                    ): ?>
                         <div>
                             <dt class="text-xs text-slate-500"><?= $l ?></dt>
                             <dd class="text-slate-800 mt-0.5"><?= e($v) ?></dd>
@@ -185,8 +191,7 @@ $alur = [
                                 <a
                                     href="<?= url('/login') ?>"
                                     class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-blue-500 text-blue-600
-                                    text-sm font-medium hover:bg-blue-50 transition whitespace-nowrap"
-                                >
+                                    text-sm font-medium hover:bg-blue-50 transition whitespace-nowrap">
                                     Masuk untuk mengajukan
                                     <?= icon('arrow', 'w-4 h-4') ?>
                                 </a>
@@ -308,8 +313,7 @@ $alur = [
 
             <a
                 href="<?= url('/mitra') ?>"
-                class="flex items-center justify-center gap-2 py-3 rounded-lg border border-blue-500 bg-white text-blue-600 text-sm font-medium hover:bg-blue-50 transition"
-            >
+                class="flex items-center justify-center gap-2 py-3 rounded-lg border border-blue-500 bg-white text-blue-600 text-sm font-medium hover:bg-blue-50 transition">
                 <?= icon('left', 'w-4 h-4') ?>
                 Kembali ke Daftar Mitra
             </a>

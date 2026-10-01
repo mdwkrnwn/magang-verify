@@ -1,22 +1,36 @@
-// Detail Portofolio
+// Detail Profil Mahasiswa
 
 document.addEventListener('DOMContentLoaded', () => {
-    const sidebar = document.getElementById('profil-sidebar');
+    const sidebar = document.getElementById(
+        'profil-sidebar'
+    );
 
-    if (!sidebar) {
+    const contentArea = document.getElementById(
+        'profil-content-area'
+    );
+
+    if (!sidebar || !contentArea) {
         return;
     }
 
     const menuItems = Array.from(
-        sidebar.querySelectorAll('.profil-menu-item')
+        sidebar.querySelectorAll(
+            '.profil-menu-item'
+        )
     );
 
     const sections = menuItems
         .map(item => {
             const id = item.dataset.section;
-            const section = document.getElementById(id);
+            const section =
+                document.getElementById(id);
 
-            return section ? { item, section } : null;
+            return section
+                ? {
+                    item,
+                    section
+                }
+                : null;
         })
         .filter(Boolean);
 
@@ -26,11 +40,148 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /*
      * ==========================================
-     * 1. MENU AKTIF MENGIKUTI SECTION
+     * SIDEBAR POSITION
      * ==========================================
      */
 
-    const setActive = (activeItem) => {
+    const SIDEBAR_TOP = 96;
+    const SIDEBAR_GAP = 16;
+
+    const updateSidebarPosition = () => {
+        const areaRect =
+            contentArea.getBoundingClientRect();
+
+        const sidebarHeight =
+            sidebar.offsetHeight;
+
+        const sidebarWidth = 210;
+
+        /*
+         * Posisi kolom sidebar asli.
+         * Ini digunakan supaya sidebar fixed
+         * tetap berada tepat di kolom 210px.
+         */
+        const sidebarColumn =
+            sidebar.parentElement;
+
+        const columnRect =
+            sidebarColumn.getBoundingClientRect();
+
+        /*
+         * ======================================
+         * SEBELUM AREA PROFIL
+         * ======================================
+         *
+         * Sidebar tetap berada di posisi awal.
+         */
+        if (
+            areaRect.top >
+            SIDEBAR_TOP
+        ) {
+            sidebar.style.position =
+                'absolute';
+
+            sidebar.style.top = '0';
+            sidebar.style.left = '0';
+            sidebar.style.width =
+                `${sidebarWidth}px`;
+
+            return;
+        }
+
+        /*
+         * ======================================
+         * BATAS BAWAH AREA PROFIL
+         * ======================================
+         *
+         * Sidebar tidak boleh melewati
+         * batas bawah contentArea.
+         */
+        const maxTop =
+            areaRect.bottom -
+            sidebarHeight -
+            SIDEBAR_GAP;
+
+        /*
+         * ======================================
+         * AREA PROFIL SUDAH SELESAI
+         * ======================================
+         *
+         * Sidebar berhenti tepat sebelum
+         * batas bawah contentArea.
+         */
+        if (
+            maxTop <= SIDEBAR_TOP
+        ) {
+            sidebar.style.position =
+                'absolute';
+
+            sidebar.style.top =
+                `${Math.max(
+                    0,
+                    contentArea.offsetHeight -
+                    sidebarHeight -
+                    SIDEBAR_GAP
+                )}px`;
+
+            sidebar.style.left = '0';
+
+            sidebar.style.width =
+                `${sidebarWidth}px`;
+
+            return;
+        }
+
+        /*
+         * ======================================
+         * SIDEBAR MENGIKUTI VIEWPORT
+         * ======================================
+         */
+
+        sidebar.style.position =
+            'fixed';
+
+        sidebar.style.top =
+            `${SIDEBAR_TOP}px`;
+
+        sidebar.style.left =
+            `${columnRect.left}px`;
+
+        sidebar.style.width =
+            `${sidebarWidth}px`;
+    };
+
+    /*
+     * Jalankan pertama kali.
+     */
+    updateSidebarPosition();
+
+    /*
+     * Update ketika scroll.
+     */
+    window.addEventListener(
+        'scroll',
+        updateSidebarPosition,
+        {
+            passive: true
+        }
+    );
+
+    /*
+     * Update ketika ukuran layar berubah.
+     */
+    window.addEventListener(
+        'resize',
+        updateSidebarPosition
+    );
+
+    /*
+     * ==========================================
+     * ACTIVE MENU
+     * ==========================================
+     */
+
+    const setActive = activeItem => {
         menuItems.forEach(item => {
             item.classList.remove(
                 'bg-blue-50',
@@ -62,69 +213,74 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /*
      * ==========================================
-     * 2. SECTION YANG TERLIHAT = MENU AKTIF
+     * DETEKSI SECTION AKTIF
      * ==========================================
      */
 
-    const observer = new IntersectionObserver(
-        entries => {
-            const visibleSections = entries
-                .filter(entry => entry.isIntersecting)
-                .sort(
-                    (a, b) =>
-                        a.boundingClientRect.top -
-                        b.boundingClientRect.top
-                );
+    const observer =
+        new IntersectionObserver(
+            entries => {
+                const visibleSections =
+                    entries
+                        .filter(
+                            entry =>
+                                entry.isIntersecting
+                        )
+                        .sort(
+                            (a, b) =>
+                                a.boundingClientRect.top -
+                                b.boundingClientRect.top
+                        );
 
-            if (!visibleSections.length) {
-                return;
+                if (
+                    !visibleSections.length
+                ) {
+                    return;
+                }
+
+                const activeSection =
+                    visibleSections[0].target;
+
+                const active =
+                    sections.find(
+                        item =>
+                            item.section ===
+                            activeSection
+                    );
+
+                if (active) {
+                    setActive(
+                        active.item
+                    );
+                }
+            },
+            {
+                root: null,
+                rootMargin:
+                    '-120px 0px -55% 0px',
+                threshold: 0
             }
+        );
 
-            const activeSection = visibleSections[0].target;
-
-            const active = sections.find(
-                item => item.section === activeSection
-            );
-
-            if (!active) {
-                return;
-            }
-
-            setActive(active.item);
-
-            active.item.scrollIntoView({
-                behavior: 'smooth',
-                block: 'nearest',
-                inline: 'center'
-            });
-        },
-        {
-            root: null,
-            rootMargin: '-120px 0px -55% 0px',
-            threshold: 0
+    sections.forEach(
+        ({ section }) => {
+            observer.observe(section);
         }
     );
 
-    sections.forEach(({ section }) => {
-        observer.observe(section);
-    });
-
     /*
      * ==========================================
-     * 3. KETIKA MENU DIKLIK
+     * CLICK MENU
      * ==========================================
      */
 
     menuItems.forEach(item => {
-        item.addEventListener('click', () => {
-            setActive(item);
-
-            item.scrollIntoView({
-                behavior: 'smooth',
-                block: 'nearest',
-                inline: 'center'
-            });
-        });
+        item.addEventListener(
+            'click',
+            () => {
+                setActive(item);
+            }
+        );
     });
 });
 

@@ -22,7 +22,7 @@ require_once __DIR__ . "/../../../function/landingPage/mahasiswa/Process.php";
 <?php include __DIR__ . "/../../../components/landingPage/mahasiswa/Filter.php"; ?>
 
 
-<main class="max-w-7xl mx-auto px-4 sm:px-6 mt-8">
+<main class="max-w-7xl mx-auto px-4 sm:px-6 mt-8 mb-8">
 
     <?php include __DIR__ . "/../../../components/landingPage/mahasiswa/Toolbar.php"; ?>
 

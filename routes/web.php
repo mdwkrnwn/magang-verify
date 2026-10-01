@@ -64,6 +64,12 @@ $routes = [
         'method' => 'index',
     ],
 
+    /*
+    |---------------------
+    | Tentang
+    |---------------------
+    */
+
     '/tentang' => [
         'controller' => TentangController::class,
         'method' => 'index',
@@ -86,35 +92,49 @@ $routes = [
     |---------------------
     */
 
+    // Menu Dashboard
+
     '/dashboard/mahasiswa' => [
         'controller' => DashboardController::class,
         'method' => 'index',
     ],
+
+    // Menu Profil Saya
 
     '/dashboard/mahasiswa/profil' => [
         'controller' => ProfilController::class,
         'method' => 'index',
     ],
 
+    // Menu Portofolio
+
     '/dashboard/mahasiswa/portofolio' => [
         'controller' => PortofolioController::class,
         'method' => 'index',
     ],
+
+    // Menu Sertifikat
 
     '/dashboard/mahasiswa/sertifikat' => [
         'controller' => SertifikatController::class,
         'method' => 'index',
     ],
 
+    // Menu Formasi Magang
+
     '/dashboard/mahasiswa/formasi-magang' => [
         'controller' => FormasiMagangController::class,
         'method' => 'index',
     ],
 
+    // Menu Pengajuan Saya
+
     '/dashboard/mahasiswa/pengajuan' => [
         'controller' => PengajuanController::class,
         'method' => 'index',
     ],
+
+    // Menu Logbook
 
     '/dashboard/mahasiswa/logbook' => [
         'controller' => LogbookController::class,
@@ -122,7 +142,6 @@ $routes = [
     ],
 
 ];
-
 
 /*
 |-------------------------
