@@ -1,72 +1,70 @@
 <div class="space-y-3">
 
-    <?php
+    <?php if (empty($tampil)): ?>
 
-    $formasi = [
+        <div class="p-10 text-center bg-white border border-slate-200 rounded-xl">
 
-        [
-            'logo' => 'semarsoft',
-            'logoClass' => 'text-xs font-bold text-slate-500',
-            'perusahaan' => 'PT. Semarsoft Technology Indonesia',
-            'posisi' => 'Frontend Developer Intern',
-            'lokasi' => 'Malang, Jawa Timur',
-            'durasi' => '3 Bulan',
-            'detailUrl' => '/formasi/detail/semarsoft',
-            'lamarUrl' => '/formasi/lamar/semarsoft'
-        ],
+            <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-slate-100">
 
-        [
-            'logo' => 'NDS',
-            'logoClass' => 'text-lg font-bold text-blue-600',
-            'perusahaan' => 'PT. Nusantara Digital Solusi',
-            'posisi' => 'Backend Developer Intern',
-            'lokasi' => 'Surabaya, Jawa Timur',
-            'durasi' => '4 Bulan',
-            'detailUrl' => '/formasi/detail/nusantara-digital',
-            'lamarUrl' => '/formasi/lamar/nusantara-digital'
-        ],
+                <svg
+                    class="w-6 h-6 text-slate-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="m21 21-4.35-4.35m0 0A7.5 7.5 0 1 0 6.05 6.05a7.5 7.5 0 0 0 10.6 10.6Z" />
+                </svg>
 
-        [
-            'logo' => 'Kreatif',
-            'logoClass' => 'text-sm font-bold text-slate-600',
-            'perusahaan' => 'CV. Kreatif Teknologi',
-            'posisi' => 'UI/UX Designer Intern',
-            'lokasi' => 'Malang, Jawa Timur',
-            'durasi' => '3 Bulan',
-            'detailUrl' => '/formasi/detail/kreatif-teknologi',
-            'lamarUrl' => '/formasi/lamar/kreatif-teknologi'
-        ],
+            </div>
 
-        [
-            'logo' => 'DSI',
-            'logoClass' => 'text-lg font-bold text-slate-700',
-            'perusahaan' => 'PT. Data Solusi Indonesia',
-            'posisi' => 'Fullstack Developer Intern',
-            'lokasi' => 'Jakarta Selatan, DKI Jakarta',
-            'durasi' => '6 Bulan',
-            'detailUrl' => '/formasi/detail/data-solusi',
-            'lamarUrl' => '/formasi/lamar/data-solusi'
-        ]
+            <h2 class="text-sm font-semibold text-slate-800">
+                Formasi tidak ditemukan
+            </h2>
 
-    ];
+            <p class="mt-1 text-xs text-slate-500">
+                Tidak ada formasi yang sesuai dengan pencarian atau filter Anda.
+            </p>
 
-    ?>
+        </div>
 
-    <?php foreach ($formasi as $item): ?>
+    <?php else: ?>
 
-        <?php
-        $logo = $item['logo'];
-        $logoClass = $item['logoClass'];
-        $perusahaan = $item['perusahaan'];
-        $posisi = $item['posisi'];
-        $lokasi = $item['lokasi'];
-        $durasi = $item['durasi'];
-        $detailUrl = $item['detailUrl'];
-        $lamarUrl = $item['lamarUrl'];
+        <?php foreach ($tampil as $item): ?>
 
-        include __DIR__ . "/FormasiCard.php";
-        ?>
+            <?php
+            $logo = initials($item['perusahaan']);
 
-    <?php endforeach; ?>
+            $logoClass =
+                'text-sm font-bold text-blue-600';
+
+            $perusahaan = $item['perusahaan'];
+            $posisi = $item['posisi'];
+            $lokasi = $item['lokasi'];
+            $durasi = $item['durasi'];
+
+            $detailUrl = url(
+                '/dashboard/mahasiswa/formasi-magang/detail/'
+                . $item['slug']
+            );
+
+            $lamarUrl = url(
+                '/dashboard/mahasiswa/lamar/'
+                . $item['slug']
+            );
+
+
+            $status = $item['status'];
+            ?>
+
+            <?php include __DIR__ . "/FormasiCard.php"; ?>
+
+        <?php endforeach; ?>
+
+    <?php endif; ?>
 
 </div>
+
+<?php include __DIR__ . "/Pagination.php"; ?>

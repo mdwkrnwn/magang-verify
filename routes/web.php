@@ -22,6 +22,7 @@ require_once __DIR__ . '/../controllers/dashboard/mahasiswa/SertifikatController
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/FormasiMagangController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengajuanController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LogbookController.php';
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LamarController.php';
 
 $routes = [
 
@@ -170,10 +171,12 @@ function route($uri)
 
     $basePath = rtrim(APP_URL, '/');
 
-    if ($basePath !== '' && str_starts_with($path, $basePath)) {
+    if (
+        $basePath !== '' &&
+        ($path === $basePath || str_starts_with($path, $basePath . '/'))
+    ) {
         $path = substr($path, strlen($basePath));
     }
-
 
     /*
     |----------------------
@@ -280,6 +283,309 @@ function route($uri)
             'route' => [
                 'controller' => PengajuanController::class,
                 'method' => 'detail',
+            ],
+
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+    /*
+    |-----------------------
+    | Detail Formasi Magang
+    |-----------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/formasi-magang/detail/semarsoft
+    |
+    */
+
+    if (preg_match(
+        '#^/dashboard/mahasiswa/formasi-magang/detail/([^/]+)$#',
+        $path,
+        $matches
+    )) {
+
+        return [
+            'route' => [
+                'controller' => FormasiMagangController::class,
+                'method' => 'detail',
+            ],
+
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+    /*
+    |-----------------------
+    | Lamar / Pendaftaran Magang
+    |-----------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/lamar/semarsoft
+    |
+    */
+
+    if (preg_match(
+        '#^/dashboard/mahasiswa/lamar/([^/]+)$#',
+        $path,
+        $matches
+    )) {
+
+        return [
+            'route' => [
+                'controller' => LamarController::class,
+                'method' => 'index',
+            ],
+
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+    /*
+    |-----------------------
+    | Detail Portofolio
+    |-----------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/portofolio/detail/website-e-commerce-sederhana
+    |
+    */
+
+    if (preg_match(
+        '#^/dashboard/mahasiswa/portofolio/detail/([^/]+)$#',
+        $path,
+        $matches
+    )) {
+
+        return [
+            'route' => [
+                'controller' => PortofolioController::class,
+                'method' => 'detail',
+            ],
+
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+    /*
+    |-----------------------
+    | Tambah Portofolio
+    |-----------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/portofolio/tambah
+    |
+    */
+
+    if ($path === '/dashboard/mahasiswa/portofolio/tambah') {
+
+        return [
+            'route' => [
+                'controller' => PortofolioController::class,
+                'method' => 'tambah',
+            ],
+
+            'params' => [],
+        ];
+    }
+
+    /*
+    |-----------------------
+    | Edit Portofolio
+    |-----------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/portofolio/edit
+    |
+    */
+
+    if (preg_match(
+        '#^/dashboard/mahasiswa/portofolio/edit/([^/]+)$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => PortofolioController::class,
+                'method' => 'edit',
+            ],
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+    /*
+    |-----------------------
+    | Hapus Portofolio
+    |-----------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/portofolio/hapus
+    |
+    */
+
+    if (
+        $path !== '' &&
+        preg_match(
+            '#^/dashboard/mahasiswa/portofolio/hapus/([^/]+)$#',
+            $path,
+            $matches
+        )
+    ) {
+        return [
+            'route' => [
+                'controller' => PortofolioController::class,
+                'method' => 'hapus',
+            ],
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+
+    /*
+    |-------------------------
+    | Detail Sertifikat
+    |-------------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/sertifikat/detail/web-development-basic
+    |
+    */
+
+    if (preg_match(
+        '#^/dashboard/mahasiswa/sertifikat/detail/([^/]+)$#',
+        $path,
+        $matches
+    )) {
+
+        return [
+            'route' => [
+                'controller' => SertifikatController::class,
+                'method' => 'detail',
+            ],
+
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+
+    /*
+    |--------------------------\
+    | Tambah Sertifikat
+    |---------------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/sertifikat/tambah
+    |
+    */
+
+    if ($path === '/dashboard/mahasiswa/sertifikat/tambah') {
+
+        return [
+            'route' => [
+                'controller' => SertifikatController::class,
+                'method' => 'tambah',
+            ],
+
+            'params' => [],
+        ];
+    }
+
+
+    /*
+    |--------------------------
+    | Edit Sertifikat
+    |--------------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/sertifikat/edit/web-development-basic
+    |
+    */
+
+    if (preg_match(
+        '#^/dashboard/mahasiswa/sertifikat/edit/([^/]+)$#',
+        $path,
+        $matches
+    )) {
+
+        return [
+            'route' => [
+                'controller' => SertifikatController::class,
+                'method' => 'edit',
+            ],
+
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+
+    /*
+    |-------------------------
+    | Hapus Sertifikat
+    |-------------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/sertifikat/hapus/web-development-basic
+    |
+    */
+
+    if (
+        $path !== '' &&
+        preg_match(
+            '#^/dashboard/mahasiswa/sertifikat/hapus/([^/]+)$#',
+            $path,
+            $matches
+        )
+    ) {
+
+        return [
+            'route' => [
+                'controller' => SertifikatController::class,
+                'method' => 'hapus',
+            ],
+
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+
+    /*
+    |----------------------------
+    | Download Sertifikat
+    |----------------------------
+    |
+    | Contoh:
+    | /dashboard/mahasiswa/sertifikat/download/web-development-basic
+    |
+    */
+
+    if (preg_match(
+        '#^/dashboard/mahasiswa/sertifikat/download/([^/]+)$#',
+        $path,
+        $matches
+    )) {
+
+        return [
+            'route' => [
+                'controller' => SertifikatController::class,
+                'method' => 'download',
             ],
 
             'params' => [

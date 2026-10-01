@@ -8,7 +8,7 @@
                    bg-white border border-slate-100 rounded-lg
                    lg:w-20 lg:flex-shrink-0">
 
-            <span class="<?= $logoClass ?>">
+            <span class="<?= e($logoClass) ?>">
                 <?= e($logo) ?>
             </span>
 
@@ -37,15 +37,16 @@
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24">
-
                 <path
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M12 21s7-6.2 7-12a7 7 0 1 0-14 0c0 5.8 7 12 7 12Z" />
 
-                <circle cx="12" cy="9" r="2.5" />
-
+                <circle
+                    cx="12"
+                    cy="9"
+                    r="2.5" />
             </svg>
 
             <span>
@@ -63,7 +64,6 @@
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24">
-
                 <circle
                     cx="12"
                     cy="12"
@@ -74,7 +74,6 @@
                     stroke-linecap="round"
                     stroke-width="2"
                     d="M12 7v5l3 2" />
-
             </svg>
 
             <span>
@@ -87,14 +86,25 @@
         <!-- Status -->
         <div class="lg:w-20">
 
-            <span
-                class="inline-flex px-2.5 py-1 text-[11px]
-                       font-medium text-emerald-600
-                       bg-emerald-50 rounded-full">
+            <?php if ($status === 'tersedia'): ?>
 
-                Tersedia
+                <span
+                    class="inline-flex px-2.5 py-1 text-[11px]
+                           font-medium text-emerald-600
+                           bg-emerald-50 rounded-full">
+                    Tersedia
+                </span>
 
-            </span>
+            <?php else: ?>
+
+                <span
+                    class="inline-flex px-2.5 py-1 text-[11px]
+                           font-medium text-slate-500
+                           bg-slate-100 rounded-full">
+                    Penuh
+                </span>
+
+            <?php endif; ?>
 
         </div>
 
@@ -103,26 +113,36 @@
         <div class="flex items-center gap-2">
 
             <a
-                href="<?= url($detailUrl) ?>"
+                href="<?= e($detailUrl) ?>"
                 class="inline-flex items-center justify-center
                        h-9 px-4 text-xs font-medium text-blue-500
                        border border-blue-200 rounded-lg
                        hover:bg-blue-50 transition">
-
                 Lihat Detail
-
             </a>
 
-            <a
-                href="<?= url($lamarUrl) ?>"
-                class="inline-flex items-center justify-center
-                       h-9 px-4 text-xs font-medium text-white
-                       bg-blue-600 rounded-lg
-                       hover:bg-blue-700 transition">
+            <?php if ($status === 'tersedia'): ?>
 
-                Lamar
+                <a
+                    href="<?= e($lamarUrl) ?>"
+                    class="inline-flex items-center justify-center
+                           h-9 px-4 text-xs font-medium text-white
+                           bg-blue-600 rounded-lg
+                           hover:bg-blue-700 transition">
+                    Lamar
+                </a>
 
-            </a>
+            <?php else: ?>
+
+                <span
+                    class="inline-flex items-center justify-center
+                           h-9 px-4 text-xs font-medium
+                           text-slate-400 bg-slate-100
+                           rounded-lg cursor-not-allowed">
+                    Lamar
+                </span>
+
+            <?php endif; ?>
 
         </div>
 

@@ -11,3 +11,49 @@
 .animate-slide {
     animation: slide 25s linear infinite;
 }
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard Sidebar Collapse
+|--------------------------------------------------------------------------
+*/
+
+@media (min-width: 1024px) {
+
+    body.sidebar-collapsed #sidebar {
+        width: 5rem !important;
+    }
+
+    body.sidebar-collapsed #sidebar .sidebar-logo-text {
+        display: none !important;
+    }
+
+    body.sidebar-collapsed #sidebar #sidebar-logo {
+        width: 100%;
+        justify-content: center;
+    }
+
+    body.sidebar-collapsed #sidebar .sidebar-section-label {
+        display: none !important;
+    }
+
+    body.sidebar-collapsed #sidebar .sidebar-nav-item {
+        justify-content: center;
+        gap: 0;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+    }
+
+    body.sidebar-collapsed #sidebar .sidebar-label {
+        display: none !important;
+    }
+
+    body.sidebar-collapsed header {
+        left: 5rem !important;
+    }
+
+    body.sidebar-collapsed main {
+        margin-left: 5rem !important;
+    }
+
+}
