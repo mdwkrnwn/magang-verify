@@ -10,6 +10,12 @@ $username = getenv('DB_USER') ?: 'magangverify';
 $password = getenv('DB_PASSWORD') ?: 'magangverify';
 
 try {
+    // saat hosting
+//     $dsn = "pgsql:host={$host};port={$port};dbname={$dbname};options='--search_path=public'";
+
+// $pdo = new PDO(
+//     $dsn,
+
     $pdo = new PDO(
         "pgsql:host={$host};port={$port};dbname={$dbname}",
         $username,
