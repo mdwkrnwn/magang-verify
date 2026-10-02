@@ -1,7 +1,7 @@
-
 <?php
 
 require_once __DIR__ . '/app.php';
+require_once __DIR__ . '/env.php';
 
 $host = getenv('DB_HOST') ?: '172.21.192.1';
 $port = getenv('DB_PORT') ?: '5432';

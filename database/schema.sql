@@ -178,6 +178,13 @@ CREATE INDEX IF NOT EXISTS idx_sertifikat_tanggal_terbit
 CREATE INDEX IF NOT EXISTS idx_sertifikat_status_verifikasi
     ON sertifikat(status_verifikasi);
 
+-- Penambahan Constraint Foreign Key ke tabel portofolio_teknologi
+ALTER TABLE portofolio_teknologi
+ADD CONSTRAINT fk_portofolio_teknologi_portofolio
+FOREIGN KEY (portofolio_id)
+REFERENCES portofolios(id)
+ON DELETE CASCADE;
+
 -- =====================================================
 -- MENAMBAH KOLOM TABEL SERTIFIKAT
 -- =====================================================
