@@ -27,7 +27,7 @@ $gambar = trim(
 
         <?php
         $gambarUrl = url(
-            '/assets/images/sertifikat/' . $gambar
+            '/' . ltrim($gambar, '/')
         );
         ?>
 
@@ -35,8 +35,7 @@ $gambar = trim(
             type="button"
             id="openSertifikatPreview"
             class="group block w-full overflow-hidden text-left border border-gray-200 rounded-xl bg-slate-50 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
-            aria-label="Lihat foto sertifikat <?= e($nama) ?>"
-        >
+            aria-label="Lihat foto sertifikat <?= e($nama) ?>">
 
             <div class="flex items-center justify-center p-3 sm:p-5">
 
@@ -44,8 +43,7 @@ $gambar = trim(
                     src="<?= e($gambarUrl) ?>"
                     alt="Foto sertifikat <?= e($nama) ?>"
                     class="object-contain w-full h-auto max-h-[420px] transition duration-200 group-hover:scale-[1.01]"
-                    loading="lazy"
-                >
+                    loading="lazy">
 
             </div>
 
@@ -57,13 +55,11 @@ $gambar = trim(
                     stroke="currentColor"
                     stroke-width="1.8"
                     viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
+                    aria-hidden="true">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        d="M3.75 3.75h4.5m-4.5 0v4.5m0-4.5 5.25 5.25M20.25 20.25h-4.5m4.5 0v-4.5m0 4.5-5.25-5.25M20.25 3.75v4.5m0-4.5h-4.5m4.5 0-5.25 5.25M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15"
-                    />
+                        d="M3.75 3.75h4.5m-4.5 0v4.5m0-4.5 5.25 5.25M20.25 20.25h-4.5m4.5 0v-4.5m0 4.5-5.25-5.25M20.25 3.75v4.5m0-4.5h-4.5m4.5 0-5.25 5.25M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15" />
                 </svg>
 
                 Klik untuk melihat lebih besar
@@ -75,8 +71,7 @@ $gambar = trim(
 
         <dialog
             id="sertifikatPreviewModal"
-            class="w-full max-w-5xl p-0 m-auto overflow-hidden bg-transparent backdrop:bg-black/70"
-        >
+            class="w-full max-w-5xl p-0 m-auto overflow-hidden bg-transparent backdrop:bg-black/70">
 
             <div class="relative flex flex-col w-full max-h-[92vh] overflow-hidden bg-white rounded-xl shadow-2xl">
 
@@ -95,8 +90,7 @@ $gambar = trim(
                         type="button"
                         id="closeSertifikatPreview"
                         class="inline-flex items-center justify-center w-9 h-9 text-gray-500 transition rounded-lg shrink-0 hover:bg-gray-100 hover:text-gray-900"
-                        aria-label="Tutup preview sertifikat"
-                    >
+                        aria-label="Tutup preview sertifikat">
 
                         <svg
                             class="w-5 h-5"
@@ -104,13 +98,11 @@ $gambar = trim(
                             stroke="currentColor"
                             stroke-width="1.8"
                             viewBox="0 0 24 24"
-                            aria-hidden="true"
-                        >
+                            aria-hidden="true">
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
-                                d="m6 6 12 12M18 6 6 18"
-                            />
+                                d="m6 6 12 12M18 6 6 18" />
                         </svg>
 
                     </button>
@@ -123,8 +115,7 @@ $gambar = trim(
                     <img
                         src="<?= e($gambarUrl) ?>"
                         alt="Foto sertifikat <?= e($nama) ?>"
-                        class="object-contain max-w-full max-h-[calc(92vh-90px)]"
-                    >
+                        class="object-contain max-w-full max-h-[calc(92vh-90px)]">
 
                 </div>
 
@@ -205,20 +196,17 @@ $gambar = trim(
                     stroke="currentColor"
                     stroke-width="1.8"
                     viewBox="0 0 24 24"
-                    aria-hidden="true"
-                >
+                    aria-hidden="true">
                     <rect
                         x="3.75"
                         y="4.5"
                         width="16.5"
                         height="15"
-                        rx="1.5"
-                    />
+                        rx="1.5" />
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        d="m8.25 15 2.25-2.25 2.25 2.25 2.25-3 2.25 3"
-                    />
+                        d="m8.25 15 2.25-2.25 2.25 2.25 2.25-3 2.25 3" />
                 </svg>
 
             </div>

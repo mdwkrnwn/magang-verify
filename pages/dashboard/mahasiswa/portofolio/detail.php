@@ -23,8 +23,7 @@ $active = 'portofolio';
         <div
             class="w-full max-w-[1600px] px-4 py-5 mx-auto
                    sm:px-6 sm:py-6
-                   lg:px-8 lg:py-8"
-        >
+                   lg:px-8 lg:py-8">
 
             <?php include __DIR__ . "/../../../../components/dashboard/mahasiswa/portofolio/detail/Header.php"; ?>
 
@@ -32,10 +31,11 @@ $active = 'portofolio';
             <div
                 class="grid grid-cols-1 gap-5
                        lg:grid-cols-[minmax(0,1fr)_320px]
-                       lg:items-start"
-            >
+                       lg:items-start">
 
                 <div class="min-w-0 space-y-5">
+
+                    <?php include __DIR__ . "/../../../../components/dashboard/mahasiswa/portofolio/detail/Preview.php"; ?>
 
                     <?php include __DIR__ . "/../../../../components/dashboard/mahasiswa/portofolio/detail/Informasi.php"; ?>
 
@@ -60,6 +60,8 @@ $active = 'portofolio';
         </div>
 
     </main>
+
+    <?php include __DIR__ . "/../../../../components/dashboard/mahasiswa/portofolio/detail/ModalPreview.php"; ?>
 
 </body>
 

@@ -1,9 +1,17 @@
 <?php
 
-require_once __DIR__ . '/../../../data/dashboard/mahasiswa/Portofolio.php';
+require_once __DIR__ . '/../../../models/Portofolio.php';
 
 class PortofolioController
 {
+
+    private Portofolio $portofolioModel;
+
+    public function __construct()
+    {
+        $this->portofolioModel = new Portofolio();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | Session
@@ -17,6 +25,270 @@ class PortofolioController
         }
     }
 
+    /**
+     * Mengambil ID pengguna yang sedang login.
+     * Route/controller ini seharusnya hanya dapat diakses oleh role mahasiswa.
+     */
+    private function getMahasiswaId(): int
+    {
+        $this->startSession();
+
+        $userId = $_SESSION['user']['id'] ?? null;
+
+        if (!is_numeric($userId) || (int) $userId < 1) {
+            http_response_code(401);
+            exit('Sesi pengguna tidak valid. Silakan login kembali.');
+        }
+
+        return (int) $userId;
+    }
+
+    private function validatePostRequest(): void
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            http_response_code(405);
+            header('Allow: POST');
+            exit('Method Not Allowed');
+        }
+
+        if (!verifyCsrfToken()) {
+            http_response_code(403);
+            exit('403 - Token CSRF tidak valid.');
+        }
+    }
+
+    private function showNotFound(): void
+    {
+        http_response_code(404);
+        require __DIR__ . '/../../../pages/errors/404.php';
+        exit;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Upload gambar portofolio
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Memvalidasi dan menyimpan gambar ke uploads/portofolio.
+     * Path relatif yang disimpan ke database, misalnya:
+     * uploads/portofolio/namafile.webp
+     */
+    private function saveUploadedImage(array &$errors): ?string
+    {
+        if (
+            !isset($_FILES['gambar']) ||
+            !is_array($_FILES['gambar']) ||
+            ($_FILES['gambar']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE
+        ) {
+            return null;
+        }
+
+        $file = $_FILES['gambar'];
+        $uploadError = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+
+        if ($uploadError !== UPLOAD_ERR_OK) {
+            $errors['gambar'] = match ($uploadError) {
+                UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE =>
+                    'Ukuran gambar terlalu besar.',
+                UPLOAD_ERR_PARTIAL =>
+                    'Gambar hanya terunggah sebagian. Silakan coba lagi.',
+                default =>
+                    'Gambar gagal diunggah. Silakan coba lagi.',
+            };
+            return null;
+        }
+
+        $maxSize = 2 * 1024 * 1024;
+
+        if (!isset($file['size']) || (int) $file['size'] < 1) {
+            $errors['gambar'] = 'File gambar kosong atau tidak valid.';
+            return null;
+        }
+
+        if ((int) $file['size'] > $maxSize) {
+            $errors['gambar'] = 'Ukuran gambar maksimal 2 MB.';
+            return null;
+        }
+
+        $tmpName = $file['tmp_name'] ?? '';
+
+        if (!is_uploaded_file($tmpName)) {
+            $errors['gambar'] = 'File yang diunggah tidak valid.';
+            return null;
+        }
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mimeType = $finfo->file($tmpName);
+
+        $allowedTypes = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/webp' => 'webp',
+        ];
+
+        if (!isset($allowedTypes[$mimeType])) {
+            $errors['gambar'] = 'Format gambar harus JPG, PNG, atau WEBP.';
+            return null;
+        }
+
+        $projectRoot = dirname(__DIR__, 3);
+        $uploadDirectory = $projectRoot . '/uploads/portofolio';
+
+        if (
+            !is_dir($uploadDirectory) &&
+            !mkdir($uploadDirectory, 0755, true) &&
+            !is_dir($uploadDirectory)
+        ) {
+            $errors['gambar'] = 'Folder penyimpanan gambar tidak dapat dibuat.';
+            return null;
+        }
+
+        $fileName = bin2hex(random_bytes(16)) . '.' . $allowedTypes[$mimeType];
+        $destination = $uploadDirectory . '/' . $fileName;
+
+        if (!move_uploaded_file($tmpName, $destination)) {
+            $errors['gambar'] = 'Gambar gagal disimpan ke server.';
+            return null;
+        }
+
+        return 'uploads/portofolio/' . $fileName;
+    }
+
+    /**
+     * Menghapus file gambar hanya jika path berada di folder upload portofolio.
+     */
+    private function removeUploadedImage(?string $relativePath): void
+    {
+        if (!$relativePath || !str_starts_with($relativePath, 'uploads/portofolio/')) {
+            return;
+        }
+
+        $projectRoot = dirname(__DIR__, 3);
+        $uploadDirectory = realpath($projectRoot . '/uploads/portofolio');
+
+        if ($uploadDirectory === false) {
+            return;
+        }
+
+        $filePath = realpath($projectRoot . '/' . $relativePath);
+
+        if (
+            $filePath !== false &&
+            str_starts_with($filePath, $uploadDirectory . DIRECTORY_SEPARATOR) &&
+            is_file($filePath)
+        ) {
+            unlink($filePath);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Membaca data form
+    |--------------------------------------------------------------------------
+    */
+
+    private function readFormData(array &$errors): array
+    {
+        $judul = trim($_POST['judul'] ?? '');
+        $deskripsi = trim($_POST['deskripsi'] ?? '');
+        $teknologiInput = trim($_POST['teknologi'] ?? '');
+        $peran = trim($_POST['peran'] ?? '');
+        $tahunInput = trim((string) ($_POST['tahun'] ?? ''));
+        $github = trim($_POST['github'] ?? '');
+        $demo = trim($_POST['demo'] ?? '');
+
+        if ($judul === '') {
+            $errors['judul'] = 'Judul portofolio wajib diisi.';
+        } elseif (mb_strlen($judul) > 200) {
+            $errors['judul'] = 'Judul maksimal 200 karakter.';
+        }
+
+        if ($deskripsi === '') {
+            $errors['deskripsi'] = 'Deskripsi portofolio wajib diisi.';
+        }
+
+        if ($teknologiInput === '') {
+            $errors['teknologi'] = 'Teknologi wajib diisi.';
+        }
+
+        if ($peran === '') {
+            $errors['peran'] = 'Peran wajib diisi.';
+        } elseif (mb_strlen($peran) > 100) {
+            $errors['peran'] = 'Peran maksimal 100 karakter.';
+        }
+
+        $tahun = null;
+
+        if ($tahunInput === '') {
+            $errors['tahun'] = 'Tahun wajib diisi.';
+        } else {
+            $tahunValid = filter_var($tahunInput, FILTER_VALIDATE_INT);
+
+            if ($tahunValid === false || $tahunValid < 2000 || $tahunValid > 2100) {
+                $errors['tahun'] = 'Tahun harus berupa angka antara 2000 dan 2100.';
+            } else {
+                $tahun = (int) $tahunValid;
+            }
+        }
+
+        foreach (['github' => $github, 'demo' => $demo] as $field => $url) {
+            if ($url === '') {
+                continue;
+            }
+
+            $scheme = strtolower((string) parse_url($url, PHP_URL_SCHEME));
+
+            if (
+                !filter_var($url, FILTER_VALIDATE_URL) ||
+                !in_array($scheme, ['http', 'https'], true)
+            ) {
+                $errors[$field] = 'URL harus menggunakan format HTTP atau HTTPS yang valid.';
+            }
+        }
+
+        $teknologi = array_values(array_unique(array_filter(
+            array_map('trim', explode(',', $teknologiInput)),
+            static fn($item) => $item !== ''
+        )));
+
+        foreach ($teknologi as $item) {
+            if (mb_strlen($item) > 100) {
+                $errors['teknologi'] = 'Setiap nama teknologi maksimal 100 karakter.';
+                break;
+            }
+        }
+
+        return [
+            'judul' => $judul,
+            'deskripsi' => $deskripsi,
+            'teknologi' => $teknologi,
+            'peran' => $peran,
+            'tahun' => $tahun,
+            'github' => $github,
+            'demo' => $demo,
+        ];
+    }
+
+    /**
+     * Menyiapkan nilai form dalam format yang dipakai oleh view tambah/edit.
+     */
+    private function prepareFormValues(array $data, array $existing = []): array
+    {
+        return array_merge($existing, [
+            'judul' => $data['judul'],
+            'deskripsi' => $data['deskripsi'],
+            'teknologi' => $data['teknologi'],
+            'peran' => $data['peran'],
+            'tahun' => (string) ($data['tahun'] ?? ''),
+            'gambar' => $existing['gambar'] ?? '',
+            'tautan' => [
+                'github' => $data['github'],
+                'demo' => $data['demo'],
+            ],
+        ]);
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -84,273 +356,110 @@ class PortofolioController
 
     public function index($params = [])
     {
-        /*
-        |----------------------------------------------------------------------
-        | Gunakan data dari session
-        |----------------------------------------------------------------------
-        */
+        $userId = $this->getMahasiswaId();
 
-        $portofolio = $this->getAllPortofolio();
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Filter
-        |--------------------------------------------------------------------------
-        */
+        // Data diambil dari PostgreSQL melalui model.
+        $portofolio = $this->portofolioModel->getAllPortofolio($userId);
 
         $q = trim($_GET['q'] ?? '');
-
         $tahun = trim($_GET['tahun'] ?? '');
-
         $status = trim($_GET['status'] ?? '');
-
         $teknologi = trim($_GET['teknologi'] ?? '');
 
-
         /*
-        |--------------------------------------------------------------------------
-        | Data pilihan filter
-        |--------------------------------------------------------------------------
-        */
-
+         * Pilihan filter diambil dari data milik mahasiswa yang login.
+         */
         $tahunList = [];
-
         $teknologiList = [];
 
-
         foreach ($portofolio as $item) {
-
-            $itemTahun = trim(
-                $item['tahun'] ?? ''
-            );
+            $itemTahun = trim((string) ($item['tahun'] ?? ''));
 
             if ($itemTahun !== '') {
-
                 $tahunList[] = $itemTahun;
             }
 
-
-            foreach (
-                ($item['teknologi'] ?? [])
-                as $itemTeknologi
-            ) {
-
-                $itemTeknologi = trim(
-                    $itemTeknologi
-                );
+            foreach (($item['teknologi'] ?? []) as $itemTeknologi) {
+                $itemTeknologi = trim((string) $itemTeknologi);
 
                 if ($itemTeknologi !== '') {
-
                     $teknologiList[] = $itemTeknologi;
                 }
             }
         }
 
-
-        $tahunList = array_values(
-            array_unique($tahunList)
-        );
-
+        $tahunList = array_values(array_unique($tahunList));
         rsort($tahunList);
 
-
-        $teknologiList = array_values(
-            array_unique($teknologiList)
-        );
-
+        $teknologiList = array_values(array_unique($teknologiList));
         sort($teknologiList);
 
-
         /*
-        |--------------------------------------------------------------------------
-        | Filtering
-        |--------------------------------------------------------------------------
-        */
-
+         * Pencarian dan filter.
+         */
         $hasilFilter = array_filter(
             $portofolio,
-            function ($item) use (
-                $q,
-                $tahun,
-                $status,
-                $teknologi
-            ) {
-
-                /*
-                |------------------------------------------------------------------
-                | Search
-                |------------------------------------------------------------------
-                */
-
+            function ($item) use ($q, $tahun, $status, $teknologi) {
                 if ($q !== '') {
+                    $keyword = mb_strtolower($q);
 
-                    $keyword = strtolower($q);
+                    $teksPencarian = mb_strtolower(implode(' ', [
+                        $item['judul'] ?? '',
+                        $item['deskripsi'] ?? '',
+                        $item['peran'] ?? '',
+                        implode(' ', $item['teknologi'] ?? []),
+                    ]));
 
-                    $judul = strtolower(
-                        $item['judul'] ?? ''
-                    );
-
-                    $deskripsi = strtolower(
-                        $item['deskripsi'] ?? ''
-                    );
-
-                    $peran = strtolower(
-                        $item['peran'] ?? ''
-                    );
-
-                    $teknologiText = strtolower(
-                        implode(
-                            ' ',
-                            $item['teknologi'] ?? []
-                        )
-                    );
-
-
-                    if (
-                        strpos(
-                            $judul,
-                            $keyword
-                        ) === false &&
-
-                        strpos(
-                            $deskripsi,
-                            $keyword
-                        ) === false &&
-
-                        strpos(
-                            $peran,
-                            $keyword
-                        ) === false &&
-
-                        strpos(
-                            $teknologiText,
-                            $keyword
-                        ) === false
-                    ) {
-
+                    if (mb_strpos($teksPencarian, $keyword) === false) {
                         return false;
                     }
                 }
 
-
-                /*
-                |------------------------------------------------------------------
-                | Tahun
-                |------------------------------------------------------------------
-                */
-
                 if (
                     $tahun !== '' &&
-                    ($item['tahun'] ?? '') !== $tahun
+                    (string) ($item['tahun'] ?? '') !== $tahun
                 ) {
-
                     return false;
                 }
-
-
-                /*
-                |------------------------------------------------------------------
-                | Status
-                |------------------------------------------------------------------
-                */
 
                 if (
                     $status !== '' &&
                     ($item['verifikasi']['status'] ?? '') !== $status
                 ) {
-
                     return false;
                 }
 
-
-                /*
-                |------------------------------------------------------------------
-                | Teknologi
-                |------------------------------------------------------------------
-                */
-
                 if ($teknologi !== '') {
-
-                    $itemTeknologi = array_map(
-                        'strtolower',
+                    $daftarTeknologi = array_map(
+                        'mb_strtolower',
                         $item['teknologi'] ?? []
                     );
 
-
-                    if (
-                        !in_array(
-                            strtolower($teknologi),
-                            $itemTeknologi,
-                            true
-                        )
-                    ) {
-
+                    if (!in_array(mb_strtolower($teknologi), $daftarTeknologi, true)) {
                         return false;
                     }
                 }
-
 
                 return true;
             }
         );
 
-
-        $hasilFilter = array_values(
-            $hasilFilter
-        );
-
+        $hasilFilter = array_values($hasilFilter);
 
         /*
-        |--------------------------------------------------------------------------
-        | Pagination
-        |--------------------------------------------------------------------------
-        */
-
+         * Pagination.
+         */
         $perPage = 6;
+        $totalData = count($hasilFilter);
+        $totalPage = max(1, (int) ceil($totalData / $perPage));
 
-        $totalData = count(
-            $hasilFilter
-        );
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $page = min($page, $totalPage);
 
+        $offset = ($page - 1) * $perPage;
 
-        $totalPage = max(
-            1,
-            (int) ceil(
-                $totalData / $perPage
-            )
-        );
-
-
-        $page = max(
-            1,
-            (int) ($_GET['page'] ?? 1)
-        );
-
-
-        if ($page > $totalPage) {
-
-            $page = $totalPage;
-        }
-
-
-        $offset = (
-            $page - 1
-        ) * $perPage;
-
-
-        $tampil = array_slice(
-            $hasilFilter,
-            $offset,
-            $perPage
-        );
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Data pagination untuk view
-        |--------------------------------------------------------------------------
-        */
+        // Nama variabel $tampil dipertahankan agar cocok dengan view.
+        $tampil = array_slice($hasilFilter, $offset, $perPage);
 
         $pagination = [
             'current_page' => $page,
@@ -359,15 +468,7 @@ class PortofolioController
             'total_page' => $totalPage,
         ];
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | View
-        |--------------------------------------------------------------------------
-        */
-
-        require __DIR__
-            . '/../../../pages/dashboard/mahasiswa/portofolio/index.php';
+        require __DIR__ . '/../../../pages/dashboard/mahasiswa/portofolio/index.php';
     }
 
 
@@ -379,42 +480,18 @@ class PortofolioController
 
     public function detail($params = [])
     {
-        $portofolio = $this->getAllPortofolio();
+        $userId = $this->getMahasiswaId();
+        $slug = trim($params['slug'] ?? '');
 
-        $slug = trim(
-            $params['slug'] ?? ''
-        );
-
-
-        $portofolioDetail = null;
-
-
-        foreach ($portofolio as $item) {
-
-            if (
-                ($item['slug'] ?? '') === $slug
-            ) {
-
-                $portofolioDetail = $item;
-
-                break;
-            }
-        }
-
+        // Model membatasi hasil berdasarkan slug dan user_id.
+        $portofolioDetail = $this->portofolioModel
+            ->getPortofolioBySlug($slug, $userId);
 
         if (!$portofolioDetail) {
-
-            http_response_code(404);
-
-            require __DIR__
-                . '/../../../pages/errors/404.php';
-
-            exit;
+            $this->showNotFound();
         }
 
-
-        require __DIR__
-            . '/../../../pages/dashboard/mahasiswa/portofolio/detail.php';
+        require __DIR__ . '/../../../pages/dashboard/mahasiswa/portofolio/detail.php';
     }
 
 
@@ -426,257 +503,54 @@ class PortofolioController
 
     public function tambah($params = [])
     {
-        $this->startSession();
-
+        $userId = $this->getMahasiswaId();
         $errors = [];
+        $portofolioEdit = null;
 
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+            $this->validatePostRequest();
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            $judul = trim(
-                $_POST['judul'] ?? ''
-            );
-
-            $deskripsi = trim(
-                $_POST['deskripsi'] ?? ''
-            );
-
-            $teknologiInput = trim(
-                $_POST['teknologi'] ?? ''
-            );
-
-            $peran = trim(
-                $_POST['peran'] ?? ''
-            );
-
-            $tahun = trim(
-                $_POST['tahun'] ?? ''
-            );
-
-            $github = trim(
-                $_POST['github'] ?? ''
-            );
-
-            $demo = trim(
-                $_POST['demo'] ?? ''
-            );
-
-
-            /*
-            |------------------------------------------------------------------
-            | Validasi
-            |------------------------------------------------------------------
-            */
-
-            if ($judul === '') {
-
-                $errors['judul'] =
-                    'Judul portofolio wajib diisi.';
-            }
-
-
-            if ($deskripsi === '') {
-
-                $errors['deskripsi'] =
-                    'Deskripsi portofolio wajib diisi.';
-            }
-
-
-            if ($teknologiInput === '') {
-
-                $errors['teknologi'] =
-                    'Teknologi wajib diisi.';
-            }
-
-
-            if ($peran === '') {
-
-                $errors['peran'] =
-                    'Peran wajib diisi.';
-            }
-
-
-            if ($tahun === '') {
-
-                $errors['tahun'] =
-                    'Tahun wajib diisi.';
-            }
-
-
-            /*
-            |------------------------------------------------------------------
-            | Simpan
-            |------------------------------------------------------------------
-            */
+            $data = $this->readFormData($errors);
 
             if (empty($errors)) {
+                $gambarPathBaru = $this->saveUploadedImage($errors);
 
-                $portofolio =
-                    $this->getAllPortofolio();
-
-
-                $teknologi = array_filter(
-                    array_map(
-                        'trim',
-                        explode(
-                            ',',
-                            $teknologiInput
-                        )
-                    )
-                );
-
-
-                /*
-                |----------------------------------------------------------------
-                | Slug
-                |----------------------------------------------------------------
-                */
-
-                $slug = slugify(
-                    $judul
-                );
-
-
-                $slugs = array_column(
-                    $portofolio,
-                    'slug'
-                );
-
-
-                $originalSlug = $slug;
-
-                $counter = 2;
-
-
-                while (
-                    in_array(
-                        $slug,
-                        $slugs,
-                        true
-                    )
-                ) {
-
-                    $slug =
-                        $originalSlug
-                        . '-'
-                        . $counter;
-
-                    $counter++;
+                if ($gambarPathBaru !== null) {
+                    $data['gambar_path'] = $gambarPathBaru;
                 }
-
-
-                /*
-                |----------------------------------------------------------------
-                | ID
-                |----------------------------------------------------------------
-                */
-
-                $lastId = 0;
-
-
-                foreach ($portofolio as $item) {
-
-                    $lastId = max(
-                        $lastId,
-                        (int) (
-                            $item['id'] ?? 0
-                        )
-                    );
-                }
-
-
-                /*
-                |----------------------------------------------------------------
-                | Data baru
-                |----------------------------------------------------------------
-                */
-
-                $dataBaru = [
-
-                    'id' => $lastId + 1,
-
-                    'slug' => $slug,
-
-                    'judul' => $judul,
-
-                    'deskripsi' => $deskripsi,
-
-                    'teknologi' =>
-                        array_values(
-                            $teknologi
-                        ),
-
-                    'peran' => $peran,
-
-                    'tahun' => $tahun,
-
-                    'tautan' => [
-
-                        'github' => $github,
-
-                        'demo' => $demo,
-
-                    ],
-
-                    'verifikasi' => [
-
-                        'status' =>
-                            'belum_terverifikasi',
-
-                        'label' =>
-                            'Belum Terverifikasi',
-
-                    ],
-
-                ];
-
-
-                /*
-                |----------------------------------------------------------------
-                | Tambahkan ke dataset
-                |----------------------------------------------------------------
-                */
-
-                $portofolio[] = $dataBaru;
-
-
-                /*
-                |----------------------------------------------------------------
-                | Simpan ke session
-                |----------------------------------------------------------------
-                */
-
-                $this->savePortofolio(
-                    $portofolio
-                );
-
-
-                /*
-                |----------------------------------------------------------------
-                | Redirect detail
-                |----------------------------------------------------------------
-                */
-
-                header(
-                    'Location: '
-                    . url(
-                        '/dashboard/mahasiswa/portofolio/detail/'
-                        . $slug
-                    )
-                );
-
-                exit;
             }
-        }
 
+            if (empty($errors)) {
+                try {
+                    /*
+                     * Model membuat slug unik, menyimpan data portofolio,
+                     * path gambar, dan daftar teknologi.
+                     */
+                    $slug = $this->portofolioModel->create($userId, $data);
+
+                    header(
+                        'Location: ' .
+                            url('/dashboard/mahasiswa/portofolio/detail/' . $slug)
+                    );
+                    exit;
+                } catch (PDOException | RuntimeException $e) {
+                    if (!empty($data['gambar_path'])) {
+                        $this->removeUploadedImage($data['gambar_path']);
+                    }
+
+                    error_log('Gagal menambah portofolio: ' . $e->getMessage());
+                    $errors['database'] =
+                        'Portofolio gagal disimpan. Silakan coba kembali.';
+                }
+            }
+
+            // Jika validasi gagal, isi form tetap ditampilkan.
+            $portofolioEdit = $this->prepareFormValues($data);
+        }
 
         $isEdit = false;
 
-        $portofolioEdit = null;
-
-
-        require __DIR__
-            . '/../../../pages/dashboard/mahasiswa/portofolio/tambah.php';
+        require __DIR__ . '/../../../pages/dashboard/mahasiswa/portofolio/tambah.php';
     }
 
 
@@ -688,359 +562,83 @@ class PortofolioController
 
     public function edit($params = [])
     {
-        $this->startSession();
+        $userId = $this->getMahasiswaId();
+        $slug = trim($params['slug'] ?? '');
 
-
-        $slug = trim(
-            $params['slug'] ?? ''
-        );
-
-
-        $portofolio =
-            $this->getAllPortofolio();
-
-
-        $portofolioEdit = null;
-
-
-        foreach ($portofolio as $item) {
-
-            if (
-                ($item['slug'] ?? '') === $slug
-            ) {
-
-                $portofolioEdit = $item;
-
-                break;
-            }
-        }
-
-
-        /*
-        |----------------------------------------------------------------------
-        | Data tidak ditemukan
-        |----------------------------------------------------------------------
-        */
+        // Data hanya dapat diedit oleh pemiliknya.
+        $portofolioEdit = $this->portofolioModel
+            ->getPortofolioBySlug($slug, $userId);
 
         if (!$portofolioEdit) {
-
-            http_response_code(404);
-
-            require __DIR__
-                . '/../../../pages/errors/404.php';
-
-            exit;
+            $this->showNotFound();
         }
-
 
         $errors = [];
 
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+            $this->validatePostRequest();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Update
-        |--------------------------------------------------------------------------
-        */
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-            $judul = trim(
-                $_POST['judul'] ?? ''
-            );
-
-            $deskripsi = trim(
-                $_POST['deskripsi'] ?? ''
-            );
-
-            $teknologiInput = trim(
-                $_POST['teknologi'] ?? ''
-            );
-
-            $peran = trim(
-                $_POST['peran'] ?? ''
-            );
-
-            $tahun = trim(
-                $_POST['tahun'] ?? ''
-            );
-
-            $github = trim(
-                $_POST['github'] ?? ''
-            );
-
-            $demo = trim(
-                $_POST['demo'] ?? ''
-            );
-
-
-            /*
-            |------------------------------------------------------------------
-            | Validasi
-            |------------------------------------------------------------------
-            */
-
-            if ($judul === '') {
-
-                $errors['judul'] =
-                    'Judul portofolio wajib diisi.';
-            }
-
-
-            if ($deskripsi === '') {
-
-                $errors['deskripsi'] =
-                    'Deskripsi portofolio wajib diisi.';
-            }
-
-
-            if ($teknologiInput === '') {
-
-                $errors['teknologi'] =
-                    'Teknologi wajib diisi.';
-            }
-
-
-            if ($peran === '') {
-
-                $errors['peran'] =
-                    'Peran wajib diisi.';
-            }
-
-
-            if ($tahun === '') {
-
-                $errors['tahun'] =
-                    'Tahun wajib diisi.';
-            }
-
-
-            /*
-            |------------------------------------------------------------------
-            | Jika valid
-            |------------------------------------------------------------------
-            */
+            $data = $this->readFormData($errors);
 
             if (empty($errors)) {
+                $gambarPathBaru = $this->saveUploadedImage($errors);
 
-                $teknologi = array_filter(
-                    array_map(
-                        'trim',
-                        explode(
-                            ',',
-                            $teknologiInput
-                        )
-                    )
-                );
-
-
-                /*
-                |----------------------------------------------------------------
-                | Slug baru
-                |----------------------------------------------------------------
-                */
-
-                $slugBaru = slugify(
-                    $judul
-                );
-
-
-                $slugs = array_column(
-                    $portofolio,
-                    'slug'
-                );
-
-
-                /*
-                | Jangan menganggap slug milik data
-                | yang sedang diedit sebagai duplikat.
-                */
-
-                $slugs = array_values(
-                    array_filter(
-                        $slugs,
-                        function ($itemSlug) use ($slug) {
-
-                            return $itemSlug !== $slug;
-                        }
-                    )
-                );
-
-
-                $originalSlug = $slugBaru;
-
-                $counter = 2;
-
-
-                while (
-                    in_array(
-                        $slugBaru,
-                        $slugs,
-                        true
-                    )
-                ) {
-
-                    $slugBaru =
-                        $originalSlug
-                        . '-'
-                        . $counter;
-
-                    $counter++;
+                if ($gambarPathBaru !== null) {
+                    $data['gambar_path'] = $gambarPathBaru;
                 }
-
-
-                /*
-                |----------------------------------------------------------------
-                | Update data
-                |----------------------------------------------------------------
-                */
-
-                foreach (
-                    $portofolio
-                    as &$item
-                ) {
-
-                    if (
-                        ($item['slug'] ?? '')
-                        === $slug
-                    ) {
-
-                        $item = [
-
-                            'id' =>
-                                $portofolioEdit['id'],
-
-                            'slug' =>
-                                $slugBaru,
-
-                            'judul' =>
-                                $judul,
-
-                            'deskripsi' =>
-                                $deskripsi,
-
-                            'teknologi' =>
-                                array_values(
-                                    $teknologi
-                                ),
-
-                            'peran' =>
-                                $peran,
-
-                            'tahun' =>
-                                $tahun,
-
-                            'tautan' => [
-
-                                'github' =>
-                                    $github,
-
-                                'demo' =>
-                                    $demo,
-
-                            ],
-
-                            /*
-                            |----------------------------------------------------
-                            | Status verifikasi tidak berubah ketika edit.
-                            |----------------------------------------------------
-                            */
-
-                            'verifikasi' =>
-                                $portofolioEdit[
-                                    'verifikasi'
-                                ],
-                        ];
-
-                        break;
-                    }
-                }
-
-
-                unset($item);
-
-
-                /*
-                |----------------------------------------------------------------
-                | Simpan
-                |----------------------------------------------------------------
-                */
-
-                $this->savePortofolio(
-                    $portofolio
-                );
-
-
-                /*
-                |----------------------------------------------------------------
-                | Redirect
-                |----------------------------------------------------------------
-                */
-
-                header(
-                    'Location: '
-                    . url(
-                        '/dashboard/mahasiswa/portofolio/detail/'
-                        . $slugBaru
-                    )
-                );
-
-                exit;
             }
 
+            if (empty($errors)) {
+                $gambarLama = $portofolioEdit['gambar'] ?? '';
+
+                try {
+                    /*
+                     * Model memeriksa id dan user_id saat UPDATE.
+                     * Jika tidak ada gambar baru, gambar lama dipertahankan.
+                     */
+                    $slugBaru = $this->portofolioModel->update(
+                        (int) $portofolioEdit['id'],
+                        $userId,
+                        $data
+                    );
+
+                    if (
+                        !empty($data['gambar_path']) &&
+                        $gambarLama !== '' &&
+                        $gambarLama !== $data['gambar_path']
+                    ) {
+                        $this->removeUploadedImage($gambarLama);
+                    }
+
+                    header(
+                        'Location: ' .
+                            url('/dashboard/mahasiswa/portofolio/detail/' . $slugBaru)
+                    );
+                    exit;
+                } catch (PDOException | RuntimeException $e) {
+                    if (!empty($data['gambar_path'])) {
+                        $this->removeUploadedImage($data['gambar_path']);
+                    }
+
+                    error_log('Gagal mengubah portofolio: ' . $e->getMessage());
+                    $errors['database'] =
+                        'Perubahan portofolio gagal disimpan. Silakan coba kembali.';
+                }
+            }
 
             /*
-            |------------------------------------------------------------------
-            | Jika validasi gagal
-            |------------------------------------------------------------------
-            */
-
-            $portofolioEdit = array_merge(
-                $portofolioEdit,
-                [
-
-                    'judul' =>
-                        $judul,
-
-                    'deskripsi' =>
-                        $deskripsi,
-
-                    'teknologi' =>
-                        array_filter(
-                            array_map(
-                                'trim',
-                                explode(
-                                    ',',
-                                    $teknologiInput
-                                )
-                            )
-                        ),
-
-                    'peran' =>
-                        $peran,
-
-                    'tahun' =>
-                        $tahun,
-
-                    'tautan' => [
-
-                        'github' =>
-                            $github,
-
-                        'demo' =>
-                            $demo,
-
-                    ],
-
-                ]
+             * Jika validasi gagal, pertahankan data awal yang tidak diedit,
+             * termasuk status verifikasi dan gambar.
+             */
+            $portofolioEdit = $this->prepareFormValues(
+                $data,
+                $portofolioEdit
             );
         }
 
-
         $isEdit = true;
 
-
-        require __DIR__
-            . '/../../../pages/dashboard/mahasiswa/portofolio/tambah.php';
+        require __DIR__ . '/../../../pages/dashboard/mahasiswa/portofolio/tambah.php';
     }
 
 
@@ -1052,97 +650,43 @@ class PortofolioController
 
     public function hapus($params = [])
     {
-        /*
-        |----------------------------------------------------------------------
-        | Hapus hanya boleh melalui POST
-        |----------------------------------------------------------------------
-        */
+        $this->validatePostRequest();
 
-        if (
-            $_SERVER['REQUEST_METHOD']
-            !== 'POST'
-        ) {
+        $userId = $this->getMahasiswaId();
+        $slug = trim($params['slug'] ?? '');
 
-            http_response_code(405);
+        try {
+            // Ambil path gambar sebelum data dihapus dari database.
+            $portofolio = $this->portofolioModel->getPortofolioBySlug($slug, $userId);
 
-            echo 'Method Not Allowed';
-
-            exit;
-        }
-
-
-        $slug = trim(
-            $params['slug'] ?? ''
-        );
-
-
-        $portofolio =
-            $this->getAllPortofolio();
-
-
-        $ditemukan = false;
-
-        $portofolioBaru = [];
-
-
-        foreach ($portofolio as $item) {
-
-            if (
-                ($item['slug'] ?? '')
-                === $slug
-            ) {
-
-                $ditemukan = true;
-
-                continue;
+            if (!$portofolio) {
+                $this->showNotFound();
             }
 
+            /*
+             * Model menghapus berdasarkan slug dan user_id.
+             * Portofolio milik pengguna lain tidak boleh terhapus.
+             */
+            $dihapus = $this->portofolioModel->deleteBySlug($slug, $userId);
 
-            $portofolioBaru[] = $item;
+            if (!$dihapus) {
+                $this->showNotFound();
+            }
+
+            $this->removeUploadedImage($portofolio['gambar'] ?? '');
+        } catch (PDOException $e) {
+            error_log('Gagal menghapus portofolio: ' . $e->getMessage());
+
+            http_response_code(500);
+            exit('Portofolio gagal dihapus. Silakan coba kembali.');
+        } catch (RuntimeException $e) {
+            error_log('Gagal menghapus portofolio: ' . $e->getMessage());
+
+            http_response_code(500);
+            exit('Portofolio gagal dihapus. Silakan coba kembali.');
         }
 
-
-        /*
-        |----------------------------------------------------------------------
-        | Data tidak ditemukan
-        |----------------------------------------------------------------------
-        */
-
-        if (!$ditemukan) {
-
-            http_response_code(404);
-
-            require __DIR__
-                . '/../../../pages/errors/404.php';
-
-            exit;
-        }
-
-
-        /*
-        |----------------------------------------------------------------------
-        | Simpan data setelah dihapus
-        |----------------------------------------------------------------------
-        */
-
-        $this->savePortofolio(
-            $portofolioBaru
-        );
-
-
-        /*
-        |----------------------------------------------------------------------
-        | Kembali ke daftar
-        |----------------------------------------------------------------------
-        */
-
-        header(
-            'Location: '
-            . url(
-                '/dashboard/mahasiswa/portofolio'
-            )
-        );
-
+        header('Location: ' . url('/dashboard/mahasiswa/portofolio'));
         exit;
     }
 }

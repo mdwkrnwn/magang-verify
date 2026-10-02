@@ -37,23 +37,28 @@
             </div>
 
             <!-- Nama -->
-            <div
-                class="sidebar-logo-text min-w-0">
+            <?php
+            $role = $_SESSION['user']['role'] ?? '';
 
-                <h1
-                    class="text-lg font-bold text-gray-900 whitespace-nowrap">
+            $roleLabels = [
+                'mahasiswa' => 'Mahasiswa',
+                'dosen' => 'Dosen',
+                'tendik' => 'Tendik',
+                'koordinator_magang' => 'Koordinator Magang',
+                'mitra' => 'Mitra',
+            ];
 
+            $roleLabel = $roleLabels[$role] ?? 'Pengguna';
+            ?>
+
+            <div class="sidebar-logo-text min-w-0">
+                <h1 class="text-lg font-bold text-gray-900 whitespace-nowrap">
                     VerifyMagang
-
                 </h1>
 
-                <p
-                    class="text-xs text-gray-500 whitespace-nowrap">
-
-                    Mahasiswa
-
+                <p class="text-xs text-gray-500 whitespace-nowrap">
+                    <?= e($roleLabel) ?>
                 </p>
-
             </div>
 
         </div>
@@ -398,38 +403,42 @@
 
 
         <!-- Logout -->
-        <a
-            href="#"
-            title="Keluar"
-            class="sidebar-nav-item
-                   flex items-center gap-3
-                   px-4 py-3 mt-1
-                   text-red-500
-                   rounded-xl
-                   hover:bg-red-50">
+        <form
+            method="POST"
+            action="<?= e(url('/logout')) ?>"
+            class="mt-1">
+            <input
+                type="hidden"
+                name="_csrf_token"
+                value="<?= e(csrfToken()) ?>">
 
-            <svg
-                class="w-5 h-5 shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
+            <button
+                type="submit"
+                title="Keluar"
+                class="sidebar-nav-item
+               flex items-center gap-3
+               px-4 py-3
+               text-red-500
+               rounded-xl
+               hover:bg-red-50
+               w-full text-left">
+                <svg
+                    class="w-5 h-5 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" />
+                </svg>
 
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H6a2 2 0 01-2-2V7a2 2 0 012-2h5a2 2 0 012 2v1" />
-
-            </svg>
-
-            <span
-                class="sidebar-label text-sm whitespace-nowrap">
-
-                Keluar
-
-            </span>
-
-        </a>
+                <span class="sidebar-label text-sm whitespace-nowrap">
+                    Keluar
+                </span>
+            </button>
+        </form>
 
     </nav>
 

@@ -1,8 +1,9 @@
 <?php
 
-/* Login */
+/* Authenticator */
 
 require_once __DIR__ . '/../controllers/LoginController.php';
+require_once __DIR__ . '/../controllers/LogoutController.php';
 
 /* Landing Page */
 
@@ -23,6 +24,22 @@ require_once __DIR__ . '/../controllers/dashboard/mahasiswa/FormasiMagangControl
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengajuanController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LogbookController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LamarController.php';
+
+/* Dashboard Dosen */
+
+require_once __DIR__ . '/../controllers/dashboard/dosen/DosenDashboardController.php';
+
+/* Dashboard Tendik */
+
+require_once __DIR__ . '/../controllers/dashboard/tendik/TendikDashboardController.php';
+
+/* Dashboard Koordinator Magang */
+
+require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/KoordinatorMagangDashboardController.php';
+
+/* Dashboard Mitra */
+
+require_once __DIR__ . '/../controllers/dashboard/mitra/MitraDashboardController.php';
 
 $routes = [
 
@@ -78,12 +95,17 @@ $routes = [
 
     /*
     |---------------------
-    | Login
+    | Authenticator
     |---------------------
     */
 
     '/login' => [
         'controller' => LoginController::class,
+        'method' => 'index',
+    ],
+
+    '/logout' => [
+        'controller' => LogoutController::class,
         'method' => 'index',
     ],
 
@@ -139,6 +161,58 @@ $routes = [
 
     '/dashboard/mahasiswa/logbook' => [
         'controller' => LogbookController::class,
+        'method' => 'index',
+    ],
+
+    /*
+    |---------------------
+    | Dashboard Dosen
+    |---------------------
+    */
+
+    // Menu Dashboard
+
+    '/dashboard/dosen' => [
+        'controller' => DosenDashboardController::class,
+        'method' => 'index',
+    ],
+
+    /*
+    |---------------------
+    | Dashboard Tendik
+    |---------------------
+    */
+
+    // Menu Dashboard
+
+    '/dashboard/tendik' => [
+        'controller' => TendikDashboardController::class,
+        'method' => 'index',
+    ],
+
+    /*
+    |---------------------
+    | Dashboard Koordinator Magang
+    |---------------------
+    */
+
+    // Menu Dashboard
+
+    '/dashboard/koordinator-magang' => [
+        'controller' => KoordinatorMagangDashboardController::class,
+        'method' => 'index',
+    ],
+
+    /*
+    |---------------------
+    | Dashboard Mitra
+    |---------------------
+    */
+
+    // Menu Dashboard
+
+    '/dashboard/mitra' => [
+        'controller' => MitraDashboardController::class,
         'method' => 'index',
     ],
 

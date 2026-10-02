@@ -2,33 +2,6 @@
 
     <div class="flex items-center gap-3 mb-5">
 
-        <div
-            class="w-10 h-10 shrink-0
-                   rounded-lg
-                   bg-blue-50 text-blue-600
-                   flex items-center justify-center
-                   text-sm font-bold"
-        >
-            <?php
-            $parts = preg_split(
-                '/\s+/',
-                trim($portofolioDetail['judul'] ?? '')
-            );
-
-            $inisial = '';
-
-            foreach (array_slice($parts, 0, 2) as $part) {
-                $inisial .= strtoupper(
-                    mb_substr($part, 0, 1)
-                );
-            }
-            ?>
-
-            <?= e($inisial) ?>
-
-        </div>
-
-
         <div class="min-w-0">
 
             <h2 class="text-base font-bold text-gray-900">

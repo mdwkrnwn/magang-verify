@@ -558,6 +558,10 @@ $menuId =
                                     $slug
                             ) ?>"
                     method="POST">
+                    <input
+                        type="hidden"
+                        name="_csrf_token"
+                        value="<?= e(csrfToken()) ?>">
 
                     <button
                         type="submit"

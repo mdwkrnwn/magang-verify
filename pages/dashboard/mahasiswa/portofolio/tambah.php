@@ -9,7 +9,7 @@ $portofolioEdit = $portofolioEdit ?? null;
 $formAction = $isEdit
     ? url(
         '/dashboard/mahasiswa/portofolio/edit/'
-        . ($portofolioEdit['slug'] ?? '')
+            . ($portofolioEdit['slug'] ?? '')
     )
     : url('/dashboard/mahasiswa/portofolio/tambah');
 
@@ -71,8 +71,7 @@ $demo = $_POST['demo']
 
                 <a
                     href="<?= e(url('/dashboard/mahasiswa/portofolio')) ?>"
-                    class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition"
-                >
+                    class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition">
                     <span>&lt;</span>
                     Kembali ke Portofolio
                 </a>
@@ -90,19 +89,21 @@ $demo = $_POST['demo']
 
             <form
                 method="POST"
+                enctype="multipart/form-data"
                 action="<?= e($formAction) ?>"
-                class="bg-white border border-slate-200 rounded-xl p-4 sm:p-6"
-            >
+                class="bg-white border border-slate-200 rounded-xl p-4 sm:p-6">
+                <input
+                    type="hidden"
+                    name="_csrf_token"
+                    value="<?= e(csrfToken()) ?>">
 
                 <div class="grid grid-cols-1 gap-5">
-
 
                     <div>
 
                         <label
                             for="judul"
-                            class="block text-sm font-medium text-gray-700 mb-2"
-                        >
+                            class="block text-sm font-medium text-gray-700 mb-2">
                             Judul Portofolio
                         </label>
 
@@ -114,8 +115,7 @@ $demo = $_POST['demo']
                             placeholder="Contoh: Website E-Commerce Sederhana"
                             class="w-full px-3 py-2.5 border border-slate-200 rounded-lg
                                    text-sm outline-none
-                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                        >
+                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
 
                         <?php if (!empty($errors['judul'])): ?>
 
@@ -132,8 +132,7 @@ $demo = $_POST['demo']
 
                         <label
                             for="deskripsi"
-                            class="block text-sm font-medium text-gray-700 mb-2"
-                        >
+                            class="block text-sm font-medium text-gray-700 mb-2">
                             Deskripsi
                         </label>
 
@@ -144,8 +143,7 @@ $demo = $_POST['demo']
                             placeholder="Jelaskan secara singkat tentang portofolio ini."
                             class="w-full px-3 py-2.5 border border-slate-200 rounded-lg
                                    text-sm outline-none resize-y
-                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                        ><?= e($deskripsi) ?></textarea>
+                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100"><?= e($deskripsi) ?></textarea>
 
                         <?php if (!empty($errors['deskripsi'])): ?>
 
@@ -162,8 +160,7 @@ $demo = $_POST['demo']
 
                         <label
                             for="teknologi"
-                            class="block text-sm font-medium text-gray-700 mb-2"
-                        >
+                            class="block text-sm font-medium text-gray-700 mb-2">
                             Teknologi
                         </label>
 
@@ -175,8 +172,7 @@ $demo = $_POST['demo']
                             placeholder="React, Node.js, MySQL"
                             class="w-full px-3 py-2.5 border border-slate-200 rounded-lg
                                    text-sm outline-none
-                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                        >
+                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
 
                         <p class="mt-1 text-xs text-gray-400">
                             Pisahkan setiap teknologi dengan koma.
@@ -199,8 +195,7 @@ $demo = $_POST['demo']
 
                             <label
                                 for="peran"
-                                class="block text-sm font-medium text-gray-700 mb-2"
-                            >
+                                class="block text-sm font-medium text-gray-700 mb-2">
                                 Peran
                             </label>
 
@@ -212,8 +207,7 @@ $demo = $_POST['demo']
                                 placeholder="Frontend Developer"
                                 class="w-full px-3 py-2.5 border border-slate-200 rounded-lg
                                        text-sm outline-none
-                                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                            >
+                                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
 
                             <?php if (!empty($errors['peran'])): ?>
 
@@ -230,8 +224,7 @@ $demo = $_POST['demo']
 
                             <label
                                 for="tahun"
-                                class="block text-sm font-medium text-gray-700 mb-2"
-                            >
+                                class="block text-sm font-medium text-gray-700 mb-2">
                                 Tahun
                             </label>
 
@@ -244,8 +237,7 @@ $demo = $_POST['demo']
                                 value="<?= e($tahun) ?>"
                                 class="w-full px-3 py-2.5 border border-slate-200 rounded-lg
                                        text-sm outline-none
-                                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                            >
+                                       focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
 
                             <?php if (!empty($errors['tahun'])): ?>
 
@@ -260,12 +252,54 @@ $demo = $_POST['demo']
                     </div>
 
 
+
+                    <div>
+                        <label
+                            for="gambar"
+                            class="block text-sm font-medium text-gray-700 mb-2">
+                            Gambar Portofolio
+                        </label>
+
+                        <?php if (!empty($portofolioEdit['gambar'])): ?>
+                            <div class="mb-3">
+                                <p class="mb-2 text-xs text-gray-500">Gambar saat ini:</p>
+                                <img
+                                    src="<?= e(url('/' . ltrim($portofolioEdit['gambar'], '/'))) ?>"
+                                    alt="Gambar portofolio saat ini"
+                                    class="w-full max-w-xs rounded-lg border border-slate-200 object-cover">
+                            </div>
+                        <?php endif; ?>
+
+                        <input
+                            type="file"
+                            id="gambar"
+                            name="gambar"
+                            accept="image/jpeg,image/png,image/webp"
+                            class="w-full px-3 py-2.5 border border-slate-200 rounded-lg
+                                   text-sm outline-none
+                                   file:mr-3 file:rounded-md file:border-0
+                                   file:bg-blue-50 file:px-3 file:py-1.5
+                                   file:text-sm file:font-medium file:text-blue-700
+                                   hover:file:bg-blue-100
+                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+
+                        <p class="mt-1 text-xs text-gray-400">
+                            Format JPG, PNG, atau WEBP. Maksimal 2 MB.
+                            Kosongkan jika tidak ingin mengganti gambar.
+                        </p>
+
+                        <?php if (!empty($errors['gambar'])): ?>
+                            <p class="mt-1 text-xs text-red-500">
+                                <?= e($errors['gambar']) ?>
+                            </p>
+                        <?php endif; ?>
+                    </div>
+
                     <div>
 
                         <label
                             for="github"
-                            class="block text-sm font-medium text-gray-700 mb-2"
-                        >
+                            class="block text-sm font-medium text-gray-700 mb-2">
                             GitHub
                         </label>
 
@@ -277,8 +311,7 @@ $demo = $_POST['demo']
                             placeholder="https://github.com/username/project"
                             class="w-full px-3 py-2.5 border border-slate-200 rounded-lg
                                    text-sm outline-none
-                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                        >
+                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
 
                     </div>
 
@@ -287,8 +320,7 @@ $demo = $_POST['demo']
 
                         <label
                             for="demo"
-                            class="block text-sm font-medium text-gray-700 mb-2"
-                        >
+                            class="block text-sm font-medium text-gray-700 mb-2">
                             Link Demo
                         </label>
 
@@ -300,8 +332,7 @@ $demo = $_POST['demo']
                             placeholder="https://example.com"
                             class="w-full px-3 py-2.5 border border-slate-200 rounded-lg
                                    text-sm outline-none
-                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                        >
+                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
 
                     </div>
 
@@ -317,8 +348,7 @@ $demo = $_POST['demo']
                                    border border-slate-200
                                    rounded-lg
                                    hover:bg-slate-50
-                                   transition"
-                        >
+                                   transition">
                             Batal
                         </a>
 
@@ -331,8 +361,7 @@ $demo = $_POST['demo']
                                    bg-blue-600
                                    rounded-lg
                                    hover:bg-blue-700
-                                   transition"
-                        >
+                                   transition">
                             <?= e($submitLabel) ?>
                         </button>
 
@@ -347,4 +376,5 @@ $demo = $_POST['demo']
     </main>
 
 </body>
+
 </html>

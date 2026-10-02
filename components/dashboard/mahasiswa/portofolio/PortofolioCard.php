@@ -17,17 +17,17 @@ $slug = $portofolioItem['slug'] ?? '';
 
 $detailUrl = url(
     '/dashboard/mahasiswa/portofolio/detail/'
-    . $slug
+        . $slug
 );
 
 $editUrl = url(
     '/dashboard/mahasiswa/portofolio/edit/'
-    . $slug
+        . $slug
 );
 
 $deleteUrl = url(
     '/dashboard/mahasiswa/portofolio/hapus/'
-    . $slug
+        . $slug
 );
 
 $status = $portofolioItem['verifikasi']['status'] ?? '';
@@ -42,22 +42,53 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
 <div
     class="bg-white border border-slate-200 rounded-xl p-4 sm:p-5
            flex flex-col sm:flex-row gap-4 sm:gap-5
-           hover:shadow-sm transition"
->
+           hover:shadow-sm transition">
 
+    <?php
+    $gambar = trim($portofolioItem['gambar'] ?? '');
+
+    $gambarUrl = $gambar !== ''
+        ? url('/' . ltrim($gambar, '/'))
+        : '';
+    ?>
 
     <div
         class="w-full h-44
-               sm:w-40 sm:h-32
-               flex-shrink-0
-               rounded-lg
-               bg-blue-50 text-blue-600
-               text-3xl font-bold
-               flex items-center justify-center"
-    >
-        <?= e($inisial) ?>
-    </div>
+           sm:w-40 sm:h-32
+           flex-shrink-0
+           rounded-lg overflow-hidden
+           bg-slate-100
+           flex items-center justify-center">
 
+        <?php if ($gambarUrl !== ''): ?>
+
+            <img
+                src="<?= e($gambarUrl) ?>"
+                alt="<?= e('Gambar portofolio ' . $judul) ?>"
+                class="w-full h-full object-cover"
+                loading="lazy">
+
+        <?php else: ?>
+
+            <div class="flex flex-col items-center gap-2 text-slate-400">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-10 h-10"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <path d="m21 15-5-5L5 21" />
+                </svg>
+
+                <span class="text-xs">Belum ada gambar</span>
+            </div>
+
+        <?php endif; ?>
+
+    </div>
 
     <div class="flex flex-col flex-1 min-w-0">
 
@@ -84,8 +115,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
                            text-gray-500 rounded-lg
                            hover:bg-slate-100 hover:text-gray-700
                            transition"
-                    aria-label="Menu portofolio"
-                >
+                    aria-label="Menu portofolio">
                     <span class="text-xl leading-none">⋮</span>
                 </button>
 
@@ -96,8 +126,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
                            w-44 bg-white
                            border border-slate-200
                            rounded-lg shadow-lg
-                           p-1"
-                >
+                           p-1">
 
                     <a
                         href="<?= e($editUrl) ?>"
@@ -106,8 +135,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
                                text-sm text-gray-700
                                rounded-md
                                hover:bg-slate-50
-                               transition"
-                    >
+                               transition">
                         <span>✏</span>
                         Edit
                     </a>
@@ -122,8 +150,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
                                rounded-md
                                hover:bg-red-50
                                transition
-                               text-left"
-                    >
+                               text-left">
                         <span>🗑</span>
                         Hapus
                     </button>
@@ -145,8 +172,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
                            px-2.5 py-1
                            text-xs font-semibold
                            rounded-full
-                           bg-emerald-50 text-emerald-700"
-                >
+                           bg-emerald-50 text-emerald-700">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
 
                     <?= e($statusLabel ?: 'Terverifikasi') ?>
@@ -159,8 +185,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
                            px-2.5 py-1
                            text-xs font-semibold
                            rounded-full
-                           bg-amber-50 text-amber-700"
-                >
+                           bg-amber-50 text-amber-700">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
 
                     <?= e($statusLabel ?: 'Belum Terverifikasi') ?>
@@ -183,8 +208,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
 
                 <span
                     class="px-2.5 py-1 text-xs font-medium
-                           rounded-md bg-blue-50 text-blue-600"
-                >
+                           rounded-md bg-blue-50 text-blue-600">
                     <?= e($teknologi) ?>
                 </span>
 
@@ -202,8 +226,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
                        text-sm font-medium text-blue-600
                        border border-blue-200 rounded-lg
                        hover:bg-blue-50 hover:border-blue-300
-                       transition"
-            >
+                       transition">
                 Lihat Detail
             </a>
 
@@ -219,8 +242,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
     id="<?= e($modalId) ?>"
     class="w-[calc(100%-2rem)] max-w-md
            rounded-xl p-0
-           backdrop:bg-black/40"
->
+           backdrop:bg-black/40">
 
     <div class="bg-white rounded-xl p-5 sm:p-6">
 
@@ -231,8 +253,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
             <div
                 class="w-10 h-10 shrink-0
                        flex items-center justify-center
-                       rounded-full bg-red-50 text-red-600"
-            >
+                       rounded-full bg-red-50 text-red-600">
                 🗑
             </div>
 
@@ -260,40 +281,40 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
         </p>
 
 
+
         <form
             method="POST"
             action="<?= e($deleteUrl) ?>"
-            class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2"
-        >
+            class="mt-6 flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+            <input
+                type="hidden"
+                name="_csrf_token"
+                value="<?= e(csrfToken()) ?>">
 
             <button
                 type="button"
                 onclick="closeDeletePortfolioModal('<?= e($modalId) ?>')"
                 class="px-4 py-2.5
-                       text-sm font-medium
-                       text-gray-600
-                       border border-slate-200
-                       rounded-lg
-                       hover:bg-slate-50
-                       transition"
-            >
+               text-sm font-medium
+               text-gray-600
+               border border-slate-200
+               rounded-lg
+               hover:bg-slate-50
+               transition">
                 Batal
             </button>
-
 
             <button
                 type="submit"
                 class="px-4 py-2.5
-                       text-sm font-medium
-                       text-white
-                       bg-red-600
-                       rounded-lg
-                       hover:bg-red-700
-                       transition"
-            >
+               text-sm font-medium
+               text-white
+               bg-red-600
+               rounded-lg
+               hover:bg-red-700
+               transition">
                 Hapus
             </button>
-
         </form>
 
     </div>
