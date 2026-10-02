@@ -101,3 +101,7 @@ define('APP_URL', '/magang-verify');
 ```
 
 Gunakan konfigurasi tersebut baik saat menjalankan project melalui **Laragon** maupun **WSL**.
+
+## Dokumentasi Migration
+
+* [Panduan Migration](Dokumentas/migration.md)
