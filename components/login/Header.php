@@ -1,25 +1,36 @@
-<header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+<header class="flex w-full min-w-0 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-    <a href="<?= url('/') ?>" class="flex items-center gap-3 min-w-0">
-        <img src="<?= url('/assets/images/icon.png') ?>" alt="Logo MagangVerify" class="h-12 w-auto">
+    <!-- Logo -->
+    <a
+        href="<?= url('/') ?>"
+        class="flex min-w-0 max-w-full items-center gap-3"
+    >
+
+        <img
+            src="<?= url('/assets/images/icon.png') ?>"
+            alt="Logo MagangVerify"
+            class="h-10 w-10 shrink-0 object-contain sm:h-12 sm:w-12"
+        >
 
         <div class="min-w-0">
-            <p class="text-xl font-bold leading-tight text-slate-900">
+            <p class="truncate text-lg font-bold leading-tight text-slate-900 sm:text-xl">
                 MagangVerify
             </p>
 
-            <p class="text-[11px] text-slate-600 truncate sm:whitespace-normal">
+            <p class="truncate text-[10px] leading-relaxed text-slate-600 sm:text-xs">
                 Portofolio Terverifikasi, Masa Depan Lebih Dekat
             </p>
         </div>
+
     </a>
 
+    <!-- Kembali -->
     <a
         href="<?= url('/') ?>"
-        class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition shrink-0"
+        class="inline-flex min-h-10 w-fit max-w-full shrink-0 items-center gap-2 text-sm font-medium text-blue-600 transition hover:text-blue-700"
     >
-        <span>←</span>
-        Kembali ke Beranda
+        <span aria-hidden="true">←</span>
+        <span>Kembali ke Beranda</span>
     </a>
 
 </header>

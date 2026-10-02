@@ -1,12 +1,14 @@
-<!-- KIRI -->
-<section class="relative z-10 order-2 lg:order-1 w-full">
+<!-- Konten informasi -->
+<section class="relative z-10 order-2 w-full min-w-0 max-w-full lg:order-1">
 
-    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight">
+    <!-- Judul -->
+    <h1 class="max-w-2xl text-3xl font-bold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
         Satu Langkah Menuju Karier yang
         <span class="text-blue-600">Lebih Jelas</span>
     </h1>
 
-    <p class="mt-5 max-w-md leading-7 text-slate-500">
+    <!-- Deskripsi -->
+    <p class="mt-4 max-w-md text-sm leading-7 text-slate-500 sm:mt-5 sm:text-base">
         Masuk untuk mengakses semua fitur MagangVerify sesuai dengan peran Anda di kampus.
     </p>
 
@@ -35,50 +37,60 @@
     ];
     ?>
 
-    <ul class="mt-8 space-y-4">
+    <!-- Fitur -->
+    <ul class="mt-6 w-full space-y-4 sm:mt-8">
+
         <?php foreach ($fitur as [$judul, $deskripsi, $icon]) : ?>
 
-            <li class="flex items-center gap-4">
+            <li class="flex w-full min-w-0 items-start gap-3 sm:gap-4">
 
-                <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+                <!-- Icon -->
+                <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-600 sm:h-12 sm:w-12">
+
                     <svg
-                        class="h-6 w-6"
+                        class="h-5 w-5 sm:h-6 sm:w-6"
                         fill="none"
                         stroke="currentColor"
                         stroke-width="1.8"
                         stroke-linecap="round"
                         stroke-linejoin="round"
                         viewBox="0 0 24 24"
+                        aria-hidden="true"
                     >
                         <?= $icon ?>
                     </svg>
+
                 </span>
 
-                <div class="min-w-0">
-                    <p class="text-sm font-semibold">
+                <!-- Teks -->
+                <div class="min-w-0 flex-1">
+
+                    <p class="text-sm font-semibold text-slate-900">
                         <?= $judul ?>
                     </p>
 
-                    <p class="text-sm text-slate-500">
+                    <p class="text-xs leading-5 text-slate-500 sm:text-sm">
                         <?= $deskripsi ?>
                     </p>
+
                 </div>
 
             </li>
 
         <?php endforeach; ?>
+
     </ul>
 
-    <!-- Gambar kampus + tulisan tangan (hanya desktop) -->
-    <div class="relative mt-8 hidden lg:block h-56">
+    <!-- Dekorasi desktop -->
+    <div class="relative mt-8 hidden h-56 w-full overflow-hidden lg:block">
 
-    <img
-    src="<?= url('/assets/images/gedung-polinema.jpeg') ?>"
-    alt="Gedung Polinema"
-    class="absolute bottom-0 left-0 h-full rounded-xl opacity-25 w-auto max-w-none object-contain object-left-bottom"
->
+        <img
+            src="<?= url('/assets/images/gedung-polinema.jpeg') ?>"
+            alt="Gedung Polinema"
+            class="absolute bottom-0 left-0 h-full max-h-full max-w-[70%] rounded-xl object-cover object-left-bottom opacity-25"
+        >
 
-        <p class="absolute right-20 top-0 -rotate-12 text-2xl leading-7 text-blue-600 font-[Caveat]">
+        <p class="absolute right-4 top-0 text-right font-[Caveat] text-2xl leading-7 text-blue-600 xl:right-20">
             Dari Kampus<br>
             Untuk Masa Depan<br>
             yang Lebih Baik

@@ -46,12 +46,12 @@ $navLogin = url('/login');
         <a href="<?= url('/') ?>" class="flex items-center min-w-0">
             <img
                 src="<?= url('/assets/images/icon.png') ?>"
-                alt="VerifyMagang"
+                alt="MagangVerify"
                 class="h-14 w-auto shrink-0">
 
             <div class="ml-3 flex flex-col min-w-0">
                 <h2 class="font-bold text-lg leading-tight">
-                    VerifyMagang
+                    MagangVerify
                 </h2>
 
                 <!-- Tagline disembunyikan di HP supaya tidak sesak -->
