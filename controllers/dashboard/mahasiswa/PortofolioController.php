@@ -573,6 +573,17 @@ class PortofolioController
             $this->showNotFound();
         }
 
+        if (
+            $portofolioEdit['verifikasi']['status']
+            !== 'belum_diverifikasi'
+        ) {
+            header(
+                'Location: ' .
+                url('/dashboard/mahasiswa/portofolio/detail/' . $slug)
+            );
+            exit;
+        }
+
         $errors = [];
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
@@ -686,10 +697,13 @@ if (!$dihapus) {
             $this->removeUploadedImage($portofolio['gambar'] ?? '');
         } catch (PDOException $e) {
             error_log('Gagal menghapus portofolio: ' . $e->getMessage());
-
-            http_response_code(500);
-            exit('Portofolio gagal dihapus. Silakan coba kembali.');
-        } catch (RuntimeException $e) {
+        
+            http_response_code(409);
+            exit(
+                'Portofolio tidak dapat dihapus karena masih memiliki '
+                . 'berkas atau riwayat verifikasi yang terhubung.'
+            );
+        }catch (RuntimeException $e) {
             error_log('Gagal menghapus portofolio: ' . $e->getMessage());
 
             http_response_code(500);

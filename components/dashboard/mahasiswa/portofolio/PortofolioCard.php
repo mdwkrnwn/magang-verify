@@ -105,59 +105,60 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
             </div>
 
 
-            <div class="relative shrink-0">
+<?php if ($status === 'belum_diverifikasi'): ?>
 
+    <div class="relative shrink-0">
 
-                <button
-                    type="button"
-                    onclick="togglePortfolioMenu('menu-<?= e($portofolioItem['id']) ?>')"
-                    class="w-9 h-9 inline-flex items-center justify-center
-                           text-gray-500 rounded-lg
-                           hover:bg-slate-100 hover:text-gray-700
-                           transition"
-                    aria-label="Menu portofolio">
-                    <span class="text-xl leading-none">⋮</span>
-                </button>
+        <button
+            type="button"
+            onclick="togglePortfolioMenu('menu-<?= e($portofolioItem['id']) ?>')"
+            class="w-9 h-9 inline-flex items-center justify-center
+                   text-gray-500 rounded-lg
+                   hover:bg-slate-100 hover:text-gray-700
+                   transition"
+            aria-label="Menu portofolio">
+            <span class="text-xl leading-none">⋮</span>
+        </button>
 
+        <div
+            id="menu-<?= e($portofolioItem['id']) ?>"
+            class="hidden absolute right-0 top-10 z-20
+                   w-44 bg-white
+                   border border-slate-200
+                   rounded-lg shadow-lg
+                   p-1">
 
-                <div
-                    id="menu-<?= e($portofolioItem['id']) ?>"
-                    class="hidden absolute right-0 top-10 z-20
-                           w-44 bg-white
-                           border border-slate-200
-                           rounded-lg shadow-lg
-                           p-1">
+            <a
+                href="<?= e($editUrl) ?>"
+                class="flex items-center gap-2
+                       px-3 py-2
+                       text-sm text-gray-700
+                       rounded-md hover:bg-slate-50
+                       transition">
+                <span>✏</span>
+                Edit
+            </a>
 
-                    <a
-                        href="<?= e($editUrl) ?>"
-                        class="flex items-center gap-2
-                               px-3 py-2
-                               text-sm text-gray-700
-                               rounded-md
-                               hover:bg-slate-50
-                               transition">
-                        <span>✏</span>
-                        Edit
-                    </a>
+            <button
+                type="button"
+                onclick="openDeletePortfolioModal(
+                    '<?= e($modalId) ?>',
+                    'menu-<?= e($portofolioItem['id']) ?>'
+                )"
+                class="w-full flex items-center gap-2
+                       px-3 py-2
+                       text-sm text-red-600
+                       rounded-md hover:bg-red-50
+                       transition text-left">
+                <span>🗑</span>
+                Hapus
+            </button>
 
+        </div>
 
-                    <button
-                        type="button"
-                        onclick="openDeletePortfolioModal('<?= e($modalId) ?>', 'menu-<?= e($portofolioItem['id']) ?>')"
-                        class="w-full flex items-center gap-2
-                               px-3 py-2
-                               text-sm text-red-600
-                               rounded-md
-                               hover:bg-red-50
-                               transition
-                               text-left">
-                        <span>🗑</span>
-                        Hapus
-                    </button>
+    </div>
 
-                </div>
-
-            </div>
+<?php endif; ?>
 
         </div>
 

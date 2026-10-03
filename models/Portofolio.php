@@ -13,16 +13,17 @@ class Portofolio
         global $pdo;
 
         
-$sql = "
-SELECT
-    p.*,
-    u.name AS nama_mahasiswa
-FROM portofolios p
-JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
-JOIN users u ON u.id = pm.user_id
-WHERE pm.user_id = :user_id
-ORDER BY p.created_at DESC, p.id DESC
-";
+        $sql = "
+        SELECT
+            p.*,
+            pm.user_id AS user_id,
+            u.name AS nama_mahasiswa
+        FROM portofolios p
+        JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
+        JOIN users u ON u.id = pm.user_id
+        WHERE pm.user_id = :user_id
+        ORDER BY p.created_at DESC, p.id DESC
+    ";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['user_id' => $userId]);
@@ -46,16 +47,19 @@ ORDER BY p.created_at DESC, p.id DESC
         int $userId
     ): ?array {
         global $pdo;
-
         
-$sql = "
-SELECT p.*
-FROM portofolios p
-JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
-WHERE p.slug = :slug
-  AND pm.user_id = :user_id
-LIMIT 1
-";
+        $sql = "
+        SELECT
+            p.*,
+            pm.user_id AS user_id,
+            u.name AS nama_mahasiswa
+        FROM portofolios p
+        JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
+        JOIN users u ON u.id = pm.user_id
+        WHERE p.slug = :slug
+          AND pm.user_id = :user_id
+        LIMIT 1
+    ";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
@@ -84,7 +88,7 @@ LIMIT 1
             SELECT nama_teknologi
             FROM portofolio_teknologi
             WHERE portofolio_id = :portofolio_id
-            ORDER BY id ASC
+            ORDER BY nama_teknologi ASC
         ");
 
         $stmt->execute([
@@ -96,10 +100,11 @@ LIMIT 1
         $status = $item['status_verifikasi'];
 
         $labelStatus = [
-            'belum_terverifikasi' => 'Belum Terverifikasi',
+            'belum_diverifikasi' => 'Belum Terverifikasi',
             'dalam_peninjauan' => 'Dalam Peninjauan',
             'terverifikasi' => 'Terverifikasi',
             'ditolak' => 'Ditolak',
+            'perlu_perbaikan' => 'Perlu Perbaikan',
         ];
 
         return [
@@ -108,12 +113,12 @@ LIMIT 1
             'slug' => $item['slug'],
             'judul' => $item['judul'],
             'deskripsi' => $item['deskripsi'],
-            'gambar' => $item['gambar_path'] ?? '',
+            'gambar' => $item['gambar_sampul'] ?? '',
             'teknologi' => $teknologi,
             'peran' => $item['peran'] ?? '',
-            'tahun' => $item['tahun'] !== null
-                ? (string) $item['tahun']
-                : '',
+            'tahun' => !empty($item['tanggal_perolehan'])
+            ? date('Y', strtotime($item['tanggal_perolehan']))
+            : '',
             'tautan' => [
                 'github' => $item['tautan_github'] ?? '',
                 'demo' => $item['tautan_demo'] ?? '',
@@ -205,45 +210,60 @@ public function create(int $userId, array $data): string
     $pdo->beginTransaction();
 
     try {
-        $sql = "
-            INSERT INTO portofolios (
-                mahasiswa_id,
-                judul,
-                slug,
-                jenis,
-                deskripsi,
-                tanggal_perolehan,
-                tautan,
-                gambar_sampul,
-                status_verifikasi,
-                status_publikasi
-            ) VALUES (
-                :mahasiswa_id,
-                :judul,
-                :slug,
-                'proyek',
-                :deskripsi,
-                make_date(:tahun, 1, 1),
-                :tautan,
-                :gambar_sampul,
-                'belum_diverifikasi',
-                'draft'
-            )
-            RETURNING id
-        ";
+        
 
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute([
-            'mahasiswa_id' => (int) $mahasiswaId,
-            'judul' => $data['judul'],
-            'slug' => $slug,
-            'deskripsi' => $data['deskripsi'],
-            'tahun' => (int) $data['tahun'],
-            'tautan' => $data['github'] !== ''
-                ? $data['github']
-                : ($data['demo'] !== '' ? $data['demo'] : null),
-            'gambar_sampul' => $data['gambar_path'] ?? null,
-        ]);
+        $sql = "
+        INSERT INTO portofolios (
+            mahasiswa_id,
+            judul,
+            slug,
+            jenis,
+            deskripsi,
+            tanggal_perolehan,
+            tautan,
+            tautan_github,
+            tautan_demo,
+            gambar_sampul,
+            peran,
+            status_verifikasi,
+            status_publikasi
+        ) VALUES (
+            :mahasiswa_id,
+            :judul,
+            :slug,
+            'proyek',
+            :deskripsi,
+            make_date(:tahun, 1, 1),
+            :tautan,
+            :github,
+            :demo,
+            :gambar_sampul,
+            :peran,
+            'belum_diverifikasi',
+            'draft'
+        )
+        RETURNING id
+    ";
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([
+        'mahasiswa_id' => (int) $mahasiswaId,
+        'judul' => $data['judul'],
+        'slug' => $slug,
+        'deskripsi' => $data['deskripsi'],
+        'tahun' => (int) $data['tahun'],
+        'tautan' => ($data['github'] !== '')
+            ? $data['github']
+            : (($data['demo'] !== '') ? $data['demo'] : null),
+        'github' => $data['github'] !== ''
+            ? $data['github']
+            : null,
+        'demo' => $data['demo'] !== ''
+            ? $data['demo']
+            : null,
+        'gambar_sampul' => $data['gambar_path'] ?? null,
+        'peran' => $data['peran'],
+    ]);
 
         $portofolioId = (int) $stmt->fetchColumn();
 
@@ -277,40 +297,44 @@ public function create(int $userId, array $data): string
         $pdo->beginTransaction();
 
         try {
-            $sql = "
-                UPDATE portofolios
-                SET
-                    judul = :judul,
-                    slug = :slug,
-                    deskripsi = :deskripsi,
-                    gambar_path = COALESCE(:gambar_path, gambar_path),
-                    peran = :peran,
-                    tahun = :tahun,
-                    tautan_github = :github,
-                    tautan_demo = :demo,
-                    updated_at = CURRENT_TIMESTAMP
-                    WHERE id = :id
-                    AND mahasiswa_id = (
-                        SELECT id
-                        FROM profil_mahasiswa
-                        WHERE user_id = :user_id
-                    )
-                    AND status_verifikasi = 'belum_diverifikasi'
-            ";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                'judul' => $data['judul'],
-                'slug' => $slug,
-                'deskripsi' => $data['deskripsi'],
-                'gambar_path' => $data['gambar_path'] ?? null,
-                'peran' => $data['peran'],
-                'tahun' => $data['tahun'],
-                'github' => $data['github'] !== '' ? $data['github'] : null,
-                'demo' => $data['demo'] !== '' ? $data['demo'] : null,
-                'id' => $id,
-                'user_id' => $userId,
-            ]);
+            
+$sql = "
+UPDATE portofolios
+SET
+    judul = :judul,
+    slug = :slug,
+    deskripsi = :deskripsi,
+    gambar_sampul = COALESCE(:gambar_sampul, gambar_sampul),
+    peran = :peran,
+    tanggal_perolehan = make_date(:tahun, 1, 1),
+    tautan = :tautan,
+    tautan_github = :github,
+    tautan_demo = :demo,
+    updated_at = CURRENT_TIMESTAMP
+WHERE id = :id
+  AND mahasiswa_id = (
+      SELECT id
+      FROM profil_mahasiswa
+      WHERE user_id = :user_id
+  )
+  AND status_verifikasi = 'belum_diverifikasi'
+";
+            
+$stmt = $pdo->prepare($sql);
+$stmt->execute([
+    'judul' => $data['judul'],
+    'slug' => $slug,
+    'deskripsi' => $data['deskripsi'],
+    'gambar_sampul' => $data['gambar_path'] ?? null,
+    'peran' => $data['peran'],
+    'tahun' => $data['tahun'],
+    'tautan' => ($data['github'] !== '' ? $data['github'] : null)
+        ?? ($data['demo'] !== '' ? $data['demo'] : null),
+    'github' => $data['github'] !== '' ? $data['github'] : null,
+    'demo' => $data['demo'] !== '' ? $data['demo'] : null,
+    'id' => $id,
+    'user_id' => $userId,
+]);
 
             
 if ($stmt->rowCount() === 0) {
@@ -337,7 +361,7 @@ WHERE p.id = :id
 
     if (
         $portofolio['status_verifikasi']
-        !== 'belum_terverifikasi'
+        !== 'belum_diverifikasi'
     ) {
         throw new RuntimeException(
             'Portofolio tidak dapat diedit karena status verifikasi sudah berubah.'
