@@ -1,67 +1,34 @@
 
 <?php
 
-require_once __DIR__ . '/../config/database.php';
-
 class ProfilMahasiswa
 {
     private PDO $pdo;
 
-    public function __construct(?PDO $connection = null)
+    public function __construct(PDO $connection)
     {
-        if ($connection !== null) {
-            $this->pdo = $connection;
-            return;
-        }
-
-        global $pdo;
-
-        if (!$pdo instanceof PDO) {
-            throw new RuntimeException(
-                'Koneksi database tidak tersedia.'
-            );
-        }
-
-        $this->pdo = $pdo;
+        $this->pdo = $connection;
     }
 
     /**
-     * Mengambil profil berdasarkan ID akun.
-     * Jika profil belum tersedia, buat profil kosong.
+     * Mengambil profil mahasiswa beserta data akun dan keterampilan.
+     * Profil harus sudah tersedia di database.
      */
-    public function getOrCreateByUserId(int $userId): array
+    public function getByUserId(int $userId): ?array
     {
-        $sql = '
-            INSERT INTO profil_mahasiswa (user_id)
-            SELECT id
-            FROM users
-            WHERE id = :user_id
-              AND role = :role
-            ON CONFLICT (user_id) DO NOTHING
-        ';
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            'user_id' => $userId,
-            'role' => 'mahasiswa',
-        ]);
-
         $sql = '
             SELECT
                 u.id AS user_id,
                 u.name AS nama_lengkap,
-                u.login_id AS nim,
-                p.jenis_kelamin,
-                p.tanggal_lahir,
-                p.alamat,
-                p.email,
-                p.no_hp,
-                p.instagram,
+                p.id AS profil_id,
+                p.nim,
                 p.program_studi,
-                p.semester,
-                p.bio,
-                p.foto_profil,
-                p.keahlian,
+                p.angkatan,
+                p.email,
+                p.no_telepon,
+                p.alamat,
+                p.deskripsi,
+                p.foto_path,
                 p.created_at,
                 p.updated_at
             FROM users u
@@ -81,58 +48,241 @@ class ProfilMahasiswa
         $profil = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$profil) {
-            throw new RuntimeException(
-                'Data akun mahasiswa tidak ditemukan.'
-            );
+            return null;
         }
 
-        // PostgreSQL mengembalikan TEXT[] sebagai string.
-        $profil['keahlian'] = $this->parsePostgresArray(
-            $profil['keahlian'] ?? '{}'
+        $profil['keahlian'] = $this->getSkills(
+            (int) $profil['profil_id']
         );
 
         return $profil;
     }
 
     /**
-     * Memperbarui informasi pribadi.
+     * Mengambil keterampilan yang dimiliki mahasiswa.
      */
-    public function updatePersonal(int $userId, array $data): bool
+    public function getSkills(int $profilId): array
     {
-        $this->pdo->beginTransaction();
+        $sql = '
+            SELECT
+                k.id,
+                k.nama,
+                k.kategori,
+                mk.tingkat,
+                mk.keterangan
+            FROM mahasiswa_keterampilan mk
+            INNER JOIN keterampilan k
+                ON k.id = mk.keterampilan_id
+            WHERE mk.mahasiswa_id = :profil_id
+            ORDER BY k.nama ASC
+        ';
 
-        try {
-            $sqlUser = '
-                UPDATE users
-                SET name = :nama
-                WHERE id = :user_id
-                  AND role = :role
-            ';
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute(['profil_id' => $profilId]);
 
-            $stmt = $this->pdo->prepare($sqlUser);
-            $stmt->execute([
-                'nama' => $data['nama_lengkap'],
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    
+/**
+ * Memperbarui nama, alamat, dan deskripsi profil mahasiswa.
+ */
+public function updatePersonal(int $userId, array $data): bool
+{
+    $this->pdo->beginTransaction();
+
+    try {
+        $stmt = $this->pdo->prepare('
+            UPDATE users
+            SET name = :nama
+            WHERE id = :user_id
+              AND role = :role
+        ');
+
+        $stmt->execute([
+            'nama' => $data['nama_lengkap'],
+            'user_id' => $userId,
+            'role' => 'mahasiswa',
+        ]);
+
+        if ($stmt->rowCount() === 0) {
+            // rowCount() bisa nol jika nama tidak berubah.
+            $check = $this->pdo->prepare(
+                'SELECT 1 FROM users
+                 WHERE id = :user_id AND role = :role'
+            );
+
+            $check->execute([
                 'user_id' => $userId,
                 'role' => 'mahasiswa',
             ]);
 
-            $sqlProfil = '
-                UPDATE profil_mahasiswa
-                SET
-                    jenis_kelamin = :jenis_kelamin,
-                    tanggal_lahir = :tanggal_lahir,
-                    alamat = :alamat,
-                    updated_at = CURRENT_TIMESTAMP
-                WHERE user_id = :user_id
-            ';
+            if (!$check->fetchColumn()) {
+                throw new RuntimeException(
+                    'Akun mahasiswa tidak ditemukan.'
+                );
+            }
+        }
 
-            $stmt = $this->pdo->prepare($sqlProfil);
-            $stmt->execute([
-                'jenis_kelamin' => $data['jenis_kelamin'] ?: null,
-                'tanggal_lahir' => $data['tanggal_lahir'] ?: null,
-                'alamat' => $data['alamat'] ?: null,
-                'user_id' => $userId,
-            ]);
+        $stmt = $this->pdo->prepare('
+            UPDATE profil_mahasiswa
+            SET
+                alamat = :alamat,
+                deskripsi = :deskripsi,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = :user_id
+        ');
+
+        $stmt->execute([
+            'alamat' => $data['alamat'] !== ''
+                ? $data['alamat']
+                : null,
+            'deskripsi' => trim($data['deskripsi'] ?? '') !== ''
+                ? trim($data['deskripsi'])
+                : null,
+            'user_id' => $userId,
+        ]);
+
+        $this->pdo->commit();
+
+        return true;
+    } catch (Throwable $e) {
+        if ($this->pdo->inTransaction()) {
+            $this->pdo->rollBack();
+        }
+
+        throw $e;
+    }
+}
+
+    /**
+     * Memperbarui email dan nomor telepon.
+     */
+    public function updateContact(int $userId, array $data): bool
+    {
+        $stmt = $this->pdo->prepare('
+            UPDATE profil_mahasiswa
+            SET
+                email = :email,
+                no_telepon = :no_telepon,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = :user_id
+        ');
+
+        return $stmt->execute([
+            'email' => $data['email'] !== ''
+                ? $data['email']
+                : null,
+            'no_telepon' => $data['no_telepon'] !== ''
+                ? $data['no_telepon']
+                : null,
+            'user_id' => $userId,
+        ]);
+    }
+
+    
+/**
+ * Memperbarui deskripsi profil mahasiswa.
+ */
+public function updateDescription(int $userId, string $deskripsi): bool
+{
+    $stmt = $this->pdo->prepare('
+        UPDATE profil_mahasiswa
+        SET
+            deskripsi = :deskripsi,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE user_id = :user_id
+    ');
+
+    $stmt->execute([
+        'deskripsi' => $deskripsi !== '' ? $deskripsi : null,
+        'user_id' => $userId,
+    ]);
+
+    return $stmt->rowCount() > 0;
+}
+
+    /**
+     * Menyimpan daftar keterampilan.
+     *
+     * Nama keterampilan dibuat di katalog jika belum tersedia.
+     * Keterampilan yang tidak lagi dikirim akan dilepas dari profil,
+     * tetapi data katalog tidak dihapus.
+     */
+    public function updateSkills(int $profilId, array $skills): bool
+    {
+        $this->pdo->beginTransaction();
+
+        try {
+            $stmt = $this->pdo->prepare('
+                SELECT id
+                FROM keterampilan
+                WHERE LOWER(nama) = LOWER(:nama)
+                LIMIT 1
+            ');
+
+            $insertSkill = $this->pdo->prepare('
+                INSERT INTO keterampilan (nama)
+                VALUES (:nama)
+                ON CONFLICT (nama) DO NOTHING
+            ');
+
+            $findSkill = $this->pdo->prepare('
+                SELECT id
+                FROM keterampilan
+                WHERE LOWER(nama) = LOWER(:nama)
+                LIMIT 1
+            ');
+
+            $linkSkill = $this->pdo->prepare('
+                INSERT INTO mahasiswa_keterampilan
+                    (mahasiswa_id, keterampilan_id)
+                VALUES (:profil_id, :skill_id)
+                ON CONFLICT (mahasiswa_id, keterampilan_id)
+                DO NOTHING
+            ');
+
+            $skillIds = [];
+
+            foreach ($skills as $skill) {
+                $skill = trim((string) $skill);
+
+                if ($skill === '') {
+                    continue;
+                }
+
+                $stmt->execute(['nama' => $skill]);
+                $skillId = $stmt->fetchColumn();
+
+                if (!$skillId) {
+                    $insertSkill->execute(['nama' => $skill]);
+
+                    $findSkill->execute(['nama' => $skill]);
+                    $skillId = $findSkill->fetchColumn();
+                }
+
+                if (!$skillId) {
+                    throw new RuntimeException(
+                        'Gagal menyimpan katalog keterampilan.'
+                    );
+                }
+
+                $skillIds[] = (int) $skillId;
+            }
+
+            $skillIds = array_values(array_unique($skillIds));
+
+            $this->pdo->prepare('
+                DELETE FROM mahasiswa_keterampilan
+                WHERE mahasiswa_id = :profil_id
+            ')->execute(['profil_id' => $profilId]);
+
+            foreach ($skillIds as $skillId) {
+                $linkSkill->execute([
+                    'profil_id' => $profilId,
+                    'skill_id' => $skillId,
+                ]);
+            }
 
             $this->pdo->commit();
 
@@ -147,117 +297,23 @@ class ProfilMahasiswa
     }
 
     /**
-     * Memperbarui informasi kontak, termasuk email.
-     */
-    public function updateContact(int $userId, array $data): bool
-    {
-        $sql = '
-            UPDATE profil_mahasiswa
-            SET
-                email = :email,
-                no_hp = :no_hp,
-                instagram = :instagram,
-                updated_at = CURRENT_TIMESTAMP
-            WHERE user_id = :user_id
-        ';
-
-        $stmt = $this->pdo->prepare($sql);
-
-        return $stmt->execute([
-            'email' => !empty($data['email'])
-                ? trim($data['email'])
-                : null,
-            'no_hp' => !empty($data['no_hp'])
-                ? trim($data['no_hp'])
-                : null,
-            'instagram' => !empty($data['instagram'])
-                ? trim($data['instagram'])
-                : null,
-            'user_id' => $userId,
-        ]);
-    }
-
-    /**
-     * Memperbarui bio dan daftar keahlian.
-     */
-    public function updateBio(
-        int $userId,
-        string $bio,
-        array $keahlian
-    ): bool {
-        $keahlian = array_values(array_unique(array_filter(
-            array_map(
-                static fn($item) => trim((string) $item),
-                $keahlian
-            ),
-            static fn($item) => $item !== ''
-        )));
-
-        // Bentuk literal array PostgreSQL dengan escaping.
-        $arrayLiteral = '{' . implode(',', array_map(
-            static fn($item) => '"' .
-                addcslashes($item, "\\\"") . '"',
-            $keahlian
-        )) . '}';
-
-        $sql = '
-            UPDATE profil_mahasiswa
-            SET
-                bio = :bio,
-                keahlian = CAST(:keahlian AS TEXT[]),
-                updated_at = CURRENT_TIMESTAMP
-            WHERE user_id = :user_id
-        ';
-
-        $stmt = $this->pdo->prepare($sql);
-
-        return $stmt->execute([
-            'bio' => $bio !== '' ? $bio : null,
-            'keahlian' => $arrayLiteral,
-            'user_id' => $userId,
-        ]);
-    }
-
-    /**
      * Memperbarui path foto profil.
      */
-    public function updatePhoto(int $userId, ?string $fotoProfil): bool
-    {
-        $sql = '
+    public function updatePhoto(
+        int $userId,
+        ?string $fotoPath
+    ): bool {
+        $stmt = $this->pdo->prepare('
             UPDATE profil_mahasiswa
             SET
-                foto_profil = :foto_profil,
+                foto_path = :foto_path,
                 updated_at = CURRENT_TIMESTAMP
             WHERE user_id = :user_id
-        ';
-
-        $stmt = $this->pdo->prepare($sql);
+        ');
 
         return $stmt->execute([
-            'foto_profil' => $fotoProfil,
+            'foto_path' => $fotoPath,
             'user_id' => $userId,
         ]);
-    }
-
-    /**
-     * Mengubah TEXT[] PostgreSQL menjadi array PHP.
-     */
-    private function parsePostgresArray(string $value): array
-    {
-        if ($value === '{}' || $value === '') {
-            return [];
-        }
-
-        $result = str_getcsv(
-            trim($value, '{}'),
-            ',',
-            '"',
-            '\\'
-        );
-
-        return array_values(array_filter(
-            $result,
-            static fn($item) => $item !== null && $item !== ''
-        ));
     }
 }

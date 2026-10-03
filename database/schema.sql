@@ -45,6 +45,7 @@ CREATE TABLE profil_mahasiswa (
     email VARCHAR(255),
     no_telepon VARCHAR(30),
     alamat TEXT,
+    deskripsi TEXT,
     foto_path VARCHAR(500),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP

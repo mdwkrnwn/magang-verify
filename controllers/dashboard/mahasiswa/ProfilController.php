@@ -2,6 +2,7 @@
 <?php
 
 require_once __DIR__ . '/../../../config/database.php';
+require_once __DIR__ . '/../../../config/app.php';
 require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../models/ProfilMahasiswa.php';
 
@@ -22,17 +23,22 @@ class ProfilController
 
         $userId = (int) $_SESSION['user']['id'];
 
-        // Proses penyimpanan ketika form dikirim.
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $this->update($userId);
             return;
         }
 
-        // Ambil profil untuk ditampilkan.
         try {
-            $profil = $this->profilModel->getOrCreateByUserId($userId);
+            $profil = $this->profilModel->getByUserId($userId);
+
+            if (!$profil) {
+                http_response_code(404);
+                exit('Profil mahasiswa tidak ditemukan.');
+            }
         } catch (Throwable $e) {
-            error_log('Gagal mengambil profil mahasiswa: ' . $e->getMessage());
+            error_log(
+                'Gagal mengambil profil mahasiswa: ' . $e->getMessage()
+            );
 
             http_response_code(500);
             exit('Terjadi kesalahan saat mengambil data profil.');
@@ -41,18 +47,19 @@ class ProfilController
         require __DIR__ . '/../../../pages/dashboard/mahasiswa/profil/index.php';
     }
 
-    /**
-     * Menangani pembaruan profil.
-     */
     private function update(int $userId): void
     {
-        // Pastikan profil tersedia sebelum melakukan UPDATE.
         try {
-            $this->profilModel->getOrCreateByUserId($userId);
-
             if (!verifyCsrfToken()) {
                 http_response_code(403);
                 exit('Permintaan tidak valid. Silakan muat ulang halaman.');
+            }
+
+            // Pastikan profil tersedia sebelum melakukan UPDATE.
+            $profil = $this->profilModel->getByUserId($userId);
+
+            if (!$profil) {
+                $this->redirect('error', 'profile_not_found');
             }
 
             $action = $_POST['action'] ?? '';
@@ -66,9 +73,13 @@ class ProfilController
                     $this->updateContact($userId);
                     break;
 
-                case 'bio':
-                    $this->updateBio($userId);
-                    break;
+                    case 'bio':
+                        $this->updateBio($userId, (int) $profil['profil_id']);
+                        break;
+                    
+                    case 'skills':
+                        $this->updateSkills((int) $profil['profil_id']);
+                        break;
 
                 case 'photo':
                     $this->updatePhoto($userId);
@@ -78,122 +89,145 @@ class ProfilController
                     $this->redirect('error', 'invalid_action');
             }
         } catch (Throwable $e) {
-            error_log('Gagal memperbarui profil mahasiswa: ' . $e->getMessage());
+            error_log(
+                'Gagal memperbarui profil mahasiswa: ' . $e->getMessage()
+            );
 
             $this->redirect('error', 'save_failed');
         }
     }
 
-    private function updatePersonal(int $userId): void
-    {
-        $nama = trim($_POST['nama_lengkap'] ?? '');
-        $jenisKelamin = $_POST['jenis_kelamin'] ?? '';
-        $tanggalLahir = trim($_POST['tanggal_lahir'] ?? '');
-        $alamat = trim($_POST['alamat'] ?? '');
+    
+private function updatePersonal(int $userId): void
+{
+    $nama = trim($_POST['nama_lengkap'] ?? '');
+    $alamat = trim($_POST['alamat'] ?? '');
+    $deskripsi = trim($_POST['deskripsi'] ?? '');
 
-        if ($nama === '' || mb_strlen($nama) > 150) {
-            $this->redirect('error', 'invalid_name');
-        }
-
-        if (
-            $jenisKelamin !== '' &&
-            !in_array($jenisKelamin, ['Laki-laki', 'Perempuan'], true)
-        ) {
-            $this->redirect('error', 'invalid_gender');
-        }
-
-        if ($tanggalLahir !== '') {
-            $date = DateTime::createFromFormat('!Y-m-d', $tanggalLahir);
-
-            if (
-                !$date ||
-                $date->format('Y-m-d') !== $tanggalLahir ||
-                $tanggalLahir > date('Y-m-d')
-            ) {
-                $this->redirect('error', 'invalid_birth_date');
-            }
-        }
-
-        $this->profilModel->updatePersonal($userId, [
-            'nama_lengkap' => $nama,
-            'jenis_kelamin' => $jenisKelamin,
-            'tanggal_lahir' => $tanggalLahir,
-            'alamat' => $alamat,
-        ]);
-
-        $this->redirect('success', 'personal_updated');
+    if ($nama === '' || mb_strlen($nama) > 150) {
+        $this->redirect('error', 'invalid_name');
     }
+
+    if (mb_strlen($alamat) > 5000) {
+        $this->redirect('error', 'invalid_address');
+    }
+
+    if (mb_strlen($deskripsi) > 5000) {
+        $this->redirect('error', 'invalid_description');
+    }
+
+    $this->profilModel->updatePersonal($userId, [
+        'nama_lengkap' => $nama,
+        'alamat' => $alamat,
+        'deskripsi' => $deskripsi,
+    ]);
+
+    // Perbarui nama pada session agar header ikut berubah.
+    $_SESSION['user']['name'] = $nama;
+
+    $this->redirect('success', 'personal_updated');
+}
 
     private function updateContact(int $userId): void
     {
         $email = trim($_POST['email'] ?? '');
-        $noHp = trim($_POST['no_hp'] ?? '');
-        $instagram = trim($_POST['instagram'] ?? '');
+        $noTelepon = trim($_POST['no_telepon'] ?? '');
 
         if (
-            mb_strlen($email) > 254 ||
+            mb_strlen($email) > 255 ||
             ($email !== '' && !filter_var($email, FILTER_VALIDATE_EMAIL))
         ) {
             $this->redirect('error', 'invalid_email');
         }
 
         if (
-            mb_strlen($noHp) > 20 ||
-            ($noHp !== '' && !preg_match('/^[0-9+\s().-]+$/', $noHp))
+            mb_strlen($noTelepon) > 30 ||
+            ($noTelepon !== '' &&
+                !preg_match('/^[0-9+\s().-]+$/', $noTelepon))
         ) {
             $this->redirect('error', 'invalid_phone');
         }
 
-        if (mb_strlen($instagram) > 100) {
-            $this->redirect('error', 'invalid_instagram');
-        }
-
         $this->profilModel->updateContact($userId, [
             'email' => $email,
-            'no_hp' => $noHp,
-            'instagram' => $instagram,
+            'no_telepon' => $noTelepon,
         ]);
 
         $this->redirect('success', 'contact_updated');
     }
 
-    private function updateBio(int $userId): void
-    {
-        $bio = trim($_POST['bio'] ?? '');
-        $keahlianText = trim($_POST['keahlian_input'] ?? '');
+    
+private function updateBio(int $userId, int $profilId): void
+{
+    $deskripsi = trim($_POST['deskripsi'] ?? '');
+    $skillsText = trim($_POST['keahlian_input'] ?? '');
 
-        if (mb_strlen($bio) > 5000 || mb_strlen($keahlianText) > 500) {
-            $this->redirect('error', 'invalid_bio');
+    if (mb_strlen($deskripsi) > 5000) {
+        $this->redirect('error', 'invalid_description');
+    }
+
+    if (mb_strlen($skillsText) > 3000) {
+        $this->redirect('error', 'invalid_skills');
+    }
+
+    $skills = $skillsText === ''
+        ? []
+        : array_map('trim', explode(',', $skillsText));
+
+    $skills = array_values(array_unique(array_filter(
+        $skills,
+        static fn($skill) => $skill !== ''
+    )));
+
+    if (count($skills) > 30) {
+        $this->redirect('error', 'too_many_skills');
+    }
+
+    foreach ($skills as $skill) {
+        if (mb_strlen($skill) > 100) {
+            $this->redirect('error', 'invalid_skill');
+        }
+    }
+
+    // Simpan deskripsi profil.
+    $this->profilModel->updateDescription($userId, $deskripsi);
+
+    // Simpan daftar keahlian.
+    $this->profilModel->updateSkills($profilId, $skills);
+
+    $this->redirect('success', 'bio_updated');
+}
+
+    private function updateSkills(int $profilId): void
+    {
+        $skillsText = trim($_POST['keahlian_input'] ?? '');
+
+        if (mb_strlen($skillsText) > 3000) {
+            $this->redirect('error', 'invalid_skills');
         }
 
-        // Ubah input teks yang dipisahkan koma menjadi array.
-        $keahlianInput = $keahlianText === ''
+        $skills = $skillsText === ''
             ? []
-            : array_map('trim', explode(',', $keahlianText));
+            : array_map('trim', explode(',', $skillsText));
 
-        // Hilangkan keahlian kosong.
-        $keahlianInput = array_values(array_filter(
-            $keahlianInput,
-            static fn($item) => $item !== ''
-        ));
+        $skills = array_values(array_unique(array_filter(
+            $skills,
+            static fn($skill) => $skill !== ''
+        )));
 
-        if (count($keahlianInput) > 30) {
+        if (count($skills) > 30) {
             $this->redirect('error', 'too_many_skills');
         }
 
-        $keahlian = [];
-
-        foreach ($keahlianInput as $item) {
-            if (mb_strlen($item) > 100) {
+        foreach ($skills as $skill) {
+            if (mb_strlen($skill) > 100) {
                 $this->redirect('error', 'invalid_skill');
             }
-
-            $keahlian[] = $item;
         }
 
-        $this->profilModel->updateBio($userId, $bio, $keahlian);
+        $this->profilModel->updateSkills($profilId, $skills);
 
-        $this->redirect('success', 'bio_updated');
+        $this->redirect('success', 'skills_updated');
     }
 
     private function updatePhoto(int $userId): void
@@ -207,7 +241,6 @@ class ProfilController
 
         $file = $_FILES['foto_profil'];
 
-        // Maksimal 2 MB.
         if ($file['size'] > 2 * 1024 * 1024) {
             $this->redirect('error', 'photo_too_large');
         }
@@ -229,14 +262,17 @@ class ProfilController
             $this->redirect('error', 'invalid_photo');
         }
 
-        $uploadDir = dirname(__DIR__, 3) . '/uploads/profil';
+        $projectRoot = dirname(__DIR__, 3);
+        $uploadDir = $projectRoot . '/uploads/profil';
 
         if (
             !is_dir($uploadDir) &&
             !mkdir($uploadDir, 0755, true) &&
             !is_dir($uploadDir)
         ) {
-            throw new RuntimeException('Folder foto profil gagal dibuat.');
+            throw new RuntimeException(
+                'Folder foto profil gagal dibuat.'
+            );
         }
 
         $filename = bin2hex(random_bytes(16))
@@ -250,18 +286,23 @@ class ProfilController
         }
 
         try {
-            $oldProfil = $this->profilModel->getOrCreateByUserId($userId);
+            $oldProfil = $this->profilModel->getByUserId($userId);
+
+            if (!$oldProfil) {
+                throw new RuntimeException(
+                    'Profil mahasiswa tidak ditemukan.'
+                );
+            }
 
             $this->profilModel->updatePhoto($userId, $relativePath);
 
-            // Hapus foto lama hanya jika berada di folder upload profil.
-            $oldPath = $oldProfil['foto_profil'] ?? '';
+            $oldPath = $oldProfil['foto_path'] ?? '';
 
             if (
                 $oldPath !== '' &&
                 str_starts_with($oldPath, 'uploads/profil/')
             ) {
-                $oldFile = dirname(__DIR__, 3) . '/' . $oldPath;
+                $oldFile = $projectRoot . '/' . $oldPath;
 
                 if (is_file($oldFile)) {
                     @unlink($oldFile);

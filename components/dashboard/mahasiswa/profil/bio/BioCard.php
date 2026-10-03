@@ -1,13 +1,21 @@
 
-<div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6 lg:p-7">
+<?php
+$deskripsiProfil = trim($profil['deskripsi'] ?? '');
+$keahlianProfil = $profil['keahlian'] ?? [];
 
+if (!is_array($keahlianProfil)) {
+    $keahlianProfil = [];
+}
+?>
+
+<div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm sm:p-6 lg:p-7">
     <div class="mb-6 flex items-center justify-between gap-3">
         <div>
             <h2 class="text-lg font-bold text-gray-900">
-                Bio dan Keahlian
+                Tentang Saya
             </h2>
             <p class="mt-1 text-sm text-gray-400">
-                Ceritakan tentang diri dan kemampuan Anda
+                Deskripsi diri dan keahlian yang Anda miliki
             </p>
         </div>
 
@@ -28,48 +36,49 @@
         </button>
     </div>
 
-    <!-- Deskripsi bio -->
-    <div class="rounded-xl bg-gray-50 p-4 sm:p-5">
-        <p class="break-words whitespace-pre-line text-sm leading-7 text-gray-600 sm:text-base sm:leading-8"><?php
-            $bioProfil = trim($profil['bio'] ?? '');
-            echo $bioProfil !== ''
-                ? e($bioProfil)
-                : 'Belum ada bio. Tambahkan deskripsi singkat tentang diri Anda.';
-        ?></p>
+    <!-- Deskripsi profil -->
+    <div class="mb-6">
+        <h3 class="mb-2 text-sm font-semibold text-gray-800">
+            Deskripsi Profil
+        </h3>
+
+        <?php if ($deskripsiProfil !== ''): ?>
+            <p class="whitespace-pre-line break-words text-sm leading-6 text-gray-600"><?= e($deskripsiProfil) ?></p>
+        <?php else: ?>
+            <p class="text-sm italic text-gray-400">
+                Belum ada deskripsi profil. Tambahkan perkenalan singkat tentang diri Anda.
+            </p>
+        <?php endif; ?>
     </div>
 
     <!-- Keahlian -->
-    <div class="mt-6">
-        <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
+    <div>
+        <h3 class="mb-3 text-sm font-semibold text-gray-800">
             Keahlian
-        </p>
+        </h3>
 
-        <div class="mt-3 flex flex-wrap gap-2">
+        <div class="flex flex-wrap gap-2">
             <?php
-            $keahlianProfil = $profil['keahlian'] ?? [];
-
-            if (is_array($keahlianProfil)) {
-                $keahlianProfil = array_filter(
-                    $keahlianProfil,
-                    static fn($item) => is_string($item) && trim($item) !== ''
-                );
-            } else {
-                $keahlianProfil = [];
-            }
+            $adaKeahlian = false;
             ?>
 
-            <?php if (!empty($keahlianProfil)): ?>
-                <?php foreach ($keahlianProfil as $keahlian): ?>
+            <?php foreach ($keahlianProfil as $keahlian): ?>
+                <?php $namaKeahlian = trim($keahlian['nama'] ?? ''); ?>
+
+                <?php if ($namaKeahlian !== ''): ?>
+                    <?php $adaKeahlian = true; ?>
+
                     <span class="rounded-lg bg-blue-50 px-3 py-2 text-xs font-medium text-blue-700">
-                        <?= e(trim($keahlian)) ?>
+                        <?= e($namaKeahlian) ?>
                     </span>
-                <?php endforeach; ?>
-            <?php else: ?>
+                <?php endif; ?>
+            <?php endforeach; ?>
+
+            <?php if (!$adaKeahlian): ?>
                 <p class="text-sm text-gray-400">
                     Belum ada keahlian yang ditambahkan.
                 </p>
             <?php endif; ?>
         </div>
     </div>
-
 </div>

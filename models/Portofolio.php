@@ -12,15 +12,17 @@ class Portofolio
     {
         global $pdo;
 
-        $sql = "
-            SELECT
-                p.*,
-                u.name AS nama_mahasiswa
-            FROM portofolios p
-            JOIN users u ON u.id = p.user_id
-            WHERE p.user_id = :user_id
-            ORDER BY p.created_at DESC, p.id DESC
-        ";
+        
+$sql = "
+SELECT
+    p.*,
+    u.name AS nama_mahasiswa
+FROM portofolios p
+JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
+JOIN users u ON u.id = pm.user_id
+WHERE pm.user_id = :user_id
+ORDER BY p.created_at DESC, p.id DESC
+";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['user_id' => $userId]);
@@ -45,13 +47,15 @@ class Portofolio
     ): ?array {
         global $pdo;
 
-        $sql = "
-            SELECT *
-            FROM portofolios
-            WHERE slug = :slug
-              AND user_id = :user_id
-            LIMIT 1
-        ";
+        
+$sql = "
+SELECT p.*
+FROM portofolios p
+JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
+WHERE p.slug = :slug
+  AND pm.user_id = :user_id
+LIMIT 1
+";
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
@@ -174,70 +178,91 @@ class Portofolio
      * Menambahkan portofolio beserta daftar teknologinya.
      * Mengembalikan slug yang tersimpan.
      */
-    public function create(int $userId, array $data): string
-    {
-        global $pdo;
+    
+public function create(int $userId, array $data): string
+{
+    global $pdo;
 
-        $slug = $this->generateUniqueSlug($data['judul']);
+    // Cari profil mahasiswa berdasarkan user yang sedang login.
+    $stmtMahasiswa = $pdo->prepare("
+        SELECT id
+        FROM profil_mahasiswa
+        WHERE user_id = :user_id
+        LIMIT 1
+    ");
 
-        $pdo->beginTransaction();
+    $stmtMahasiswa->execute(['user_id' => $userId]);
+    $mahasiswaId = $stmtMahasiswa->fetchColumn();
 
-        try {
-            $sql = "
-                INSERT INTO portofolios (
-                    user_id,
-                    judul,
-                    slug,
-                    deskripsi,
-                    gambar_path,
-                    peran,
-                    tahun,
-                    tautan_github,
-                    tautan_demo,
-                    status_verifikasi
-                ) VALUES (
-                    :user_id,
-                    :judul,
-                    :slug,
-                    :deskripsi,
-                    :gambar_path,
-                    :peran,
-                    :tahun,
-                    :github,
-                    :demo,
-                    'belum_terverifikasi'
-                )
-                RETURNING id
-            ";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                'user_id' => $userId,
-                'judul' => $data['judul'],
-                'slug' => $slug,
-                'deskripsi' => $data['deskripsi'],
-                'gambar_path' => $data['gambar_path'] ?? null,
-                'peran' => $data['peran'],
-                'tahun' => $data['tahun'],
-                'github' => $data['github'] !== '' ? $data['github'] : null,
-                'demo' => $data['demo'] !== '' ? $data['demo'] : null,
-            ]);
-
-            $portofolioId = (int) $stmt->fetchColumn();
-
-            $this->saveTechnologies($portofolioId, $data['teknologi'] ?? []);
-
-            $pdo->commit();
-
-            return $slug;
-        } catch (Throwable $e) {
-            if ($pdo->inTransaction()) {
-                $pdo->rollBack();
-            }
-
-            throw $e;
-        }
+    if ($mahasiswaId === false) {
+        throw new RuntimeException(
+            'Profil mahasiswa tidak ditemukan.'
+        );
     }
+
+    $slug = $this->generateUniqueSlug($data['judul']);
+
+    $pdo->beginTransaction();
+
+    try {
+        $sql = "
+            INSERT INTO portofolios (
+                mahasiswa_id,
+                judul,
+                slug,
+                jenis,
+                deskripsi,
+                tanggal_perolehan,
+                tautan,
+                gambar_sampul,
+                status_verifikasi,
+                status_publikasi
+            ) VALUES (
+                :mahasiswa_id,
+                :judul,
+                :slug,
+                'proyek',
+                :deskripsi,
+                make_date(:tahun, 1, 1),
+                :tautan,
+                :gambar_sampul,
+                'belum_diverifikasi',
+                'draft'
+            )
+            RETURNING id
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            'mahasiswa_id' => (int) $mahasiswaId,
+            'judul' => $data['judul'],
+            'slug' => $slug,
+            'deskripsi' => $data['deskripsi'],
+            'tahun' => (int) $data['tahun'],
+            'tautan' => $data['github'] !== ''
+                ? $data['github']
+                : ($data['demo'] !== '' ? $data['demo'] : null),
+            'gambar_sampul' => $data['gambar_path'] ?? null,
+        ]);
+
+        $portofolioId = (int) $stmt->fetchColumn();
+
+        $this->saveTechnologies(
+            $portofolioId,
+            $data['teknologi'] ?? []
+        );
+
+        $pdo->commit();
+
+        return $slug;
+    } catch (Throwable $e) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+
+        throw $e;
+    }
+}
 
     /**
      * Mengubah portofolio milik mahasiswa yang sedang login.
@@ -264,8 +289,13 @@ class Portofolio
                     tautan_github = :github,
                     tautan_demo = :demo,
                     updated_at = CURRENT_TIMESTAMP
-                WHERE id = :id
-                  AND user_id = :user_id
+                    WHERE id = :id
+                    AND mahasiswa_id = (
+                        SELECT id
+                        FROM profil_mahasiswa
+                        WHERE user_id = :user_id
+                    )
+                    AND status_verifikasi = 'belum_diverifikasi'
             ";
 
             $stmt = $pdo->prepare($sql);
@@ -282,20 +312,38 @@ class Portofolio
                 'user_id' => $userId,
             ]);
 
-            if ($stmt->rowCount() === 0) {
-                // Bedakan data yang tidak dimiliki user dari update tanpa perubahan.
-                $check = $pdo->prepare(
-                    'SELECT id FROM portofolios WHERE id = :id AND user_id = :user_id'
-                );
-                $check->execute([
-                    'id' => $id,
-                    'user_id' => $userId,
-                ]);
+            
+if ($stmt->rowCount() === 0) {
+    $check = $pdo->prepare("
+SELECT p.status_verifikasi
+FROM portofolios p
+JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
+WHERE p.id = :id
+  AND pm.user_id = :user_id
+");
 
-                if (!$check->fetch()) {
-                    throw new RuntimeException('Portofolio tidak ditemukan.');
-                }
-            }
+    $check->execute([
+        'id' => $id,
+        'user_id' => $userId,
+    ]);
+
+    $portofolio = $check->fetch();
+
+    if (!$portofolio) {
+        throw new RuntimeException(
+            'Portofolio tidak ditemukan.'
+        );
+    }
+
+    if (
+        $portofolio['status_verifikasi']
+        !== 'belum_terverifikasi'
+    ) {
+        throw new RuntimeException(
+            'Portofolio tidak dapat diedit karena status verifikasi sudah berubah.'
+        );
+    }
+}
 
             // Ganti daftar teknologi dengan data terbaru dari form.
             $deleteTech = $pdo->prepare(
@@ -355,11 +403,17 @@ class Portofolio
     {
         global $pdo;
 
-        $stmt = $pdo->prepare("
-            DELETE FROM portofolios
-            WHERE slug = :slug
-              AND user_id = :user_id
-        ");
+        
+$stmt = $pdo->prepare("
+DELETE FROM portofolios p
+WHERE p.slug = :slug
+  AND p.mahasiswa_id = (
+      SELECT id
+      FROM profil_mahasiswa
+      WHERE user_id = :user_id
+  )
+  AND p.status_verifikasi = 'belum_diverifikasi'
+");
 
         $stmt->execute([
             'slug' => $slug,

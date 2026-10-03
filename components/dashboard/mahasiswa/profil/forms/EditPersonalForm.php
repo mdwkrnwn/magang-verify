@@ -4,7 +4,7 @@
         <div class="flex items-start justify-between p-5 border-b border-gray-100 sm:p-6">
             <div>
                 <h2 id="title-personal" class="text-lg font-bold text-gray-900">Edit Data Diri</h2>
-                <p class="mt-1 text-sm text-gray-500">Perbarui informasi pribadi Anda.</p>
+                <p class="mt-1 text-sm text-gray-500">Perbarui nama dan alamat Anda.</p>
             </div>
             <button type="button" data-close-modal class="p-2 text-gray-400 rounded-lg hover:bg-gray-100" aria-label="Tutup">✕</button>
         </div>
@@ -45,26 +45,24 @@
             </div>
 
             <div>
-                <label for="profil-gender" class="block mb-1.5 text-sm font-medium text-gray-700">Jenis kelamin</label>
-                <select
-                    id="profil-gender"
-                    name="jenis_kelamin"
-                    class="w-full px-3 py-2.5 bg-white border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <label for="profil-prodi" class="block mb-1.5 text-sm font-medium text-gray-700">Program studi</label>
+                <input
+                    id="profil-prodi"
+                    type="text"
+                    value="<?= e($profil['program_studi'] ?? '') ?>"
+                    readonly
+                    class="w-full px-3 py-2.5 text-gray-500 bg-gray-100 border border-gray-200 rounded-xl"
                 >
-                    <option value="" <?= empty($profil['jenis_kelamin']) ? 'selected' : '' ?>>Pilih jenis kelamin</option>
-                    <option value="Laki-laki" <?= ($profil['jenis_kelamin'] ?? '') === 'Laki-laki' ? 'selected' : '' ?>>Laki-laki</option>
-                    <option value="Perempuan" <?= ($profil['jenis_kelamin'] ?? '') === 'Perempuan' ? 'selected' : '' ?>>Perempuan</option>
-                </select>
             </div>
 
             <div>
-                <label for="profil-lahir" class="block mb-1.5 text-sm font-medium text-gray-700">Tanggal lahir</label>
+                <label for="profil-angkatan" class="block mb-1.5 text-sm font-medium text-gray-700">Angkatan</label>
                 <input
-                    id="profil-lahir"
-                    name="tanggal_lahir"
-                    type="date"
-                    value="<?= e($profil['tanggal_lahir'] ?? '') ?>"
-                    class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    id="profil-angkatan"
+                    type="text"
+                    value="<?= e($profil['angkatan'] ?? '') ?>"
+                    readonly
+                    class="w-full px-3 py-2.5 text-gray-500 bg-gray-100 border border-gray-200 rounded-xl"
                 >
             </div>
 
@@ -74,7 +72,7 @@
                     id="profil-alamat"
                     name="alamat"
                     rows="3"
-                    maxlength="1000"
+                    maxlength="5000"
                     class="w-full px-3 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 ><?= e($profil['alamat'] ?? '') ?></textarea>
             </div>

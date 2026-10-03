@@ -1,0 +1,223 @@
+;
+; Archive created at 2026-10-03 20:08:16 +07
+;     dbname: magang_verify
+;     TOC Entries: 212
+;     Compression: gzip
+;     Dump Version: 1.15-0
+;     Format: CUSTOM
+;     Integer: 4 bytes
+;     Offset: 8 bytes
+;     Dumped from database version: 16.15
+;     Dumped by pg_dump version: 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)
+;
+;
+; Selected TOC Entries:
+;
+5; 2615 17144 SCHEMA - public magangverify
+5286; 0 0 COMMENT - SCHEMA public magangverify
+5287; 0 0 ACL - SCHEMA public magangverify
+259; 1259 17643 TABLE public aktivitas_pengguna magangverify
+258; 1259 17642 SEQUENCE public aktivitas_pengguna_id_seq magangverify
+250; 1259 17556 TABLE public berkas_portofolio magangverify
+249; 1259 17555 SEQUENCE public berkas_portofolio_id_seq magangverify
+226; 1259 17235 TABLE public formasi_magang magangverify
+225; 1259 17234 SEQUENCE public formasi_magang_id_seq magangverify
+252; 1259 17571 TABLE public keterampilan magangverify
+251; 1259 17570 SEQUENCE public keterampilan_id_seq magangverify
+240; 1259 17430 TABLE public laporan_magang magangverify
+239; 1259 17429 SEQUENCE public laporan_magang_id_seq magangverify
+242; 1259 17450 TABLE public laporan_revisi magangverify
+241; 1259 17449 SEQUENCE public laporan_revisi_id_seq magangverify
+234; 1259 17359 TABLE public logbook_mingguan magangverify
+233; 1259 17358 SEQUENCE public logbook_mingguan_id_seq magangverify
+236; 1259 17380 TABLE public logbook_revisi magangverify
+235; 1259 17379 SEQUENCE public logbook_revisi_id_seq magangverify
+238; 1259 17402 TABLE public logbook_tanda_tangan magangverify
+237; 1259 17401 SEQUENCE public logbook_tanda_tangan_id_seq magangverify
+253; 1259 17579 TABLE public mahasiswa_keterampilan magangverify
+224; 1259 17204 TABLE public mitra magangverify
+223; 1259 17203 SEQUENCE public mitra_id_seq magangverify
+257; 1259 17626 TABLE public notifikasi magangverify
+256; 1259 17625 SEQUENCE public notifikasi_id_seq magangverify
+228; 1259 17268 TABLE public pendaftaran_magang magangverify
+227; 1259 17267 SEQUENCE public pendaftaran_magang_id_seq magangverify
+232; 1259 17325 TABLE public penempatan_magang magangverify
+231; 1259 17324 SEQUENCE public penempatan_magang_id_seq magangverify
+244; 1259 17472 TABLE public penilaian_magang magangverify
+243; 1259 17471 SEQUENCE public penilaian_magang_id_seq magangverify
+248; 1259 17529 TABLE public portofolios magangverify
+247; 1259 17528 SEQUENCE public portofolios_id_seq magangverify
+222; 1259 17187 TABLE public profil_dosen magangverify
+221; 1259 17186 SEQUENCE public profil_dosen_id_seq magangverify
+220; 1259 17168 TABLE public profil_mahasiswa magangverify
+219; 1259 17167 SEQUENCE public profil_mahasiswa_id_seq magangverify
+230; 1259 17300 TABLE public riwayat_pendaftaran_magang magangverify
+229; 1259 17299 SEQUENCE public riwayat_pendaftaran_magang_id_seq magangverify
+255; 1259 17599 TABLE public riwayat_verifikasi_portofolio magangverify
+254; 1259 17598 SEQUENCE public riwayat_verifikasi_portofolio_id_seq magangverify
+216; 1259 17146 TABLE public schema_migrations magangverify
+215; 1259 17145 SEQUENCE public schema_migrations_id_seq magangverify
+218; 1259 17155 TABLE public users magangverify
+217; 1259 17154 SEQUENCE public users_id_seq magangverify
+246; 1259 17498 TABLE public verifikasi_penyelesaian_magang magangverify
+245; 1259 17497 SEQUENCE public verifikasi_penyelesaian_magang_id_seq magangverify
+5279; 0 17643 TABLE DATA public aktivitas_pengguna magangverify
+5270; 0 17556 TABLE DATA public berkas_portofolio magangverify
+5246; 0 17235 TABLE DATA public formasi_magang magangverify
+5272; 0 17571 TABLE DATA public keterampilan magangverify
+5260; 0 17430 TABLE DATA public laporan_magang magangverify
+5262; 0 17450 TABLE DATA public laporan_revisi magangverify
+5254; 0 17359 TABLE DATA public logbook_mingguan magangverify
+5256; 0 17380 TABLE DATA public logbook_revisi magangverify
+5258; 0 17402 TABLE DATA public logbook_tanda_tangan magangverify
+5273; 0 17579 TABLE DATA public mahasiswa_keterampilan magangverify
+5244; 0 17204 TABLE DATA public mitra magangverify
+5277; 0 17626 TABLE DATA public notifikasi magangverify
+5248; 0 17268 TABLE DATA public pendaftaran_magang magangverify
+5252; 0 17325 TABLE DATA public penempatan_magang magangverify
+5264; 0 17472 TABLE DATA public penilaian_magang magangverify
+5268; 0 17529 TABLE DATA public portofolios magangverify
+5242; 0 17187 TABLE DATA public profil_dosen magangverify
+5240; 0 17168 TABLE DATA public profil_mahasiswa magangverify
+5250; 0 17300 TABLE DATA public riwayat_pendaftaran_magang magangverify
+5275; 0 17599 TABLE DATA public riwayat_verifikasi_portofolio magangverify
+5236; 0 17146 TABLE DATA public schema_migrations magangverify
+5238; 0 17155 TABLE DATA public users magangverify
+5266; 0 17498 TABLE DATA public verifikasi_penyelesaian_magang magangverify
+5288; 0 0 SEQUENCE SET public aktivitas_pengguna_id_seq magangverify
+5289; 0 0 SEQUENCE SET public berkas_portofolio_id_seq magangverify
+5290; 0 0 SEQUENCE SET public formasi_magang_id_seq magangverify
+5291; 0 0 SEQUENCE SET public keterampilan_id_seq magangverify
+5292; 0 0 SEQUENCE SET public laporan_magang_id_seq magangverify
+5293; 0 0 SEQUENCE SET public laporan_revisi_id_seq magangverify
+5294; 0 0 SEQUENCE SET public logbook_mingguan_id_seq magangverify
+5295; 0 0 SEQUENCE SET public logbook_revisi_id_seq magangverify
+5296; 0 0 SEQUENCE SET public logbook_tanda_tangan_id_seq magangverify
+5297; 0 0 SEQUENCE SET public mitra_id_seq magangverify
+5298; 0 0 SEQUENCE SET public notifikasi_id_seq magangverify
+5299; 0 0 SEQUENCE SET public pendaftaran_magang_id_seq magangverify
+5300; 0 0 SEQUENCE SET public penempatan_magang_id_seq magangverify
+5301; 0 0 SEQUENCE SET public penilaian_magang_id_seq magangverify
+5302; 0 0 SEQUENCE SET public portofolios_id_seq magangverify
+5303; 0 0 SEQUENCE SET public profil_dosen_id_seq magangverify
+5304; 0 0 SEQUENCE SET public profil_mahasiswa_id_seq magangverify
+5305; 0 0 SEQUENCE SET public riwayat_pendaftaran_magang_id_seq magangverify
+5306; 0 0 SEQUENCE SET public riwayat_verifikasi_portofolio_id_seq magangverify
+5307; 0 0 SEQUENCE SET public schema_migrations_id_seq magangverify
+5308; 0 0 SEQUENCE SET public users_id_seq magangverify
+5309; 0 0 SEQUENCE SET public verifikasi_penyelesaian_magang_id_seq magangverify
+5054; 2606 17650 CONSTRAINT public aktivitas_pengguna aktivitas_pengguna_pkey magangverify
+5037; 2606 17564 CONSTRAINT public berkas_portofolio berkas_portofolio_pkey magangverify
+4966; 2606 17250 CONSTRAINT public formasi_magang formasi_magang_pkey magangverify
+5040; 2606 17578 CONSTRAINT public keterampilan keterampilan_nama_key magangverify
+5042; 2606 17576 CONSTRAINT public keterampilan keterampilan_pkey magangverify
+5008; 2606 17441 CONSTRAINT public laporan_magang laporan_magang_pkey magangverify
+5010; 2606 17443 CONSTRAINT public laporan_magang laporan_penempatan_jenis_unik magangverify
+5013; 2606 17458 CONSTRAINT public laporan_revisi laporan_revisi_pkey magangverify
+5015; 2606 17460 CONSTRAINT public laporan_revisi laporan_revisi_unik magangverify
+4991; 2606 17373 CONSTRAINT public logbook_mingguan logbook_minggu_unik magangverify
+4993; 2606 17371 CONSTRAINT public logbook_mingguan logbook_mingguan_pkey magangverify
+4996; 2606 17388 CONSTRAINT public logbook_revisi logbook_revisi_pkey magangverify
+4998; 2606 17390 CONSTRAINT public logbook_revisi logbook_revisi_unik magangverify
+5002; 2606 17411 CONSTRAINT public logbook_tanda_tangan logbook_tanda_tangan_pkey magangverify
+5004; 2606 17413 CONSTRAINT public logbook_tanda_tangan logbook_tanda_tangan_unik magangverify
+5045; 2606 17587 CONSTRAINT public mahasiswa_keterampilan mahasiswa_keterampilan_pkey magangverify
+4960; 2606 17220 CONSTRAINT public mitra mitra_kode_perusahaan_key magangverify
+4962; 2606 17216 CONSTRAINT public mitra mitra_pkey magangverify
+4964; 2606 17218 CONSTRAINT public mitra mitra_user_id_key magangverify
+5052; 2606 17636 CONSTRAINT public notifikasi notifikasi_pkey magangverify
+4976; 2606 17283 CONSTRAINT public pendaftaran_magang pendaftaran_magang_pkey magangverify
+4985; 2606 17339 CONSTRAINT public penempatan_magang penempatan_magang_pendaftaran_id_key magangverify
+4987; 2606 17337 CONSTRAINT public penempatan_magang penempatan_magang_pkey magangverify
+5020; 2606 17484 CONSTRAINT public penilaian_magang penilaian_magang_pkey magangverify
+5022; 2606 17486 CONSTRAINT public penilaian_magang penilaian_penilai_unik magangverify
+5033; 2606 17542 CONSTRAINT public portofolios portofolios_pkey magangverify
+5035; 2606 17544 CONSTRAINT public portofolios portofolios_slug_key magangverify
+4951; 2606 17197 CONSTRAINT public profil_dosen profil_dosen_nidn_key magangverify
+4953; 2606 17193 CONSTRAINT public profil_dosen profil_dosen_pkey magangverify
+4955; 2606 17195 CONSTRAINT public profil_dosen profil_dosen_user_id_key magangverify
+4945; 2606 17180 CONSTRAINT public profil_mahasiswa profil_mahasiswa_nim_key magangverify
+4947; 2606 17176 CONSTRAINT public profil_mahasiswa profil_mahasiswa_pkey magangverify
+4949; 2606 17178 CONSTRAINT public profil_mahasiswa profil_mahasiswa_user_id_key magangverify
+4980; 2606 17307 CONSTRAINT public riwayat_pendaftaran_magang riwayat_pendaftaran_magang_pkey magangverify
+5048; 2606 17607 CONSTRAINT public riwayat_verifikasi_portofolio riwayat_verifikasi_portofolio_pkey magangverify
+4937; 2606 17153 CONSTRAINT public schema_migrations schema_migrations_migration_key magangverify
+4939; 2606 17151 CONSTRAINT public schema_migrations schema_migrations_pkey magangverify
+4941; 2606 17166 CONSTRAINT public users users_login_id_key magangverify
+4943; 2606 17164 CONSTRAINT public users users_pkey magangverify
+5025; 2606 17510 CONSTRAINT public verifikasi_penyelesaian_magang verifikasi_penyelesaian_magang_penempatan_id_key magangverify
+5027; 2606 17508 CONSTRAINT public verifikasi_penyelesaian_magang verifikasi_penyelesaian_magang_pkey magangverify
+5055; 1259 17659 INDEX public idx_aktivitas_modul_waktu magangverify
+5056; 1259 17658 INDEX public idx_aktivitas_user_waktu magangverify
+5038; 1259 17622 INDEX public idx_berkas_portofolio magangverify
+4967; 1259 17261 INDEX public idx_formasi_mitra magangverify
+4968; 1259 17263 INDEX public idx_formasi_periode magangverify
+4969; 1259 17262 INDEX public idx_formasi_status magangverify
+4970; 1259 17264 INDEX public idx_formasi_tahun_akademik magangverify
+5005; 1259 17521 INDEX public idx_laporan_penempatan magangverify
+5011; 1259 17523 INDEX public idx_laporan_revisi_laporan magangverify
+5006; 1259 17522 INDEX public idx_laporan_status magangverify
+4988; 1259 17424 INDEX public idx_logbook_penempatan magangverify
+4994; 1259 17426 INDEX public idx_logbook_revisi_logbook magangverify
+4989; 1259 17425 INDEX public idx_logbook_status magangverify
+4999; 1259 17428 INDEX public idx_logbook_ttd_penanda_tangan magangverify
+5000; 1259 17427 INDEX public idx_logbook_ttd_revisi magangverify
+5043; 1259 17623 INDEX public idx_mahasiswa_keterampilan magangverify
+4956; 1259 17233 INDEX public idx_mitra_kota magangverify
+4957; 1259 17231 INDEX public idx_mitra_nama magangverify
+4958; 1259 17232 INDEX public idx_mitra_status_verifikasi magangverify
+5049; 1259 17657 INDEX public idx_notifikasi_belum_dibaca magangverify
+5050; 1259 17656 INDEX public idx_notifikasi_user_waktu magangverify
+4971; 1259 17321 INDEX public idx_pendaftaran_dosen magangverify
+4972; 1259 17319 INDEX public idx_pendaftaran_formasi magangverify
+4973; 1259 17318 INDEX public idx_pendaftaran_mahasiswa magangverify
+4974; 1259 17320 INDEX public idx_pendaftaran_status magangverify
+4981; 1259 17355 INDEX public idx_penempatan_dosen magangverify
+4982; 1259 17357 INDEX public idx_penempatan_periode magangverify
+4983; 1259 17356 INDEX public idx_penempatan_status magangverify
+5016; 1259 17524 INDEX public idx_penilaian_penempatan magangverify
+5017; 1259 17525 INDEX public idx_penilaian_penilai magangverify
+5018; 1259 17526 INDEX public idx_penilaian_status magangverify
+5028; 1259 17619 INDEX public idx_portofolio_jenis magangverify
+5029; 1259 17618 INDEX public idx_portofolio_mahasiswa magangverify
+5030; 1259 17621 INDEX public idx_portofolio_publikasi magangverify
+5031; 1259 17620 INDEX public idx_portofolio_verifikasi magangverify
+4978; 1259 17322 INDEX public idx_riwayat_pendaftaran magangverify
+5046; 1259 17624 INDEX public idx_riwayat_verifikasi_portofolio magangverify
+5023; 1259 17527 INDEX public idx_verifikasi_penyelesaian_status magangverify
+4977; 1259 17323 INDEX public uq_pendaftaran_mahasiswa_aktif magangverify
+5091; 2606 17651 FK CONSTRAINT public aktivitas_pengguna aktivitas_pengguna_user_id_fkey magangverify
+5085; 2606 17565 FK CONSTRAINT public berkas_portofolio berkas_portofolio_portofolio_id_fkey magangverify
+5061; 2606 17256 FK CONSTRAINT public formasi_magang formasi_magang_dibuat_oleh_fkey magangverify
+5062; 2606 17251 FK CONSTRAINT public formasi_magang formasi_magang_mitra_id_fkey magangverify
+5076; 2606 17444 FK CONSTRAINT public laporan_magang laporan_magang_penempatan_id_fkey magangverify
+5077; 2606 17466 FK CONSTRAINT public laporan_revisi laporan_revisi_diunggah_oleh_fkey magangverify
+5078; 2606 17461 FK CONSTRAINT public laporan_revisi laporan_revisi_laporan_id_fkey magangverify
+5071; 2606 17374 FK CONSTRAINT public logbook_mingguan logbook_mingguan_penempatan_id_fkey magangverify
+5072; 2606 17396 FK CONSTRAINT public logbook_revisi logbook_revisi_dibuat_oleh_fkey magangverify
+5073; 2606 17391 FK CONSTRAINT public logbook_revisi logbook_revisi_logbook_id_fkey magangverify
+5074; 2606 17419 FK CONSTRAINT public logbook_tanda_tangan logbook_tanda_tangan_penanda_tangan_id_fkey magangverify
+5075; 2606 17414 FK CONSTRAINT public logbook_tanda_tangan logbook_tanda_tangan_revisi_id_fkey magangverify
+5086; 2606 17593 FK CONSTRAINT public mahasiswa_keterampilan mahasiswa_keterampilan_keterampilan_id_fkey magangverify
+5087; 2606 17588 FK CONSTRAINT public mahasiswa_keterampilan mahasiswa_keterampilan_mahasiswa_id_fkey magangverify
+5059; 2606 17226 FK CONSTRAINT public mitra mitra_diverifikasi_oleh_fkey magangverify
+5060; 2606 17221 FK CONSTRAINT public mitra mitra_user_id_fkey magangverify
+5090; 2606 17637 FK CONSTRAINT public notifikasi notifikasi_user_id_fkey magangverify
+5063; 2606 17294 FK CONSTRAINT public pendaftaran_magang pendaftaran_magang_dosen_penyetuju_id_fkey magangverify
+5064; 2606 17289 FK CONSTRAINT public pendaftaran_magang pendaftaran_magang_formasi_id_fkey magangverify
+5065; 2606 17284 FK CONSTRAINT public pendaftaran_magang pendaftaran_magang_mahasiswa_id_fkey magangverify
+5068; 2606 17350 FK CONSTRAINT public penempatan_magang penempatan_magang_ditetapkan_oleh_fkey magangverify
+5069; 2606 17345 FK CONSTRAINT public penempatan_magang penempatan_magang_dosen_pembimbing_id_fkey magangverify
+5070; 2606 17340 FK CONSTRAINT public penempatan_magang penempatan_magang_pendaftaran_id_fkey magangverify
+5079; 2606 17487 FK CONSTRAINT public penilaian_magang penilaian_magang_penempatan_id_fkey magangverify
+5080; 2606 17492 FK CONSTRAINT public penilaian_magang penilaian_magang_penilai_id_fkey magangverify
+5083; 2606 17550 FK CONSTRAINT public portofolios portofolios_diverifikasi_oleh_fkey magangverify
+5084; 2606 17545 FK CONSTRAINT public portofolios portofolios_mahasiswa_id_fkey magangverify
+5058; 2606 17198 FK CONSTRAINT public profil_dosen profil_dosen_user_id_fkey magangverify
+5057; 2606 17181 FK CONSTRAINT public profil_mahasiswa profil_mahasiswa_user_id_fkey magangverify
+5066; 2606 17313 FK CONSTRAINT public riwayat_pendaftaran_magang riwayat_pendaftaran_magang_diubah_oleh_fkey magangverify
+5067; 2606 17308 FK CONSTRAINT public riwayat_pendaftaran_magang riwayat_pendaftaran_magang_pendaftaran_id_fkey magangverify
+5088; 2606 17613 FK CONSTRAINT public riwayat_verifikasi_portofolio riwayat_verifikasi_portofolio_diverifikasi_oleh_fkey magangverify
+5089; 2606 17608 FK CONSTRAINT public riwayat_verifikasi_portofolio riwayat_verifikasi_portofolio_portofolio_id_fkey magangverify
+5081; 2606 17516 FK CONSTRAINT public verifikasi_penyelesaian_magang verifikasi_penyelesaian_magang_diverifikasi_oleh_fkey magangverify
+5082; 2606 17511 FK CONSTRAINT public verifikasi_penyelesaian_magang verifikasi_penyelesaian_magang_penempatan_id_fkey magangverify

@@ -615,15 +615,22 @@ class PortofolioController
                             url('/dashboard/mahasiswa/portofolio/detail/' . $slugBaru)
                     );
                     exit;
-                } catch (PDOException | RuntimeException $e) {
-                    if (!empty($data['gambar_path'])) {
-                        $this->removeUploadedImage($data['gambar_path']);
-                    }
+                
+} catch (PDOException | RuntimeException $e) {
+    if (
+        !empty($data['gambar_path']) &&
+        $data['gambar_path'] !== ($gambarLama ?? '')
+    ) {
+        $this->removeUploadedImage($data['gambar_path']);
+    }
 
-                    error_log('Gagal mengubah portofolio: ' . $e->getMessage());
-                    $errors['database'] =
-                        'Perubahan portofolio gagal disimpan. Silakan coba kembali.';
-                }
+    error_log('Gagal mengubah portofolio: ' . $e->getMessage());
+
+    $errors['database'] = $e instanceof RuntimeException
+        && str_contains($e->getMessage(), 'status verifikasi sudah berubah')
+            ? $e->getMessage()
+            : 'Perubahan portofolio gagal disimpan. Silakan coba kembali.';
+}
             }
 
             /*
@@ -667,12 +674,15 @@ class PortofolioController
              * Model menghapus berdasarkan slug dan user_id.
              * Portofolio milik pengguna lain tidak boleh terhapus.
              */
-            $dihapus = $this->portofolioModel->deleteBySlug($slug, $userId);
+            
+$dihapus = $this->portofolioModel->deleteBySlug($slug, $userId);
 
-            if (!$dihapus) {
-                $this->showNotFound();
-            }
-
+if (!$dihapus) {
+    http_response_code(403);
+    exit(
+        'Portofolio tidak dapat dihapus karena status verifikasi sudah berubah.'
+    );
+}
             $this->removeUploadedImage($portofolio['gambar'] ?? '');
         } catch (PDOException $e) {
             error_log('Gagal menghapus portofolio: ' . $e->getMessage());

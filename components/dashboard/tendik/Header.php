@@ -84,14 +84,7 @@
 
 
             <!-- Profile -->
-            <div
-                class="flex items-center gap-3
-                       pl-3
-                       border-l border-gray-200
-                       sm:pl-6">
-
-                <!-- Avatar -->
-                <?php
+            <?php
 
                 require_once __DIR__ . '/../../../models/ProfilMahasiswa.php';
 
@@ -102,11 +95,11 @@
                     global $pdo;
 
                     $profilModel = new ProfilMahasiswa($pdo);
-                    $profil = $profilModel->getOrCreateByUserId(
+                    $profil = $profilModel->getByUserId(
                         (int) $_SESSION['user']['id']
                     );
-
-                    $fotoProfil = $profil['foto_profil'] ?? '';
+                    
+                    $fotoProfil = $profil['foto_path'] ?? '';
                 } catch (Throwable $e) {
                     error_log('Gagal mengambil foto profil sidebar: ' . $e->getMessage());
                 }
@@ -136,14 +129,15 @@
             text-sm font-semibold text-blue-600 bg-blue-100
             rounded-full w-11 h-11 shrink-0 overflow-hidden">
 
-                    <?php if ($fotoProfil !== ''): ?>
-                        <img
-                            src="<?= e(url('/' . ltrim($fotoProfil, '/'))) ?>"
-                            alt="Foto profil <?= e($namaPengguna) ?>"
-                            class="w-full h-full object-cover">
-                    <?php else: ?>
-                        <?= e($inisial ?: 'P') ?>
-                    <?php endif; ?>
+            <?php if ($fotoProfil !== ''): ?>
+    <img
+        src="<?= e(url('/' . ltrim($fotoProfil, '/'))) ?>"
+        alt="Foto profil <?= e($namaPengguna) ?>"
+        class="w-full h-full object-cover"
+        onerror="this.style.display='none';">
+<?php else: ?>
+    <?= e($inisial ?: 'P') ?>
+<?php endif; ?>
 
                 </div>
 
