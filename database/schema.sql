@@ -1114,6 +1114,131 @@ CREATE INDEX IF NOT EXISTS idx_sertifikat_status_verifikasi
 CREATE INDEX IF NOT EXISTS idx_sertifikat_tanggal_terbit
     ON sertifikat(tanggal_terbit);
 
+-- ============================================
+-- TABEL MITRA
+-- ============================================
+
+CREATE TABLE mitra (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    nama VARCHAR(150) NOT NULL,
+    slug VARCHAR(180) NOT NULL UNIQUE,
+    kategori VARCHAR(50) NOT NULL,
+    bidang_industri VARCHAR(100),
+    deskripsi TEXT,
+
+    email VARCHAR(150),
+    telepon VARCHAR(30),
+    website VARCHAR(255),
+    logo_path TEXT,
+
+    provinsi VARCHAR(100),
+    kota VARCHAR(100),
+    alamat TEXT NOT NULL,
+
+    status_verifikasi VARCHAR(30) NOT NULL DEFAULT 'dalam_peninjauan'
+        CHECK (
+            status_verifikasi IN (
+                'dalam_peninjauan',
+                'terverifikasi',
+                'ditolak'
+            )
+        ),
+
+    catatan_verifikasi TEXT,
+    diverifikasi_oleh BIGINT REFERENCES users(id) ON DELETE RESTRICT,
+    diverifikasi_pada TIMESTAMPTZ,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_mitra_status_verifikasi
+    ON mitra(status_verifikasi);
+
+CREATE INDEX idx_mitra_kategori
+    ON mitra(kategori);
+
+CREATE INDEX idx_mitra_kota
+    ON mitra(kota);
+
+-- ============================================
+-- TABEL formasi_magang
+-- ============================================
+
+CREATE TABLE public.formasi_magang (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    mitra_id BIGINT NOT NULL
+        REFERENCES public.mitra(id) ON DELETE RESTRICT,
+
+    nama_posisi VARCHAR(150) NOT NULL,
+    slug VARCHAR(200) NOT NULL UNIQUE,
+    deskripsi TEXT NOT NULL,
+    kualifikasi TEXT,
+
+    -- Kriteria mahasiswa yang dapat mendaftar
+    program_studi TEXT[] NOT NULL DEFAULT '{}',
+    keahlian TEXT[] NOT NULL DEFAULT '{}',
+
+    kuota INTEGER NOT NULL CHECK (kuota > 0),
+
+    lokasi VARCHAR(150) NOT NULL,
+    durasi VARCHAR(100) NOT NULL,
+    tahun_akademik VARCHAR(20) NOT NULL,
+    periode_mulai DATE,
+    periode_selesai DATE,
+
+    status VARCHAR(30) NOT NULL DEFAULT 'tersedia'
+        CHECK (
+            status IN (
+                'tersedia',
+                'ditutup',
+                'selesai'
+            )
+        ),
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT chk_formasi_periode
+        CHECK (
+            periode_mulai IS NULL
+            OR periode_selesai IS NULL
+            OR periode_selesai >= periode_mulai
+        )
+);
+
+CREATE INDEX idx_formasi_mitra
+    ON public.formasi_magang(mitra_id);
+
+CREATE INDEX idx_formasi_status
+    ON public.formasi_magang(status);
+
+CREATE INDEX idx_formasi_tahun_akademik
+    ON public.formasi_magang(tahun_akademik);
+
+-- ============================================
+-- TABEL formasi_magang
+-- ============================================
+
+CREATE TABLE IF NOT EXISTS public.dokumen_pendaftaran_magang (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    pendaftaran_id BIGINT NOT NULL REFERENCES public.pendaftaran_magang(id) ON DELETE RESTRICT,
+    jenis_dokumen VARCHAR(40) NOT NULL,
+    nama_asli VARCHAR(255) NOT NULL,
+    path_file VARCHAR(500) NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    ukuran_bytes BIGINT NOT NULL CHECK (ukuran_bytes > 0),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT dokumen_pendaftaran_jenis_check CHECK (jenis_dokumen IN ('pakta_integritas', 'daftar_riwayat_hidup', 'khs', 'ktp', 'ktm', 'surat_izin_orang_tua', 'bpjs', 'sktm_kip', 'proposal', 'sertifikat_kompetensi')),
+    CONSTRAINT dokumen_pendaftaran_unique_jenis UNIQUE (pendaftaran_id, jenis_dokumen)
+);
+
+CREATE INDEX IF NOT EXISTS idx_dokumen_pendaftaran_magang
+    ON public.dokumen_pendaftaran_magang(pendaftaran_id);
+
+
 -- VALUE CATATAN MIGRATION
 
 INSERT INTO schema_migrations (migration)
@@ -1142,3 +1267,13 @@ VALUES ('008_create_notifikasi_dan_aktivitas.sql');
 
 INSERT INTO schema_migrations (migration)
 VALUES ('011_create_sertifikat.sql');
+
+INSERT INTO schema_migrations (migration)
+    VALUES ('012_create_mitra.sql');
+
+INSERT INTO schema_migrations (migration)
+VALUES ('013_create_formasi_magang.sql');
+
+INSERT INTO public.schema_migrations (migration)
+VALUES ('014_create_dokumen_pendaftaran_magang.sql')
+ON CONFLICT (migration) DO NOTHING;

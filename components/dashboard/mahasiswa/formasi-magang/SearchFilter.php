@@ -85,40 +85,33 @@
             </select>
 
 
-            <!-- Status -->
+            <!-- Sistem Kerja -->
             <select
-                name="status"
-                class="w-full lg:w-36 h-10 px-3 text-sm text-slate-600
-                       bg-white border border-slate-200 rounded-lg
-                       outline-none focus:ring-2 focus:ring-blue-100
-                       focus:border-blue-400">
-
-                <option value="">
-                    Semua Status
-                </option>
-
-                <?php foreach ($optStatus as $status): ?>
-
-                    <option
-                        value="<?= e($status) ?>"
-                        <?= $fStatus === $status ? 'selected' : '' ?>>
-                        <?= $status === 'tersedia'
-                            ? 'Tersedia'
-                            : 'Penuh'
-                        ?>
-                    </option>
-
+                name="sistem_kerja"
+                class="w-full lg:w-36 h-10 px-3 text-sm text-slate-600 bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400">
+                <option value="">Semua Sistem Kerja</option>
+                <?php foreach (['onsite' => 'On-site', 'hybrid' => 'Hybrid', 'remote' => 'Remote'] as $value => $label): ?>
+                    <option value="<?= e($value) ?>" <?= ($fSistemKerja ?? '') === $value ? 'selected' : '' ?>><?= e($label) ?></option>
                 <?php endforeach; ?>
-
             </select>
 
+            <!-- Tahun Akademik -->
+            <select
+                name="tahun_akademik"
+                class="w-full lg:w-36 h-10 px-3 text-sm text-slate-600 bg-white border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-400">
+                <option value="">Semua Tahun</option>
+                <?php foreach ($optTahun as $tahun): ?>
+                    <option value="<?= e($tahun) ?>" <?= ($fTahun ?? '') === $tahun ? 'selected' : '' ?>><?= e($tahun) ?></option>
+                <?php endforeach; ?>
+            </select>
 
             <!-- Reset -->
             <?php if (
                 $q !== ''
                 || $fLokasi !== ''
                 || $fDurasi !== ''
-                || $fStatus !== ''
+                || ($fSistemKerja ?? '') !== ''
+                || ($fTahun ?? '') !== ''
             ): ?>
 
                 <a

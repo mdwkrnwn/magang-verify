@@ -24,8 +24,16 @@
             }
 
             $namaJenis = [
-                'proposal' => 'Proposal Pengajuan',
-                'faktaIntegritas' => 'Fakta Integritas',
+                'pakta_integritas' => 'Pakta Integritas',
+                'daftar_riwayat_hidup' => 'Daftar Riwayat Hidup',
+                'khs' => 'KHS / Cetak Siakad',
+                'ktp' => 'KTP',
+                'ktm' => 'KTM',
+                'surat_izin_orang_tua' => 'Surat Izin Orang Tua',
+                'bpjs' => 'Kartu BPJS / Asuransi lainnya',
+                'sktm_kip' => 'SKTM / KIP Kuliah',
+                'proposal' => 'Proposal Magang',
+                'sertifikat_kompetensi' => 'Sertifikat Kompetensi',
                 'suratPengantar' => 'Surat Pengantar Magang',
                 'loa' => 'LOA',
             ];

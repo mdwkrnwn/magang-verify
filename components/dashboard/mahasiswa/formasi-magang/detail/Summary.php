@@ -115,31 +115,6 @@
         </div>
 
 
-        <!-- Deadline -->
-        <div
-            class="flex items-start
-                   justify-between gap-4
-                   py-3"
-        >
-
-            <span class="text-xs sm:text-sm text-slate-500">
-                Batas Pendaftaran
-            </span>
-
-            <span
-                class="max-w-[60%]
-                       text-right
-                       text-xs sm:text-sm
-                       font-medium
-                       text-slate-700
-                       break-words"
-            >
-                <?= e($formasi['batas_daftar'] ?? '-') ?>
-            </span>
-
-        </div>
-
-
         <!-- Kuota -->
         <div
             class="flex items-start
@@ -161,11 +136,22 @@
                             : 'text-slate-600'
                        ?>"
             >
-                <?= e($formasi['kuota'] ?? '-') ?>
+                <?= e(($formasi['kuota'] ?? 0) . ' slot tersedia dari ' . ($formasi['kuota_total'] ?? 0)) ?>
             </span>
 
         </div>
 
+
+        <div class="flex items-start justify-between gap-4 py-3">
+            <span class="text-xs sm:text-sm text-slate-500">Sistem Kerja</span>
+            <span class="max-w-[60%] text-right text-xs sm:text-sm font-medium text-slate-700">
+                <?= e(match ($formasi['sistem_kerja'] ?? '') { 'onsite' => 'On-site', 'hybrid' => 'Hybrid', 'remote' => 'Remote', default => '-' }) ?>
+            </span>
+        </div>
+        <div class="flex items-start justify-between gap-4 py-3 last:pb-0">
+            <span class="text-xs sm:text-sm text-slate-500">Tahun Akademik</span>
+            <span class="max-w-[60%] text-right text-xs sm:text-sm font-medium text-slate-700"><?= e($formasi['tahun_akademik'] ?? '-') ?></span>
+        </div>
     </div>
 
 </div>

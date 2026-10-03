@@ -41,6 +41,8 @@
     </div>
 
 
+    <?php $setuju = ($_POST['pernyataan'] ?? '') === '1'; ?>
+
     <label
         class="flex items-start gap-3
                cursor-pointer"

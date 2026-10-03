@@ -9,6 +9,11 @@
     ) ?>"
     enctype="multipart/form-data"
 >
+    <input type="hidden" name="_csrf_token" value="<?= e(csrfToken()) ?>">
+
+    <?php if (!empty($errors['umum'])): ?>
+        <div class="mb-4 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"><?= e($errors['umum']) ?></div>
+    <?php endif; ?>
 
     <div
         class="p-4 sm:p-5 lg:p-6
@@ -56,10 +61,7 @@
                                    leading-5
                                    text-emerald-700"
                         >
-                            Validasi form berhasil.
-                            Tahap berikutnya adalah
-                            penyimpanan pengajuan ke sistem
-                            Pendaftaran Magang.
+                            Pengajuan Anda telah tersimpan dan menunggu pemeriksaan dosen.
                         </p>
 
                     </div>
@@ -106,6 +108,7 @@
             <button
                 type="submit"
                 name="submit_pengajuan"
+                <?= $existingApplication ? 'disabled' : '' ?>
                 value="1"
                 class="inline-flex items-center
                        justify-center
@@ -118,6 +121,7 @@
                        font-semibold
                        text-white
                        bg-blue-600
+                       disabled:opacity-50 disabled:cursor-not-allowed
                        rounded-lg
                        hover:bg-blue-700
                        active:bg-blue-800

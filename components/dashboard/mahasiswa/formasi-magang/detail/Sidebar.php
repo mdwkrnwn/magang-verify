@@ -116,11 +116,10 @@
                    leading-5
                    text-slate-500"
         >
-            Informasi formasi digunakan sebagai dasar
-            pengajuan magang melalui sistem.
-            Proses penerimaan oleh mitra dilakukan
-            sesuai mekanisme yang berlaku di luar
-            proses pengajuan sistem.
+            Setelah pengajuan dikirim, dosen memeriksa
+            permohonan terlebih dahulu. Jika disetujui,
+            respons dan jadwal seleksi mitra akan dicatat
+            pada proses pendaftaran di sistem.
         </p>
 
     </div>

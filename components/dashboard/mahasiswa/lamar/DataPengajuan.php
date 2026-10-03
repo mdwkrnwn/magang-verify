@@ -159,6 +159,38 @@
     </div>
 
 
+    <div class="mt-5 border-t border-slate-100 pt-5">
+        <h3 class="mb-3 text-sm font-semibold text-slate-800">Informasi Pengajuan</h3>
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+                <label class="block mb-1.5 text-xs sm:text-sm font-medium text-slate-700">Perusahaan</label>
+                <div class="flex min-h-10 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                    <?= e($formasi['perusahaan'] ?? '-') ?>
+                </div>
+            </div>
+            <div>
+                <label class="block mb-1.5 text-xs sm:text-sm font-medium text-slate-700">No. HP</label>
+                <div class="flex min-h-10 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                    <?= e($noTelepon) ?>
+                </div>
+            </div>
+            <div>
+                <label class="block mb-1.5 text-xs sm:text-sm font-medium text-slate-700">No. WhatsApp</label>
+                <div class="flex min-h-10 items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                    <?= e($noTelepon) ?>
+                </div>
+                <p class="mt-1 text-xs text-slate-400">Menggunakan nomor telepon pada profil mahasiswa.</p>
+            </div>
+            <div>
+                <label class="block mb-1.5 text-xs sm:text-sm font-medium text-slate-700">Alamat Email</label>
+                <div class="flex min-h-10 items-center break-all rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                    <?= e($email) ?>
+                </div>
+            </div>
+        </div>
+        <p class="mt-3 text-xs leading-5 text-slate-500">Informasi perusahaan diambil dari formasi yang dipilih. Pastikan nomor telepon dan email pada profil mahasiswa sudah benar.</p>
+    </div>
+
     <div
         class="mt-4
                p-3

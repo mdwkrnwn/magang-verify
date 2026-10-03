@@ -5,7 +5,7 @@
     </h1>
 
     <p class="mt-2 text-sm text-gray-500 sm:text-base">
-        Temukan posisi magang yang sesuai dengan minat dan keahlian Anda.
+        Lihat formasi yang dibuka oleh mitra terverifikasi dan pilih yang sesuai dengan rencana magang Anda.
     </p>
 
 </div>

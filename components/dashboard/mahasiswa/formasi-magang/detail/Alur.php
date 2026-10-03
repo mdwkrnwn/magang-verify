@@ -43,41 +43,11 @@
     <?php
 
     $alur = [
-        [
-            'nomor' => 1,
-            'judul' => 'Pilih Formasi',
-            'deskripsi' => 'Mahasiswa memilih formasi magang yang sesuai dengan program studi dan kompetensi.'
-        ],
-        [
-            'nomor' => 2,
-            'judul' => 'Ajukan Pendaftaran',
-            'deskripsi' => 'Mahasiswa mengajukan pendaftaran pada formasi yang dipilih melalui sistem.'
-        ],
-        [
-            'nomor' => 3,
-            'judul' => 'Unggah Dokumen',
-            'deskripsi' => 'Mahasiswa melengkapi dokumen persyaratan yang diperlukan untuk proses pengajuan.'
-        ],
-        [
-            'nomor' => 4,
-            'judul' => 'Pemeriksaan Koordinator Magang',
-            'deskripsi' => 'Pengajuan diperiksa dan diverifikasi oleh Koordinator Magang.'
-        ],
-        [
-            'nomor' => 5,
-            'judul' => 'Persetujuan Berjenjang',
-            'deskripsi' => 'Pengajuan dilanjutkan melalui tahapan persetujuan KPS, Kajur, dan Wadir 1.'
-        ],
-        [
-            'nomor' => 6,
-            'judul' => 'Surat Pengantar Magang',
-            'deskripsi' => 'Setelah proses persetujuan selesai, mahasiswa memperoleh Surat Pengantar Magang.'
-        ],
-        [
-            'nomor' => 7,
-            'judul' => 'LOA',
-            'deskripsi' => 'Setelah proses dengan mitra selesai, dokumen Letter of Acceptance (LOA) dapat diunggah ke sistem.'
-        ],
+        ['nomor' => 1, 'judul' => 'Pilih Formasi', 'deskripsi' => 'Pilih formasi yang sedang dibuka, berasal dari mitra terverifikasi, dan masih memiliki kuota.'],
+        ['nomor' => 2, 'judul' => 'Kirim Pengajuan', 'deskripsi' => 'Lengkapi dokumen yang diminta dan kirim pendaftaran melalui sistem.'],
+        ['nomor' => 3, 'judul' => 'Persetujuan Dosen', 'deskripsi' => 'Pengajuan menunggu pemeriksaan dan keputusan dosen. Dosen dapat menyetujui, menolak, atau meminta revisi.'],
+        ['nomor' => 4, 'judul' => 'Respons Mitra', 'deskripsi' => 'Jika disetujui dosen, pengajuan menunggu respons mitra. Mitra dapat menerima, menolak, atau mengundang mahasiswa ke tahap seleksi.'],
+        ['nomor' => 5, 'judul' => 'Hasil dan Tindak Lanjut', 'deskripsi' => 'Status akhir pengajuan ditampilkan pada menu Pengajuan Saya. Tahap administrasi berikutnya mengikuti prosedur magang kampus.'],
     ];
 
     ?>
