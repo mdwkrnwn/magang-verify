@@ -1,22 +1,18 @@
-name: Deploy Website via FTP
-
-on:
+name: Sync on DOM Cloud
+'on':
+  workflow_dispatch: {}
   push:
     branches:
-      - main  # Ganti master jika branch utama Anda bernama master
-
+      - main
+      - master
 jobs:
-  web-deploy:
-    name: Sync Files to InfinityFree
+  build:
     runs-on: ubuntu-latest
     steps:
-    - name: 🚚 Get latest code
-      uses: actions/checkout@v4
-    
-    - name: 📂 Sync files via FTP
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        server-dir: /htdocs/
+      - name: Invoke deployment hook
+        uses: distributhor/workflow-webhook@v3
+        env:
+          webhook_url: https://my.domcloud.co/api/githubdeploy
+          webhook_secret: ${{ secrets.WEBHOOK_SECRET }}
+          webhook_auth: ${{ secrets.WEBHOOK_AUTH }}
+          data: '{"commands":["git pull","restart"]}'
