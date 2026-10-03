@@ -151,8 +151,10 @@ class SertifikatController
     {
         return [
             'nama' => trim((string) ($_POST['nama'] ?? '')),
+            'jenis' => trim((string) ($_POST['jenis'] ?? '')),
             'penerbit' => trim((string) ($_POST['penerbit'] ?? '')),
             'tanggal_terbit' => trim((string) ($_POST['tanggal_terbit'] ?? '')),
+            'tanggal_kedaluwarsa' => trim((string) ($_POST['tanggal_kedaluwarsa'] ?? '')),
             'nomor_sertifikat' => trim((string) ($_POST['nomor_sertifikat'] ?? '')),
             'deskripsi' => trim((string) ($_POST['deskripsi'] ?? '')),
             'tautan' => trim((string) ($_POST['tautan'] ?? '')),
@@ -166,6 +168,9 @@ class SertifikatController
         } elseif (mb_strlen($data['nama']) > 200) {
             $errors['nama'] = 'Nama sertifikat maksimal 200 karakter.';
         }
+        if ($data['jenis'] !== '' && mb_strlen($data['jenis']) > 100) {
+            $errors['jenis'] = 'Jenis sertifikat maksimal 100 karakter.';
+        }
         if ($data['penerbit'] === '') {
             $errors['penerbit'] = 'Penerbit sertifikat wajib diisi.';
         } elseif (mb_strlen($data['penerbit']) > 200) {
@@ -176,6 +181,19 @@ class SertifikatController
             if (!$date || $date->format('Y-m-d') !== $data['tanggal_terbit']) {
                 $errors['tanggal_terbit'] = 'Tanggal terbit tidak valid.';
             }
+        }
+        if ($data['tanggal_kedaluwarsa'] !== '') {
+            $date = DateTime::createFromFormat('Y-m-d', $data['tanggal_kedaluwarsa']);
+            if (!$date || $date->format('Y-m-d') !== $data['tanggal_kedaluwarsa']) {
+                $errors['tanggal_kedaluwarsa'] = 'Tanggal kedaluwarsa tidak valid.';
+            }
+        }
+        if (
+            $data['tanggal_terbit'] !== '' &&
+            $data['tanggal_kedaluwarsa'] !== '' &&
+            $data['tanggal_terbit'] > $data['tanggal_kedaluwarsa']
+        ) {
+            $errors['tanggal_kedaluwarsa'] = 'Tanggal kedaluwarsa tidak boleh mendahului tanggal terbit.';
         }
         if ($data['tautan'] !== '' && (!filter_var($data['tautan'], FILTER_VALIDATE_URL) || !in_array(strtolower((string) parse_url($data['tautan'], PHP_URL_SCHEME)), ['http', 'https'], true))) {
             $errors['tautan'] = 'Tautan harus berupa URL HTTP atau HTTPS yang valid.';
@@ -215,7 +233,17 @@ class SertifikatController
         $userId = $this->getMahasiswaId();
         $mode = 'tambah';
         $errors = [];
-        $old = ['nama' => '', 'penerbit' => '', 'tanggal_terbit' => '', 'nomor_sertifikat' => '', 'deskripsi' => '', 'gambar' => '', 'tautan' => ''];
+        $old = [
+            'nama' => '',
+            'jenis' => '',
+            'penerbit' => '',
+            'tanggal_terbit' => '',
+            'tanggal_kedaluwarsa' => '',
+            'nomor_sertifikat' => '',
+            'deskripsi' => '',
+            'gambar' => '',
+            'tautan' => '',
+        ];
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $this->validatePostRequest();
@@ -260,8 +288,10 @@ class SertifikatController
         $errors = [];
         $old = [
             'nama' => $sertifikat['nama'] ?? '',
+            'jenis' => $sertifikat['jenis'] ?? '',
             'penerbit' => $sertifikat['penerbit'] ?? '',
             'tanggal_terbit' => $sertifikat['tanggal_terbit'] ?? '',
+            'tanggal_kedaluwarsa' => $sertifikat['tanggal_kedaluwarsa'] ?? '',
             'nomor_sertifikat' => $sertifikat['nomor_sertifikat'] ?? '',
             'deskripsi' => $sertifikat['deskripsi'] ?? '',
             'tautan' => $sertifikat['tautan']['sertifikat'] ?? '',

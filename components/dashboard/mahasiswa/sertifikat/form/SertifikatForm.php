@@ -11,11 +11,17 @@ $action =
 $nama =
     $old['nama'] ?? '';
 
+$jenis =
+    $old['jenis'] ?? '';
+
 $penerbit =
     $old['penerbit'] ?? '';
 
 $tanggalTerbit =
     $old['tanggal_terbit'] ?? '';
+
+$tanggalKedaluwarsa =
+    $old['tanggal_kedaluwarsa'] ?? '';
 
 $nomorSertifikat =
     $old['nomor_sertifikat'] ?? '';
@@ -88,6 +94,32 @@ $gambar =
             </div>
 
 
+            <!-- Jenis Sertifikat -->
+
+            <div>
+                <label
+                    for="jenis"
+                    class="block mb-2 text-sm font-medium text-gray-700">
+                    Jenis Sertifikat
+                </label>
+
+                <input
+                    type="text"
+                    id="jenis"
+                    name="jenis"
+                    value="<?= e($jenis) ?>"
+                    maxlength="100"
+                    placeholder="Contoh: Kompetensi, Pelatihan, Seminar"
+                    class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900">
+
+                <?php if (!empty($errors['jenis'])): ?>
+                    <p class="mt-1.5 text-sm text-red-600">
+                        <?= e($errors['jenis']) ?>
+                    </p>
+                <?php endif; ?>
+            </div>
+
+
             <!-- Penerbit -->
 
             <div>
@@ -133,7 +165,6 @@ $gambar =
                     id="tanggal_terbit"
                     name="tanggal_terbit"
                     value="<?= e($tanggalTerbit) ?>"
-                    required
                     class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900">
 
                 <?php if (!empty($errors['tanggal_terbit'])): ?>
@@ -144,6 +175,35 @@ $gambar =
 
                 <?php endif; ?>
 
+            </div>
+
+
+            <!-- Tanggal Kedaluwarsa -->
+
+            <div>
+                <label
+                    for="tanggal_kedaluwarsa"
+                    class="block mb-2 text-sm font-medium text-gray-700">
+                    Tanggal Kedaluwarsa
+                </label>
+
+                <input
+                    type="date"
+                    id="tanggal_kedaluwarsa"
+                    name="tanggal_kedaluwarsa"
+                    value="<?= e($tanggalKedaluwarsa) ?>"
+                    min="<?= e($tanggalTerbit) ?>"
+                    class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900">
+
+                <p class="mt-1.5 text-xs text-gray-500">
+                    Opsional, isi jika sertifikat memiliki masa berlaku.
+                </p>
+
+                <?php if (!empty($errors['tanggal_kedaluwarsa'])): ?>
+                    <p class="mt-1.5 text-sm text-red-600">
+                        <?= e($errors['tanggal_kedaluwarsa']) ?>
+                    </p>
+                <?php endif; ?>
             </div>
 
 

@@ -115,19 +115,21 @@ class Sertifikat
 
         $stmt = $pdo->prepare("
             INSERT INTO sertifikat (
-                user_id, nama, slug, penerbit, tanggal_terbit,
-                nomor_sertifikat, deskripsi, tautan, file_path
+                user_id, nama, slug, jenis, penerbit, tanggal_terbit,
+                tanggal_kedaluwarsa, nomor_sertifikat, deskripsi, tautan, file_path
             ) VALUES (
-                :user_id, :nama, :slug, :penerbit, :tanggal_terbit,
-                :nomor_sertifikat, :deskripsi, :tautan, :file_path
+                :user_id, :nama, :slug, :jenis, :penerbit, :tanggal_terbit,
+                :tanggal_kedaluwarsa, :nomor_sertifikat, :deskripsi, :tautan, :file_path
             )
         ");
         $stmt->execute([
             'user_id' => $userId,
             'nama' => trim((string) $data['nama']),
             'slug' => $slug,
+            'jenis' => $this->nullableValue($data['jenis'] ?? null),
             'penerbit' => trim((string) $data['penerbit']),
             'tanggal_terbit' => $this->nullableValue($data['tanggal_terbit'] ?? null),
+            'tanggal_kedaluwarsa' => $this->nullableValue($data['tanggal_kedaluwarsa'] ?? null),
             'nomor_sertifikat' => $this->nullableValue($data['nomor_sertifikat'] ?? null),
             'deskripsi' => $this->nullableValue($data['deskripsi'] ?? null),
             'tautan' => $this->nullableValue($data['tautan'] ?? null),
@@ -158,8 +160,10 @@ class Sertifikat
             UPDATE sertifikat SET
                 nama = :nama,
                 slug = :slug,
+                jenis = :jenis,
                 penerbit = :penerbit,
                 tanggal_terbit = :tanggal_terbit,
+                tanggal_kedaluwarsa = :tanggal_kedaluwarsa,
                 nomor_sertifikat = :nomor_sertifikat,
                 deskripsi = :deskripsi,
                 tautan = :tautan,
@@ -170,8 +174,10 @@ class Sertifikat
             'user_id' => $userId,
             'nama' => trim((string) $data['nama']),
             'slug' => $slug,
+            'jenis' => $this->nullableValue($data['jenis'] ?? null),
             'penerbit' => trim((string) $data['penerbit']),
             'tanggal_terbit' => $this->nullableValue($data['tanggal_terbit'] ?? null),
+            'tanggal_kedaluwarsa' => $this->nullableValue($data['tanggal_kedaluwarsa'] ?? null),
             'nomor_sertifikat' => $this->nullableValue($data['nomor_sertifikat'] ?? null),
             'deskripsi' => $this->nullableValue($data['deskripsi'] ?? null),
             'tautan' => $this->nullableValue($data['tautan'] ?? null),
@@ -240,8 +246,10 @@ class Sertifikat
             'user_id' => (int) $item['user_id'],
             'nama' => (string) $item['nama'],
             'slug' => (string) $item['slug'],
+            'jenis' => $item['jenis'] ?? '',
             'penerbit' => (string) $item['penerbit'],
             'tanggal_terbit' => $item['tanggal_terbit'] ?? '',
+            'tanggal_kedaluwarsa' => $item['tanggal_kedaluwarsa'] ?? '',
             'nomor_sertifikat' => $item['nomor_sertifikat'] ?? '',
             'deskripsi' => $item['deskripsi'] ?? '',
             'gambar' => $filePath,

@@ -90,18 +90,54 @@ $menuId =
 
     <!-- Inisial / Preview -->
 
-    <div
-        class="w-full h-44
-               sm:w-40 sm:h-32
-               flex-shrink-0
-               rounded-lg
-               bg-blue-50 text-blue-600
-               text-3xl font-bold
-               flex items-center justify-center">
+    <?php
+$ekstensiGambar = strtolower(
+    pathinfo($gambar, PATHINFO_EXTENSION)
+);
 
-        <?= e($inisial) ?>
+$adalahGambar = in_array(
+    $ekstensiGambar,
+    ['jpg', 'jpeg', 'png', 'webp'],
+    true
+);
+?>
 
-    </div>
+<div
+    class="relative w-full h-44
+           sm:w-40 sm:h-32
+           flex-shrink-0
+           overflow-hidden
+           rounded-lg
+           bg-blue-50">
+
+    <?php if ($gambar !== '' && $adalahGambar): ?>
+
+        <img
+            src="<?= url('/' . ltrim($gambar, '/')) ?>"
+            alt="Pratinjau sertifikat <?= e($nama) ?>"
+            class="w-full h-full object-cover"
+            loading="lazy"
+            onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');">
+
+        <div
+            class="hidden absolute inset-0
+                   text-blue-600 text-3xl font-bold
+                   items-center justify-center">
+            <?= e($inisial) ?>
+        </div>
+
+    <?php else: ?>
+
+        <div
+            class="w-full h-full
+                   text-blue-600 text-3xl font-bold
+                   flex items-center justify-center">
+            <?= e($inisial) ?>
+        </div>
+
+    <?php endif; ?>
+
+</div>
 
 
     <!-- Content -->
