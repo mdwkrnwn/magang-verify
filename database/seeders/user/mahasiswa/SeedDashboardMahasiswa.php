@@ -72,54 +72,10 @@ try {
         seedNotification($andiId, 'Sertifikat terverifikasi', 'Sertifikat Anda telah berhasil diverifikasi.', 'verifikasi', 'sertifikat', (int) $certificateId, '/dashboard/mahasiswa/sertifikat');
     }
 
-    // Logbook mingguan untuk Andi karena penempatannya sudah selesai.
-    $placementStmt = $pdo->prepare(''
-        . 'SELECT pm.id, pm.tanggal_mulai '
-        . 'FROM penempatan_magang pm '
-        . 'INNER JOIN pendaftaran_magang p ON p.id = pm.pendaftaran_id '
-        . 'INNER JOIN profil_mahasiswa m ON m.id = p.mahasiswa_id '
-        . 'INNER JOIN users u ON u.id = m.user_id '
-        . 'WHERE u.login_id = :login_id AND pm.status = \'selesai\' '
-        . 'ORDER BY pm.id DESC LIMIT 1'
-    );
-    $placementStmt->execute(['login_id' => 'mhs_andi']);
-    $placement = $placementStmt->fetch(PDO::FETCH_ASSOC);
-
-    if ($placement) {
-        for ($week = 1; $week <= 4; $week++) {
-            $exists = seedExists(
-                'SELECT 1 FROM logbook_mingguan WHERE penempatan_id = :penempatan_id AND minggu_ke = :minggu_ke LIMIT 1',
-                ['penempatan_id' => (int) $placement['id'], 'minggu_ke' => $week]
-            );
-
-            if ($exists) {
-                continue;
-            }
-
-            $start = date('Y-m-d', strtotime($placement['tanggal_mulai'] . ' +' . (($week - 1) * 7) . ' days'));
-            $end = date('Y-m-d', strtotime($start . ' +6 days'));
-
-            $logbookId = seedInsert('logbook_mingguan', [
-                'penempatan_id' => (int) $placement['id'],
-                'minggu_ke' => $week,
-                'tanggal_mulai' => $start,
-                'tanggal_selesai' => $end,
-                'versi_terkini' => 1,
-                'status' => 'disetujui',
-            ]);
-
-            seedInsert('logbook_revisi', [
-                'logbook_id' => $logbookId,
-                'nomor_versi' => 1,
-                'aktivitas' => 'Mengerjakan task pengembangan aplikasi dan mengikuti koordinasi tim.',
-                'hasil_pekerjaan' => 'Task mingguan terselesaikan sesuai target.',
-                'kendala' => null,
-                'rencana_selanjutnya' => 'Melanjutkan pengembangan pada minggu berikutnya.',
-                'catatan_revisi' => null,
-                'dibuat_oleh' => $andiId,
-            ]);
-        }
-    }
+    // Data logbook tidak lagi dibuat di seeder dashboard.
+    // Gunakan SeedDimasLogbook.php untuk membuat penempatan aktif, lalu
+    // buat minggu dan aktivitas harian melalui workflow aplikasi agar
+    // aturan tanggal, validasi, versi, dan tanda tangan tetap teruji.
 
     $pdo->commit();
     echo "Seeder dashboard mahasiswa selesai." . PHP_EOL;

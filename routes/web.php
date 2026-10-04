@@ -26,6 +26,11 @@ require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengajuanController.
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LogbookController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LamarController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengaturanController.php';
+require_once __DIR__ . '/../controllers/dashboard/LogbookFileController.php';
+require_once __DIR__ . '/../controllers/dashboard/dosen/LogbookController.php';
+require_once __DIR__ . '/../controllers/dashboard/mitra/LogbookController.php';
+require_once __DIR__ . '/../controllers/dashboard/tendik/LogbookController.php';
+require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/LogbookController.php';
 
 /* Dashboard Dosen */
 
@@ -166,7 +171,7 @@ $routes = [
         'method' => 'index',
     ],
 
-    // Menu Logbook
+    // Logbook Mahasiswa
 
     '/dashboard/mahasiswa/logbook' => [
         'controller' => LogbookController::class,
@@ -180,9 +185,38 @@ $routes = [
         'method' => 'index',
     ],
 
+    // Menu Logbook Dosen
+
+    '/dashboard/dosen/logbook' => [
+        'controller' => DosenLogbookController::class,
+        'method' => 'index',
+    ],
+
+    // Menu Logbook Mitra
+
+    '/dashboard/mitra/logbook' => [
+        'controller' => MitraLogbookController::class,
+        'method' => 'index',
+    ],
+
+    // Menu Logbook Tendik
+
+    '/dashboard/tendik/logbook' => [
+        'controller' => TendikLogbookController::class,
+        'method' => 'index',
+    ],
+
+    // Menu Logbook Koordinator Magang
+
+    '/dashboard/koordinator-magang/logbook' => [
+        'controller' => KoordinatorMagangLogbookController::class,
+        'method' => 'index',
+    ],
+
     /*
     |---------------------
     | Dashboard Dosen
+
     |---------------------
     */
 
@@ -753,11 +787,6 @@ function route(string $uri): ?array
     |-----------------------
     | Logbook Mahasiswa
     |-----------------------
-    |
-    | /dashboard/mahasiswa/logbook/tambah
-    | /dashboard/mahasiswa/logbook/edit/1
-    | /dashboard/mahasiswa/logbook/kirim/1
-    |
     */
 
     if ($path === '/dashboard/mahasiswa/logbook/tambah') {
@@ -765,13 +794,113 @@ function route(string $uri): ?array
         exit;
     }
 
-    if (preg_match('#^/dashboard/mahasiswa/logbook/edit/(\d+)$#', $path, $matches)) {
-        (new LogbookController())->edit(['id' => (int) $matches[1]]);
+    if (preg_match('#^/dashboard/mahasiswa/logbook/detail/(\d+)$#', $path, $matches)) {
+        (new LogbookController())->detail(['id' => (int) $matches[1]]);
         exit;
     }
 
-    if (preg_match('#^/dashboard/mahasiswa/logbook/kirim/(\d+)$#', $path, $matches)) {
-        (new LogbookController())->submit(['id' => (int) $matches[1]]);
+    if (preg_match('#^/dashboard/mahasiswa/logbook/hari/tambah/(\d+)$#', $path, $matches)) {
+        (new LogbookController())->dailyCreate(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mahasiswa/logbook/hari/edit/(\d+)$#', $path, $matches)) {
+        (new LogbookController())->dailyEdit(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mahasiswa/logbook/tanda-tangan/(\d+)$#', $path, $matches)) {
+        (new LogbookController())->sign(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mahasiswa/logbook/download/(\d+)$#', $path, $matches)) {
+        (new LogbookController())->downloadWeek(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mahasiswa/logbook/download-semua/(\d+)$#', $path, $matches)) {
+        (new LogbookController())->downloadAll(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    /*
+    |-----------------------
+    | Logbook Dosen
+    |-----------------------
+    */
+
+    if (preg_match('#^/dashboard/dosen/logbook/detail/(\d+)$#', $path, $matches)) {
+        (new DosenLogbookController())->detail(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/dosen/logbook/tanda-tangan/(\d+)$#', $path, $matches)) {
+        (new DosenLogbookController())->sign(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    /*
+    |-----------------------
+    | Logbook Mitra
+    |-----------------------
+    */
+
+    if (preg_match('#^/dashboard/mitra/logbook/detail/(\d+)$#', $path, $matches)) {
+        (new MitraLogbookController())->detail(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mitra/logbook/tanda-tangan/(\d+)$#', $path, $matches)) {
+        (new MitraLogbookController())->sign(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    /*
+    |-----------------------
+    | Logbook Tendik
+    |-----------------------
+    */
+
+    if (preg_match('#^/dashboard/tendik/logbook/detail/(\d+)$#', $path, $matches)) {
+        (new TendikLogbookController())->detail(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/tendik/logbook/validasi/(\d+)$#', $path, $matches)) {
+        (new TendikLogbookController())->validate(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    /*
+    |-----------------------
+    | Logbook Koordinator Magang
+    |-----------------------
+    */
+
+    if (preg_match('#^/dashboard/koordinator-magang/logbook/detail/(\d+)$#', $path, $matches)) {
+        (new KoordinatorMagangLogbookController())->detail(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/koordinator-magang/logbook/validasi/(\d+)$#', $path, $matches)) {
+        (new KoordinatorMagangLogbookController())->validate(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    /*
+    |-----------------------
+    | File privat Logbook
+    |-----------------------
+    */
+
+    if (preg_match('#^/dashboard/logbook/file/(signature|evidence)/(\d+)$#', $path, $matches)) {
+        $controller = new LogbookFileController();
+        if ($matches[1] === 'signature') {
+            $controller->signature(['id' => (int) $matches[2]]);
+        } else {
+            $controller->evidence(['id' => (int) $matches[2]]);
+        }
         exit;
     }
 

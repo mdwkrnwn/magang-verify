@@ -23,6 +23,12 @@ if ($path === '' || $path === false) {
 |--------------------------------------------------------------------------
 */
 
+// File logbook privat hanya boleh disajikan melalui controller yang melakukan authorization.
+if (str_starts_with($path, '/storage/private/')) {
+    http_response_code(404);
+    exit('File tidak ditemukan.');
+}
+
 $file = __DIR__ . $path;
 
 if ($path !== '/' && is_file($file)) {

@@ -41,129 +41,266 @@ class LogbookController
         }
     }
 
-    private function formData(): array
+    private function dailyData(): array
     {
-        $data = [
-            'minggu_ke' => filter_var($_POST['minggu_ke'] ?? null, FILTER_VALIDATE_INT),
-            'tanggal_mulai' => trim((string) ($_POST['tanggal_mulai'] ?? '')),
-            'tanggal_selesai' => trim((string) ($_POST['tanggal_selesai'] ?? '')),
-            'aktivitas' => trim((string) ($_POST['aktivitas'] ?? '')),
-            'hasil_pekerjaan' => trim((string) ($_POST['hasil_pekerjaan'] ?? '')),
-            'kendala' => trim((string) ($_POST['kendala'] ?? '')),
-            'rencana_selanjutnya' => trim((string) ($_POST['rencana_selanjutnya'] ?? '')),
+        $status = (string) ($_POST['status_kehadiran'] ?? 'hadir');
+        return [
+            'tanggal' => trim((string) ($_POST['tanggal'] ?? '')),
+            'jam_masuk' => trim((string) ($_POST['jam_masuk'] ?? '')),
+            'jam_pulang' => trim((string) ($_POST['jam_pulang'] ?? '')),
+            'kegiatan' => trim((string) ($_POST['kegiatan'] ?? '')),
+            'status_kehadiran' => $status,
+            'alasan_ketidakhadiran' => trim((string) ($_POST['alasan_ketidakhadiran'] ?? '')),
         ];
-
-        if (!is_int($data['minggu_ke']) || $data['minggu_ke'] < 1) {
-            throw new InvalidArgumentException('Minggu ke harus berupa angka minimal 1.');
-        }
-        if ($data['aktivitas'] === '') {
-            throw new InvalidArgumentException('Aktivitas wajib diisi.');
-        }
-        if (mb_strlen($data['aktivitas']) > 10000 || mb_strlen($data['hasil_pekerjaan']) > 10000 || mb_strlen($data['kendala']) > 10000 || mb_strlen($data['rencana_selanjutnya']) > 10000) {
-            throw new InvalidArgumentException('Isi logbook terlalu panjang.');
-        }
-
-        foreach (['tanggal_mulai', 'tanggal_selesai'] as $field) {
-            $date = DateTime::createFromFormat('Y-m-d', $data[$field]);
-            if (!$date || $date->format('Y-m-d') !== $data[$field]) {
-                throw new InvalidArgumentException('Tanggal logbook tidak valid.');
-            }
-        }
-        if ($data['tanggal_selesai'] < $data['tanggal_mulai']) {
-            throw new InvalidArgumentException('Tanggal selesai tidak boleh mendahului tanggal mulai.');
-        }
-
-        return $data;
     }
 
     public function index($params = []): void
     {
         $userId = $this->userId();
-        $placement = $this->model->getPlacement($userId);
-        $summary = $this->model->getSummary($userId);
-        $logbooks = $this->model->getRecent($userId, 8);
-        $canAdd = $placement && in_array($placement['status'], ['berlangsung', 'menunggu_penilaian'], true);
+        $placementId = isset($_GET['penempatan']) && ctype_digit((string) $_GET['penempatan'])
+            ? (int) $_GET['penempatan']
+            : null;
+
+        $placements = $this->model->getPlacements($userId);
+        $placement = $this->model->getPlacement($userId, $placementId);
+        $summary = $placement ? $this->model->getSummary($userId, (int) $placement['id']) : ['total' => 0, 'disetujui' => 0, 'menunggu' => 0, 'revisi' => 0];
+        $weeks = $placement ? $this->model->getWeeks((int) $placement['id']) : [];
+        $nextWeek = $placement ? $this->model->getNextWeekPlan($placement) : null;
 
         require __DIR__ . '/../../../pages/dashboard/mahasiswa/logbook/index.php';
     }
 
-    public function create(): void
+    public function create($params = []): void
     {
         $userId = $this->userId();
         $placement = $this->model->getPlacement($userId);
-        if (!$placement || !in_array($placement['status'], ['berlangsung', 'menunggu_penilaian'], true)) {
+        if (!$placement) {
             http_response_code(409);
-            exit('Logbook hanya dapat dibuat saat proses magang berlangsung.');
+            exit('Penempatan magang belum tersedia.');
         }
 
-        $mode = 'create';
-        $item = [
-            'minggu_ke' => '',
-            'tanggal_mulai' => '',
-            'tanggal_selesai' => '',
-            'aktivitas' => '',
-            'hasil_pekerjaan' => '',
-            'kendala' => '',
-            'rencana_selanjutnya' => '',
-        ];
+        $nextWeek = $this->model->getNextWeekPlan($placement);
         $error = null;
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $this->validatePost();
             try {
-                $data = $this->formData();
-                $id = $this->model->create($userId, $data);
-                $this->redirect('/dashboard/mahasiswa/logbook?success=created');
+                $id = $this->model->createWeek($userId);
+                $this->redirect('/dashboard/mahasiswa/logbook/detail/' . $id);
             } catch (Throwable $e) {
                 $error = $e->getMessage();
-                $item = array_merge($item, $_POST);
             }
         }
 
         require __DIR__ . '/../../../pages/dashboard/mahasiswa/logbook/form.php';
     }
 
-    public function edit($params = []): void
+    public function detail($params = []): void
     {
         $userId = $this->userId();
         $id = (int) ($params['id'] ?? 0);
-        $item = $this->model->getById($id, $userId);
+        $week = $this->model->getWeek($id, $userId);
+        if (!$week) {
+            http_response_code(404);
+            exit('Minggu logbook tidak ditemukan.');
+        }
+
+        require __DIR__ . '/../../../pages/dashboard/mahasiswa/logbook/detail.php';
+    }
+
+    public function dailyCreate($params = []): void
+    {
+        $userId = $this->userId();
+        $weekId = (int) ($params['id'] ?? 0);
+        $week = $this->model->getWeek($weekId, $userId);
+        if (!$week) {
+            http_response_code(404);
+            exit('Minggu logbook tidak ditemukan.');
+        }
+
+        $item = [
+            'tanggal' => (isset($_GET['tanggal']) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string) $_GET['tanggal'])) ? (string) $_GET['tanggal'] : '',
+            'jam_masuk' => '',
+            'jam_pulang' => '',
+            'kegiatan' => '',
+            'status_kehadiran' => 'hadir',
+            'alasan_ketidakhadiran' => '',
+            'bukti_path' => null,
+        ];
+        $mode = 'create';
+        $error = null;
+
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+            $this->validatePost();
+            try {
+                $this->model->createDaily($weekId, $userId, $this->dailyData(), $_FILES['bukti'] ?? null);
+                $this->redirect('/dashboard/mahasiswa/logbook/detail/' . $weekId);
+            } catch (Throwable $e) {
+                $error = $e->getMessage();
+                $item = array_merge($item, $_POST);
+            }
+        }
+
+        require __DIR__ . '/../../../pages/dashboard/mahasiswa/logbook/daily-form.php';
+    }
+
+    public function dailyEdit($params = []): void
+    {
+        $userId = $this->userId();
+        $dailyId = (int) ($params['id'] ?? 0);
+        $item = $this->model->getDailyForStudent($dailyId, $userId);
         if (!$item) {
             http_response_code(404);
-            exit('Logbook tidak ditemukan.');
+            exit('Logbook harian tidak ditemukan.');
         }
-        if (!in_array($item['status'], ['draft', 'perlu_revisi'], true)) {
-            http_response_code(403);
-            exit('Logbook yang sudah diajukan tidak dapat diedit.');
+
+        $weekId = (int) $item['logbook_id'];
+        $week = $this->model->getWeek($weekId, $userId);
+        if (!$week) {
+            http_response_code(404);
+            exit('Minggu logbook tidak ditemukan.');
         }
 
         $mode = 'edit';
         $error = null;
+
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $this->validatePost();
             try {
-                $data = $this->formData();
-                $this->model->update($id, $userId, $data);
-                $this->redirect('/dashboard/mahasiswa/logbook?success=updated');
+                $this->model->updateDaily($dailyId, $userId, $this->dailyData(), $_FILES['bukti'] ?? null);
+                $this->redirect('/dashboard/mahasiswa/logbook/detail/' . $weekId);
             } catch (Throwable $e) {
                 $error = $e->getMessage();
                 $item = array_merge($item, $_POST);
             }
         }
 
-        require __DIR__ . '/../../../pages/dashboard/mahasiswa/logbook/form.php';
+        require __DIR__ . '/../../../pages/dashboard/mahasiswa/logbook/daily-form.php';
     }
 
-    public function submit($params = []): void
+    public function sign($params = []): void
     {
-        $this->validatePost();
         $userId = $this->userId();
+        $this->validatePost();
+
         try {
-            $this->model->submit((int) ($params['id'] ?? 0), $userId);
-            $this->redirect('/dashboard/mahasiswa/logbook?success=submitted');
+            $this->model->signWeek(
+                (int) ($params['id'] ?? 0),
+                $userId,
+                'mahasiswa',
+                trim((string) ($_POST['signature_data'] ?? ''))
+            );
+            $this->redirect('/dashboard/mahasiswa/logbook/detail/' . (int) $params['id']);
         } catch (Throwable $e) {
             http_response_code(422);
             exit(e($e->getMessage()));
         }
+    }
+
+    public function downloadWeek($params = []): void
+    {
+        $userId = $this->userId();
+        $week = $this->model->getWeek((int) ($params['id'] ?? 0), $userId);
+        if (!$week) {
+            http_response_code(404);
+            exit('Minggu logbook tidak ditemukan.');
+        }
+        $this->renderPdf([$week], 'logbook-minggu-' . $week['minggu_ke']);
+    }
+
+    public function downloadAll($params = []): void
+    {
+        $userId = $this->userId();
+        $placementId = (int) ($params['id'] ?? 0);
+        $placement = $this->model->getPlacement($userId, $placementId);
+        if (!$placement) {
+            http_response_code(404);
+            exit('Penempatan magang tidak ditemukan.');
+        }
+
+        $weeks = [];
+        foreach ($this->model->getWeeks($placementId) as $row) {
+            $week = $this->model->getWeek((int) $row['id'], $userId);
+            if ($week) {
+                $weeks[] = $week;
+            }
+        }
+
+        if (!$weeks) {
+            http_response_code(404);
+            exit('Belum ada logbook yang dapat diunduh.');
+        }
+
+        $this->renderPdf($weeks, 'logbook-' . preg_replace('/[^a-z0-9]+/i', '-', (string) $placement['nama_perusahaan']));
+    }
+
+    private function renderPdf(array $weeks, string $filename): never
+    {
+        $autoload = dirname(__DIR__, 3) . '/vendor/autoload.php';
+        if (!is_file($autoload)) {
+            http_response_code(500);
+            exit('Dompdf belum tersedia.');
+        }
+        require_once $autoload;
+
+        $html = '<!doctype html><html><head><meta charset="utf-8"><style>
+            @page{margin:12mm}body{font-family:DejaVu Sans, sans-serif;color:#1f2937;font-size:10px}
+            .page{page-break-after:always;page-break-inside:avoid}.page:last-child{page-break-after:auto}
+            h1{text-align:center;font-size:15px;margin:0 0 2px}.sub{text-align:center;font-size:11px;margin-bottom:12px}
+            table{width:100%;border-collapse:collapse;margin-top:8px}th,td{border:1px solid #9ca3af;padding:6px;vertical-align:top}th{background:#e5e7eb}
+            .meta td{border:1px solid #d1d5db}.meta .label{width:24%;font-weight:bold;background:#f9fafb}
+            .sign{margin-top:25px;width:100%;border-collapse:collapse}.sign td{border:0;text-align:center;width:33%}.signature{height:55px;max-width:130px;object-fit:contain}
+            .small{font-size:8px;color:#6b7280}.badge{font-weight:bold}
+        </style></head><body>';
+
+        foreach ($weeks as $week) {
+            $html .= '<section class="page">';
+            $html .= '<h1>LOG BOOK KEGIATAN</h1><div class="sub">PROGRAM MAGANG INDUSTRI</div>';
+            $html .= '<table class="meta"><tr><td class="label">Nama</td><td>' . e($week['mahasiswa_nama']) . '</td></tr>';
+            $html .= '<tr><td class="label">NIM</td><td>' . e($week['nim']) . '</td></tr>';
+            $html .= '<tr><td class="label">Program Studi</td><td>' . e($week['program_studi'] ?: '-') . '</td></tr>';
+            $html .= '<tr><td class="label">Nama Mitra Industri</td><td>' . e($week['nama_perusahaan']) . '</td></tr>';
+            $html .= '<tr><td class="label">Minggu</td><td>' . e((string) $week['minggu_ke']) . ' (' . e(date('d M Y', strtotime($week['tanggal_mulai']))) . ' - ' . e(date('d M Y', strtotime($week['tanggal_selesai']))) . ')</td></tr></table>';
+            $html .= '<table><thead><tr><th style="width:18%">Hari, Tanggal</th><th style="width:14%">Jam Masuk</th><th style="width:14%">Jam Pulang</th><th>Kegiatan</th></tr></thead><tbody>';
+            foreach ($week['daily'] as $day) {
+                $activity = e($day['kegiatan']);
+                if ($day['status_kehadiran'] === 'tidak_hadir') {
+                    $activity .= '<br><span class="small">Ketidakhadiran: ' . e((string) $day['alasan_ketidakhadiran']) . '</span>';
+                }
+                $html .= '<tr><td>' . e(date('D, d M Y', strtotime($day['tanggal']))) . '</td><td>' . e($day['jam_masuk'] ?: '-') . '</td><td>' . e($day['jam_pulang'] ?: '-') . '</td><td>' . $activity . '</td></tr>';
+            }
+            $html .= '</tbody></table>';
+            $html .= '<table class="sign"><tr><td>Mahasiswa</td><td>Pembimbing Lapangan</td><td>Dosen Pembimbing</td></tr><tr>';
+            foreach (['mahasiswa', 'mitra', 'dosen'] as $stage) {
+                $signature = $week['signatures'][$stage]['signature_path'] ?? null;
+                if ($signature) {
+                    $path = $this->model->getSignatureAbsolutePath((string) $signature);
+                    if ($path) {
+                        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($path);
+                        $html .= '<td><img class="signature" src="data:' . e($mime) . ';base64,' . base64_encode((string) file_get_contents($path)) . '"></td>';
+                        continue;
+                    }
+                }
+                $html .= '<td><div style="height:55px">-</div></td>';
+            }
+            $html .= '</tr><tr>';
+            foreach (['mahasiswa', 'mitra', 'dosen'] as $stage) {
+                $name = $week['signatures'][$stage]['penanda_tangan_nama'] ?? 'Belum ditandatangani';
+                $html .= '<td>' . e($name) . '</td>';
+            }
+            $html .= '</tr></table>';
+            $html .= '<p class="small">Versi dokumen: ' . e((string) $week['versi_terkini']) . ' · Status: ' . e($week['status_label']) . '</p>';
+            $html .= '</section>';
+        }
+
+        $html .= '</body></html>';
+
+        $dompdf = new \Dompdf\Dompdf(['isRemoteEnabled' => false]);
+        $dompdf->loadHtml($html, 'UTF-8');
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+        $safe = preg_replace('/[^a-zA-Z0-9_-]+/', '-', $filename) ?: 'logbook';
+        $dompdf->stream($safe . '.pdf', ['Attachment' => true]);
+        exit;
     }
 }
