@@ -1,4 +1,3 @@
-
 <?php
 $namaProfil = trim($profil['nama_lengkap'] ?? '');
 $nimProfil = trim($profil['nim'] ?? '');
@@ -13,9 +12,9 @@ if ($namaProfil !== '') {
 
     $inisialProfil = mb_strtoupper(
         mb_substr($kataNama[0], 0, 1) .
-        (count($kataNama) > 1
-            ? mb_substr($kataNama[count($kataNama) - 1], 0, 1)
-            : '')
+            (count($kataNama) > 1
+                ? mb_substr($kataNama[count($kataNama) - 1], 0, 1)
+                : '')
     );
 }
 ?>
@@ -24,17 +23,28 @@ if ($namaProfil !== '') {
     <div class="flex flex-col items-center text-center">
         <div class="relative">
             <div class="flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-blue-100 sm:h-36 sm:w-36">
+
                 <?php if ($fotoProfil !== ''): ?>
+
                     <img
                         src="<?= e(url('/' . ltrim($fotoProfil, '/'))) ?>"
                         alt="Foto profil <?= e($namaProfil !== '' ? $namaProfil : 'mahasiswa') ?>"
                         class="h-full w-full object-cover"
-                    >
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                    <span
+                        class="hidden h-full w-full items-center justify-center text-4xl font-bold text-blue-600">
+                        <?= e($inisialProfil) ?>
+                    </span>
+
                 <?php else: ?>
+
                     <span class="text-4xl font-bold text-blue-600">
                         <?= e($inisialProfil) ?>
                     </span>
+
                 <?php endif; ?>
+
             </div>
 
             <button
@@ -42,8 +52,7 @@ if ($namaProfil !== '') {
                 data-open-modal="modal-photo"
                 class="absolute bottom-1 right-1 flex h-10 w-10 items-center justify-center rounded-full border-4 border-white bg-blue-600 text-white shadow-sm transition hover:bg-blue-700"
                 title="Edit foto profil"
-                aria-label="Edit foto profil"
-            >
+                aria-label="Edit foto profil">
                 <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="2"
@@ -66,8 +75,7 @@ if ($namaProfil !== '') {
         <button
             type="button"
             data-open-modal="modal-personal"
-            class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600"
-        >
+            class="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
                     stroke-width="2"
@@ -79,7 +87,7 @@ if ($namaProfil !== '') {
 
     <div class="my-6 border-t border-gray-100"></div>
 
-    <div class="space-y-5 rounded-xl bg-[#EFF7FE] p-5 sm:p-6">
+    <div class="profile-info-card space-y-5 rounded-xl bg-[#EFF7FE] p-5 sm:p-6">
         <div>
             <p class="text-xs font-medium uppercase tracking-wide text-gray-400">
                 Program Studi

@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @var string $mode
+ * @var string $slug
+ * @var array $old
+ * @var array $errors
+ */
+
 $isEdit =
     $mode === 'edit';
 

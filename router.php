@@ -27,7 +27,33 @@ $file = __DIR__ . $path;
 
 if ($path !== '/' && is_file($file)) {
 
-    $mime = mime_content_type($file);
+    $mimeTypes = [
+        'css'   => 'text/css',
+        'js'    => 'application/javascript',
+        'json'  => 'application/json',
+
+        'html'  => 'text/html',
+        'htm'   => 'text/html',
+
+        'png'   => 'image/png',
+        'jpg'   => 'image/jpeg',
+        'jpeg'  => 'image/jpeg',
+        'gif'   => 'image/gif',
+        'webp'  => 'image/webp',
+        'svg'   => 'image/svg+xml',
+        'ico'   => 'image/x-icon',
+
+        'pdf'   => 'application/pdf',
+
+        'woff'  => 'font/woff',
+        'woff2' => 'font/woff2',
+        'ttf'   => 'font/ttf',
+        'otf'   => 'font/otf',
+    ];
+
+    $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+
+    $mime = $mimeTypes[$extension] ?? 'application/octet-stream';
 
     header('Content-Type: ' . $mime);
     header('Content-Length: ' . filesize($file));

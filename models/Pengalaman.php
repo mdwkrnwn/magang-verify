@@ -26,56 +26,168 @@ class Pengalaman
         $pdo->prepare($sql)->execute(['user_id'=>$userId]);
     }
 
-    public function getAll(int $userId): array
-    {
+    public function getAll(
+        int $userId,
+        array $filters = [],
+        int $page = 1,
+        int $perPage = 5
+    ): array {
         $this->syncAutomaticMagang($userId);
         global $pdo;
 
-        $sql = "
-            SELECT * FROM (
-                SELECT
-                    p.id, p.jenis, p.posisi, p.instansi, p.lokasi, p.deskripsi,
-                    p.tanggal_mulai, p.tanggal_selesai, p.status_publikasi,
-                    p.is_otomatis, p.pendaftaran_id, p.created_at,
-                    NULL::VARCHAR AS sumber_magang
-                FROM pengalaman p
-                JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
-                WHERE pm.user_id = :user_id
+        $page = max(1, $page);
+        $perPage = max(1, $perPage);
 
-                UNION ALL
+        $where = [
+            "(status_publikasi = 'publik' OR is_otomatis = TRUE)"
+        ];
+        $params = [];
 
-                SELECT
-                    -pmg.id AS id,
-                    'magang' AS jenis,
-                    fm.judul AS posisi,
-                    m.nama_perusahaan AS instansi,
-                    fm.lokasi_magang AS lokasi,
-                    fm.deskripsi AS deskripsi,
-                    pmg.tanggal_mulai, pmg.tanggal_selesai,
-                    'publik' AS status_publikasi,
-                    TRUE AS is_otomatis,
-                    pendaftaran.id AS pendaftaran_id,
-                    pendaftaran.created_at,
-                    m.nama_perusahaan AS sumber_magang
-                FROM penempatan_magang pmg
-                JOIN pendaftaran_magang pendaftaran ON pendaftaran.id = pmg.pendaftaran_id
-                JOIN profil_mahasiswa pm ON pm.id = pendaftaran.mahasiswa_id
-                JOIN formasi_magang fm ON fm.id = pendaftaran.formasi_id
-                JOIN mitra m ON m.id = fm.mitra_id
-                LEFT JOIN verifikasi_penyelesaian_magang vpm ON vpm.penempatan_id = pmg.id
-                WHERE pm.user_id = :user_id_auto
-                  AND pmg.status = 'selesai'
-                  AND (vpm.status = 'terverifikasi' OR vpm.id IS NULL)
-                  AND NOT EXISTS (SELECT 1 FROM pengalaman px WHERE px.pendaftaran_id = pendaftaran.id)
-            ) pengalaman_gabungan
-            WHERE status_publikasi = 'publik'
-               OR is_otomatis = TRUE
-            ORDER BY tanggal_selesai DESC NULLS LAST, tanggal_mulai DESC NULLS LAST, created_at DESC
+        $keyword = trim((string) ($filters['q'] ?? ''));
+        if ($keyword !== '') {
+            $where[] = "(
+                posisi ILIKE :keyword
+                OR instansi ILIKE :keyword
+                OR COALESCE(lokasi, '') ILIKE :keyword
+                OR COALESCE(deskripsi, '') ILIKE :keyword
+            )";
+            $params['keyword'] = '%' . $keyword . '%';
+        }
+
+        $jenis = trim((string) ($filters['jenis'] ?? ''));
+        $allowedJenis = [
+            'magang', 'pekerjaan', 'organisasi', 'freelance', 'proyek', 'lainnya'
+        ];
+        if (in_array($jenis, $allowedJenis, true)) {
+            $where[] = 'jenis = :jenis';
+            $params['jenis'] = $jenis;
+        }
+
+        $sumber = trim((string) ($filters['sumber'] ?? ''));
+        if ($sumber === 'otomatis') {
+            $where[] = 'is_otomatis = TRUE';
+        } elseif ($sumber === 'manual') {
+            $where[] = 'is_otomatis = FALSE';
+        }
+
+        $tahun = trim((string) ($filters['tahun'] ?? ''));
+        if ($tahun !== '' && ctype_digit($tahun)) {
+            $where[] = "EXTRACT(YEAR FROM COALESCE(tanggal_selesai, tanggal_mulai, created_at::date)) = :tahun";
+            $params['tahun'] = (int) $tahun;
+        }
+
+        $whereSql = implode(' AND ', $where);
+
+        $countStmt = $pdo->prepare("SELECT COUNT(*) FROM (" . $this->getCombinedQuery() . ") pengalaman_gabungan WHERE {$whereSql}");
+        $countParams = $params;
+        $countParams['user_id'] = $userId;
+        $countParams['user_id_auto'] = $userId;
+        $countStmt->execute($countParams);
+        $totalData = (int) $countStmt->fetchColumn();
+
+        $totalPage = max(1, (int) ceil($totalData / $perPage));
+        $page = min($page, $totalPage);
+        $offset = ($page - 1) * $perPage;
+
+        $stmt = $pdo->prepare(
+            "SELECT * FROM (" . $this->getCombinedQuery() . ") pengalaman_gabungan
+             WHERE {$whereSql}
+             ORDER BY tanggal_selesai DESC NULLS LAST, tanggal_mulai DESC NULLS LAST, created_at DESC
+             LIMIT :limit OFFSET :offset"
+        );
+
+        $queryParams = $params;
+        $queryParams['user_id'] = $userId;
+        $queryParams['user_id_auto'] = $userId;
+
+        foreach ($queryParams as $key => $value) {
+            $stmt->bindValue(
+                ':' . $key,
+                $value,
+                is_int($value) ? PDO::PARAM_INT : PDO::PARAM_STR
+            );
+        }
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return [
+            'data' => $stmt->fetchAll(PDO::FETCH_ASSOC),
+            'pagination' => [
+                'current_page' => $page,
+                'per_page' => $perPage,
+                'total_data' => $totalData,
+                'total_page' => $totalPage,
+            ],
+        ];
+    }
+
+    private function getCombinedQuery(): string
+    {
+        return "
+            SELECT
+                p.id,
+                p.jenis,
+                p.posisi,
+                p.instansi,
+                p.lokasi,
+                p.deskripsi,
+                p.tanggal_mulai,
+                p.tanggal_selesai,
+                p.status_publikasi,
+                p.is_otomatis,
+                p.pendaftaran_id,
+                p.created_at
+            FROM pengalaman p
+            JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
+            WHERE pm.user_id = :user_id
+
+            UNION ALL
+
+            SELECT
+                -pmg.id AS id,
+                'magang' AS jenis,
+                fm.judul AS posisi,
+                m.nama_perusahaan AS instansi,
+                fm.lokasi_magang AS lokasi,
+                fm.deskripsi AS deskripsi,
+                pmg.tanggal_mulai,
+                pmg.tanggal_selesai,
+                'publik' AS status_publikasi,
+                TRUE AS is_otomatis,
+                pendaftaran.id AS pendaftaran_id,
+                pendaftaran.created_at
+            FROM penempatan_magang pmg
+            JOIN pendaftaran_magang pendaftaran ON pendaftaran.id = pmg.pendaftaran_id
+            JOIN profil_mahasiswa pm ON pm.id = pendaftaran.mahasiswa_id
+            JOIN formasi_magang fm ON fm.id = pendaftaran.formasi_id
+            JOIN mitra m ON m.id = fm.mitra_id
+            LEFT JOIN verifikasi_penyelesaian_magang vpm ON vpm.penempatan_id = pmg.id
+            WHERE pm.user_id = :user_id_auto
+              AND pmg.status = 'selesai'
+              AND (vpm.status = 'terverifikasi' OR vpm.id IS NULL)
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM pengalaman px
+                  WHERE px.pendaftaran_id = pendaftaran.id
+              )
         ";
+    }
 
-        $stmt = $pdo->prepare($sql);
+    public function getJenisPengalaman(int $userId): array
+    {
+        global $pdo;
+        $stmt = $pdo->prepare("SELECT DISTINCT jenis FROM (" . $this->getCombinedQuery() . ") data WHERE status_publikasi = 'publik' OR is_otomatis = TRUE ORDER BY jenis");
         $stmt->execute(['user_id' => $userId, 'user_id_auto' => $userId]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return array_values(array_filter($stmt->fetchAll(PDO::FETCH_COLUMN), static fn($value) => $value !== null && $value !== ''));
+    }
+
+    public function getTahunPengalaman(int $userId): array
+    {
+        global $pdo;
+        $stmt = $pdo->prepare("SELECT DISTINCT EXTRACT(YEAR FROM COALESCE(tanggal_selesai, tanggal_mulai, created_at::date))::INT AS tahun FROM (" . $this->getCombinedQuery() . ") data WHERE (status_publikasi = 'publik' OR is_otomatis = TRUE) ORDER BY tahun DESC");
+        $stmt->execute(['user_id' => $userId, 'user_id_auto' => $userId]);
+        return array_map('strval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 
     public function getById(int $id, int $userId): ?array

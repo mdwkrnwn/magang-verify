@@ -1,32 +1,43 @@
+<?php
+/**
+ * @var array<string, mixed> $m
+ */
+?>
+
 <section
     id="profil"
-    class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-100/70 via-blue-50 to-white border border-blue-100 p-5 sm:p-6 md:p-8 scroll-mt-24"
->
+    class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-100/70 via-blue-50 to-white border border-blue-100 p-5 sm:p-6 md:p-8 scroll-mt-24">
 
     <img
         src="<?= url('/assets/images/polinema.png') ?>"
         alt=""
-        class="hidden lg:block absolute right-0 top-0 h-full w-1/3 object-cover opacity-70 [mask-image:linear-gradient(to_right,transparent,black)]"
-    >
+        class="hidden lg:block absolute right-0 top-0 h-full w-1/3 object-cover opacity-70 [mask-image:linear-gradient(to_right,transparent,black)]">
 
     <div class="relative flex flex-col md:flex-row items-center md:items-start gap-5 sm:gap-6 md:gap-10">
 
-        <?php $fotoMahasiswa = foto($m); ?>
+        <?php
+        $fotoMahasiswa = trim((string) foto($m));
+        ?>
 
-        <?php if ($fotoMahasiswa): ?>
+        <?php if ($fotoMahasiswa !== ''): ?>
 
             <img
                 src="<?= e($fotoMahasiswa) ?>"
                 alt="Foto <?= e($m['nama']) ?>"
                 class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full object-cover border-4 border-white shadow bg-blue-100 shrink-0"
-            >
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+            <div
+                class="hidden w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full border-4 border-white shadow bg-blue-100 text-blue-600 items-center justify-center shrink-0 font-bold text-3xl sm:text-4xl md:text-5xl"
+                aria-label="Inisial <?= e($m['nama']) ?>">
+                <?= e(initials($m['nama'])) ?>
+            </div>
 
         <?php else: ?>
 
             <div
                 class="w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 rounded-full border-4 border-white shadow bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 font-bold text-3xl sm:text-4xl md:text-5xl"
-                aria-label="Inisial <?= e($m['nama']) ?>"
-            >
+                aria-label="Inisial <?= e($m['nama']) ?>">
                 <?= e(initials($m['nama'])) ?>
             </div>
 
@@ -42,8 +53,7 @@
 
                 <span
                     class="text-blue-600 shrink-0"
-                    title="Terverifikasi"
-                >
+                    title="Terverifikasi">
                     <?= icon('shield', 'w-5 h-5 sm:w-6 sm:h-6') ?>
                 </span>
 

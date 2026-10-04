@@ -25,6 +25,7 @@ require_once __DIR__ . '/../controllers/dashboard/mahasiswa/FormasiMagangControl
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengajuanController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LogbookController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LamarController.php';
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengaturanController.php';
 
 /* Dashboard Dosen */
 
@@ -169,6 +170,13 @@ $routes = [
 
     '/dashboard/mahasiswa/logbook' => [
         'controller' => LogbookController::class,
+        'method' => 'index',
+    ],
+
+    // Menu Setting
+
+    '/dashboard/mahasiswa/pengaturan' => [
+        'controller' => PengaturanController::class,
         'method' => 'index',
     ],
 

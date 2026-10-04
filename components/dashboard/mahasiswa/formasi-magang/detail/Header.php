@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @var array $formasi
+ */
+
 $status = $formasi['status'] ?? 'penuh';
 
 $isTersedia = $status === 'tersedia';

@@ -62,14 +62,24 @@
                         <div class="flex items-center gap-4">
                             <div class="w-20 h-20 rounded-full overflow-hidden bg-blue-50 shrink-0 grid place-items-center">
                                 <?php if ($foto !== ''): ?>
+
                                     <img
                                         src="<?= e(url('/' . ltrim($foto, '/'))) ?>"
                                         alt="Foto <?= e($nama) ?>"
-                                        class="w-full h-full object-cover">
+                                        class="w-full h-full object-cover"
+                                        onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">
+
+                                    <span
+                                        class="hidden w-full h-full place-items-center text-xl font-bold text-blue-600">
+                                        <?= e($inisial) ?>
+                                    </span>
+
                                 <?php else: ?>
+
                                     <span class="text-xl font-bold text-blue-600">
                                         <?= e($inisial) ?>
                                     </span>
+
                                 <?php endif; ?>
                             </div>
                         </div>

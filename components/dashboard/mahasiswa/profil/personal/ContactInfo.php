@@ -54,7 +54,7 @@ $portfolioProfil = trim($profil['portfolio_url'] ?? '');
         <!-- Nomor telepon -->
         <div class="min-w-0">
             <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-green-50 text-green-600">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-green-600">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             stroke-width="2"
@@ -71,7 +71,7 @@ $portfolioProfil = trim($profil['portfolio_url'] ?? '');
 
         <div class="min-w-0">
             <div class="flex items-center gap-3">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-700">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-gray-700">
                     <span class="text-sm font-bold">GH</span>
                 </div>
                 <span class="text-sm text-gray-400">GitHub</span>

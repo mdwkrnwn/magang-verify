@@ -1,4 +1,5 @@
 <?php
+
 /** @var array<int, array<string, mixed>> $tampil */
 ?>
 <div class="mt-4 grid gap-4 sm:gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -12,12 +13,23 @@
 
                 <?php $fotoMahasiswa = foto($m); ?>
 
-                <?php if (!empty($fotoMahasiswa)): ?>
+                <?php
+                $fotoMahasiswa = trim((string) foto($m));
+                ?>
+
+                <?php if ($fotoMahasiswa !== ''): ?>
 
                     <img
                         src="<?= e($fotoMahasiswa) ?>"
                         alt="Foto <?= e($m['nama']) ?>"
-                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover bg-blue-50 shrink-0">
+                        class="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover bg-blue-50 shrink-0"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+
+                    <div
+                        class="hidden w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-blue-50 text-blue-600 items-center justify-center font-semibold text-lg shrink-0"
+                        aria-label="Inisial <?= e($m['nama']) ?>">
+                        <?= e(initials($m['nama'])) ?>
+                    </div>
 
                 <?php else: ?>
 
