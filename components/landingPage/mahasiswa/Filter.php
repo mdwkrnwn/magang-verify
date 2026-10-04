@@ -1,3 +1,15 @@
+<?php
+/**
+ * @var string $q
+ * @var string $fProdi
+ * @var string $fAngkatan
+ * @var array<int, string> $fSkill
+ * @var array<int, string> $optProdi
+ * @var array<int, string> $optAngkatan
+ * @var array<int, string> $optSkill
+ * @var string $urut
+ */
+?>
 <div
     class="max-w-7xl mx-auto px-4 sm:px-6 -mt-14 sm:-mt-16 md:-mt-20
     relative z-10">
@@ -7,7 +19,7 @@
         class="bg-white rounded-2xl shadow-lg shadow-blue-900/5
         border border-slate-100 p-4 sm:p-5 md:p-7
         grid gap-4 sm:grid-cols-2
-        lg:grid-cols-[1.6fr_repeat(4,1fr)_auto]
+        lg:grid-cols-[1.6fr_repeat(3,1fr)_auto]
         lg:items-end">
 
         <!-- SEARCH -->
@@ -37,17 +49,6 @@
                     focus:ring-2 focus:ring-blue-500">
             </div>
         </div>
-
-        <!-- JURUSAN -->
-        <?php
-        select(
-            'jurusan',
-            'Jurusan',
-            'Semua Jurusan',
-            $optJurusan,
-            $fJurusan
-        );
-        ?>
 
         <!-- PRODI -->
         <?php
@@ -223,7 +224,6 @@
         <?php
         $adaFilter =
             $q !== ''
-            || $fJurusan !== ''
             || $fProdi !== ''
             || $fAngkatan !== ''
             || !empty($fSkill);

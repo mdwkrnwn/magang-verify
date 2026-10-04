@@ -1,15 +1,15 @@
 <?php
-
-$kontak = $m['kontak'] ?? [];
-
+/** @var array<string, mixed> $m */
+/** @var string $card */
+$kontak = $m['kontak'] ?? [
+    'email' => $m['email'] ?? null,
+    'telepon' => $m['no_telepon'] ?? null,
+];
 $k = [
-    ['code', $kontak['github'] ?? null],
-    ['briefcase', $kontak['linkedin'] ?? null],
-    ['globe', $kontak['website'] ?? null],
     ['mail', $kontak['email'] ?? null],
+    ['phone', $kontak['telepon'] ?? null],
 ];
 ?>
-
 <aside class="space-y-4 min-w-0">
 
     <div class="rounded-2xl border border-blue-100 bg-blue-50/60 p-4 sm:p-5 flex gap-4">
@@ -21,11 +21,11 @@ $k = [
         <div class="min-w-0">
 
             <h3 class="font-semibold text-sm text-slate-900">
-                Profil Terverifikasi
+                Profil Mahasiswa
             </h3>
 
             <p class="text-xs text-slate-600 mt-1 leading-relaxed">
-                Data mahasiswa ini telah diverifikasi oleh pihak kampus.
+                Informasi profil mahasiswa yang tersedia untuk publik.
             </p>
 
         </div>
@@ -76,7 +76,7 @@ $k = [
 
 
     <a
-        href="#"
+        href="#proyek"
         class="flex items-center justify-center gap-2 py-3 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition"
     >
         Lihat Portofolio Lengkap

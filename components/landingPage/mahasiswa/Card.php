@@ -1,3 +1,6 @@
+<?php
+/** @var array<int, array<string, mixed>> $tampil */
+?>
 <div class="mt-4 grid gap-4 sm:gap-5 sm:grid-cols-2 xl:grid-cols-4">
     <?php foreach ($tampil as $m): ?>
         <?php $extra = max(0, count($m['skills']) - 2); ?>
@@ -92,13 +95,13 @@
                     </span>
                 </div>
 
-                <!-- Verifikasi -->
+                <!-- Profil -->
                 <div class="flex flex-col items-center justify-center">
                     <span class="text-blue-600 mb-1">
-                        <?= icon('shield', 'w-4 h-4') ?>
+                        <?= icon('user', 'w-4 h-4') ?>
                     </span>
                     <span class="text-[11px] text-slate-500 text-center leading-4">
-                        Terverifikasi
+                        Mahasiswa
                     </span>
                 </div>
             </div>

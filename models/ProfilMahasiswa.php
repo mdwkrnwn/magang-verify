@@ -1,6 +1,8 @@
 
 <?php
 
+require_once __DIR__ . '/../function/Helpers.php';
+
 class ProfilMahasiswa
 {
     private PDO $pdo;
@@ -89,6 +91,246 @@ class ProfilMahasiswa
     }
 
     
+/**
+ * Mengambil daftar mahasiswa yang memiliki profil dari database untuk halaman publik.
+ */
+public function getPublicMahasiswa(): array
+{
+    $sql = "
+        SELECT
+            u.id AS user_id,
+            p.id AS profil_id,
+            u.name AS nama,
+            p.nim,
+            p.program_studi AS prodi,
+            p.angkatan,
+            p.email,
+            p.no_telepon,
+            p.alamat,
+            p.deskripsi AS bio,
+            p.foto_path,
+            COALESCE(
+                jsonb_agg(DISTINCT k.nama) FILTER (WHERE k.id IS NOT NULL),
+                '[]'::jsonb
+            ) AS skills_json,
+            COUNT(DISTINCT po.id) FILTER (
+                WHERE po.status_publikasi = 'publik'
+            ) AS proyek,
+            COUNT(DISTINCT s.id) FILTER (
+                WHERE s.status_verifikasi = 'terverifikasi'
+            ) AS sertifikat
+        FROM users u
+        INNER JOIN profil_mahasiswa p ON p.user_id = u.id
+        LEFT JOIN mahasiswa_keterampilan mk ON mk.mahasiswa_id = p.id
+        LEFT JOIN keterampilan k ON k.id = mk.keterampilan_id
+        LEFT JOIN portofolios po ON po.mahasiswa_id = p.id
+        LEFT JOIN sertifikat s ON s.user_id = u.id
+        WHERE u.role = 'mahasiswa'
+        GROUP BY
+            u.id, p.id, u.name, p.nim, p.program_studi, p.angkatan,
+            p.email, p.no_telepon, p.alamat, p.deskripsi, p.foto_path
+        ORDER BY p.angkatan DESC NULLS LAST, u.name ASC
+    ";
+
+    $stmt = $this->pdo->query($sql);
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    return array_map(function (array $row): array {
+        $skills = json_decode((string) ($row['skills_json'] ?? '[]'), true);
+        if (!is_array($skills)) {
+            $skills = [];
+        }
+
+        $row['id'] = (int) $row['profil_id'];
+        $row['user_id'] = (int) $row['user_id'];
+        $row['profil_id'] = (int) $row['profil_id'];
+        $row['angkatan'] = $row['angkatan'] !== null ? (int) $row['angkatan'] : null;
+        $row['proyek'] = (int) $row['proyek'];
+        $row['sertifikat'] = (int) $row['sertifikat'];
+        $row['skills'] = array_values(array_filter(array_map('strval', $skills)));
+        $row['keahlian'] = $row['skills'];
+        $row['tentang'] = trim((string) ($row['bio'] ?? ''));
+        $row['domisili'] = trim((string) ($row['alamat'] ?? ''));
+        $row['slug'] = slugify((string) $row['nama']);
+
+        return $row;
+    }, $rows);
+}
+
+/**
+ * Mengambil beberapa mahasiswa unggulan untuk ditampilkan di halaman beranda.
+ * Urutan diprioritaskan berdasarkan jumlah portofolio publik dan sertifikat
+ * terverifikasi, lalu angkatan dan nama.
+ */
+public function getFeaturedMahasiswa(int $limit = 3): array
+{
+    $limit = max(1, min($limit, 12));
+
+    $sql = "
+        SELECT
+            u.id AS user_id,
+            p.id AS profil_id,
+            u.name AS nama,
+            p.nim,
+            p.program_studi AS prodi,
+            p.angkatan,
+            p.foto_path,
+            COALESCE(
+                jsonb_agg(DISTINCT k.nama) FILTER (WHERE k.id IS NOT NULL),
+                '[]'::jsonb
+            ) AS skills_json,
+            COUNT(DISTINCT po.id) FILTER (
+                WHERE po.status_publikasi = 'publik'
+            ) AS proyek,
+            COUNT(DISTINCT s.id) FILTER (
+                WHERE s.status_verifikasi = 'terverifikasi'
+            ) AS sertifikat
+        FROM users u
+        INNER JOIN profil_mahasiswa p ON p.user_id = u.id
+        LEFT JOIN mahasiswa_keterampilan mk ON mk.mahasiswa_id = p.id
+        LEFT JOIN keterampilan k ON k.id = mk.keterampilan_id
+        LEFT JOIN portofolios po ON po.mahasiswa_id = p.id
+        LEFT JOIN sertifikat s ON s.user_id = u.id
+        WHERE u.role = 'mahasiswa'
+        GROUP BY
+            u.id, p.id, u.name, p.nim, p.program_studi, p.angkatan, p.foto_path
+        ORDER BY
+            (
+                COUNT(DISTINCT po.id) FILTER (WHERE po.status_publikasi = 'publik')
+                + COUNT(DISTINCT s.id) FILTER (WHERE s.status_verifikasi = 'terverifikasi')
+            ) DESC,
+            p.angkatan DESC NULLS LAST,
+            u.name ASC
+        LIMIT :limit
+    ";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return array_map(function (array $row): array {
+        $skills = json_decode((string) ($row['skills_json'] ?? '[]'), true);
+        if (!is_array($skills)) {
+            $skills = [];
+        }
+
+        $row['id'] = (int) $row['profil_id'];
+        $row['user_id'] = (int) $row['user_id'];
+        $row['profil_id'] = (int) $row['profil_id'];
+        $row['angkatan'] = $row['angkatan'] !== null ? (int) $row['angkatan'] : null;
+        $row['proyek'] = (int) $row['proyek'];
+        $row['sertifikat'] = (int) $row['sertifikat'];
+        $row['keahlian'] = array_values(array_filter(array_map('strval', $skills)));
+        $row['slug'] = slugify((string) $row['nama']);
+
+        return $row;
+    }, $stmt->fetchAll(PDO::FETCH_ASSOC));
+}
+
+/**
+ * Mengambil satu profil mahasiswa publik berdasarkan slug nama.
+ * Portofolio publik dan sertifikat terverifikasi ikut dimuat untuk halaman detail.
+ */
+public function getPublicMahasiswaBySlug(string $slug): ?array
+{
+    $sql = "
+        SELECT
+            u.id AS user_id,
+            p.id AS profil_id,
+            u.name AS nama,
+            p.nim,
+            p.program_studi AS prodi,
+            p.angkatan,
+            p.email,
+            p.no_telepon,
+            p.alamat,
+            p.deskripsi AS bio,
+            p.foto_path,
+            p.cv_path,
+            p.cv_nama_asli,
+            p.cv_mime_type,
+            p.cv_ukuran_bytes,
+            p.cv_updated_at
+        FROM users u
+        INNER JOIN profil_mahasiswa p ON p.user_id = u.id
+        WHERE u.role = 'mahasiswa'
+          AND LOWER(TRIM(BOTH '-' FROM REGEXP_REPLACE(TRIM(u.name), '[^a-zA-Z0-9]+', '-', 'g'))) = LOWER(:slug)
+        LIMIT 1
+    ";
+
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute(['slug' => trim($slug)]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if (!$row) {
+        return null;
+    }
+
+    $profilId = (int) $row['profil_id'];
+    $userId = (int) $row['user_id'];
+
+    $row['id'] = $profilId;
+    $row['user_id'] = $userId;
+    $row['profil_id'] = $profilId;
+    $row['angkatan'] = $row['angkatan'] !== null ? (int) $row['angkatan'] : null;
+
+    $skillStmt = $this->pdo->prepare("\n        SELECT k.nama\n        FROM mahasiswa_keterampilan mk\n        INNER JOIN keterampilan k ON k.id = mk.keterampilan_id\n        WHERE mk.mahasiswa_id = :profil_id\n        ORDER BY k.nama ASC\n    ");
+    $skillStmt->execute(['profil_id' => $profilId]);
+    $row['skills'] = array_map('strval', $skillStmt->fetchAll(PDO::FETCH_COLUMN));
+    $row['keahlian'] = $row['skills'];
+    $row['tentang'] = trim((string) ($row['bio'] ?? ''));
+    $row['domisili'] = trim((string) ($row['alamat'] ?? ''));
+    $row['slug'] = slugify((string) $row['nama']);
+
+    $portfolioStmt = $this->pdo->prepare("\n        SELECT\n            p.id, p.judul, p.deskripsi, p.tautan, p.gambar_sampul,\n            p.tautan_github, p.tautan_demo\n        FROM portofolios p\n        WHERE p.mahasiswa_id = :profil_id\n          AND p.status_publikasi = 'publik'\n        ORDER BY p.created_at DESC, p.id DESC\n    ");
+    $portfolioStmt->execute(['profil_id' => $profilId]);
+
+    $row['daftar_proyek'] = [];
+    $techStmt = $this->pdo->prepare("\n        SELECT nama_teknologi\n        FROM portofolio_teknologi\n        WHERE portofolio_id = :portofolio_id\n        ORDER BY nama_teknologi ASC\n    ");
+
+    foreach ($portfolioStmt->fetchAll(PDO::FETCH_ASSOC) as $portfolio) {
+        $techStmt->execute(['portofolio_id' => (int) $portfolio['id']]);
+        $gambar = trim((string) ($portfolio['gambar_sampul'] ?? ''));
+        $url = trim((string) ($portfolio['tautan_github'] ?? ''))
+            ?: trim((string) ($portfolio['tautan_demo'] ?? ''))
+            ?: trim((string) ($portfolio['tautan'] ?? ''));
+
+        $row['daftar_proyek'][] = [
+            'nama' => (string) $portfolio['judul'],
+            'deskripsi' => (string) $portfolio['deskripsi'],
+            'tech' => array_map('strval', $techStmt->fetchAll(PDO::FETCH_COLUMN)),
+            'url' => $url !== '' ? $url : '#',
+            'gambar' => $gambar !== '' ? url('/' . ltrim($gambar, '/')) : '',
+        ];
+    }
+
+    $certificateStmt = $this->pdo->prepare("\n        SELECT nama, penerbit, tanggal_terbit\n        FROM sertifikat\n        WHERE user_id = :user_id\n          AND status_verifikasi = 'terverifikasi'\n        ORDER BY tanggal_terbit DESC NULLS LAST, id DESC\n    ");
+    $certificateStmt->execute(['user_id' => $userId]);
+
+    $row['daftar_sertifikat'] = [];
+    foreach ($certificateStmt->fetchAll(PDO::FETCH_ASSOC) as $certificate) {
+        $tanggal = $certificate['tanggal_terbit']
+            ? date('M Y', strtotime((string) $certificate['tanggal_terbit']))
+            : '-';
+
+        $row['daftar_sertifikat'][] = [
+            'nama' => (string) $certificate['nama'],
+            'penerbit' => (string) $certificate['penerbit'],
+            'tanggal' => $tanggal,
+            'verified' => true,
+        ];
+    }
+
+    $row['proyek'] = count($row['daftar_proyek']);
+    $row['sertifikat'] = count($row['daftar_sertifikat']);
+    $row['kontak'] = [
+        'email' => trim((string) ($row['email'] ?? '')),
+        'telepon' => trim((string) ($row['no_telepon'] ?? '')),
+    ];
+
+    return $row;
+}
+
 /**
  * Memperbarui nama, alamat, dan deskripsi profil mahasiswa.
  */

@@ -3,7 +3,17 @@
 $base = "/";
 $active = "mahasiswa";
 
-$kontak = $m['kontak'] ?? [];
+require_once __DIR__ . '/../../../../function/landingPage/mahasiswa/ViewHelpers.php';
+
+$kontak = $m['kontak'] ?? [
+    'email' => $m['email'] ?? null,
+    'telepon' => $m['no_telepon'] ?? null,
+];
+
+$k = [
+    ['mail', $kontak['email'] ?? null],
+    ['phone', $kontak['telepon'] ?? null],
+];
 
 $menu = [
     ['profil', 'Profil', 'user'],
@@ -19,13 +29,13 @@ $card = 'bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-5 md:p-
 function judul(string $ic, string $t): void
 {
     echo '<h2 class="flex items-center gap-3 font-semibold text-slate-900 mb-3">
-            <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 grid place-items-center">'
+        <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 grid place-items-center">'
         . icon($ic, 'w-4 h-4') .
         '</span>'
         . $t .
         '</h2>';
 }
-
+    
 ?>
 
 <!DOCTYPE html>
