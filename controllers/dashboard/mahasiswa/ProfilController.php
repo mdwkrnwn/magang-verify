@@ -136,6 +136,9 @@ private function updatePersonal(int $userId): void
     {
         $email = trim($_POST['email'] ?? '');
         $noTelepon = trim($_POST['no_telepon'] ?? '');
+        $github = trim($_POST['github_url'] ?? '');
+        $linkedin = trim($_POST['linkedin_url'] ?? '');
+        $portfolio = trim($_POST['portfolio_url'] ?? '');
 
         if (
             mb_strlen($email) > 255 ||
@@ -152,9 +155,22 @@ private function updatePersonal(int $userId): void
             $this->redirect('error', 'invalid_phone');
         }
 
+        foreach ([
+            'github_url' => $github,
+            'linkedin_url' => $linkedin,
+            'portfolio_url' => $portfolio,
+        ] as $field => $value) {
+            if ($value !== '' && (mb_strlen($value) > 500 || !filter_var($value, FILTER_VALIDATE_URL))) {
+                $this->redirect('error', 'invalid_social_link');
+            }
+        }
+
         $this->profilModel->updateContact($userId, [
             'email' => $email,
             'no_telepon' => $noTelepon,
+            'github_url' => $github,
+            'linkedin_url' => $linkedin,
+            'portfolio_url' => $portfolio,
         ]);
 
         $this->redirect('success', 'contact_updated');

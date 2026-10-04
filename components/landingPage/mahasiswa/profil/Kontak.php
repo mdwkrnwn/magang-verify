@@ -9,6 +9,12 @@ $k = [
     ['mail', $kontak['email'] ?? null],
     ['phone', $kontak['telepon'] ?? null],
 ];
+
+$tautan = [
+    ['GitHub', $kontak['github'] ?? null],
+    ['LinkedIn', $kontak['linkedin'] ?? null],
+    ['Portfolio Pribadi', $kontak['portfolio'] ?? null],
+];
 ?>
 <aside class="space-y-4 min-w-0">
 
@@ -62,12 +68,18 @@ $k = [
             <?php endforeach; ?>
 
 
-            <?php if (!array_filter(array_column($k, 1))): ?>
-
-                <li class="text-slate-500">
-                    Belum ada kontak.
+            <?php foreach ($tautan as [$label, $url]): ?>
+                <?php if (!$url) continue; ?>
+                <li class="flex items-center gap-3 min-w-0">
+                    <span class="text-slate-800 shrink-0"><?= icon('external', 'w-5 h-5') ?></span>
+                    <a href="<?= e($url) ?>" target="_blank" rel="noopener noreferrer" class="truncate text-blue-600 hover:underline">
+                        <?= e($label) ?>
+                    </a>
                 </li>
+            <?php endforeach; ?>
 
+            <?php if (!array_filter(array_column($k, 1)) && !array_filter(array_column($tautan, 1))): ?>
+                <li class="text-slate-500">Belum ada kontak atau tautan.</li>
             <?php endif; ?>
 
         </ul>

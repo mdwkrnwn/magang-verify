@@ -2,6 +2,9 @@
 <?php
 $emailProfil = trim($profil['email'] ?? '');
 $noTeleponProfil = trim($profil['no_telepon'] ?? '');
+$githubProfil = trim($profil['github_url'] ?? '');
+$linkedinProfil = trim($profil['linkedin_url'] ?? '');
+$portfolioProfil = trim($profil['portfolio_url'] ?? '');
 ?>
 
 <section>
@@ -63,6 +66,42 @@ $noTeleponProfil = trim($profil['no_telepon'] ?? '');
 
             <p class="mt-3 break-words text-sm font-medium leading-6 text-gray-800">
                 <?= e($noTeleponProfil !== '' ? $noTeleponProfil : 'Belum diatur') ?>
+            </p>
+        </div>
+
+        <div class="min-w-0">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-50 text-gray-700">
+                    <span class="text-sm font-bold">GH</span>
+                </div>
+                <span class="text-sm text-gray-400">GitHub</span>
+            </div>
+            <p class="mt-3 break-all text-sm font-medium leading-6">
+                <?php if ($githubProfil !== ''): ?><a href="<?= e($githubProfil) ?>" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline"><?= e($githubProfil) ?></a><?php else: ?>Belum tersedia<?php endif; ?>
+            </p>
+        </div>
+
+        <div class="min-w-0">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                    <span class="text-xs font-bold">in</span>
+                </div>
+                <span class="text-sm text-gray-400">LinkedIn</span>
+            </div>
+            <p class="mt-3 break-all text-sm font-medium leading-6">
+                <?php if ($linkedinProfil !== ''): ?><a href="<?= e($linkedinProfil) ?>" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline"><?= e($linkedinProfil) ?></a><?php else: ?>Belum tersedia<?php endif; ?>
+            </p>
+        </div>
+
+        <div class="min-w-0">
+            <div class="flex items-center gap-3">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-purple-600">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v18m9-9H3"/></svg>
+                </div>
+                <span class="text-sm text-gray-400">Portfolio Pribadi</span>
+            </div>
+            <p class="mt-3 break-all text-sm font-medium leading-6">
+                <?php if ($portfolioProfil !== ''): ?><a href="<?= e($portfolioProfil) ?>" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline"><?= e($portfolioProfil) ?></a><?php else: ?>Belum tersedia<?php endif; ?>
             </p>
         </div>
     </div>

@@ -28,6 +28,9 @@ class ProfilMahasiswa
                 p.angkatan,
                 p.email,
                 p.no_telepon,
+                p.github_url,
+                p.linkedin_url,
+                p.portfolio_url,
                 p.alamat,
                 p.deskripsi,
                 p.foto_path,
@@ -106,6 +109,9 @@ public function getPublicMahasiswa(): array
             p.angkatan,
             p.email,
             p.no_telepon,
+            p.github_url,
+            p.linkedin_url,
+            p.portfolio_url,
             p.alamat,
             p.deskripsi AS bio,
             p.foto_path,
@@ -321,11 +327,50 @@ public function getPublicMahasiswaBySlug(string $slug): ?array
         ];
     }
 
+    $syncExperienceStmt = $this->pdo->prepare("
+        INSERT INTO pengalaman (mahasiswa_id, pendaftaran_id, jenis, posisi, instansi, lokasi, deskripsi, tanggal_mulai, tanggal_selesai, status_publikasi, is_otomatis)
+        SELECT pm.id, pd.id, 'magang', fm.judul, m.nama_perusahaan, fm.lokasi_magang, fm.deskripsi, pen.tanggal_mulai, pen.tanggal_selesai, 'publik', TRUE
+        FROM penempatan_magang pen
+        JOIN pendaftaran_magang pd ON pd.id = pen.pendaftaran_id
+        JOIN profil_mahasiswa pm ON pm.id = pd.mahasiswa_id
+        JOIN formasi_magang fm ON fm.id = pd.formasi_id
+        JOIN mitra m ON m.id = fm.mitra_id
+        LEFT JOIN verifikasi_penyelesaian_magang v ON v.penempatan_id = pen.id
+        WHERE pm.id = :profil_id AND pen.status = 'selesai'
+          AND (v.status = 'terverifikasi' OR v.id IS NULL)
+          AND NOT EXISTS (SELECT 1 FROM pengalaman e WHERE e.pendaftaran_id = pd.id)
+    " );
+    $syncExperienceStmt->execute(['profil_id' => $profilId]);
+
+    $experienceStmt = $this->pdo->prepare("
+        SELECT jenis, posisi, instansi, lokasi, deskripsi, tanggal_mulai, tanggal_selesai, is_otomatis
+        FROM pengalaman
+        WHERE mahasiswa_id = :profil_id
+          AND status_publikasi = 'publik'
+        ORDER BY tanggal_selesai DESC NULLS LAST, tanggal_mulai DESC NULLS LAST, id DESC
+    " );
+    $experienceStmt->execute(['profil_id' => $profilId]);
+    $row['pengalaman'] = [];
+    foreach ($experienceStmt->fetchAll(PDO::FETCH_ASSOC) as $experience) {
+        $mulai = $experience['tanggal_mulai'] ? date('M Y', strtotime((string)$experience['tanggal_mulai'])) : '';
+        $selesai = $experience['tanggal_selesai'] ? date('M Y', strtotime((string)$experience['tanggal_selesai'])) : 'Sekarang';
+        $row['pengalaman'][] = [
+            'jenis' => (string)$experience['jenis'],
+            'posisi' => (string)$experience['posisi'],
+            'instansi' => (string)$experience['instansi'],
+            'periode' => trim($mulai . ($mulai !== '' ? ' - ' : '') . $selesai),
+            'tugas' => $experience['deskripsi'] ? preg_split('/\R+/', trim((string)$experience['deskripsi'])) : [],
+        ];
+    }
+
     $row['proyek'] = count($row['daftar_proyek']);
     $row['sertifikat'] = count($row['daftar_sertifikat']);
     $row['kontak'] = [
         'email' => trim((string) ($row['email'] ?? '')),
         'telepon' => trim((string) ($row['no_telepon'] ?? '')),
+        'github' => trim((string) ($row['github_url'] ?? '')),
+        'linkedin' => trim((string) ($row['linkedin_url'] ?? '')),
+        'portfolio' => trim((string) ($row['portfolio_url'] ?? '')),
     ];
 
     return $row;
@@ -412,6 +457,9 @@ public function updatePersonal(int $userId, array $data): bool
             SET
                 email = :email,
                 no_telepon = :no_telepon,
+                github_url = :github_url,
+                linkedin_url = :linkedin_url,
+                portfolio_url = :portfolio_url,
                 updated_at = CURRENT_TIMESTAMP
             WHERE user_id = :user_id
         ');
@@ -420,9 +468,10 @@ public function updatePersonal(int $userId, array $data): bool
             'email' => $data['email'] !== ''
                 ? $data['email']
                 : null,
-            'no_telepon' => $data['no_telepon'] !== ''
-                ? $data['no_telepon']
-                : null,
+            'no_telepon' => $data['no_telepon'] !== '' ? $data['no_telepon'] : null,
+            'github_url' => $data['github_url'] !== '' ? $data['github_url'] : null,
+            'linkedin_url' => $data['linkedin_url'] !== '' ? $data['linkedin_url'] : null,
+            'portfolio_url' => $data['portfolio_url'] !== '' ? $data['portfolio_url'] : null,
             'user_id' => $userId,
         ]);
     }

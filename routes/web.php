@@ -20,6 +20,7 @@ require_once __DIR__ . '/../controllers/dashboard/mahasiswa/DashboardController.
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/ProfilController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PortofolioController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/SertifikatController.php';
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengalamanController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/FormasiMagangController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengajuanController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LogbookController.php';
@@ -140,6 +141,13 @@ $routes = [
 
     '/dashboard/mahasiswa/sertifikat' => [
         'controller' => SertifikatController::class,
+        'method' => 'index',
+    ],
+
+    // Menu Pengalaman
+
+    '/dashboard/mahasiswa/pengalaman' => [
+        'controller' => PengalamanController::class,
         'method' => 'index',
     ],
 
@@ -399,6 +407,43 @@ function route(string $uri): ?array
     |-----------------------
     |
     | Contoh:
+    | Pengalaman
+    |---------------------
+    | /dashboard/mahasiswa/pengalaman
+    | /dashboard/mahasiswa/pengalaman/tambah
+    | /dashboard/mahasiswa/pengalaman/edit/1
+    | /dashboard/mahasiswa/pengalaman/hapus/1
+    */
+
+    if ($path === '/dashboard/mahasiswa/pengalaman') {
+        (new PengalamanController())->index();
+        exit;
+    }
+
+    if ($path === '/dashboard/mahasiswa/pengalaman/tambah') {
+        $controller = new PengalamanController();
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+            $controller->store();
+        }
+        $controller->create();
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mahasiswa/pengalaman/edit/(\d+)$#', $path, $matches)) {
+        $controller = new PengalamanController();
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+            $controller->update(['id' => (int) $matches[1]]);
+        }
+        $controller->edit(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mahasiswa/pengalaman/hapus/(\d+)$#', $path, $matches)) {
+        (new PengalamanController())->delete(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    /*
     | /dashboard/mahasiswa/formasi-magang/detail/semarsoft
     |
     */

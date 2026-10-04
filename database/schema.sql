@@ -52,6 +52,9 @@ CREATE TABLE profil_mahasiswa (
     cv_mime_type VARCHAR(100),
     cv_ukuran_bytes BIGINT,
     cv_updated_at TIMESTAMPTZ,
+    github_url VARCHAR(500),
+    linkedin_url VARCHAR(500),
+    portfolio_url VARCHAR(500),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -1252,14 +1255,10 @@ CREATE TABLE IF NOT EXISTS public.dokumen_pendaftaran_magang (
 CREATE INDEX IF NOT EXISTS idx_dokumen_pendaftaran_magang
     ON public.dokumen_pendaftaran_magang(pendaftaran_id);
 
--- ============================================
--- TABEL PENGALAMAN MAHASISWA & ADD DOLUM PROFIL MAHASISWA
--- ============================================
 
-ALTER TABLE public.profil_mahasiswa
-    ADD COLUMN IF NOT EXISTS github_url VARCHAR(500),
-    ADD COLUMN IF NOT EXISTS linkedin_url VARCHAR(500),
-    ADD COLUMN IF NOT EXISTS portfolio_url VARCHAR(500);
+-- ============================================
+-- PENGALAMAN MAHASISWA
+-- ============================================
 
 CREATE TABLE IF NOT EXISTS public.pengalaman (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -1283,7 +1282,6 @@ CREATE TABLE IF NOT EXISTS public.pengalaman (
 
 CREATE INDEX IF NOT EXISTS idx_pengalaman_mahasiswa ON public.pengalaman(mahasiswa_id);
 CREATE INDEX IF NOT EXISTS idx_pengalaman_publikasi ON public.pengalaman(status_publikasi);
-CREATE INDEX IF NOT EXISTS idx_pengalaman_pendaftaran ON public.pengalaman(pendaftaran_id);
 
 
 -- VALUE CATATAN MIGRATION
@@ -1324,7 +1322,6 @@ VALUES ('013_create_formasi_magang.sql');
 INSERT INTO public.schema_migrations (migration)
 VALUES ('014_create_dokumen_pendaftaran_magang.sql')
 ON CONFLICT (migration) DO NOTHING;
-
 INSERT INTO public.schema_migrations (migration)
 VALUES ('015_expand_jenis_dokumen_pendaftaran.sql')
 ON CONFLICT (migration) DO NOTHING;
