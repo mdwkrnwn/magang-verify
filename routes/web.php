@@ -224,7 +224,7 @@ $routes = [
 |-------------------------
 */
 
-function route($uri)
+function route(string $uri): ?array
 {
     global $routes;
 
@@ -301,6 +301,34 @@ function route($uri)
             'route' => [
                 'controller' => MahasiswaProfilController::class,
                 'method' => 'index',
+            ],
+
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+    /*
+    |-----------------------
+    | CV Mahasiswa Publik
+    |-----------------------
+    |
+    | Contoh:
+    | /mahasiswa/profil/arif-hidayat/cv
+    |
+    */
+
+    if (preg_match(
+        '#^/mahasiswa/profil/([^/]+)/cv$#',
+        $path,
+        $matches
+    )) {
+
+        return [
+            'route' => [
+                'controller' => MahasiswaProfilController::class,
+                'method' => 'cv',
             ],
 
             'params' => [

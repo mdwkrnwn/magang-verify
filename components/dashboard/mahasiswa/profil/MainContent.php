@@ -18,6 +18,7 @@
         <div class="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-12 lg:gap-6">
             <div class="min-w-0 h-full lg:col-span-4">
                 <?php include __DIR__ . '/profile/ProfileCard.php'; ?>
+                <?php include __DIR__ . '/cv/CvCard.php'; ?>
             </div>
 
             <div class="min-w-0 h-full lg:col-span-8">
@@ -39,6 +40,7 @@
         <?php include __DIR__ . '/forms/EditContactForm.php'; ?>
         <?php include __DIR__ . '/forms/EditBioForm.php'; ?>
         <?php include __DIR__ . '/forms/EditPhotoForm.php'; ?>
+        <?php include __DIR__ . '/forms/EditCvForm.php'; ?>
 
         <?php include __DIR__ . '/../Footer.php'; ?>
 

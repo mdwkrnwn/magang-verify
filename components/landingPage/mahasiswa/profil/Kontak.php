@@ -1,3 +1,15 @@
+<?php
+
+$kontak = $m['kontak'] ?? [];
+
+$k = [
+    ['code', $kontak['github'] ?? null],
+    ['briefcase', $kontak['linkedin'] ?? null],
+    ['globe', $kontak['website'] ?? null],
+    ['mail', $kontak['email'] ?? null],
+];
+?>
+
 <aside class="space-y-4 min-w-0">
 
     <div class="rounded-2xl border border-blue-100 bg-blue-50/60 p-4 sm:p-5 flex gap-4">
@@ -72,12 +84,14 @@
     </a>
 
 
-    <a
-        href="#"
-        class="flex items-center justify-center gap-2 py-3 rounded-lg border border-blue-500 bg-white text-blue-600 text-sm font-medium hover:bg-blue-50 transition"
-    >
-        <?= icon('download', 'w-4 h-4') ?>
-        Unduh CV
-    </a>
+    <?php if (!empty($m['cv_path'])): ?>
+        <a
+            href="<?= e(url('/mahasiswa/profil/' . ($m['slug'] ?? '') . '/cv?download=1')) ?>"
+            class="flex items-center justify-center gap-2 py-3 rounded-lg border border-blue-500 bg-white text-blue-600 text-sm font-medium hover:bg-blue-50 transition"
+        >
+            <?= icon('download', 'w-4 h-4') ?>
+            Unduh CV
+        </a>
+    <?php endif; ?>
 
 </aside>

@@ -29,6 +29,11 @@ class ProfilMahasiswa
                 p.alamat,
                 p.deskripsi,
                 p.foto_path,
+                p.cv_path,
+                p.cv_nama_asli,
+                p.cv_mime_type,
+                p.cv_ukuran_bytes,
+                p.cv_updated_at,
                 p.created_at,
                 p.updated_at
             FROM users u
@@ -316,4 +321,70 @@ public function updateDescription(int $userId, string $deskripsi): bool
             'user_id' => $userId,
         ]);
     }
+    /**
+     * Menyimpan metadata CV mahasiswa.
+     */
+    public function updateCv(
+        int $userId,
+        string $cvPath,
+        string $namaAsli,
+        string $mimeType,
+        int $ukuranBytes
+    ): bool {
+        $stmt = $this->pdo->prepare('
+            UPDATE profil_mahasiswa
+            SET
+                cv_path = :cv_path,
+                cv_nama_asli = :cv_nama_asli,
+                cv_mime_type = :cv_mime_type,
+                cv_ukuran_bytes = :cv_ukuran_bytes,
+                cv_updated_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE user_id = :user_id
+        ');
+
+        return $stmt->execute([
+            'cv_path' => $cvPath,
+            'cv_nama_asli' => $namaAsli,
+            'cv_mime_type' => $mimeType,
+            'cv_ukuran_bytes' => $ukuranBytes,
+            'user_id' => $userId,
+        ]);
+    }
+
+    /**
+     * Mengambil CV publik berdasarkan slug nama mahasiswa.
+     */
+    public function getCvBySlug(string $slug): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT
+                u.id AS user_id,
+                u.name AS nama_lengkap,
+                p.cv_path,
+                p.cv_nama_asli,
+                p.cv_mime_type,
+                p.cv_ukuran_bytes,
+                p.cv_updated_at
+            FROM users u
+            INNER JOIN profil_mahasiswa p
+                ON p.user_id = u.id
+            WHERE u.role = 'mahasiswa'
+              AND LOWER(
+                    REGEXP_REPLACE(
+                        TRIM(u.name),
+                        '[^a-zA-Z0-9]+',
+                        '-',
+                        'g'
+                    )
+                  ) = LOWER(:slug)
+            LIMIT 1
+        ");
+
+        $stmt->execute(['slug' => trim($slug)]);
+        $cv = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $cv ?: null;
+    }
+
 }

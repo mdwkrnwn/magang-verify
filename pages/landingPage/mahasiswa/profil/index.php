@@ -5,13 +5,6 @@ $active = "mahasiswa";
 
 $kontak = $m['kontak'] ?? [];
 
-$k = [
-    ['code', $kontak['github'] ?? null],
-    ['briefcase', $kontak['linkedin'] ?? null],
-    ['globe', $kontak['website'] ?? null],
-    ['mail', $kontak['email'] ?? null],
-];
-
 $menu = [
     ['profil', 'Profil', 'user'],
     ['portofolio', 'Portofolio', 'folder'],
@@ -23,10 +16,10 @@ $menu = [
 
 $card = 'bg-white rounded-2xl border border-slate-100 shadow-sm p-4 sm:p-5 md:p-6 scroll-mt-24';
 
-function judul($ic, $t)
+function judul(string $ic, string $t): void
 {
     echo '<h2 class="flex items-center gap-3 font-semibold text-slate-900 mb-3">
-        <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 grid place-items-center">'
+            <span class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 grid place-items-center">'
         . icon($ic, 'w-4 h-4') .
         '</span>'
         . $t .

@@ -47,8 +47,22 @@ CREATE TABLE profil_mahasiswa (
     alamat TEXT,
     deskripsi TEXT,
     foto_path VARCHAR(500),
+    cv_path VARCHAR(500),
+    cv_nama_asli VARCHAR(255),
+    cv_mime_type VARCHAR(100),
+    cv_ukuran_bytes BIGINT,
+    cv_updated_at TIMESTAMPTZ,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT profil_mahasiswa_cv_ukuran_check
+        CHECK (
+            cv_ukuran_bytes IS NULL
+            OR (
+                cv_ukuran_bytes > 0
+                AND cv_ukuran_bytes <= 5242880
+            )
+        )
 );
 
 -- TABEL PROFIL DOSEN --
@@ -1231,7 +1245,7 @@ CREATE TABLE IF NOT EXISTS public.dokumen_pendaftaran_magang (
     mime_type VARCHAR(100) NOT NULL,
     ukuran_bytes BIGINT NOT NULL CHECK (ukuran_bytes > 0),
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT dokumen_pendaftaran_jenis_check CHECK (jenis_dokumen IN ('pakta_integritas', 'daftar_riwayat_hidup', 'khs', 'ktp', 'ktm', 'surat_izin_orang_tua', 'bpjs', 'sktm_kip', 'proposal', 'sertifikat_kompetensi')),
+    CONSTRAINT dokumen_pendaftaran_magang_jenis_dokumen_check CHECK (jenis_dokumen IN ('pakta_integritas', 'daftar_riwayat_hidup', 'khs', 'ktp', 'ktm', 'surat_izin_orang_tua', 'bpjs_asuransi', 'sktm_kip', 'proposal_magang', 'sertifikat_kompetensi')),
     CONSTRAINT dokumen_pendaftaran_unique_jenis UNIQUE (pendaftaran_id, jenis_dokumen)
 );
 
@@ -1276,4 +1290,15 @@ VALUES ('013_create_formasi_magang.sql');
 
 INSERT INTO public.schema_migrations (migration)
 VALUES ('014_create_dokumen_pendaftaran_magang.sql')
+ON CONFLICT (migration) DO NOTHING;
+INSERT INTO public.schema_migrations (migration)
+VALUES ('015_expand_jenis_dokumen_pendaftaran.sql')
+ON CONFLICT (migration) DO NOTHING;
+
+INSERT INTO public.schema_migrations (migration)
+VALUES ('016_add_constraint_dokumen_pendaftaran_jenis_check.sql')
+ON CONFLICT (migration) DO NOTHING;
+
+INSERT INTO public.schema_migrations (migration)
+VALUES ('017_add_cv_to_profil_mahasiswa.sql')
 ON CONFLICT (migration) DO NOTHING;

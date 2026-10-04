@@ -85,6 +85,10 @@ class ProfilController
                     $this->updatePhoto($userId);
                     break;
 
+                case 'cv':
+                    $this->updateCv($userId);
+                    break;
+
                 default:
                     $this->redirect('error', 'invalid_action');
             }
@@ -317,6 +321,123 @@ private function updateBio(int $userId, int $profilId): void
         }
 
         $this->redirect('success', 'photo_updated');
+    }
+
+
+    private function updateCv(int $userId): void
+    {
+        if (
+            !isset($_FILES['cv']) ||
+            $_FILES['cv']['error'] !== UPLOAD_ERR_OK
+        ) {
+            $this->redirect('error', 'cv_upload_failed');
+        }
+
+        $file = $_FILES['cv'];
+        $maxSize = 5 * 1024 * 1024;
+
+        if ((int) $file['size'] <= 0 || (int) $file['size'] > $maxSize) {
+            $this->redirect('error', 'cv_too_large');
+        }
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->file($file['tmp_name']);
+
+        if ($mime !== 'application/pdf') {
+            $this->redirect('error', 'invalid_cv_type');
+        }
+
+        // Validasi tambahan agar file benar-benar diawali signature PDF.
+        $handle = @fopen($file['tmp_name'], 'rb');
+        $signature = $handle !== false
+            ? fread($handle, 5)
+            : false;
+
+        if ($handle !== false) {
+            fclose($handle);
+        }
+
+        if ($signature !== '%PDF-') {
+            $this->redirect('error', 'invalid_cv_file');
+        }
+
+        $originalName = trim((string) ($file['name'] ?? 'CV.pdf'));
+        $originalName = basename($originalName);
+
+        // Simpan nama asli secara aman untuk ditampilkan/download.
+        $originalName = preg_replace(
+            '/[^\pL\pN._() -]+/u',
+            '_',
+            $originalName
+        );
+
+        if (!is_string($originalName) || $originalName === '') {
+            $originalName = 'CV.pdf';
+        }
+
+        if (!str_ends_with(strtolower($originalName), '.pdf')) {
+            $originalName .= '.pdf';
+        }
+
+        $originalName = mb_substr($originalName, 0, 255);
+
+        $projectRoot = dirname(__DIR__, 3);
+        $uploadDir = $projectRoot . '/uploads/cv';
+
+        if (
+            !is_dir($uploadDir) &&
+            !mkdir($uploadDir, 0755, true) &&
+            !is_dir($uploadDir)
+        ) {
+            throw new RuntimeException('Folder CV gagal dibuat.');
+        }
+
+        $filename = bin2hex(random_bytes(16)) . '.pdf';
+        $destination = $uploadDir . '/' . $filename;
+        $relativePath = 'uploads/cv/' . $filename;
+
+        if (!move_uploaded_file($file['tmp_name'], $destination)) {
+            $this->redirect('error', 'cv_upload_failed');
+        }
+
+        try {
+            $oldProfil = $this->profilModel->getByUserId($userId);
+
+            if (!$oldProfil) {
+                throw new RuntimeException(
+                    'Profil mahasiswa tidak ditemukan.'
+                );
+            }
+
+            $this->profilModel->updateCv(
+                $userId,
+                $relativePath,
+                $originalName,
+                'application/pdf',
+                (int) $file['size']
+            );
+
+            $oldPath = trim((string) ($oldProfil['cv_path'] ?? ''));
+
+            if (
+                $oldPath !== '' &&
+                str_starts_with($oldPath, 'uploads/cv/')
+            ) {
+                $oldFile = $projectRoot . '/' . $oldPath;
+
+                if (is_file($oldFile)) {
+                    @unlink($oldFile);
+                }
+            }
+        } catch (Throwable $e) {
+            if (is_file($destination)) {
+                @unlink($destination);
+            }
+
+            throw $e;
+        }
+
+        $this->redirect('success', 'cv_updated');
     }
 
     private function redirect(string $type, string $message): void
