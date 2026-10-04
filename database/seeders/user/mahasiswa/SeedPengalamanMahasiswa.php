@@ -41,24 +41,7 @@ try {
         seedLog("Pengalaman manual {$nim} dibuat.");
     }
 
-    // Andi: pengalaman berasal dari magang yang sudah selesai dan terverifikasi.
-    $stmt = $pdo->prepare("
-        SELECT
-            pm.id AS mahasiswa_id,
-            p.id AS pendaftaran_id,
-            fm.judul,
-            m.nama_perusahaan,
-            pm.lokasi_dummy
-        FROM profil_mahasiswa pm
-        JOIN pendaftaran_magang p ON p.mahasiswa_id = pm.id
-        JOIN formasi_magang fm ON fm.id = p.formasi_id
-        JOIN mitra m ON m.id = fm.mitra_id
-        WHERE pm.nim = '23410001'
-          AND p.status_pendaftaran = 'selesai'
-        LIMIT 1
-    ");
-
-    // Karena lokasi profil tidak menyimpan lokasi khusus magang, gunakan kota mitra pada query berikutnya.
+    // Ambil pengalaman otomatis dari magang Andi yang sudah selesai dan terverifikasi.
     $stmt = $pdo->prepare("
         SELECT
             pm.id AS mahasiswa_id,

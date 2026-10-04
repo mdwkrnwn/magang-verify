@@ -6,6 +6,7 @@ require_once __DIR__ . '/../../../function/Helpers.php';
 require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../models/FormasiMagang.php';
 require_once __DIR__ . '/../../../models/PendaftaranMagang.php';
+require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
 
 class LamarController
 {
@@ -16,6 +17,7 @@ class LamarController
         $slug = (string)($params['slug'] ?? '');
         $formasiModel = new FormasiMagang();
         $pendaftaranModel = new PendaftaranMagang();
+        $aktivitasModel = new AktivitasPengguna();
         $formasi = $formasiModel->getBySlug($slug);
         if (!$formasi) $this->notFound();
         if (($formasi['status'] ?? '') !== 'tersedia' || ($formasi['status_formasi'] ?? '') !== 'dibuka') {
@@ -70,6 +72,14 @@ class LamarController
                         $stored[$field] = $this->storePdf($_FILES[$field]);
                     }
                     $applicationId = $pendaftaranModel->create((int)$profil['mahasiswa_id'], (int)$formasi['id'], $stored);
+                    $aktivitasModel->log(
+                        (int) $_SESSION['user']['id'],
+                        'Pengajuan magang dikirim',
+                        'Pengajuan "' . ($formasi['judul'] ?? 'formasi magang') . '" berhasil dikirim.',
+                        'pengajuan',
+                        'pendaftaran_magang',
+                        $applicationId
+                    );
                     header('Location: ' . url('/dashboard/mahasiswa/pengajuan/detail/' . $applicationId)); exit;
                 } catch (Throwable $e) {
                     foreach ($stored as $doc) if (!empty($doc['absolute_path']) && is_file($doc['absolute_path'])) @unlink($doc['absolute_path']);

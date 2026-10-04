@@ -4,14 +4,17 @@ require_once __DIR__ . '/../../../config/app.php';
 require_once __DIR__ . '/../../../function/Helpers.php';
 require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../models/Pengalaman.php';
+require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
 
 class PengalamanController
 {
     private Pengalaman $model;
+    private AktivitasPengguna $aktivitasModel;
 
     public function __construct()
     {
         $this->model = new Pengalaman();
+        $this->aktivitasModel = new AktivitasPengguna();
     }
 
     private function userId(): int
@@ -107,7 +110,16 @@ class PengalamanController
             exit('Permintaan tidak valid.');
         }
         try {
-            $this->model->create($id, $this->dataFromPost());
+            $data = $this->dataFromPost();
+            $newId = $this->model->create($id, $data);
+            $this->aktivitasModel->log(
+                $id,
+                'Pengalaman ditambahkan',
+                'Pengalaman "' . $data['posisi'] . '" di "' . $data['instansi'] . '" berhasil ditambahkan.',
+                'pengalaman',
+                'pengalaman',
+                $newId
+            );
             $this->redirect('/dashboard/mahasiswa/pengalaman');
         } catch (Throwable $e) {
             http_response_code(422);
@@ -135,7 +147,17 @@ class PengalamanController
             exit('Permintaan tidak valid.');
         }
         try {
-            $this->model->update((int)($params['id'] ?? 0), $id, $this->dataFromPost());
+            $data = $this->dataFromPost();
+            $itemId = (int) ($params['id'] ?? 0);
+            $this->model->update($itemId, $id, $data);
+            $this->aktivitasModel->log(
+                $id,
+                'Pengalaman diperbarui',
+                'Pengalaman "' . $data['posisi'] . '" di "' . $data['instansi'] . '" berhasil diperbarui.',
+                'pengalaman',
+                'pengalaman',
+                $itemId
+            );
             $this->redirect('/dashboard/mahasiswa/pengalaman');
         } catch (Throwable $e) {
             http_response_code(422);
@@ -150,7 +172,18 @@ class PengalamanController
             http_response_code(403);
             exit('Permintaan tidak valid.');
         }
-        $this->model->delete((int)($params['id'] ?? 0), $id);
+        $itemId = (int) ($params['id'] ?? 0);
+        $item = $this->model->getById($itemId, $id);
+        if ($this->model->delete($itemId, $id)) {
+            $this->aktivitasModel->log(
+                $id,
+                'Pengalaman dihapus',
+                'Pengalaman "' . ($item['posisi'] ?? 'Pengalaman') . '" berhasil dihapus.',
+                'pengalaman',
+                'pengalaman',
+                $itemId
+            );
+        }
         $this->redirect('/dashboard/mahasiswa/pengalaman');
     }
 }

@@ -1,10 +1,12 @@
 <?php
 
 require_once __DIR__ . '/../../../models/User.php';
+require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
 
 class PengaturanController
 {
     private User $userModel;
+    private AktivitasPengguna $aktivitasModel;
 
 
     public function __construct()
@@ -12,6 +14,7 @@ class PengaturanController
         global $pdo;
 
         $this->userModel = new User($pdo);
+        $this->aktivitasModel = new AktivitasPengguna();
     }
 
 
@@ -259,6 +262,15 @@ class PengaturanController
                         $userId,
                         $passwordHash
                     );
+
+                $this->aktivitasModel->log(
+                    $userId,
+                    'Kata sandi diperbarui',
+                    'Kata sandi akun berhasil diperbarui melalui pengaturan.',
+                    'pengaturan',
+                    'users',
+                    $userId
+                );
 
 
                 $_SESSION['pengaturan_success'] =

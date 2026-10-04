@@ -157,10 +157,18 @@ if (!empty($bagianNama)) {
 
                 </svg>
 
-                <span
-                    class="absolute w-2 h-2
-                           bg-red-500 rounded-full
-                           top-2 right-2"></span>
+                <?php $unreadNotifications = (int) ($dashboard['notifikasi_belum_dibaca'] ?? 0); ?>
+
+                <?php if ($unreadNotifications > 0): ?>
+                    <span
+                        class="absolute flex items-center justify-center
+                               min-w-5 h-5 px-1
+                               text-[10px] font-bold text-white
+                               bg-red-500 rounded-full
+                               top-1 right-1">
+                        <?= e($unreadNotifications > 9 ? '9+' : (string) $unreadNotifications) ?>
+                    </span>
+                <?php endif; ?>
 
             </button>
 

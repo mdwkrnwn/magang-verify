@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/AktivitasPengguna.php';
 
 class Pengalaman
 {
@@ -23,7 +24,20 @@ class Pengalaman
                   )
               AND NOT EXISTS (SELECT 1 FROM pengalaman e WHERE e.pendaftaran_id = pd.id)
         ";
-        $pdo->prepare($sql)->execute(['user_id'=>$userId]);
+        $stmt = $pdo->prepare($sql . ' RETURNING id');
+        $stmt->execute(['user_id' => $userId]);
+        $createdId = $stmt->fetchColumn();
+
+        if ($createdId !== false) {
+            (new AktivitasPengguna())->log(
+                $userId,
+                'Pengalaman magang dibuat otomatis',
+                'Pengalaman magang dari proses magang yang telah selesai dan terverifikasi berhasil ditambahkan ke profil.',
+                'pengalaman',
+                'pengalaman',
+                (int) $createdId
+            );
+        }
     }
 
     public function getAll(
@@ -56,7 +70,12 @@ class Pengalaman
 
         $jenis = trim((string) ($filters['jenis'] ?? ''));
         $allowedJenis = [
-            'magang', 'pekerjaan', 'organisasi', 'freelance', 'proyek', 'lainnya'
+            'magang',
+            'pekerjaan',
+            'organisasi',
+            'freelance',
+            'proyek',
+            'lainnya'
         ];
         if (in_array($jenis, $allowedJenis, true)) {
             $where[] = 'jenis = :jenis';
@@ -214,12 +233,14 @@ class Pengalaman
             RETURNING id
         ");
         $stmt->execute([
-            'jenis'=>$data['jenis'], 'posisi'=>$data['posisi'], 'instansi'=>$data['instansi'],
-            'lokasi'=>$data['lokasi'] !== '' ? $data['lokasi'] : null,
-            'deskripsi'=>$data['deskripsi'] !== '' ? $data['deskripsi'] : null,
-            'tanggal_mulai'=>$data['tanggal_mulai'] !== '' ? $data['tanggal_mulai'] : null,
-            'tanggal_selesai'=>$data['tanggal_selesai'] !== '' ? $data['tanggal_selesai'] : null,
-            'user_id'=>$userId
+            'jenis' => $data['jenis'],
+            'posisi' => $data['posisi'],
+            'instansi' => $data['instansi'],
+            'lokasi' => $data['lokasi'] !== '' ? $data['lokasi'] : null,
+            'deskripsi' => $data['deskripsi'] !== '' ? $data['deskripsi'] : null,
+            'tanggal_mulai' => $data['tanggal_mulai'] !== '' ? $data['tanggal_mulai'] : null,
+            'tanggal_selesai' => $data['tanggal_selesai'] !== '' ? $data['tanggal_selesai'] : null,
+            'user_id' => $userId
         ]);
         return (int) $stmt->fetchColumn();
     }
@@ -235,9 +256,15 @@ class Pengalaman
             WHERE p.id=:id AND p.mahasiswa_id=pm.id AND pm.user_id=:user_id AND p.is_otomatis=FALSE
         ");
         return $stmt->execute([
-            'id'=>$id, 'user_id'=>$userId, 'jenis'=>$data['jenis'], 'posisi'=>$data['posisi'], 'instansi'=>$data['instansi'],
-            'lokasi'=>$data['lokasi'] !== '' ? $data['lokasi'] : null, 'deskripsi'=>$data['deskripsi'] !== '' ? $data['deskripsi'] : null,
-            'tanggal_mulai'=>$data['tanggal_mulai'] !== '' ? $data['tanggal_mulai'] : null, 'tanggal_selesai'=>$data['tanggal_selesai'] !== '' ? $data['tanggal_selesai'] : null
+            'id' => $id,
+            'user_id' => $userId,
+            'jenis' => $data['jenis'],
+            'posisi' => $data['posisi'],
+            'instansi' => $data['instansi'],
+            'lokasi' => $data['lokasi'] !== '' ? $data['lokasi'] : null,
+            'deskripsi' => $data['deskripsi'] !== '' ? $data['deskripsi'] : null,
+            'tanggal_mulai' => $data['tanggal_mulai'] !== '' ? $data['tanggal_mulai'] : null,
+            'tanggal_selesai' => $data['tanggal_selesai'] !== '' ? $data['tanggal_selesai'] : null
         ]);
     }
 
@@ -248,6 +275,6 @@ class Pengalaman
             DELETE FROM pengalaman p USING profil_mahasiswa pm
             WHERE p.id=:id AND p.mahasiswa_id=pm.id AND pm.user_id=:user_id AND p.is_otomatis=FALSE
         ");
-        return $stmt->execute(['id'=>$id, 'user_id'=>$userId]);
+        return $stmt->execute(['id' => $id, 'user_id' => $userId]);
     }
 }

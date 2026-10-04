@@ -3,6 +3,7 @@
 
 require_once __DIR__ . '/../config/app.php';
 require_once __DIR__ . '/../function/Helpers.php';
+require_once __DIR__ . '/../models/AktivitasPengguna.php';
 
 class LogoutController
 {
@@ -23,6 +24,19 @@ class LogoutController
         if (!verifyCsrfToken()) {
             http_response_code(403);
             exit('Permintaan tidak valid. Silakan muat ulang halaman.');
+        }
+
+        // Catat logout sebelum session dihancurkan.
+        $userId = (int) ($_SESSION['user']['id'] ?? 0);
+        if ($userId > 0) {
+            (new AktivitasPengguna())->log(
+                $userId,
+                'Logout',
+                'Pengguna keluar dari sistem.',
+                'auth',
+                'users',
+                $userId
+            );
         }
 
         // Hapus seluruh data session.

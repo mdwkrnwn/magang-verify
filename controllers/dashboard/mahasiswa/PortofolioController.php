@@ -1,15 +1,18 @@
 <?php
 
 require_once __DIR__ . '/../../../models/Portofolio.php';
+require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
 
 class PortofolioController
 {
 
     private Portofolio $portofolioModel;
+    private AktivitasPengguna $aktivitasModel;
 
     public function __construct()
     {
         $this->portofolioModel = new Portofolio();
+        $this->aktivitasModel = new AktivitasPengguna();
     }
 
     /*
@@ -528,6 +531,16 @@ class PortofolioController
                      */
                     $slug = $this->portofolioModel->create($userId, $data);
 
+                    $created = $this->portofolioModel->getPortofolioBySlug($slug, $userId);
+                    $this->aktivitasModel->log(
+                        $userId,
+                        'Portofolio ditambahkan',
+                        'Portofolio "' . ($data['judul'] ?? 'Portofolio') . '" berhasil ditambahkan ke profil.',
+                        'portofolio',
+                        'portofolios',
+                        $created ? (int) $created['id'] : null
+                    );
+
                     header(
                         'Location: ' .
                             url('/dashboard/mahasiswa/portofolio/detail/' . $slug)
@@ -613,6 +626,15 @@ class PortofolioController
                         $data
                     );
 
+                    $this->aktivitasModel->log(
+                        $userId,
+                        'Portofolio diperbarui',
+                        'Portofolio "' . ($data['judul'] ?? $portofolioEdit['judul'] ?? 'Portofolio') . '" berhasil diperbarui.',
+                        'portofolio',
+                        'portofolios',
+                        (int) $portofolioEdit['id']
+                    );
+
                     if (
                         !empty($data['gambar_path']) &&
                         $gambarLama !== '' &&
@@ -695,6 +717,15 @@ if (!$dihapus) {
     );
 }
             $this->removeUploadedImage($portofolio['gambar'] ?? '');
+
+            $this->aktivitasModel->log(
+                $userId,
+                'Portofolio dihapus',
+                'Portofolio "' . ($portofolio['judul'] ?? 'Portofolio') . '" berhasil dihapus dari profil.',
+                'portofolio',
+                'portofolios',
+                (int) $portofolio['id']
+            );
         } catch (PDOException $e) {
             error_log('Gagal menghapus portofolio: ' . $e->getMessage());
         

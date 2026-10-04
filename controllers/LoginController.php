@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/AktivitasPengguna.php';
 
 class LoginController
 {
@@ -77,6 +78,7 @@ class LoginController
         }
 
         // Login berhasil: perbarui ID session.
+        $aktivitasModel = new AktivitasPengguna();
         session_regenerate_id(true);
 
         // Simpan informasi pengguna yang diperlukan.
@@ -86,6 +88,15 @@ class LoginController
             'name'     => $user['name'],
             'role'     => $user['role'],
         ];
+
+        $aktivitasModel->log(
+            (int) $user['id'],
+            'Login berhasil',
+            'Pengguna berhasil masuk ke sistem sebagai ' . $user['role'] . '.',
+            'auth',
+            'users',
+            (int) $user['id']
+        );
 
         // Tujuan redirect berdasarkan role.
         $dashboardRoutes = [

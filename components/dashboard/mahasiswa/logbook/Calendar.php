@@ -1,99 +1,37 @@
-<div class="p-4 sm:p-5 bg-white border border-slate-200 rounded-xl">
-
-    <!-- Calendar Header -->
+<?php
+$monthTimestamp = strtotime('first day of this month');
+$monthTitle = date('F Y', $monthTimestamp);
+$firstDay = (int) date('N', $monthTimestamp);
+$daysInMonth = (int) date('t', $monthTimestamp);
+$loggedDays = [];
+foreach (($logbooks ?? []) as $item) {
+    $start = strtotime((string) $item['tanggal_mulai']);
+    $end = strtotime((string) $item['tanggal_selesai']);
+    if ($start && $end) {
+        for ($d = $start; $d <= $end; $d += 86400) {
+            $loggedDays[] = date('Y-m-d', $d);
+        }
+    }
+}
+$loggedDays = array_flip($loggedDays);
+?>
+<div class="p-4 sm:p-5 bg-white border border-gray-100 shadow-sm rounded-xl">
     <div class="flex items-center justify-between mb-4">
-
-        <h2 class="text-sm font-semibold text-slate-700">
-            Juni 2025
-        </h2>
-
-        <button
-            type="button"
-            class="flex items-center justify-center
-                   w-8 h-8 text-slate-400
-                   hover:text-blue-600 transition">
-
-            <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24">
-
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m9 18 6-6-6-6" />
-
-            </svg>
-
-        </button>
-
+        <h2 class="text-sm font-semibold text-gray-700"><?= e($monthTitle) ?></h2>
+        <span class="text-xs text-gray-400">Bulan berjalan</span>
     </div>
-
-
-    <!-- Days -->
     <div class="grid grid-cols-7 mb-3">
-
         <?php foreach (['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'] as $day): ?>
-
-            <div class="py-2 text-center text-[10px] font-medium text-slate-400">
-                <?= $day ?>
-            </div>
-
+            <div class="py-2 text-center text-[10px] font-medium text-gray-400"><?= e($day) ?></div>
         <?php endforeach; ?>
-
     </div>
-
-
-    <!-- Dates -->
     <div class="grid grid-cols-7 gap-y-2">
-
-        <?php
-
-        $calendar = [
-            '', '', '', '', '', '', '1',
-            '2', '3', '4', '5', '6', '7', '8',
-            '9', '10', '11', '12', '13', '14', '15',
-            '16', '17', '18', '19', '20', '21', '22',
-            '23', '24', '25', '26', '27', '28', '29',
-            '30'
-        ];
-
-        foreach ($calendar as $date):
-
-        ?>
-
+        <?php for ($i = 1; $i < $firstDay; $i++): ?><div class="h-8"></div><?php endfor; ?>
+        <?php for ($day = 1; $day <= $daysInMonth; $day++): ?>
+            <?php $dateKey = date('Y-m-d', strtotime(date('Y-m-01', $monthTimestamp) . ' +' . ($day - 1) . ' days')); ?>
             <div class="flex items-center justify-center h-8">
-
-                <?php if ($date === '12'): ?>
-
-                    <span
-                        class="flex items-center justify-center
-                               w-7 h-7
-                               text-[10px] font-semibold text-white
-                               bg-blue-600 rounded-full">
-
-                        <?= $date ?>
-
-                    </span>
-
-                <?php elseif ($date !== ''): ?>
-
-                    <span
-                        class="text-[10px] text-slate-500
-                               hover:text-blue-600 cursor-pointer">
-
-                        <?= $date ?>
-
-                    </span>
-
-                <?php endif; ?>
-
+                <span class="flex items-center justify-center w-7 h-7 text-[10px] font-medium <?= isset($loggedDays[$dateKey]) ? 'text-blue-700 bg-blue-50' : 'text-gray-500' ?> rounded-full"><?= $day ?></span>
             </div>
-
-        <?php endforeach; ?>
-
+        <?php endfor; ?>
     </div>
-
 </div>

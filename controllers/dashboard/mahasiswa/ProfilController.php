@@ -5,16 +5,19 @@ require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../config/app.php';
 require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../models/ProfilMahasiswa.php';
+require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
 
 class ProfilController
 {
     private ProfilMahasiswa $profilModel;
+    private AktivitasPengguna $aktivitasModel;
 
     public function __construct()
     {
         global $pdo;
 
         $this->profilModel = new ProfilMahasiswa($pdo);
+        $this->aktivitasModel = new AktivitasPengguna();
     }
 
     public function index($params = [])
@@ -129,6 +132,15 @@ private function updatePersonal(int $userId): void
     // Perbarui nama pada session agar header ikut berubah.
     $_SESSION['user']['name'] = $nama;
 
+    $this->aktivitasModel->log(
+        $userId,
+        'Profil pribadi diperbarui',
+        'Informasi pribadi mahasiswa berhasil diperbarui.',
+        'profil',
+        'users',
+        $userId
+    );
+
     $this->redirect('success', 'personal_updated');
 }
 
@@ -173,6 +185,15 @@ private function updatePersonal(int $userId): void
             'portfolio_url' => $portfolio,
         ]);
 
+        $this->aktivitasModel->log(
+            $userId,
+            'Kontak diperbarui',
+            'Informasi kontak dan tautan profesional berhasil diperbarui.',
+            'profil',
+            'profil_mahasiswa',
+            $userId
+        );
+
         $this->redirect('success', 'contact_updated');
     }
 
@@ -215,6 +236,15 @@ private function updateBio(int $userId, int $profilId): void
     // Simpan daftar keahlian.
     $this->profilModel->updateSkills($profilId, $skills);
 
+    $this->aktivitasModel->log(
+        $userId,
+        'Profil dan keahlian diperbarui',
+        'Deskripsi profil dan daftar keahlian berhasil diperbarui.',
+        'profil',
+        'profil_mahasiswa',
+        $profilId
+    );
+
     $this->redirect('success', 'bio_updated');
 }
 
@@ -246,6 +276,15 @@ private function updateBio(int $userId, int $profilId): void
         }
 
         $this->profilModel->updateSkills($profilId, $skills);
+
+        $this->aktivitasModel->log(
+            (int) ($_SESSION['user']['id'] ?? 0),
+            'Keahlian diperbarui',
+            'Daftar keahlian mahasiswa berhasil diperbarui.',
+            'profil',
+            'profil_mahasiswa',
+            $profilId
+        );
 
         $this->redirect('success', 'skills_updated');
     }
@@ -335,6 +374,15 @@ private function updateBio(int $userId, int $profilId): void
 
             throw $e;
         }
+
+        $this->aktivitasModel->log(
+            $userId,
+            'Foto profil diperbarui',
+            'Foto profil mahasiswa berhasil diperbarui.',
+            'profil',
+            'profil_mahasiswa',
+            $userId
+        );
 
         $this->redirect('success', 'photo_updated');
     }
@@ -452,6 +500,15 @@ private function updateBio(int $userId, int $profilId): void
 
             throw $e;
         }
+
+        $this->aktivitasModel->log(
+            $userId,
+            'CV diperbarui',
+            'CV mahasiswa berhasil diunggah atau diperbarui.',
+            'profil',
+            'profil_mahasiswa',
+            $userId
+        );
 
         $this->redirect('success', 'cv_updated');
     }

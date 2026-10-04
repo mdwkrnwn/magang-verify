@@ -750,6 +750,32 @@ function route(string $uri): ?array
     }
 
     /*
+    |-----------------------
+    | Logbook Mahasiswa
+    |-----------------------
+    |
+    | /dashboard/mahasiswa/logbook/tambah
+    | /dashboard/mahasiswa/logbook/edit/1
+    | /dashboard/mahasiswa/logbook/kirim/1
+    |
+    */
+
+    if ($path === '/dashboard/mahasiswa/logbook/tambah') {
+        (new LogbookController())->create();
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mahasiswa/logbook/edit/(\d+)$#', $path, $matches)) {
+        (new LogbookController())->edit(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mahasiswa/logbook/kirim/(\d+)$#', $path, $matches)) {
+        (new LogbookController())->submit(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    /*
     |----------------------
     | Tidak ditemukan
     |----------------------

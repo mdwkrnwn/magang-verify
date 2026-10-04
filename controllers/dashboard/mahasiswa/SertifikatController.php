@@ -1,16 +1,19 @@
 <?php
 
 require_once __DIR__ . '/../../../models/Sertifikat.php';
+require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
 
 class SertifikatController
 {
     private Sertifikat $sertifikatModel;
+    private AktivitasPengguna $aktivitasModel;
     private string $uploadDirectory;
     private string $uploadRelativePath = 'uploads/sertifikat';
 
     public function __construct()
     {
         $this->sertifikatModel = new Sertifikat();
+        $this->aktivitasModel = new AktivitasPengguna();
         $this->uploadDirectory = dirname(__DIR__, 3) . '/' . $this->uploadRelativePath;
     }
 
@@ -256,6 +259,15 @@ class SertifikatController
                     $data = $old;
                     $data['file_path'] = $filePath;
                     $slug = $this->sertifikatModel->create($userId, $data);
+                    $created = $this->sertifikatModel->getSertifikatBySlug($slug, $userId);
+                    $this->aktivitasModel->log(
+                        $userId,
+                        'Sertifikat ditambahkan',
+                        'Sertifikat "' . ($data['nama'] ?? 'Sertifikat') . '" berhasil ditambahkan.',
+                        'sertifikat',
+                        'sertifikat',
+                        $created ? (int) $created['id'] : null
+                    );
                     $this->redirect('/dashboard/mahasiswa/sertifikat/detail/' . rawurlencode($slug));
                 } catch (Throwable $e) {
                     $this->deleteStoredFile($filePath);
@@ -314,6 +326,14 @@ class SertifikatController
                     if ($newFilePath !== null) {
                         $this->deleteStoredFile($sertifikat['file_path'] ?? $sertifikat['gambar'] ?? null);
                     }
+                    $this->aktivitasModel->log(
+                        $userId,
+                        'Sertifikat diperbarui',
+                        'Sertifikat "' . ($data['nama'] ?? $sertifikat['nama'] ?? 'Sertifikat') . '" berhasil diperbarui.',
+                        'sertifikat',
+                        'sertifikat',
+                        (int) $sertifikat['id']
+                    );
                     $this->redirect('/dashboard/mahasiswa/sertifikat/detail/' . rawurlencode($newSlug));
                 } catch (Throwable $e) {
                     if ($newFilePath !== null) {
@@ -346,6 +366,14 @@ class SertifikatController
 
         if ($this->sertifikatModel->deleteBySlug($slug, $userId)) {
             $this->deleteStoredFile($sertifikat['file_path'] ?? $sertifikat['gambar'] ?? null);
+            $this->aktivitasModel->log(
+                $userId,
+                'Sertifikat dihapus',
+                'Sertifikat "' . ($sertifikat['nama'] ?? 'Sertifikat') . '" berhasil dihapus.',
+                'sertifikat',
+                'sertifikat',
+                (int) $sertifikat['id']
+            );
         }
         $this->redirect('/dashboard/mahasiswa/sertifikat');
     }
@@ -372,6 +400,15 @@ class SertifikatController
         $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file);
         $downloadName = preg_replace('/[^a-zA-Z0-9_-]+/', '-', $slug) ?: 'sertifikat';
         if ($mime === 'application/pdf') {
+            $this->aktivitasModel->log(
+                $userId,
+                'Sertifikat diunduh',
+                'Sertifikat "' . ($sertifikat['nama'] ?? 'Sertifikat') . '" diunduh oleh mahasiswa.',
+                'sertifikat',
+                'sertifikat',
+                (int) $sertifikat['id']
+            );
+
             header('Content-Type: application/pdf');
             header('Content-Disposition: attachment; filename="' . $downloadName . '.pdf"');
             header('Content-Length: ' . filesize($file));
@@ -383,6 +420,15 @@ class SertifikatController
             http_response_code(415);
             exit('Format file sertifikat tidak didukung.');
         }
+
+        $this->aktivitasModel->log(
+            $userId,
+            'Sertifikat diunduh',
+            'Sertifikat "' . ($sertifikat['nama'] ?? 'Sertifikat') . '" diunduh oleh mahasiswa.',
+            'sertifikat',
+            'sertifikat',
+            (int) $sertifikat['id']
+        );
 
         // Gambar dikonversi menjadi PDF menggunakan Dompdf jika tersedia.
         $autoload = dirname(__DIR__, 3) . '/vendor/autoload.php';

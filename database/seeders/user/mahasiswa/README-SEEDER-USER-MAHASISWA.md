@@ -12,6 +12,7 @@ php database/seeders/user/mahasiswa/SeedSertifikatMahasiswa.php
 php database/seeders/user/mahasiswa/SeedMitraMagang.php
 php database/seeders/user/mahasiswa/SeedPendaftaranMagang.php
 php database/seeders/user/mahasiswa/SeedPengalamanMahasiswa.php
+php database/seeders/user/mahasiswa/SeedDashboardMahasiswa.php
 ```
 
 Password seluruh akun seed:
@@ -49,3 +50,7 @@ Magang:
 Pengalaman:
 - Andi: dibuat dari magang selesai (is_otomatis=true)
 - Budi/Citra/Dimas/Eka: pengalaman manual untuk pengujian UI
+
+Dashboard:
+- Aktivitas dan notifikasi dibuat per mahasiswa.
+- Andi memiliki 4 logbook mingguan dari penempatan yang selesai.
