@@ -161,6 +161,7 @@ try {
         // Seed ini harus dapat dijalankan mandiri. Akun dosen sudah ada,
         // tetapi profil dosen bisa belum dibuat oleh seed sebelumnya.
         $nidn = sprintf('%010d', $dosenId);
+
         $insertProfilDosen = $pdo->prepare('
             INSERT INTO profil_dosen
                 (user_id, nidn, email, no_telepon, created_at, updated_at)
@@ -168,12 +169,14 @@ try {
                 (:user_id, :nidn, :email, :no_telepon, NOW(), NOW())
             RETURNING id
         ');
+
         $insertProfilDosen->execute([
             'user_id' => $dosenId,
             'nidn' => $nidn,
             'email' => 'dosen.seed@example.com',
             'no_telepon' => '081234567890',
         ]);
+
         $dosenProfilId = $insertProfilDosen->fetchColumn();
 
         seedLog("Profil dosen dosen_seed dibuat (#{$dosenProfilId}).");

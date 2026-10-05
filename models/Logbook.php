@@ -92,12 +92,15 @@ class Logbook
                         BOOL_OR(ltt.tahap = \'dosen\') AS ttd_dosen
                  FROM logbook_revisi lr
                  INNER JOIN logbook_tanda_tangan ltt ON ltt.revisi_id = lr.id
-                 INNER JOIN logbook_mingguan cur ON cur.id = lr.logbook_id AND cur.versi_terkini = lr.nomor_versi
+                 INNER JOIN logbook_mingguan cur
+                     ON cur.id = lr.logbook_id
+                     AND cur.versi_terkini = lr.nomor_versi
                  GROUP BY lr.logbook_id
              ) s ON s.logbook_id = lm.id
              WHERE lm.penempatan_id = :placement_id
              ORDER BY lm.minggu_ke ASC'
         );
+
         $stmt->execute(['placement_id' => $placementId]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -308,9 +311,11 @@ class Logbook
         global $pdo;
 
         $placement = $this->getPlacement($userId, $placementId);
+
         if (!$placement) {
             throw new RuntimeException('Penempatan magang belum tersedia.');
         }
+
         if (!in_array($placement['status'], ['berlangsung', 'selesai'], true)) {
             throw new RuntimeException('Logbook belum dapat dibuat karena penempatan belum berlangsung.');
         }

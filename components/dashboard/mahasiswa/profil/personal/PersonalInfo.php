@@ -63,7 +63,7 @@ $alamat = trim($profil['alamat'] ?? '');
 
         <div class="min-w-0 sm:col-span-2">
             <p class="text-sm text-gray-400">Alamat</p>
-            <p class="mt-2 break-words text-base font-medium leading-relaxed text-gray-900">
+            <p class="mt-2 break-words whitespace-pre-line text-base font-medium leading-relaxed text-gray-900">
                 <?= e($alamat !== '' ? $alamat : 'Belum diatur') ?>
             </p>
         </div>

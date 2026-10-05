@@ -1,16 +1,20 @@
+<?php
+$active = $active ?? '';
+?>
+
 <aside
     id="sidebar"
     class="fixed inset-y-0 left-0 z-40 flex flex-col
-       w-64
-       max-w-[85vw]
-       bg-white
-       border-r border-gray-200
-       -translate-x-full
-       lg:translate-x-0
-       transition-all
-       duration-300
-       ease-in-out
-       overflow-hidden">
+           w-64
+           max-w-[85vw]
+           bg-white
+           border-r border-gray-200
+           -translate-x-full
+           lg:translate-x-0
+           transition-all
+           duration-300
+           ease-in-out
+           overflow-hidden">
 
     <!-- Logo -->
     <div
