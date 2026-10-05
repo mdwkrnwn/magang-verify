@@ -1,0 +1,5 @@
+.env
+.git
+echo "magang_verify_backup.dump" >> .gitignore
+# File logbook privat (signature dan bukti ketidakhadiran)
+storage/private/

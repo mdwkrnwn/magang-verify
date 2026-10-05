@@ -1,0 +1,799 @@
+/*
+|--------------------------------------------------------------------------
+| Dashboard Theme
+|--------------------------------------------------------------------------
+| Theme:
+|   light = default
+|   dark  = html.dark
+|
+| Storage:
+|   magang-theme
+|
+| Prinsip:
+|   - Tidak mengubah HTML existing
+|   - Tidak membutuhkan dark:* pada setiap component
+|   - Override hanya ketika html.dark aktif
+|--------------------------------------------------------------------------
+*/
+
+
+/* ==========================================================================
+   ROOT
+   ========================================================================== */
+
+html.dark {
+    color-scheme: dark;
+}
+
+
+/* ==========================================================================
+   BODY
+   ========================================================================== */
+
+html.dark body {
+    background-color: #111827 !important;
+    color: #f3f4f6 !important;
+}
+
+
+/* ==========================================================================
+   BACKGROUND — NEUTRAL
+   ========================================================================== */
+
+html.dark .bg-white {
+    background-color: #0f172a !important;
+}
+
+html.dark .bg-gray-50 {
+    background-color: #0f172a !important;
+}
+
+html.dark .bg-gray-50 {
+    background-color: #0f172a !important;
+}
+
+html.dark .bg-gray-100 {
+    background-color: #1e293b !important;
+}
+
+html.dark .bg-gray-200 {
+    background-color: #334155 !important;
+}
+
+html.dark .bg-slate-50 {
+    background-color: #020617 !important;
+}
+
+html.dark .bg-slate-100 {
+    background-color: #1e293b !important;
+}
+
+html.dark .bg-slate-200 {
+    background-color: #334155 !important;
+}
+
+html.dark .bg-zinc-50,
+html.dark .bg-neutral-50,
+html.dark .bg-stone-50 {
+    background-color: #0f172a !important;
+}
+
+html.dark .bg-zinc-100,
+html.dark .bg-neutral-100,
+html.dark .bg-stone-100 {
+    background-color: #1e293b !important;
+}
+
+html.dark .bg-zinc-200,
+html.dark .bg-neutral-200,
+html.dark .bg-stone-200 {
+    background-color: #334155 !important;
+}
+
+
+/* ==========================================================================
+   TEXT — GRAY / SLATE
+   ========================================================================== */
+
+html.dark .text-gray-950,
+html.dark .text-gray-900,
+html.dark .text-slate-950,
+html.dark .text-slate-900,
+html.dark .text-zinc-950,
+html.dark .text-zinc-900 {
+    color: #f8fafc !important;
+}
+
+html.dark .text-gray-800,
+html.dark .text-slate-800,
+html.dark .text-zinc-800 {
+    color: #f1f5f9 !important;
+}
+
+html.dark .text-gray-700,
+html.dark .text-slate-700,
+html.dark .text-zinc-700 {
+    color: #e2e8f0 !important;
+}
+
+html.dark .text-gray-600,
+html.dark .text-slate-600,
+html.dark .text-zinc-600 {
+    color: #cbd5e1 !important;
+}
+
+html.dark .text-gray-500,
+html.dark .text-slate-500,
+html.dark .text-zinc-500 {
+    color: #94a3b8 !important;
+}
+
+html.dark .text-gray-400,
+html.dark .text-slate-400,
+html.dark .text-zinc-400 {
+    color: #64748b !important;
+}
+
+
+/* ==========================================================================
+   BORDER — NEUTRAL
+   ========================================================================== */
+
+html.dark .border-white {
+    border-color: #1e293b !important;
+}
+
+html.dark .border-gray-100,
+html.dark .border-slate-100,
+html.dark .border-zinc-100 {
+    border-color: #1e293b !important;
+}
+
+html.dark .border-gray-200,
+html.dark .border-slate-200,
+html.dark .border-zinc-200 {
+    border-color: #334155 !important;
+}
+
+html.dark .border-gray-300,
+html.dark .border-slate-300,
+html.dark .border-zinc-300 {
+    border-color: #475569 !important;
+}
+
+
+/* ==========================================================================
+   FORM
+   ========================================================================== */
+
+html.dark input,
+html.dark textarea,
+html.dark select {
+    background-color: #0f172a !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+    color: #64748b !important;
+}
+
+html.dark input:focus,
+html.dark textarea:focus,
+html.dark select:focus {
+    border-color: #3b82f6 !important;
+}
+
+
+/* ==========================================================================
+   BLUE
+   ========================================================================== */
+
+html.dark .bg-blue-50 {
+    background-color: #172554 !important;
+}
+
+html.dark .bg-blue-100 {
+    background-color: #1e3a8a !important;
+}
+
+html.dark .bg-blue-200 {
+    background-color: #1e40af !important;
+}
+
+html.dark .text-blue-500 {
+    color: #93c5fd !important;
+}
+
+html.dark .text-blue-600,
+html.dark .text-blue-700 {
+    color: #60a5fa !important;
+}
+
+html.dark .text-blue-800 {
+    color: #93c5fd !important;
+}
+
+html.dark .border-blue-200 {
+    border-color: #1e40af !important;
+}
+
+html.dark .border-blue-300 {
+    border-color: #2563eb !important;
+}
+
+
+/* ==========================================================================
+   SKY
+   ========================================================================== */
+
+html.dark .bg-sky-50 {
+    background-color: #082f49 !important;
+}
+
+html.dark .bg-sky-100 {
+    background-color: #0c4a6e !important;
+}
+
+html.dark .text-sky-500 {
+    color: #7dd3fc !important;
+}
+
+html.dark .text-sky-600,
+html.dark .text-sky-700 {
+    color: #38bdf8 !important;
+}
+
+html.dark .text-sky-800 {
+    color: #7dd3fc !important;
+}
+
+html.dark .border-sky-200 {
+    border-color: #0369a1 !important;
+}
+
+
+/* ==========================================================================
+   CYAN
+   ========================================================================== */
+
+html.dark .bg-cyan-50 {
+    background-color: #083344 !important;
+}
+
+html.dark .bg-cyan-100 {
+    background-color: #164e63 !important;
+}
+
+html.dark .text-cyan-500 {
+    color: #67e8f9 !important;
+}
+
+html.dark .text-cyan-600,
+html.dark .text-cyan-700 {
+    color: #22d3ee !important;
+}
+
+html.dark .text-cyan-800 {
+    color: #67e8f9 !important;
+}
+
+html.dark .border-cyan-200 {
+    border-color: #0e7490 !important;
+}
+
+
+/* ==========================================================================
+   TEAL
+   ========================================================================== */
+
+html.dark .bg-teal-50 {
+    background-color: #042f2e !important;
+}
+
+html.dark .bg-teal-100 {
+    background-color: #134e4a !important;
+}
+
+html.dark .text-teal-500 {
+    color: #5eead4 !important;
+}
+
+html.dark .text-teal-600,
+html.dark .text-teal-700 {
+    color: #2dd4bf !important;
+}
+
+html.dark .text-teal-800 {
+    color: #5eead4 !important;
+}
+
+html.dark .border-teal-200 {
+    border-color: #0f766e !important;
+}
+
+
+/* ==========================================================================
+   GREEN
+   ========================================================================== */
+
+html.dark .bg-green-50 {
+    background-color: #052e16 !important;
+}
+
+html.dark .bg-green-100 {
+    background-color: #14532d !important;
+}
+
+html.dark .text-green-500 {
+    color: #86efac !important;
+}
+
+html.dark .text-green-600,
+html.dark .text-green-700 {
+    color: #4ade80 !important;
+}
+
+html.dark .text-green-800 {
+    color: #86efac !important;
+}
+
+html.dark .border-green-200 {
+    border-color: #166534 !important;
+}
+
+
+/* ==========================================================================
+   EMERALD
+   ========================================================================== */
+
+html.dark .bg-emerald-50 {
+    background-color: #022c22 !important;
+}
+
+html.dark .bg-emerald-100 {
+    background-color: #064e3b !important;
+}
+
+html.dark .text-emerald-500 {
+    color: #6ee7b7 !important;
+}
+
+html.dark .text-emerald-600,
+html.dark .text-emerald-700 {
+    color: #34d399 !important;
+}
+
+html.dark .text-emerald-800 {
+    color: #6ee7b7 !important;
+}
+
+html.dark .border-emerald-200 {
+    border-color: #047857 !important;
+}
+
+
+/* ==========================================================================
+   LIME
+   ========================================================================== */
+
+html.dark .bg-lime-50 {
+    background-color: #1a2e05 !important;
+}
+
+html.dark .bg-lime-100 {
+    background-color: #365314 !important;
+}
+
+html.dark .text-lime-500 {
+    color: #bef264 !important;
+}
+
+html.dark .text-lime-600,
+html.dark .text-lime-700 {
+    color: #a3e635 !important;
+}
+
+html.dark .text-lime-800 {
+    color: #bef264 !important;
+}
+
+html.dark .border-lime-200 {
+    border-color: #4d7c0f !important;
+}
+
+
+/* ==========================================================================
+   YELLOW
+   ========================================================================== */
+
+html.dark .bg-yellow-50 {
+    background-color: #422006 !important;
+}
+
+html.dark .bg-yellow-100 {
+    background-color: #713f12 !important;
+}
+
+html.dark .text-yellow-500 {
+    color: #fde047 !important;
+}
+
+html.dark .text-yellow-600,
+html.dark .text-yellow-700 {
+    color: #facc15 !important;
+}
+
+html.dark .text-yellow-800 {
+    color: #fde047 !important;
+}
+
+html.dark .border-yellow-200 {
+    border-color: #a16207 !important;
+}
+
+
+/* ==========================================================================
+   AMBER
+   ========================================================================== */
+
+html.dark .bg-amber-50 {
+    background-color: #451a03 !important;
+}
+
+html.dark .bg-amber-100 {
+    background-color: #78350f !important;
+}
+
+html.dark .text-amber-500 {
+    color: #fcd34d !important;
+}
+
+html.dark .text-amber-600 {
+    color: #fbbf24 !important;
+}
+
+html.dark .text-amber-700 {
+    color: #fcd34d !important;
+}
+
+html.dark .text-amber-800 {
+    color: #fde68a !important;
+}
+
+html.dark .border-amber-200 {
+    border-color: #92400e !important;
+}
+
+html.dark .border-amber-300 {
+    border-color: #b45309 !important;
+}
+
+
+/* ==========================================================================
+   ORANGE
+   ========================================================================== */
+
+html.dark .bg-orange-50 {
+    background-color: #431407 !important;
+}
+
+html.dark .bg-orange-100 {
+    background-color: #7c2d12 !important;
+}
+
+html.dark .text-orange-500 {
+    color: #fdba74 !important;
+}
+
+html.dark .text-orange-600,
+html.dark .text-orange-700 {
+    color: #fb923c !important;
+}
+
+html.dark .text-orange-800 {
+    color: #fdba74 !important;
+}
+
+html.dark .border-orange-200 {
+    border-color: #c2410c !important;
+}
+
+
+/* ==========================================================================
+   RED
+   ========================================================================== */
+
+html.dark .bg-red-50 {
+    background-color: #450a0a !important;
+}
+
+html.dark .bg-red-100 {
+    background-color: #7f1d1d !important;
+}
+
+html.dark .text-red-500 {
+    color: #fca5a5 !important;
+}
+
+html.dark .text-red-600,
+html.dark .text-red-700 {
+    color: #f87171 !important;
+}
+
+html.dark .text-red-800 {
+    color: #fca5a5 !important;
+}
+
+html.dark .border-red-200 {
+    border-color: #991b1b !important;
+}
+
+
+/* ==========================================================================
+   ROSE
+   ========================================================================== */
+
+html.dark .bg-rose-50 {
+    background-color: #4c0519 !important;
+}
+
+html.dark .bg-rose-100 {
+    background-color: #881337 !important;
+}
+
+html.dark .text-rose-500 {
+    color: #fda4af !important;
+}
+
+html.dark .text-rose-600,
+html.dark .text-rose-700 {
+    color: #fb7185 !important;
+}
+
+html.dark .text-rose-800 {
+    color: #fda4af !important;
+}
+
+html.dark .border-rose-200 {
+    border-color: #be123c !important;
+}
+
+
+/* ==========================================================================
+   PINK
+   ========================================================================== */
+
+html.dark .bg-pink-50 {
+    background-color: #500724 !important;
+}
+
+html.dark .bg-pink-100 {
+    background-color: #831843 !important;
+}
+
+html.dark .text-pink-500 {
+    color: #f9a8d4 !important;
+}
+
+html.dark .text-pink-600,
+html.dark .text-pink-700 {
+    color: #f472b6 !important;
+}
+
+html.dark .text-pink-800 {
+    color: #f9a8d4 !important;
+}
+
+html.dark .border-pink-200 {
+    border-color: #be185d !important;
+}
+
+
+/* ==========================================================================
+   FUCHSIA
+   ========================================================================== */
+
+html.dark .bg-fuchsia-50 {
+    background-color: #4a044e !important;
+}
+
+html.dark .bg-fuchsia-100 {
+    background-color: #701a75 !important;
+}
+
+html.dark .text-fuchsia-500 {
+    color: #f0abfc !important;
+}
+
+html.dark .text-fuchsia-600,
+html.dark .text-fuchsia-700 {
+    color: #e879f9 !important;
+}
+
+html.dark .text-fuchsia-800 {
+    color: #f0abfc !important;
+}
+
+html.dark .border-fuchsia-200 {
+    border-color: #a21caf !important;
+}
+
+
+/* ==========================================================================
+   PURPLE
+   ========================================================================== */
+
+html.dark .bg-purple-50 {
+    background-color: #2e1065 !important;
+}
+
+html.dark .bg-purple-100 {
+    background-color: #4c1d95 !important;
+}
+
+html.dark .text-purple-500 {
+    color: #c4b5fd !important;
+}
+
+html.dark .text-purple-600,
+html.dark .text-purple-700 {
+    color: #a78bfa !important;
+}
+
+html.dark .text-purple-800 {
+    color: #c4b5fd !important;
+}
+
+html.dark .border-purple-200 {
+    border-color: #7e22ce !important;
+}
+
+
+/* ==========================================================================
+   VIOLET
+   ========================================================================== */
+
+html.dark .bg-violet-50 {
+    background-color: #2e1065 !important;
+}
+
+html.dark .bg-violet-100 {
+    background-color: #4c1d95 !important;
+}
+
+html.dark .text-violet-500 {
+    color: #c4b5fd !important;
+}
+
+html.dark .text-violet-600,
+html.dark .text-violet-700 {
+    color: #a78bfa !important;
+}
+
+html.dark .text-violet-800 {
+    color: #c4b5fd !important;
+}
+
+html.dark .border-violet-200 {
+    border-color: #7e22ce !important;
+}
+
+
+/* ==========================================================================
+   INDIGO
+   ========================================================================== */
+
+html.dark .bg-indigo-50 {
+    background-color: #1e1b4b !important;
+}
+
+html.dark .bg-indigo-100 {
+    background-color: #312e81 !important;
+}
+
+html.dark .text-indigo-500 {
+    color: #a5b4fc !important;
+}
+
+html.dark .text-indigo-600,
+html.dark .text-indigo-700 {
+    color: #818cf8 !important;
+}
+
+html.dark .text-indigo-800 {
+    color: #a5b4fc !important;
+}
+
+html.dark .border-indigo-200 {
+    border-color: #4338ca !important;
+}
+
+
+/* ==========================================================================
+   HOVER
+   ========================================================================== */
+
+html.dark .hover\:bg-white:hover {
+    background-color: #1e293b !important;
+}
+
+html.dark .hover\:bg-gray-50:hover,
+html.dark .hover\:bg-slate-50:hover {
+    background-color: #1e293b !important;
+}
+
+html.dark .hover\:bg-gray-100:hover,
+html.dark .hover\:bg-slate-100:hover {
+    background-color: #334155 !important;
+}
+
+
+/* ==========================================================================
+   DIVIDER
+   ========================================================================== */
+
+html.dark hr {
+    border-color: #334155 !important;
+}
+
+html.dark .divide-gray-200 > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+    border-color: #334155 !important;
+}
+
+
+/* ==========================================================================
+   TABLE
+   ========================================================================== */
+
+html.dark table {
+    color: #e2e8f0;
+}
+
+html.dark thead {
+    background-color: #1e293b !important;
+}
+
+html.dark tbody tr {
+    border-color: #334155 !important;
+}
+
+html.dark tbody tr:hover {
+    background-color: #1e293b !important;
+}
+
+
+/* ==========================================================================
+   DISABLED
+   ========================================================================== */
+
+html.dark .disabled\:bg-gray-100:disabled {
+    background-color: #1e293b !important;
+}
+
+html.dark .disabled\:text-gray-400:disabled {
+    color: #64748b !important;
+}
+
+
+/* ==========================================================================
+   SHADOW
+   ========================================================================== */
+
+html.dark .shadow,
+html.dark .shadow-sm,
+html.dark .shadow-md,
+html.dark .shadow-lg,
+html.dark .shadow-xl {
+    --tw-shadow-color: rgb(0 0 0 / 0.35);
+}
+
+/* --------------------------------------------------------------------------
+   PROFILE INFO CARD
+   -------------------------------------------------------------------------- */
+
+html.dark .profile-info-card {
+    background-color: #172554 !important;
+}
