@@ -164,3 +164,50 @@ FROM schema_migrations
 WHERE migration LIKE '02%logbook%'
 ORDER BY migration;
 ```
+
+## 7. Pengujian file privat dan signature
+
+### Signature tampil kembali
+
+1. Login sebagai mahasiswa/mitra/dosen sesuai tahap workflow.
+2. Tanda tangani minggu menggunakan signature pad.
+3. Setelah redirect, pastikan gambar signature muncul pada kartu tanda tangan.
+4. Buka detail dari role lain yang berhak.
+5. Pastikan signature yang sama dapat ditampilkan melalui endpoint file privat.
+
+### Bukti ketidakhadiran
+
+1. Buat logbook harian dengan status `tidak_hadir`.
+2. Isi alasan dan upload PDF/JPG/PNG.
+3. Login sebagai Tendik/Koordinator.
+4. Klik **Lihat bukti**.
+5. Pastikan file dibuka inline dan tidak muncul pesan `File tidak ditemukan`.
+6. Coba membuka file secara langsung melalui `/storage/logbook/...`; request harus ditolak oleh `router.php`.
+
+### PDF signature
+
+1. Pastikan minggu telah memiliki signature yang tersedia pada versi aktif.
+2. Download PDF minggu.
+3. Pastikan signature Mahasiswa, Mitra, dan Dosen yang sudah ada ikut tampil.
+4. Download semua minggu.
+5. Pastikan urutan tetap Minggu 1, Minggu 2, Minggu 3, dst. dan setiap halaman mengambil signature dari versi minggu masing-masing.
+
+### Edit setelah mahasiswa sign
+
+1. Mahasiswa tanda tangan.
+2. Pastikan status menjadi `menunggu_mitra`.
+3. Sebelum mitra tanda tangan, edit salah satu aktivitas harian.
+4. Pastikan versi baru dibuat.
+5. Pastikan signature mahasiswa versi lama tidak tampil sebagai signature versi aktif.
+6. Pastikan status kembali `draft`.
+7. Pastikan muncul keterangan bahwa mahasiswa harus tanda tangan ulang.
+8. Setelah mahasiswa sign ulang, baru mitra dapat menandatangani.
+
+### Lock setelah mitra sign
+
+1. Mahasiswa → Mitra menandatangani.
+2. Pastikan status menjadi `menunggu_dosen`.
+3. Tombol edit mahasiswa harus hilang.
+4. Coba akses endpoint edit langsung.
+5. Backend harus menolak perubahan.
+6. Dosen baru dapat menandatangani.

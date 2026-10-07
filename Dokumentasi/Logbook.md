@@ -190,14 +190,14 @@ Dengan demikian tanda tangan tidak hanya menyimpan gambar, tetapi juga dikaitkan
 Bukti ketidakhadiran dan gambar tanda tangan disimpan di:
 
 ```text
-storage/private/logbook/
+storage/logbook/
 ├── evidence/
 └── signatures/
 ```
 
 File tidak boleh disajikan sebagai static file biasa.
 
-`router.php` memblokir akses langsung ke `/storage/private/`.
+`router.php` memblokir akses langsung ke `/storage/logbook/` dan `/storage/private/`.
 
 File hanya disajikan melalui:
 
@@ -410,3 +410,38 @@ Database memvalidasi bahwa:
 Perlindungan database ini merupakan lapisan tambahan. Authorization pada controller/model tetap wajib dipertahankan.
 
 Untuk instalasi baru, jalankan migration `020_rebuild_logbook_workflow.sql` kemudian `021_harden_logbook_workflow.sql` setelah migration sebelumnya tercatat.
+## 14. Perbaikan penyimpanan file dan signature
+
+Bukti ketidakhadiran dan gambar tanda tangan secara fisik disimpan di:
+
+```text
+storage/logbook/
+├── evidence/
+└── signatures/
+```
+
+Folder tersebut tetap diperlakukan sebagai **private storage**. `router.php` menolak akses static langsung ke `/storage/logbook/` sehingga file hanya dapat dikirim melalui `LogbookFileController` setelah authorization relasi logbook diperiksa.
+
+Model `Logbook` juga tetap mendukung path lama `private/logbook/...` yang mungkin sudah tersimpan di database. Ini menjaga signature/bukti lama tetap dapat dibaca setelah perbaikan storage tanpa perlu mengubah data histori secara manual.
+
+PDF mengambil file signature melalui resolver path yang sama. Dengan demikian signature yang tersimpan pada versi logbook aktif akan tampil pada:
+
+- detail logbook mahasiswa;
+- detail logbook mitra;
+- detail logbook dosen;
+- PDF logbook per minggu;
+- PDF seluruh minggu pada satu penempatan.
+
+## 15. Signature Pad
+
+Signature pad menggunakan satu asset JavaScript:
+
+```text
+assets/js/logbook-signature.js
+```
+
+Component `components/dashboard/logbook/SignaturePad.php` menggunakan ID canvas/form yang sama dengan asset tersebut. Signature dibuat langsung pada platform melalui mouse/touch dan dikirim sebagai PNG ke backend.
+
+## 16. Catatan migration 023
+
+`023_restructure_logbook_magang.sql` sekarang hanya menjadi **compatibility marker**. Struktur Logbook V2 tidak dibuat ulang di migration tersebut karena sudah ditangani oleh migration 020–022. Migration 023 versi lama menggunakan nama kolom validasi yang berbeda dari schema aktual dan tidak boleh digunakan untuk membangun ulang tabel.

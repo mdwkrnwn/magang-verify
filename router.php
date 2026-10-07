@@ -24,7 +24,7 @@ if ($path === '' || $path === false) {
 */
 
 // File logbook privat hanya boleh disajikan melalui controller yang melakukan authorization.
-if (str_starts_with($path, '/storage/private/')) {
+if (str_starts_with($path, '/storage/private/') || str_starts_with($path, '/storage/logbook/')) {
     http_response_code(404);
     exit('File tidak ditemukan.');
 }

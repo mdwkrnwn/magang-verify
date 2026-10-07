@@ -1231,7 +1231,7 @@ class Logbook
             throw new RuntimeException('Tanda tangan gagal disimpan.');
         }
 
-        return 'private/logbook/signatures/' . $filename;
+        return 'logbook/signatures/' . $filename;
     }
 
     private function assertSignatureData(string $signatureData): void
@@ -1279,7 +1279,12 @@ class Logbook
             throw new RuntimeException('Bukti ketidakhadiran gagal disimpan.');
         }
 
-        return 'private/logbook/evidence/' . $filename;
+        return 'logbook/evidence/' . $filename;
+    }
+
+    private function logbookStorageRoot(): string
+    {
+        return dirname(__DIR__) . '/storage/logbook';
     }
 
     private function privateRoot(): string
@@ -1290,10 +1295,29 @@ class Logbook
     private function privateAbsolutePath(string $relativePath): string
     {
         $relativePath = ltrim(str_replace('\\', '/', $relativePath), '/');
-        if (!str_starts_with($relativePath, 'private/logbook/')) {
+
+        // Versi lama menyimpan prefix "private/logbook/..." pada database,
+        // sedangkan storage aktual project menggunakan storage/logbook/....
+        // Tetap dukung path lama agar data/signature yang sudah ada tidak putus.
+        if (str_starts_with($relativePath, 'private/logbook/')) {
+            $relativePath = substr($relativePath, strlen('private/logbook/'));
+        } elseif (str_starts_with($relativePath, 'logbook/')) {
+            $relativePath = substr($relativePath, strlen('logbook/'));
+        }
+
+        if ($relativePath === '' || str_contains($relativePath, '../') || str_starts_with($relativePath, '/')) {
             throw new RuntimeException('Path file logbook tidak valid.');
         }
-        return $this->privateRoot() . '/' . $relativePath;
+
+        $absolute = $this->logbookStorageRoot() . '/' . $relativePath;
+        $root = realpath($this->logbookStorageRoot());
+        $directory = realpath(dirname($absolute));
+
+        if ($root !== false && $directory !== false && !str_starts_with($directory, $root)) {
+            throw new RuntimeException('Path file logbook tidak valid.');
+        }
+
+        return $absolute;
     }
 
     private function deletePrivateFile(string $relativePath): void
