@@ -581,6 +581,35 @@ CREATE INDEX idx_logbook_ttd_penanda_tangan
 
 
 -- ============================================
+-- TEMPLATE LAPORAN
+-- ============================================
+
+CREATE TABLE template_laporan (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    jenis_laporan VARCHAR(30) NOT NULL,
+    nama_template VARCHAR(200) NOT NULL,
+    file_template VARCHAR(500) NOT NULL,
+    versi INTEGER NOT NULL DEFAULT 1,
+    status_aktif BOOLEAN NOT NULL DEFAULT TRUE,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT template_laporan_jenis_check
+        CHECK (
+            jenis_laporan IN (
+                'laporan_mingguan',
+                'laporan_akhir'
+            )
+        ),
+
+    CONSTRAINT template_laporan_versi_check
+        CHECK (versi > 0)
+);
+
+
+-- ============================================
 -- LAPORAN MAGANG
 -- ============================================
 
@@ -592,10 +621,20 @@ CREATE TABLE laporan_magang (
 
     jenis_laporan VARCHAR(30) NOT NULL,
 
+    template_id BIGINT
+        REFERENCES template_laporan(id) ON DELETE RESTRICT,
+
+    minggu_ke INTEGER,
+
     judul VARCHAR(200) NOT NULL,
+    file_path VARCHAR(500),
+
     versi_terkini INTEGER NOT NULL DEFAULT 1,
 
+    tanggal_unggah TIMESTAMPTZ,
+
     status VARCHAR(30) NOT NULL DEFAULT 'draft',
+    status_ketepatan_waktu VARCHAR(20),
 
     diajukan_pada TIMESTAMPTZ,
 
@@ -605,7 +644,22 @@ CREATE TABLE laporan_magang (
     CONSTRAINT laporan_jenis_check
         CHECK (
             jenis_laporan IN (
+                'laporan_mingguan',
                 'laporan_akhir'
+            )
+        ),
+
+    CONSTRAINT laporan_minggu_check
+        CHECK (
+            (
+                jenis_laporan = 'laporan_mingguan'
+                AND minggu_ke IS NOT NULL
+                AND minggu_ke > 0
+            )
+            OR
+            (
+                jenis_laporan = 'laporan_akhir'
+                AND minggu_ke IS NULL
             )
         ),
 
@@ -625,8 +679,14 @@ CREATE TABLE laporan_magang (
             )
         ),
 
-    CONSTRAINT laporan_penempatan_jenis_unik
-        UNIQUE (penempatan_id, jenis_laporan)
+    CONSTRAINT laporan_ketepatan_waktu_check
+        CHECK (
+            status_ketepatan_waktu IS NULL
+            OR status_ketepatan_waktu IN (
+                'tepat_waktu',
+                'terlambat'
+            )
+        )
 );
 
 
@@ -657,6 +717,51 @@ CREATE TABLE laporan_revisi (
 
     CONSTRAINT laporan_revisi_unik
         UNIQUE (laporan_id, nomor_versi)
+);
+
+
+-- ============================================
+-- PEMERIKSAAN LAPORAN
+-- ============================================
+
+CREATE TABLE pemeriksaan_laporan (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    laporan_id BIGINT NOT NULL
+        REFERENCES laporan_magang(id) ON DELETE RESTRICT,
+
+    pemeriksa_id BIGINT NOT NULL
+        REFERENCES users(id) ON DELETE RESTRICT,
+
+    tahap_pemeriksaan VARCHAR(20) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'menunggu',
+    catatan TEXT,
+    tanggal_pemeriksaan TIMESTAMPTZ,
+
+    CONSTRAINT pemeriksaan_laporan_tahap_check
+        CHECK (
+            tahap_pemeriksaan IN (
+                'dosen',
+                'koordinator',
+                'tendik'
+            )
+        ),
+
+    CONSTRAINT pemeriksaan_laporan_status_check
+        CHECK (
+            status IN (
+                'menunggu',
+                'disetujui',
+                'perlu_revisi',
+                'ditolak'
+            )
+        ),
+
+    CONSTRAINT pemeriksaan_laporan_tanggal_check
+        CHECK (
+            status = 'menunggu'
+            OR tanggal_pemeriksaan IS NOT NULL
+        )
 );
 
 
@@ -762,14 +867,47 @@ CREATE TABLE verifikasi_penyelesaian_magang (
 -- INDEX
 -- ============================================
 
+CREATE INDEX idx_template_laporan_jenis
+    ON template_laporan(jenis_laporan);
+
+CREATE UNIQUE INDEX uq_template_laporan_aktif
+    ON template_laporan(jenis_laporan)
+    WHERE status_aktif = TRUE;
+
 CREATE INDEX idx_laporan_penempatan
     ON laporan_magang(penempatan_id);
 
 CREATE INDEX idx_laporan_status
     ON laporan_magang(status);
 
+CREATE INDEX idx_laporan_template
+    ON laporan_magang(template_id);
+
+CREATE INDEX idx_laporan_jenis
+    ON laporan_magang(jenis_laporan);
+
+CREATE INDEX idx_laporan_penempatan_jenis
+    ON laporan_magang(penempatan_id, jenis_laporan);
+
+CREATE UNIQUE INDEX uq_laporan_mingguan
+    ON laporan_magang(penempatan_id, minggu_ke)
+    WHERE jenis_laporan = 'laporan_mingguan';
+
+CREATE UNIQUE INDEX uq_laporan_akhir
+    ON laporan_magang(penempatan_id)
+    WHERE jenis_laporan = 'laporan_akhir';
+
 CREATE INDEX idx_laporan_revisi_laporan
     ON laporan_revisi(laporan_id, nomor_versi);
+
+CREATE INDEX idx_pemeriksaan_laporan_laporan
+    ON pemeriksaan_laporan(laporan_id);
+
+CREATE INDEX idx_pemeriksaan_laporan_pemeriksa
+    ON pemeriksaan_laporan(pemeriksa_id);
+
+CREATE INDEX idx_pemeriksaan_laporan_tahap_status
+    ON pemeriksaan_laporan(tahap_pemeriksaan, status);
 
 CREATE INDEX idx_penilaian_penempatan
     ON penilaian_magang(penempatan_id);
@@ -1729,5 +1867,8 @@ EXECUTE FUNCTION public.prevent_signed_logbook_revision_mutation();
 
 
 INSERT INTO public.schema_migrations (migration)
-VALUES ('022_harden_logbook_structure.sql')
+VALUES
+    ('022_harden_logbook_structure.sql'),
+    ('023_restructure_logbook_magang.sql'),
+    ('024_create_laporan_workflow.sql')
 ON CONFLICT (migration) DO NOTHING;

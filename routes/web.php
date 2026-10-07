@@ -27,10 +27,7 @@ require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LogbookController.ph
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LamarController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengaturanController.php';
 require_once __DIR__ . '/../controllers/dashboard/LogbookFileController.php';
-require_once __DIR__ . '/../controllers/dashboard/dosen/LogbookController.php';
-require_once __DIR__ . '/../controllers/dashboard/mitra/LogbookController.php';
-require_once __DIR__ . '/../controllers/dashboard/tendik/LogbookController.php';
-require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/LogbookController.php';
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LaporanController.php';
 
 /* Dashboard Dosen */
 
@@ -171,12 +168,39 @@ $routes = [
         'method' => 'index',
     ],
 
-    // Logbook Mahasiswa
+    // Menu Logbook
 
-    '/dashboard/mahasiswa/logbook' => [
-        'controller' => LogbookController::class,
-        'method' => 'index',
-    ],
+'/dashboard/mahasiswa/logbook' => [
+    'controller' => LogbookController::class,
+    'method' => 'index',
+],
+
+// Menu Laporan Magang
+
+'/dashboard/mahasiswa/laporan' => [
+    'controller' => LaporanController::class,
+    'method' => 'index',
+],
+
+'/dashboard/mahasiswa/laporan/tambah' => [
+    'controller' => LaporanController::class,
+    'method' => 'create',
+],
+
+'/dashboard/mahasiswa/laporan/detail/{id}' => [
+    'controller' => LaporanController::class,
+    'method' => 'detail',
+],
+
+'/dashboard/mahasiswa/laporan/template/{id}' => [
+    'controller' => LaporanController::class,
+    'method' => 'downloadTemplate',
+],
+
+'/dashboard/mahasiswa/laporan/download/{id}' => [
+    'controller' => LaporanController::class,
+    'method' => 'download',
+],
 
     // Menu Setting
 
@@ -783,11 +807,67 @@ function route(string $uri): ?array
         ];
     }
 
+    /*------------------------------------------------------------------
+    | Laporan Magang Mahasiswa
+    *------------------------------------------------------------------*/
+
+if (preg_match(
+    '#^/dashboard/mahasiswa/laporan/detail/(\d+)$#',
+    $path,
+    $matches
+)) {
+    return [
+        'route' => [
+            'controller' => LaporanController::class,
+            'method' => 'detail',
+        ],
+        'params' => [
+            'id' => (int) $matches[1],
+        ],
+    ];
+}
+
+
+if (preg_match(
+    '#^/dashboard/mahasiswa/laporan/template/(\d+)$#',
+    $path,
+    $matches
+)) {
+    return [
+        'route' => [
+            'controller' => LaporanController::class,
+            'method' => 'downloadTemplate',
+        ],
+        'params' => [
+            'id' => (int) $matches[1],
+        ],
+    ];
+}
+
+
+if (preg_match(
+    '#^/dashboard/mahasiswa/laporan/download/(\d+)$#',
+    $path,
+    $matches
+)) {
+    return [
+        'route' => [
+            'controller' => LaporanController::class,
+            'method' => 'download',
+        ],
+        'params' => [
+            'id' => (int) $matches[1],
+        ],
+    ];
+}
+
     /*
     |-----------------------
     | Logbook Mahasiswa
     |-----------------------
     */
+
+    
 
     if ($path === '/dashboard/mahasiswa/logbook/tambah') {
         (new LogbookController())->create();
