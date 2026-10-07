@@ -17,6 +17,7 @@ $signatureStageLabel = $signatureStageLabel ?? 'Tanda Tangan Digital';
         <input type="hidden" name="signature_data" id="signature-data">
 
         <div class="overflow-hidden bg-white border border-dashed border-gray-300 rounded-xl">
+            <div class="px-3 py-2 text-[11px] text-gray-400 border-b border-gray-100">Gambar tanda tangan di area berikut menggunakan mouse, touchpad, atau layar sentuh.</div>
             <canvas id="signature-canvas" width="900" height="280" class="block w-full h-44 touch-none cursor-crosshair"></canvas>
         </div>
 

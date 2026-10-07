@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../config/app.php';
 require_once __DIR__ . '/../../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../../function/Helpers.php';
 require_once __DIR__ . '/../../models/Logbook.php';
 
 class LogbookFileController
@@ -51,9 +52,19 @@ class LogbookFileController
         }
 
         $mime = (new finfo(FILEINFO_MIME_TYPE))->file($path) ?: 'application/octet-stream';
+        $extension = match ($mime) {
+            'application/pdf' => 'pdf',
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            default => 'bin',
+        };
+
+        // Endpoint ini mengirim file privat secara inline setelah authorization.
         header('Content-Type: ' . $mime);
-        header('Content-Length: ' . filesize($path));
-        header('Content-Disposition: inline; filename="logbook-' . $id . '.' . ($mime === 'application/pdf' ? 'pdf' : ($mime === 'image/jpeg' ? 'jpg' : 'png')) . '"');
+        header('Content-Length: ' . (string) filesize($path));
+        header('Content-Disposition: inline; filename="logbook-' . $id . '.' . $extension . '"');
+        header('Cache-Control: private, no-store, max-age=0');
+        header('Pragma: no-cache');
         header('X-Content-Type-Options: nosniff');
         readfile($path);
         exit;

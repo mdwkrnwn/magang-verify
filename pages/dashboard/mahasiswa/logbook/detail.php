@@ -100,8 +100,9 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
                         <div class="p-4 border border-gray-100 rounded-xl bg-gray-50">
                             <p class="text-xs font-semibold text-gray-500"><?= e($label) ?></p>
                             <?php if (!empty($signatures[$stage])): ?>
-                                <img src="<?= e(url('/dashboard/logbook/file/signature/' . (int) $signatures[$stage]['id'])) ?>" alt="Tanda tangan <?= e($label) ?>" class="object-contain w-full h-20 mt-3 bg-white rounded-lg">
+                                <img src="<?= e(url('/dashboard/logbook/file/signature/' . (int) $signatures[$stage]['id'])) ?>" alt="Tanda tangan <?= e($label) ?>" class="object-contain w-full h-24 p-2 mt-3 bg-white border border-gray-200 rounded-lg" onerror="this.classList.add('hidden'); this.nextElementSibling?.classList.remove('hidden');">
                                 <p class="mt-2 text-xs font-medium text-gray-700"><?= e($signatures[$stage]['penanda_tangan_nama']) ?></p>
+                                <div class="hidden items-center justify-center h-24 mt-3 text-xs text-red-500 bg-red-50 border border-red-100 rounded-lg">Tanda tangan tidak dapat ditampilkan.</div>
                                 <p class="mt-1 text-[10px] text-gray-400"><?= e(date('d M Y H:i', strtotime($signatures[$stage]['ditandatangani_pada']))) ?></p>
                             <?php else: ?>
                                 <div class="flex items-center justify-center h-20 mt-3 text-xs text-gray-400 bg-white border border-dashed border-gray-200 rounded-lg">Belum ditandatangani</div>
