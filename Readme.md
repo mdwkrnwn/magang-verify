@@ -109,3 +109,4 @@ Gunakan konfigurasi tersebut baik saat menjalankan project melalui **Laragon** m
 ## Dokumentasi Logbook
 
 * [Workflow dan implementasi Logbook](Dokumentasi/Logbook.md)
+* [Panduan Testing Logbook](Dokumentasi/Logbook-Testing.md)
