@@ -35,6 +35,9 @@ require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/LogbookContr
 /* Dashboard Dosen */
 
 require_once __DIR__ . '/../controllers/dashboard/dosen/DosenDashboardController.php';
+require_once __DIR__ . '/../controllers/dashboard/dosen/MahasiswaBimbinganController.php';
+require_once __DIR__ . '/../controllers/dashboard/dosen/PengajuanMagangController.php';
+require_once __DIR__ . '/../controllers/dashboard/dosen/DosenMonitoringController.php';
 
 /* Dashboard Tendik */
 
@@ -227,6 +230,23 @@ $routes = [
         'method' => 'index',
     ],
 
+    // Menu Mahasiswa Bimbingan
+
+    '/dashboard/dosen/bimbingan' => [
+        'controller' => MahasiswaBimbinganController::class,
+        'method' => 'index',
+    ],
+
+    '/dashboard/dosen/pengajuan' => [
+        'controller' => PengajuanMagangController::class,
+        'method' => 'index',
+    ],
+
+    '/dashboard/dosen/monitoring' => [
+    'controller' => MonitoringController::class,
+    'method' => 'index',
+],
+    
     /*
     |---------------------
     | Dashboard Tendik
