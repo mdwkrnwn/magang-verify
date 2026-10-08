@@ -63,16 +63,24 @@ $error = $_GET['error'] ?? '';
 
 ?>
 
-<form action="" method="POST" class="mt-6 w-full min-w-0">
+<form
+    action=""
+    method="POST"
+    class="mt-6 w-full min-w-0">
 
-    <!-- Role yang dipilih -->
+    <!-- =========================================================
+         ROLE YANG DIPILIH
+         ========================================================= -->
     <input
         type="hidden"
         name="role"
         id="role"
-        value="mahasiswa">
+        value="<?= htmlspecialchars($roleAktif, ENT_QUOTES, 'UTF-8') ?>">
 
-    <!-- Pilihan role -->
+
+    <!-- =========================================================
+         PILIHAN ROLE
+         ========================================================= -->
     <div
         class="grid w-full grid-cols-2 gap-2 sm:grid-cols-3"
         role="radiogroup"
@@ -99,7 +107,9 @@ $error = $_GET['error'] ?? '';
                     stroke-linejoin="round"
                     viewBox="0 0 24 24"
                     aria-hidden="true">
+
                     <?= $icon ?>
+
                 </svg>
 
                 <span class="max-w-full break-words">
@@ -112,28 +122,44 @@ $error = $_GET['error'] ?? '';
 
     </div>
 
-    <!-- Pesan error -->
+
+    <!-- =========================================================
+         PESAN ERROR
+         ========================================================= -->
     <?php if ($error !== '') : ?>
 
         <div
             class="mt-5 w-full rounded-lg bg-red-50 px-4 py-3 text-sm leading-5 text-red-600"
             role="alert">
+
             Identitas atau password tidak sesuai, atau akun tidak aktif.
             Periksa kembali lalu coba lagi.
+
         </div>
 
     <?php endif; ?>
 
-    <!-- Identitas pengguna -->
+
+    <!-- =========================================================
+         IDENTITAS PENGGUNA
+         ========================================================= -->
     <label
         for="login_id"
         id="identityLabel"
         class="mt-6 block text-sm font-medium">
-        <?= htmlspecialchars($identitasAktif['label'], ENT_QUOTES, 'UTF-8') ?>
+
+        <?= htmlspecialchars(
+            $identitasAktif['label'],
+            ENT_QUOTES,
+            'UTF-8'
+        ) ?>
+
     </label>
+
 
     <div class="relative mt-2 w-full">
 
+        <!-- Icon identitas -->
         <svg
             class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500"
             fill="none"
@@ -143,8 +169,12 @@ $error = $_GET['error'] ?? '';
             stroke-linejoin="round"
             viewBox="0 0 24 24"
             aria-hidden="true">
-            <path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.24a2.25 2.25 0 01-1.07 1.92l-7.5 4.62a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.92V6.75" />
+
+            <path
+                d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.24a2.25 2.25 0 01-1.07 1.92l-7.5 4.62a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.92V6.75" />
+
         </svg>
+
 
         <input
             type="text"
@@ -152,21 +182,38 @@ $error = $_GET['error'] ?? '';
             name="login_id"
             required
             autocomplete="username"
-            inputmode="<?= htmlspecialchars($identitasAktif['inputmode'], ENT_QUOTES, 'UTF-8') ?>"
-            placeholder="<?= htmlspecialchars($identitasAktif['placeholder'], ENT_QUOTES, 'UTF-8') ?>"
+            inputmode="<?= htmlspecialchars(
+                            $identitasAktif['inputmode'],
+                            ENT_QUOTES,
+                            'UTF-8'
+                        ) ?>"
+            placeholder="<?= htmlspecialchars(
+                                $identitasAktif['placeholder'],
+                                ENT_QUOTES,
+                                'UTF-8'
+                            ) ?>"
             class="block w-full min-w-0 rounded-lg border border-slate-200 bg-white py-3.5 pl-12 pr-4 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
 
     </div>
 
-    <!-- Password -->
+
+    <!-- =========================================================
+         PASSWORD
+         ========================================================= -->
     <div id="passwordSection">
+
         <label
             for="password"
             class="mt-5 block text-sm font-medium">
+
             Password
+
         </label>
 
+
         <div class="relative mt-2 w-full">
+
+            <!-- Icon password -->
             <svg
                 class="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500"
                 fill="none"
@@ -176,8 +223,12 @@ $error = $_GET['error'] ?? '';
                 stroke-linejoin="round"
                 viewBox="0 0 24 24"
                 aria-hidden="true">
-                <path d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 00-2.25 2.25z" />
+
+                <path
+                    d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+
             </svg>
+
 
             <input
                 type="password"
@@ -187,6 +238,8 @@ $error = $_GET['error'] ?? '';
                 placeholder="Masukkan password"
                 class="block w-full min-w-0 rounded-lg border border-slate-200 bg-white py-3.5 pl-12 pr-12 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
 
+
+            <!-- Toggle password -->
             <button
                 type="button"
                 id="togglePassword"
@@ -194,7 +247,6 @@ $error = $_GET['error'] ?? '';
                 aria-pressed="false"
                 class="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg text-slate-500 transition hover:bg-blue-50 hover:text-blue-600">
 
-                <!-- Pertahankan SVG ikon mata yang sudah ada -->
                 <svg
                     class="h-5 w-5"
                     fill="none"
@@ -204,17 +256,30 @@ $error = $_GET['error'] ?? '';
                     stroke-linejoin="round"
                     viewBox="0 0 24 24"
                     aria-hidden="true">
-                    <path d="M2.04 12.32a1 1 0 010-.64C3.42 7.51 7.36 4.5 12 4.5c4.64 0 8.57 3.01 9.96 7.18.07.21.07.43 0 .64C20.58 16.49 16.64 19.5 12 19.5c-4.64 0-8.57-3.01-9.96-7.18z" />
-                    <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+
+                    <path
+                        d="M2.04 12.32a1 1 0 010-.64C3.42 7.51 7.36 4.5 12 4.5c4.64 0 8.57 3.01 9.96 7.18.07.21.07.43 0 .64C20.58 16.49 16.64 19.5 12 19.5c-4.64 0-8.57-3.01-9.96-7.18z" />
+
+                    <path
+                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+
                 </svg>
+
             </button>
+
         </div>
+
     </div>
-    
-    <!-- Ingat saya dan lupa password -->
-    <div class="mt-4 flex w-full flex-wrap items-center justify-between gap-3 text-sm">
+
+
+    <!-- =========================================================
+         INGAT SAYA & LUPA PASSWORD
+         ========================================================= -->
+    <div
+        class="mt-4 flex w-full flex-wrap items-center justify-between gap-3 text-sm">
 
         <label class="inline-flex cursor-pointer items-center gap-2">
+
             <input
                 type="checkbox"
                 name="remember"
@@ -222,44 +287,74 @@ $error = $_GET['error'] ?? '';
                 class="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-200">
 
             <span>Ingat saya</span>
+
         </label>
+
 
         <a
             href="#"
             class="text-blue-600 transition hover:text-blue-700"
             onclick="return false;">
+
             Lupa password?
+
         </a>
 
     </div>
 
-    <!-- Tombol masuk -->
+
+    <!-- =========================================================
+         TOMBOL MASUK
+         ========================================================= -->
     <button
         type="submit"
         class="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700">
 
-        Masuk
-        <span aria-hidden="true">→</span>
+        <span>Masuk</span>
+
+        <svg
+            class="h-4 w-4 shrink-0"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            viewBox="0 0 24 24"
+            aria-hidden="true">
+
+            <path d="M5 12h14" />
+            <path d="M13 6l6 6-6 6" />
+
+        </svg>
 
     </button>
 
-    <!-- Informasi -->
-    <div class="mt-5 flex w-full items-start gap-3 rounded-lg bg-blue-50/70 px-3 py-3 text-xs leading-5 text-slate-600 sm:px-4 sm:py-4">
+
+    <!-- =========================================================
+         INFORMASI
+         ========================================================= -->
+    <div
+        class="mt-5 flex w-full items-start gap-3 rounded-lg bg-blue-50/70 px-3 py-3 text-xs leading-5 text-slate-600 sm:px-4 sm:py-4">
 
         <svg
             class="mt-0.5 h-5 w-5 shrink-0 text-blue-600"
             fill="currentColor"
             viewBox="0 0 24 24"
             aria-hidden="true">
+
             <path
                 fill-rule="evenodd"
                 d="M2.25 12a9.75 9.75 0 1119.5 0 9.75 9.75 0 01-19.5 0zm8.93-4.19a.75.75 0 011.14-.55c.4.27.68.7.68 1.2 0 .8-.65 1.44-1.44 1.44a.75.75 0 01-.38-1.4zM10.5 11.25a.75.75 0 000 1.5h.75v3.75h-.75a.75.75 0 000 1.5h3a.75.75 0 000-1.5h-.75v-4.5a.75.75 0 00-.75-.75h-1.5z"
                 clip-rule="evenodd" />
+
         </svg>
 
+
         <p class="min-w-0 flex-1">
+
             Gunakan akun yang telah diberikan oleh pihak kampus.
             Jika mengalami kendala, silakan hubungi admin kampus.
+
         </p>
 
     </div>
