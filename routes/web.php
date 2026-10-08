@@ -34,19 +34,23 @@ require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LaporanController.ph
 require_once __DIR__ . '/../controllers/dashboard/dosen/DosenDashboardController.php';
 require_once __DIR__ . '/../controllers/dashboard/dosen/MahasiswaBimbinganController.php';
 require_once __DIR__ . '/../controllers/dashboard/dosen/PengajuanMagangController.php';
+require_once __DIR__ . '/../controllers/dashboard/dosen/LogbookController.php';
 require_once __DIR__ . '/../controllers/dashboard/dosen/DosenMonitoringController.php';
 
 /* Dashboard Tendik */
 
 require_once __DIR__ . '/../controllers/dashboard/tendik/TendikDashboardController.php';
+require_once __DIR__ . '/../controllers/dashboard/tendik/LogbookController.php';
 
 /* Dashboard Koordinator Magang */
 
 require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/KoordinatorMagangDashboardController.php';
+require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/LogbookController.php';
 
 /* Dashboard Mitra */
 
 require_once __DIR__ . '/../controllers/dashboard/mitra/MitraDashboardController.php';
+require_once __DIR__ . '/../controllers/dashboard/mitra/LogbookController.php';
 
 $routes = [
 
