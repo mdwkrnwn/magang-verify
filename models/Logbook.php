@@ -71,7 +71,7 @@ class Logbook
         $stmt = $pdo->prepare(
             'SELECT lm.id, lm.penempatan_id, lm.minggu_ke, lm.tanggal_mulai,
                     lm.tanggal_selesai, lm.versi_terkini, lm.status,
-                    COALESCE(d.total_hari, 0) AS total_hari,
+                    ((lm.tanggal_selesai - lm.tanggal_mulai) + 1) AS total_hari,
                     COALESCE(d.hari_terisi, 0) AS hari_terisi,
                     COALESCE(d.validasi_menunggu, 0) AS validasi_menunggu,
                     COALESCE(s.ttd_mahasiswa, FALSE) AS ttd_mahasiswa,
@@ -80,7 +80,6 @@ class Logbook
              FROM logbook_mingguan lm
              LEFT JOIN (
                  SELECT logbook_id,
-                        COUNT(*) AS total_hari,
                         COUNT(*) AS hari_terisi,
                         COUNT(*) FILTER (WHERE status_validasi = \'menunggu\') AS validasi_menunggu
                  FROM logbook_harian
@@ -93,12 +92,15 @@ class Logbook
                         BOOL_OR(ltt.tahap = \'dosen\') AS ttd_dosen
                  FROM logbook_revisi lr
                  INNER JOIN logbook_tanda_tangan ltt ON ltt.revisi_id = lr.id
-                 INNER JOIN logbook_mingguan cur ON cur.id = lr.logbook_id AND cur.versi_terkini = lr.nomor_versi
+                 INNER JOIN logbook_mingguan cur
+                     ON cur.id = lr.logbook_id
+                     AND cur.versi_terkini = lr.nomor_versi
                  GROUP BY lr.logbook_id
              ) s ON s.logbook_id = lm.id
              WHERE lm.penempatan_id = :placement_id
              ORDER BY lm.minggu_ke ASC'
         );
+
         $stmt->execute(['placement_id' => $placementId]);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -304,14 +306,16 @@ class Logbook
         ];
     }
 
-    public function createWeek(int $userId): int
+    public function createWeek(int $userId, ?int $placementId = null): int
     {
         global $pdo;
 
-        $placement = $this->getPlacement($userId);
+        $placement = $this->getPlacement($userId, $placementId);
+
         if (!$placement) {
             throw new RuntimeException('Penempatan magang belum tersedia.');
         }
+
         if (!in_array($placement['status'], ['berlangsung', 'selesai'], true)) {
             throw new RuntimeException('Logbook belum dapat dibuat karena penempatan belum berlangsung.');
         }
@@ -1227,7 +1231,7 @@ class Logbook
             throw new RuntimeException('Tanda tangan gagal disimpan.');
         }
 
-        return 'private/logbook/signatures/' . $filename;
+        return 'logbook/signatures/' . $filename;
     }
 
     private function assertSignatureData(string $signatureData): void
@@ -1275,7 +1279,12 @@ class Logbook
             throw new RuntimeException('Bukti ketidakhadiran gagal disimpan.');
         }
 
-        return 'private/logbook/evidence/' . $filename;
+        return 'logbook/evidence/' . $filename;
+    }
+
+    private function logbookStorageRoot(): string
+    {
+        return dirname(__DIR__) . '/storage/logbook';
     }
 
     private function privateRoot(): string
@@ -1286,10 +1295,29 @@ class Logbook
     private function privateAbsolutePath(string $relativePath): string
     {
         $relativePath = ltrim(str_replace('\\', '/', $relativePath), '/');
-        if (!str_starts_with($relativePath, 'private/logbook/')) {
+
+        // Versi lama menyimpan prefix "private/logbook/..." pada database,
+        // sedangkan storage aktual project menggunakan storage/logbook/....
+        // Tetap dukung path lama agar data/signature yang sudah ada tidak putus.
+        if (str_starts_with($relativePath, 'private/logbook/')) {
+            $relativePath = substr($relativePath, strlen('private/logbook/'));
+        } elseif (str_starts_with($relativePath, 'logbook/')) {
+            $relativePath = substr($relativePath, strlen('logbook/'));
+        }
+
+        if ($relativePath === '' || str_contains($relativePath, '../') || str_starts_with($relativePath, '/')) {
             throw new RuntimeException('Path file logbook tidak valid.');
         }
-        return $this->privateRoot() . '/' . $relativePath;
+
+        $absolute = $this->logbookStorageRoot() . '/' . $relativePath;
+        $root = realpath($this->logbookStorageRoot());
+        $directory = realpath(dirname($absolute));
+
+        if ($root !== false && $directory !== false && !str_starts_with($directory, $root)) {
+            throw new RuntimeException('Path file logbook tidak valid.');
+        }
+
+        return $absolute;
     }
 
     private function deletePrivateFile(string $relativePath): void

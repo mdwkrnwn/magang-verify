@@ -68,7 +68,7 @@ if ($namaProfil !== '') {
             </h2>
 
             <p class="mt-2 text-sm text-gray-500">
-                NIM <?= e($nimProfil !== '' ? $nimProfil : '-') ?>
+                NIM : <?= e($nimProfil !== '' ? $nimProfil : '-') ?>
             </p>
         </div>
 

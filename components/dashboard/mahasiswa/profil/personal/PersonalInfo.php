@@ -1,4 +1,3 @@
-
 <?php
 $namaLengkap = trim($profil['nama_lengkap'] ?? '');
 $nim = trim($profil['nim'] ?? '');
@@ -21,8 +20,7 @@ $alamat = trim($profil['alamat'] ?? '');
         <button
             type="button"
             data-open-modal="modal-personal"
-            class="inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-50"
-        >
+            class="inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-blue-600 transition hover:bg-blue-50">
             <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round"
                     stroke-width="2"

@@ -20,7 +20,6 @@ $roleLabels = [
     'mitra' => 'Mitra',
 ];
 
-
 /*
 |--------------------------------------------------------------------------
 | Foto profil
@@ -42,7 +41,7 @@ try {
     );
 
     $fotoProfil = trim(
-        (string) ($profil['foto_profil'] ?? '')
+        (string) ($profil['foto_path'] ?? '')
     );
 } catch (Throwable $e) {
 
@@ -51,7 +50,6 @@ try {
             . $e->getMessage()
     );
 }
-
 
 /*
 |--------------------------------------------------------------------------

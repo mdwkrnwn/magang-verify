@@ -1,6 +1,10 @@
 RewriteEngine On
 
+<<<<<<< HEAD
 RewriteBase /magang-verify
+=======
+RewriteBase /magang-verify/
+>>>>>>> c025387e5f6bcd47a72c72f8352b80e52f07c8a7
 
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d

@@ -1382,6 +1382,7 @@ CREATE TABLE IF NOT EXISTS public.logbook_harian (
     CONSTRAINT logbook_harian_kehadiran_check CHECK (status_kehadiran IN ('hadir', 'tidak_hadir')),
     CONSTRAINT logbook_harian_validasi_check CHECK (status_validasi IN ('tidak_perlu', 'menunggu', 'disetujui', 'ditolak')),
     CONSTRAINT logbook_harian_alasan_check CHECK (status_kehadiran = 'hadir' OR NULLIF(BTRIM(alasan_ketidakhadiran), '') IS NOT NULL),
+    CONSTRAINT logbook_harian_validasi_consistency_check CHECK ((status_kehadiran = 'hadir' AND status_validasi = 'tidak_perlu') OR status_kehadiran = 'tidak_hadir'),
     CONSTRAINT logbook_harian_jam_check CHECK (jam_pulang IS NULL OR jam_masuk IS NULL OR jam_pulang >= jam_masuk)
 );
 CREATE INDEX IF NOT EXISTS idx_logbook_harian_logbook_tanggal
@@ -1400,4 +1401,333 @@ CREATE INDEX IF NOT EXISTS idx_logbook_ttd_tahap_snapshot
     ON public.logbook_tanda_tangan(revisi_id, tahap, snapshot_hash);
 INSERT INTO public.schema_migrations (migration)
 VALUES ('020_rebuild_logbook_workflow.sql')
+ON CONFLICT (migration) DO NOTHING;
+-- Migration 021 dan 022 berisi trigger hardening dan dijalankan secara incremental.
+
+
+-- ============================================================
+-- MIGRATION 021: LOGBOOK V2 - HARDENING
+-- ============================================================
+-- ============================================================
+-- LOGBOOK V2 - HARDENING
+-- Menjaga aturan bisnis penting di level database sehingga
+-- request langsung/di luar UI tidak dapat melewati workflow.
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.enforce_logbook_harian_rules()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_mulai DATE;
+    v_selesai DATE;
+    v_status VARCHAR(30);
+BEGIN
+    SELECT tanggal_mulai, tanggal_selesai, status
+      INTO v_mulai, v_selesai, v_status
+      FROM public.logbook_mingguan
+     WHERE id = NEW.logbook_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Minggu logbook tidak ditemukan.';
+    END IF;
+
+    IF NEW.tanggal < v_mulai OR NEW.tanggal > v_selesai THEN
+        RAISE EXCEPTION 'Tanggal logbook harian harus berada di dalam periode minggu.';
+    END IF;
+
+    IF NEW.tanggal > CURRENT_DATE THEN
+        RAISE EXCEPTION 'Logbook harian tidak boleh dibuat untuk tanggal masa depan.';
+    END IF;
+
+    IF v_status IN ('menunggu_dosen', 'disetujui') THEN
+        RAISE EXCEPTION 'Logbook terkunci karena mitra sudah menandatangani.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_logbook_harian_rules
+    ON public.logbook_harian;
+
+CREATE TRIGGER trg_logbook_harian_rules
+BEFORE INSERT OR UPDATE ON public.logbook_harian
+FOR EACH ROW
+EXECUTE FUNCTION public.enforce_logbook_harian_rules();
+
+
+CREATE OR REPLACE FUNCTION public.enforce_logbook_signature_workflow()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_status VARCHAR(30);
+    v_current_version INTEGER;
+    v_revision_version INTEGER;
+    v_mahasiswa_user_id BIGINT;
+    v_mitra_user_id BIGINT;
+    v_dosen_user_id BIGINT;
+BEGIN
+    SELECT
+        lm.status,
+        lm.versi_terkini,
+        lr.nomor_versi,
+        prof.user_id,
+        m.user_id,
+        pd.user_id
+      INTO
+        v_status,
+        v_current_version,
+        v_revision_version,
+        v_mahasiswa_user_id,
+        v_mitra_user_id,
+        v_dosen_user_id
+      FROM public.logbook_revisi lr
+      INNER JOIN public.logbook_mingguan lm
+              ON lm.id = lr.logbook_id
+      INNER JOIN public.penempatan_magang pm
+              ON pm.id = lm.penempatan_id
+      INNER JOIN public.pendaftaran_magang p
+              ON p.id = pm.pendaftaran_id
+      INNER JOIN public.profil_mahasiswa prof
+              ON prof.id = p.mahasiswa_id
+      INNER JOIN public.formasi_magang f
+              ON f.id = p.formasi_id
+      INNER JOIN public.mitra m
+              ON m.id = f.mitra_id
+      LEFT JOIN public.profil_dosen pd
+             ON pd.id = pm.dosen_pembimbing_id
+     WHERE lr.id = NEW.revisi_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Versi logbook untuk tanda tangan tidak ditemukan.';
+    END IF;
+
+    IF v_revision_version <> v_current_version THEN
+        RAISE EXCEPTION 'Tanda tangan harus diberikan pada versi logbook terbaru.';
+    END IF;
+
+    IF NEW.tahap = 'mahasiswa' THEN
+        IF NEW.penanda_tangan_id <> v_mahasiswa_user_id THEN
+            RAISE EXCEPTION 'Penanda tangan mahasiswa tidak sesuai dengan pemilik logbook.';
+        END IF;
+        IF v_status NOT IN ('draft', 'perlu_revisi') THEN
+            RAISE EXCEPTION 'Logbook belum berada pada tahap tanda tangan mahasiswa.';
+        END IF;
+
+    ELSIF NEW.tahap = 'mitra' THEN
+        IF NEW.penanda_tangan_id <> v_mitra_user_id THEN
+            RAISE EXCEPTION 'Penanda tangan mitra tidak sesuai dengan mitra penempatan.';
+        END IF;
+        IF v_status <> 'menunggu_mitra' THEN
+            RAISE EXCEPTION 'Logbook belum berada pada tahap tanda tangan mitra.';
+        END IF;
+
+    ELSIF NEW.tahap = 'dosen' THEN
+        IF v_dosen_user_id IS NULL OR NEW.penanda_tangan_id <> v_dosen_user_id THEN
+            RAISE EXCEPTION 'Penanda tangan dosen tidak sesuai dengan dosen pembimbing penempatan.';
+        END IF;
+        IF v_status <> 'menunggu_dosen' THEN
+            RAISE EXCEPTION 'Logbook belum berada pada tahap tanda tangan dosen.';
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_logbook_signature_workflow
+    ON public.logbook_tanda_tangan;
+
+CREATE TRIGGER trg_logbook_signature_workflow
+BEFORE INSERT ON public.logbook_tanda_tangan
+FOR EACH ROW
+EXECUTE FUNCTION public.enforce_logbook_signature_workflow();
+
+
+-- Tanda tangan adalah bukti audit. Setelah dibuat, record tidak boleh
+-- diubah atau dihapus dari workflow aplikasi.
+CREATE OR REPLACE FUNCTION public.prevent_logbook_signature_mutation()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    RAISE EXCEPTION 'Riwayat tanda tangan logbook tidak boleh diubah atau dihapus.';
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_logbook_signature_immutable_update
+    ON public.logbook_tanda_tangan;
+
+CREATE TRIGGER trg_logbook_signature_immutable_update
+BEFORE UPDATE OR DELETE ON public.logbook_tanda_tangan
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_logbook_signature_mutation();
+
+
+INSERT INTO public.schema_migrations (migration)
+VALUES ('021_harden_logbook_workflow.sql')
+ON CONFLICT (migration) DO NOTHING;
+
+
+-- ============================================================
+-- MIGRATION 022: LOGBOOK V2 - STRUCTURE HARDENING
+-- ============================================================
+-- ============================================================
+-- LOGBOOK V2 - STRUCTURE HARDENING
+-- Menjaga periode minggu dan histori versi agar tidak dapat
+-- diubah lewat request/database yang melewati controller.
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.enforce_logbook_week_schedule()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_penempatan_mulai DATE;
+    v_penempatan_selesai DATE;
+    v_expected_week SMALLINT;
+    v_expected_start DATE;
+    v_expected_end DATE;
+    v_previous_end DATE;
+    v_has_previous BOOLEAN;
+BEGIN
+    SELECT tanggal_mulai, tanggal_selesai
+      INTO v_penempatan_mulai, v_penempatan_selesai
+      FROM public.penempatan_magang
+     WHERE id = NEW.penempatan_id;
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Penempatan magang tidak ditemukan.';
+    END IF;
+
+    SELECT EXISTS (
+        SELECT 1
+        FROM public.logbook_mingguan
+        WHERE penempatan_id = NEW.penempatan_id
+          AND id <> COALESCE(NEW.id, 0)
+    ) INTO v_has_previous;
+
+    IF v_has_previous THEN
+        SELECT minggu_ke, tanggal_selesai
+          INTO v_expected_week, v_previous_end
+          FROM public.logbook_mingguan
+         WHERE penempatan_id = NEW.penempatan_id
+           AND id <> COALESCE(NEW.id, 0)
+         ORDER BY minggu_ke DESC
+         LIMIT 1;
+
+        v_expected_week := v_expected_week + 1;
+        v_expected_start := v_previous_end + 1;
+        v_expected_end := LEAST(v_expected_start + 6, v_penempatan_selesai);
+    ELSE
+        v_expected_week := 1;
+        v_expected_start := v_penempatan_mulai;
+        v_expected_end := LEAST(
+            v_expected_start + ((7 - EXTRACT(DOW FROM v_expected_start)::INTEGER) % 7),
+            v_penempatan_selesai
+        );
+    END IF;
+
+    IF TG_OP = 'INSERT' THEN
+        IF NEW.minggu_ke <> v_expected_week
+           OR NEW.tanggal_mulai <> v_expected_start
+           OR NEW.tanggal_selesai <> v_expected_end THEN
+            RAISE EXCEPTION
+                'Periode Minggu % tidak sesuai dengan jadwal penempatan. Periode yang benar: % sampai %.',
+                v_expected_week, v_expected_start, v_expected_end;
+        END IF;
+
+        IF NEW.tanggal_mulai > CURRENT_DATE THEN
+            RAISE EXCEPTION 'Minggu logbook masa depan tidak dapat dibuat.';
+        END IF;
+    ELSE
+        IF NEW.penempatan_id <> OLD.penempatan_id
+           OR NEW.minggu_ke <> OLD.minggu_ke
+           OR NEW.tanggal_mulai <> OLD.tanggal_mulai
+           OR NEW.tanggal_selesai <> OLD.tanggal_selesai THEN
+            RAISE EXCEPTION 'Identitas dan periode minggu logbook tidak dapat diubah.';
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_logbook_week_schedule
+    ON public.logbook_mingguan;
+
+CREATE TRIGGER trg_logbook_week_schedule
+BEFORE INSERT OR UPDATE ON public.logbook_mingguan
+FOR EACH ROW
+EXECUTE FUNCTION public.enforce_logbook_week_schedule();
+
+
+-- Tidak ada fitur hapus harian pada workflow aplikasi. Karena itu,
+-- hapus langsung ke database juga tidak boleh digunakan untuk
+-- mengubah dokumen yang sudah disahkan mitra.
+CREATE OR REPLACE FUNCTION public.prevent_logbook_harian_delete_after_partner_signature()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    v_status VARCHAR(30);
+BEGIN
+    SELECT status
+      INTO v_status
+      FROM public.logbook_mingguan
+     WHERE id = OLD.logbook_id;
+
+    IF v_status IN ('menunggu_dosen', 'disetujui') THEN
+        RAISE EXCEPTION 'Logbook harian terkunci karena mitra sudah menandatangani.';
+    END IF;
+
+    RETURN OLD;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_logbook_harian_delete_lock
+    ON public.logbook_harian;
+
+CREATE TRIGGER trg_logbook_harian_delete_lock
+BEFORE DELETE ON public.logbook_harian
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_logbook_harian_delete_after_partner_signature();
+
+
+-- Snapshot yang sudah ditandatangani adalah bagian dari bukti audit.
+-- Snapshot tidak boleh diubah/hapus setelah memiliki tanda tangan.
+CREATE OR REPLACE FUNCTION public.prevent_signed_logbook_revision_mutation()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    IF EXISTS (
+        SELECT 1
+        FROM public.logbook_tanda_tangan
+        WHERE revisi_id = OLD.id
+    ) THEN
+        RAISE EXCEPTION 'Versi logbook yang sudah ditandatangani tidak boleh diubah atau dihapus.';
+    END IF;
+
+    IF TG_OP = 'DELETE' THEN
+        RETURN OLD;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS trg_signed_logbook_revision_mutation
+    ON public.logbook_revisi;
+
+CREATE TRIGGER trg_signed_logbook_revision_mutation
+BEFORE UPDATE OR DELETE ON public.logbook_revisi
+FOR EACH ROW
+EXECUTE FUNCTION public.prevent_signed_logbook_revision_mutation();
+
+
+INSERT INTO public.schema_migrations (migration)
+VALUES ('022_harden_logbook_structure.sql')
 ON CONFLICT (migration) DO NOTHING;

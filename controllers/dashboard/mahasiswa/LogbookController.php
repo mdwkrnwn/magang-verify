@@ -71,29 +71,37 @@ class LogbookController
     }
 
     public function create($params = []): void
-    {
-        $userId = $this->userId();
-        $placement = $this->model->getPlacement($userId);
-        if (!$placement) {
-            http_response_code(409);
-            exit('Penempatan magang belum tersedia.');
-        }
+{
+    $userId = $this->userId();
 
-        $nextWeek = $this->model->getNextWeekPlan($placement);
-        $error = null;
+    $placementId = isset($_GET['penempatan']) && ctype_digit((string) $_GET['penempatan'])
+        ? (int) $_GET['penempatan']
+        : null;
 
-        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
-            $this->validatePost();
-            try {
-                $id = $this->model->createWeek($userId);
-                $this->redirect('/dashboard/mahasiswa/logbook/detail/' . $id);
-            } catch (Throwable $e) {
-                $error = $e->getMessage();
-            }
-        }
+    $placement = $this->model->getPlacement($userId, $placementId);
 
-        require __DIR__ . '/../../../pages/dashboard/mahasiswa/logbook/form.php';
+    if (!$placement) {
+        http_response_code(409);
+        exit('Penempatan magang belum tersedia.');
     }
+
+    $nextWeek = $this->model->getNextWeekPlan($placement);
+    $error = null;
+
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+        $this->validatePost();
+
+        try {
+            $id = $this->model->createWeek($userId, (int) $placement['id']);
+
+            $this->redirect('/dashboard/mahasiswa/logbook/detail/' . $id);
+        } catch (Throwable $e) {
+            $error = $e->getMessage();
+        }
+    }
+
+    require __DIR__ . '/../../../pages/dashboard/mahasiswa/logbook/form.php';
+}
 
     public function detail($params = []): void
     {

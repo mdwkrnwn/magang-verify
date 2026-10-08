@@ -1,2 +1,0 @@
-ALTER TABLE profil_mahasiswa
-ADD COLUMN IF NOT EXISTS email VARCHAR(254);
