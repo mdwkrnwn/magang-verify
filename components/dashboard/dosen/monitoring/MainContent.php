@@ -4,6 +4,10 @@
 
         <?php include __DIR__ . '/PageHeader.php'; ?>
 
+        <?php if (!empty($error)): ?>
+            <div class="p-4 mb-6 text-sm text-red-800 border border-red-200 bg-red-50 rounded-xl" role="alert"><?= e($error) ?></div>
+        <?php endif; ?>
+
         <?php include __DIR__ . '/Statistics.php'; ?>
 
         <?php include __DIR__ . '/SearchFilter.php'; ?>

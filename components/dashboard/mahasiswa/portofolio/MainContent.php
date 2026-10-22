@@ -11,7 +11,7 @@
 
         <?php include __DIR__ . '/Pagination.php'; ?>
 
-        <?php include __DIR__ . "../../Footer.php"; ?>
+        <?php include __DIR__ . '/../Footer.php'; ?>
 
     </div>
 </main>

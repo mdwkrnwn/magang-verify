@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../../models/User.php';
 require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
+require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 
 class PengaturanController
 {
@@ -41,6 +42,7 @@ class PengaturanController
     private function getUserId(): int
     {
         $this->startSession();
+        AuthMiddleware::handle('mahasiswa');
 
         $userId = $_SESSION['user']['id'] ?? null;
 

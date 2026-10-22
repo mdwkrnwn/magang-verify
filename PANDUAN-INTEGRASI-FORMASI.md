@@ -6,7 +6,7 @@
 - Pencarian, lokasi, sistem kerja, dan tahun akademik menggunakan kolom yang tersedia pada skema.
 - Detail formasi mengambil data berdasarkan ID database. Bidang, sistem kerja, periode, kuota, dan informasi mitra ditampilkan dari database.
 - Form Lamar membaca identitas mahasiswa dari `users` + `profil_mahasiswa`; nama, NIM, dan program studi tidak dipercaya dari input browser.
-- Pengajuan memvalidasi token CSRF dan dua file PDF (maksimal 5 MB per file), menyimpan pendaftaran, metadata dokumen, dan riwayat status awal.
+- Pengajuan memvalidasi token CSRF, enam dokumen wajib dan empat dokumen opsional; setiap PDF dibatasi maksimal 5 MB, diverifikasi MIME/extension/signature, disimpan dengan nama acak, dan metadata jenis dokumen mengikuti constraint final migration 017.
 - Halaman Pengajuan Saya dan detailnya mengambil data milik mahasiswa yang sedang login.
 - Database tetap menjadi otoritas untuk memeriksa status formasi, kuota, dan pengajuan aktif saat submit.
 
@@ -14,7 +14,7 @@
 Jalankan isi `database/migrations/014_create_dokumen_pendaftaran_magang.sql` pada SQL Editor Supabase. Migration ini menambahkan tabel metadata dokumen karena skema `pendaftaran_magang` yang ada tidak memiliki kolom dokumen. Migration lama tidak diubah.
 
 ## Penyimpanan file
-File PDF disimpan di `storage/pendaftaran` dengan nama acak; database hanya menyimpan path relatif dan metadata. `.htaccess` disertakan untuk server Apache. Jika deployment memakai Nginx, tambahkan aturan server agar request ke `/storage/` ditolak dan file hanya bisa diakses melalui endpoint unduhan terautentikasi. Jangan membuat folder tersebut menjadi penyimpanan publik.
+File PDF disimpan di `storage/pendaftaran` dengan nama acak; database hanya menyimpan path relatif dan metadata. `.htaccess` disertakan untuk server Apache. Jika deployment memakai Nginx, tambahkan aturan server agar request ke `/storage/` dan `/uploads/cv/` ditolak secara static; dokumen pengajuan hanya dapat diakses melalui endpoint terotorisasi, sedangkan CV publik tetap disajikan lewat route profil mahasiswa. Jangan membuat folder penyimpanan privat menjadi publik.
 
 ## Batasan yang berasal dari skema saat ini
 - `formasi_magang` tidak mempunyai kolom batas pendaftaran, daftar program studi yang diperbolehkan, atau daftar keterampilan yang dibutuhkan. UI tidak mengarang nilai untuk kolom tersebut; yang ditampilkan adalah bidang, sistem kerja, periode, kuota, dan persyaratan bebas dari database.

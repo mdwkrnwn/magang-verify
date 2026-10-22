@@ -92,7 +92,7 @@
 
             <!-- Dashboard -->
             <a
-                href="<?= url('/dashboard/koordinatorMagang') ?>"
+                href="<?= url('/dashboard/koordinator-magang') ?>"
                 title="Dashboard"
                 class="sidebar-nav-item
                        flex items-center gap-3
@@ -127,6 +127,14 @@
 
         </div>
 
+
+
+        <div class="mt-1">
+            <a href="<?= url('/dashboard/koordinator-magang/penempatan') ?>" title="Penempatan Magang" class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl <?= $active === 'penempatan' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h4l2 3h12M5 7v12a1 1 0 001 1h12a1 1 0 001-1V7M9 11h6"/></svg>
+                <span class="sidebar-label text-sm whitespace-nowrap">Penempatan Magang</span>
+            </a>
+        </div>
 
 
         <div class="mt-1">

@@ -68,6 +68,8 @@ $error = $_GET['error'] ?? '';
     method="POST"
     class="mt-6 w-full min-w-0">
 
+    <input type="hidden" name="_csrf_token" value="<?= htmlspecialchars(csrfToken(), ENT_QUOTES, 'UTF-8') ?>">
+
     <!-- =========================================================
          ROLE YANG DIPILIH
          ========================================================= -->
@@ -132,7 +134,7 @@ $error = $_GET['error'] ?? '';
             class="mt-5 w-full rounded-lg bg-red-50 px-4 py-3 text-sm leading-5 text-red-600"
             role="alert">
 
-            Identitas atau password tidak sesuai, atau akun tidak aktif.
+            Kredensial tidak sesuai atau akun tidak aktif.
             Periksa kembali lalu coba lagi.
 
         </div>
@@ -234,6 +236,7 @@ $error = $_GET['error'] ?? '';
                 type="password"
                 id="password"
                 name="password"
+                required
                 autocomplete="current-password"
                 placeholder="Masukkan password"
                 class="block w-full min-w-0 rounded-lg border border-slate-200 bg-white py-3.5 pl-12 pr-12 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">

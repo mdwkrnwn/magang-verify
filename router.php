@@ -1,6 +1,8 @@
 <?php
 
 require_once __DIR__ . '/config/app.php';
+require_once __DIR__ . '/function/PrivateStorage.php';
+require_once __DIR__ . '/function/PublicAsset.php';
 
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -23,49 +25,18 @@ if ($path === '' || $path === false) {
 |--------------------------------------------------------------------------
 */
 
-// File logbook privat hanya boleh disajikan melalui controller yang melakukan authorization.
-if (str_starts_with($path, '/storage/private/') || str_starts_with($path, '/storage/logbook/')) {
+// Private storage is served only through authorized controllers.
+if (isPrivateStorageRequestPath((string) $path)) {
     http_response_code(404);
     exit('File tidak ditemukan.');
 }
 
-$file = __DIR__ . $path;
-
-if ($path !== '/' && is_file($file)) {
-
-    $mimeTypes = [
-        'css'   => 'text/css',
-        'js'    => 'application/javascript',
-        'json'  => 'application/json',
-
-        'html'  => 'text/html',
-        'htm'   => 'text/html',
-
-        'png'   => 'image/png',
-        'jpg'   => 'image/jpeg',
-        'jpeg'  => 'image/jpeg',
-        'gif'   => 'image/gif',
-        'webp'  => 'image/webp',
-        'svg'   => 'image/svg+xml',
-        'ico'   => 'image/x-icon',
-
-        'pdf'   => 'application/pdf',
-
-        'woff'  => 'font/woff',
-        'woff2' => 'font/woff2',
-        'ttf'   => 'font/ttf',
-        'otf'   => 'font/otf',
-    ];
-
-    $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
-
-    $mime = $mimeTypes[$extension] ?? 'application/octet-stream';
-
-    header('Content-Type: ' . $mime);
-    header('Content-Length: ' . filesize($file));
-
-    readfile($file);
-
+$asset = resolvePublicAsset((string) $path, __DIR__ . '/assets');
+if ($asset !== null) {
+    header('Content-Type: ' . $asset['mime']);
+    header('Content-Length: ' . (string) filesize($asset['path']));
+    header('X-Content-Type-Options: nosniff');
+    readfile($asset['path']);
     exit;
 }
 

@@ -8,6 +8,7 @@
         )
     ) ?>"
     enctype="multipart/form-data"
+    onsubmit="const button=this.querySelector('button[name=submit_pengajuan]');if(!button||button.disabled)return false;button.disabled=true;button.setAttribute('aria-busy','true');button.querySelector('span').textContent='Mengirim...';this.setAttribute('aria-busy','true');"
 >
     <input type="hidden" name="_csrf_token" value="<?= e(csrfToken()) ?>">
 

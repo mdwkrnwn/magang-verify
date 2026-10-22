@@ -58,18 +58,6 @@
                     Menunggu Persetujuan
                 </option>
 
-                <option value="disetujui">
-                    Disetujui
-                </option>
-
-                <option value="perlu_revisi">
-                    Perlu Revisi
-                </option>
-
-                <option value="ditolak">
-                    Ditolak
-                </option>
-
             </select>
 
         </div>

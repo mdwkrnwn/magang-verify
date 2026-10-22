@@ -9,7 +9,7 @@
     class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-100/70 via-blue-50 to-white border border-blue-100 p-5 sm:p-6 md:p-8 scroll-mt-24">
 
     <img
-        src="<?= url('/assets/images/polinema.png') ?>"
+        src="<?= url('/assets/images/gedung-polinema.jpeg') ?>"
         alt=""
         class="hidden lg:block absolute right-0 top-0 h-full w-1/3 object-cover opacity-70 [mask-image:linear-gradient(to_right,transparent,black)]">
 

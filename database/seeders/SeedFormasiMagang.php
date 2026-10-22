@@ -73,14 +73,23 @@ try {
 
         echo "Berhasil membuat mitra pengujian." . PHP_EOL;
     } else {
-        // Pastikan mitra pengujian dapat menampilkan formasi.
         $stmt = $pdo->prepare(
-            "UPDATE mitra
-             SET status_verifikasi = 'terverifikasi',
-                 is_active = TRUE
+            "SELECT status_verifikasi, is_active
+             FROM mitra
              WHERE id = :id"
         );
         $stmt->execute(['id' => $mitraId]);
+        $existingMitra = $stmt->fetch();
+
+        if (
+            !$existingMitra ||
+            $existingMitra['status_verifikasi'] !== 'terverifikasi' ||
+            !in_array($existingMitra['is_active'], [true, 1, '1', 't', 'true'], true)
+        ) {
+            throw new RuntimeException(
+                'Mitra seed yang sudah ada tidak aktif/terverifikasi; seeder tidak mengubah data mitra.'
+            );
+        }
 
         echo "Menggunakan mitra pengujian yang sudah ada." . PHP_EOL;
     }

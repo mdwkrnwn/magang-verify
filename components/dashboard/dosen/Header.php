@@ -131,44 +131,7 @@ if (!empty($bagianNama)) {
             class="flex items-center gap-3
                    ml-auto sm:gap-6">
 
-            <!-- Notification -->
-            <button
-                type="button"
-                class="relative
-                       flex items-center justify-center
-                       text-gray-500 transition
-                       bg-white border border-gray-200
-                       w-11 h-11 rounded-xl
-                       hover:bg-gray-50">
-
-                <svg
-                    class="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24">
-
-                    <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-
-                </svg>
-
-                <?php $unreadNotifications = (int) ($dashboard['notifikasi_belum_dibaca'] ?? 0); ?>
-
-                <?php if ($unreadNotifications > 0): ?>
-                    <span
-                        class="absolute flex items-center justify-center
-                               min-w-5 h-5 px-1
-                               text-[10px] font-bold text-white
-                               bg-red-500 rounded-full
-                               top-1 right-1">
-                        <?= e($unreadNotifications > 9 ? '9+' : (string) $unreadNotifications) ?>
-                    </span>
-                <?php endif; ?>
-
-            </button>
+            <?php include __DIR__ . '/../shared/NotificationBell.php'; ?>
 
 
             <!-- Profile -->
@@ -326,6 +289,7 @@ if (!empty($bagianNama)) {
 
 
                         <!-- Pengaturan -->
+                        <?php if ($role === 'mahasiswa'): ?>
                         <a
                             href="<?= e(url('/dashboard/mahasiswa/pengaturan')) ?>"
                             class="flex items-center gap-3
@@ -359,6 +323,7 @@ if (!empty($bagianNama)) {
                             <span>Pengaturan</span>
 
                         </a>
+                        <?php endif; ?>
 
 
                         <!-- Separator -->

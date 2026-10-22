@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/LoginAuthenticator.php';
 require_once __DIR__ . '/../models/AktivitasPengguna.php';
 
 class LoginController
@@ -28,9 +29,15 @@ class LoginController
             return;
         }
 
+        if (!verifyCsrfToken()) {
+            http_response_code(403);
+            exit('Permintaan tidak valid. Silakan muat ulang halaman.');
+        }
+
         // Ambil data dari form.
         $role = $_POST['role'] ?? '';
-        $loginId = trim($_POST['login_id'] ?? '');
+        $submittedLoginId = $_POST['login_id'] ?? '';
+        $loginId = is_string($submittedLoginId) ? trim($submittedLoginId) : '';
         $password = $_POST['password'] ?? '';
 
         // Daftar role yang diperbolehkan.
@@ -46,35 +53,22 @@ class LoginController
         if (
             !is_string($role) ||
             !in_array($role, $allowedRoles, true) ||
-            !is_string($loginId) ||
             $loginId === ''
         ) {
             $this->redirectToLogin();
         }
 
-        // Cari pengguna berdasarkan NIM, NIP, atau kode mitra.
-        $user = $this->userModel->findByLoginId($loginId);
+        // Mitra memakai kode pada profil perusahaan; role lain tetap memakai users.login_id.
+        $user = $role === 'mitra'
+            ? $this->userModel->findActiveMitraByCode($loginId)
+            : $this->userModel->findByLoginId($loginId);
 
-        // Pastikan akun ditemukan, role cocok, dan akun aktif.
         if (
             !$user ||
-            $user['role'] !== $role ||
-            !$this->isAccountActive($user['is_active'])
+            !is_string($password) ||
+            !LoginAuthenticator::accepts($role, $user, $password)
         ) {
             $this->redirectToLogin();
-        }
-
-        // Semua role selain mitra wajib menggunakan password.
-        if ($role !== 'mitra') {
-            if (
-                !is_string($password) ||
-                $password === '' ||
-                !is_string($user['password']) ||
-                $user['password'] === '' ||
-                !password_verify($password, $user['password'])
-            ) {
-                $this->redirectToLogin();
-            }
         }
 
         // Login berhasil: perbarui ID session.
@@ -116,17 +110,6 @@ class LoginController
         exit;
     }
 
-    /**
-     * Memeriksa status aktif akun dari PostgreSQL.
-     */
-    private function isAccountActive($value): bool
-    {
-        return in_array(
-            $value,
-            [true, 1, '1', 't', 'true'],
-            true
-        );
-    }
 
     /**
      * Mengembalikan pengguna ke halaman login.

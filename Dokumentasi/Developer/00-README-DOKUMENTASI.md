@@ -15,6 +15,8 @@ Dokumentasi ini dipisahkan per domain agar developer dapat mengimplementasikan f
 - `10-AUTHORIZATION-SECURITY.md` — security dan authorization.
 - `11-ACTIVITY-AUDIT-LOG.md` — activity/audit.
 - `12-SEED-TESTING-ACCOUNTS.md` — akun dan skenario testing.
+- `13-PERMINTAAN-PEMBIMBING.md` — alur permintaan, persetujuan, otorisasi, dan migration dosen pembimbing.
+- `14-PENILAIAN-MAGANG.md` — input penilaian Dosen/Mitra dan batasan formula/status penyelesaian.
 
 ## Prinsip
 - Ikuti struktur folder project existing.

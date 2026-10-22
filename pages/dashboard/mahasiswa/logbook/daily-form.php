@@ -23,7 +23,7 @@ $mode = $mode ?? 'create';
             <div class="p-4 mb-5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl"><?= e($error) ?></div>
         <?php endif; ?>
 
-        <form method="POST" enctype="multipart/form-data" class="p-5 space-y-5 bg-white border border-gray-100 shadow-sm rounded-2xl sm:p-7">
+        <form method="POST" enctype="multipart/form-data" class="p-5 space-y-5 bg-white border border-gray-100 shadow-sm rounded-2xl sm:p-7" onsubmit="const button=this.querySelector('button[type=submit]');if(!button||button.disabled)return false;button.disabled=true;button.setAttribute('aria-busy','true');button.textContent='Menyimpan...';this.setAttribute('aria-busy','true');">
             <input type="hidden" name="_csrf_token" value="<?= e(csrfToken()) ?>">
 
             <div>
@@ -53,12 +53,15 @@ $mode = $mode ?? 'create';
 
             <div id="absence-box" class="<?= (($item['status_kehadiran'] ?? 'hadir') === 'tidak_hadir') ? '' : 'hidden' ?>">
                 <label class="block text-sm font-medium text-gray-700">Alasan ketidakhadiran</label>
-                <textarea name="alasan_ketidakhadiran" rows="3" class="w-full px-4 py-3 mt-2 text-sm border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-blue-500" placeholder="Contoh: sakit, izin, atau alasan lainnya."><?= e((string) ($item['alasan_ketidakhadiran'] ?? '')) ?></textarea>
+                <textarea id="alasan-ketidakhadiran" name="alasan_ketidakhadiran" rows="3" <?= (($item['status_kehadiran'] ?? 'hadir') === 'tidak_hadir') ? 'required' : '' ?> aria-describedby="absence-reason-help" class="w-full px-4 py-3 mt-2 text-sm border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-blue-500" placeholder="Contoh: sakit, izin, atau alasan lainnya."><?= e((string) ($item['alasan_ketidakhadiran'] ?? '')) ?></textarea>
+                <p id="absence-reason-help" class="mt-1 text-xs text-gray-500">Jelaskan alasan ketidakhadiran. Pengajuan akan masuk antrean validasi.</p>
                 <div class="mt-4">
                     <label class="block text-sm font-medium text-gray-700">Bukti / surat <span class="text-gray-400">(opsional, PDF/JPG/PNG, maks. 5 MB)</span></label>
-                    <input type="file" name="bukti" accept="application/pdf,image/jpeg,image/png" class="block w-full mt-2 text-sm text-gray-600 file:mr-4 file:px-4 file:py-2.5 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700">
+                    <input id="bukti-ketidakhadiran" type="file" name="bukti" accept="application/pdf,image/jpeg,image/png" aria-describedby="absence-evidence-help" class="block w-full mt-2 text-sm text-gray-600 file:mr-4 file:px-4 file:py-2.5 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700">
+                    <p id="absence-evidence-help" class="mt-1 text-xs text-gray-500">Bukti bersifat opsional. Jika gagal tersimpan, pilih ulang file sebelum mencoba lagi.</p>
                     <?php if (!empty($item['bukti_path'])): ?>
-                        <p class="mt-2 text-xs text-gray-500">Bukti sebelumnya tersimpan. Unggah file baru jika ingin menggantinya.</p>
+                        <a target="_blank" rel="noopener noreferrer" href="<?= e(url('/dashboard/logbook/file/evidence/' . (int) ($item['id'] ?? 0))) ?>" class="inline-block mt-2 text-xs font-medium text-blue-600 hover:underline">Lihat bukti sebelumnya</a>
+                        <p class="mt-1 text-xs text-gray-500">Unggah file baru jika ingin menggantinya.</p>
                     <?php endif; ?>
                 </div>
             </div>
@@ -83,8 +86,13 @@ $mode = $mode ?? 'create';
 (() => {
     const select = document.getElementById('status-kehadiran');
     const box = document.getElementById('absence-box');
-    if (!select || !box) return;
-    const sync = () => box.classList.toggle('hidden', select.value !== 'tidak_hadir');
+    const reason = document.getElementById('alasan-ketidakhadiran');
+    if (!select || !box || !reason) return;
+    const sync = () => {
+        const absent = select.value === 'tidak_hadir';
+        box.classList.toggle('hidden', !absent);
+        reason.required = absent;
+    };
     select.addEventListener('change', sync);
     sync();
 })();

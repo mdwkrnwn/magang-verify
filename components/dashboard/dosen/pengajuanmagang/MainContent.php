@@ -4,6 +4,9 @@
 
         <?php include __DIR__ . '/PageHeader.php'; ?>
 
+        <?php if (!empty($success)): ?><div class="p-4 mb-5 text-sm text-emerald-800 border border-emerald-200 bg-emerald-50 rounded-xl" role="status">Keputusan pengajuan berhasil disimpan.</div><?php endif; ?>
+        <?php if (!empty($error)): ?><div class="p-4 mb-5 text-sm text-red-800 border border-red-200 bg-red-50 rounded-xl" role="alert"><?= e($error) ?></div><?php endif; ?>
+
         <?php include __DIR__ . '/Statistics.php'; ?>
 
         <?php include __DIR__ . '/SearchFilter.php'; ?>

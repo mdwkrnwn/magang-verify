@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../config/app.php';
 require_once __DIR__ . '/../../../function/Helpers.php';
+require_once __DIR__ . '/../../../function/PendaftaranDocuments.php';
 require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../models/FormasiMagang.php';
 require_once __DIR__ . '/../../../models/PendaftaranMagang.php';
@@ -20,10 +21,8 @@ class LamarController
         $aktivitasModel = new AktivitasPengguna();
         $formasi = $formasiModel->getBySlug($slug);
         if (!$formasi) $this->notFound();
-        if (($formasi['status'] ?? '') !== 'tersedia' || ($formasi['status_formasi'] ?? '') !== 'dibuka') {
-            http_response_code(409);
-            exit('Formasi ini sudah tidak menerima pendaftaran. Silakan pilih formasi lain.');
-        }
+        $formasiTersedia = ($formasi['status'] ?? '') === 'tersedia'
+            && ($formasi['status_formasi'] ?? '') === 'dibuka';
         $profil = $pendaftaranModel->getProfilMahasiswa($userId);
         if (!$profil || trim((string)($profil['program_studi'] ?? '')) === '') {
             http_response_code(422);
@@ -33,14 +32,25 @@ class LamarController
         $nama = $mahasiswa['nama']; $nim = $mahasiswa['nim']; $prodi = $mahasiswa['prodi'];
         $email = trim((string)($profil['email'] ?? '')) ?: '-';
         $noTelepon = trim((string)($profil['no_telepon'] ?? '')) ?: '-';
-        $existingApplication = $pendaftaranModel->hasActiveApplication((int)$profil['mahasiswa_id']);
-        $errors = $existingApplication ? ['umum' => 'Anda masih memiliki pengajuan magang aktif. Selesaikan atau batalkan pengajuan tersebut sebelum mengajukan formasi lain.'] : [];
+        $hasActiveApplication = $pendaftaranModel->hasActiveApplication((int)$profil['mahasiswa_id']);
+        $existingApplication = $hasActiveApplication || !$formasiTersedia;
+        $errors = [];
+        if (!$formasiTersedia) {
+            http_response_code(409);
+            $errors['umum'] = 'Formasi ini sudah tidak menerima pendaftaran. Silakan pilih formasi lain.';
+        } elseif ($hasActiveApplication) {
+            $errors['umum'] = 'Anda masih memiliki pengajuan magang aktif. Selesaikan atau batalkan pengajuan tersebut sebelum mengajukan formasi lain.';
+        }
         $success = false;
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             if (!verifyCsrfToken()) {
                 http_response_code(403); exit('Permintaan tidak valid. Muat ulang halaman lalu coba lagi.');
             }
-            if ($existingApplication) $errors['umum'] = 'Anda masih memiliki pengajuan magang aktif.';
+            if ($existingApplication) {
+                $errors['umum'] = !$formasiTersedia
+                    ? 'Formasi ini sudah tidak menerima pendaftaran. Silakan pilih formasi lain.'
+                    : 'Anda masih memiliki pengajuan magang aktif. Selesaikan atau batalkan pengajuan tersebut sebelum mengajukan formasi lain.';
+            }
             $requiredDocuments = [
                 'pakta_integritas' => 'Pakta Integritas',
                 'daftar_riwayat_hidup' => 'Daftar Riwayat Hidup',
@@ -55,6 +65,7 @@ class LamarController
                 'proposal' => 'Proposal Magang',
                 'sertifikat_kompetensi' => 'Sertifikat Kompetensi',
             ];
+
             foreach ($requiredDocuments as $field => $label) {
                 $this->validPdf($field, $label, $errors, true);
             }
@@ -69,7 +80,7 @@ class LamarController
                         if (empty($_FILES[$field]) || (int)($_FILES[$field]['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
                             continue;
                         }
-                        $stored[$field] = $this->storePdf($_FILES[$field]);
+                        $stored[applicationDocumentKind($field)] = $this->storePdf($_FILES[$field]);
                     }
                     $applicationId = $pendaftaranModel->create((int)$profil['mahasiswa_id'], (int)$formasi['id'], $stored);
                     $aktivitasModel->log(
@@ -97,9 +108,13 @@ class LamarController
         $error = (int)($file['error'] ?? UPLOAD_ERR_NO_FILE);
         if ($error === UPLOAD_ERR_NO_FILE && !$required) return true;
         if ($error !== UPLOAD_ERR_OK) { $errors[$field] = $required ? "$label wajib diunggah dalam format PDF." : "$label gagal diunggah. Silakan pilih file PDF yang valid."; return false; }
-        if (($file['size'] ?? 0) > 5 * 1024 * 1024) { $errors[$field] = "$label maksimal 5 MB."; return false; }
-        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name'] ?? '');
-        if ($mime !== 'application/pdf' || strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION)) !== 'pdf') { $errors[$field] = "$label harus berupa file PDF."; return false; }
+        $tmp = (string) ($file['tmp_name'] ?? '');
+        $size = (int) ($file['size'] ?? 0);
+        if ($size < 1 || $size > 5 * 1024 * 1024) { $errors[$field] = "$label harus berukuran 1 byte hingga 5 MB."; return false; }
+        if ($tmp === '' || !is_uploaded_file($tmp)) { $errors[$field] = "$label bukan file unggahan yang valid."; return false; }
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($tmp);
+        $signature = file_get_contents($tmp, false, null, 0, 5);
+        if ($mime !== 'application/pdf' || strtolower(pathinfo($file['name'] ?? '', PATHINFO_EXTENSION)) !== 'pdf' || $signature !== '%PDF-') { $errors[$field] = "$label harus berupa file PDF yang valid."; return false; }
         return true;
     }
 

@@ -62,6 +62,14 @@
                     Selesai
                 </option>
 
+                <option value="menunggu_penilaian">
+                    Menunggu Penilaian
+                </option>
+
+                <option value="dibatalkan">
+                    Dibatalkan
+                </option>
+
             </select>
 
         </div>
@@ -77,12 +85,14 @@ document.addEventListener('DOMContentLoaded', function () {
     const searchInput = document.getElementById('studentSearch');
     const statusFilter = document.getElementById('statusFilter');
     const rows = document.querySelectorAll('[data-student-row]');
+    const emptyState = document.getElementById('emptyStudentState');
 
     function filterStudents() {
 
         const search = searchInput.value.toLowerCase().trim();
         const status = statusFilter.value;
 
+        let visibleCount = 0;
         rows.forEach(function (row) {
 
             const text = row.dataset.search.toLowerCase();
@@ -97,7 +107,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 !(matchesSearch && matchesStatus)
             );
 
+            if (matchesSearch && matchesStatus) {
+                visibleCount++;
+            }
+
         });
+
+        emptyState.classList.toggle('hidden', visibleCount > 0);
 
     }
 

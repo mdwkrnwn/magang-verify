@@ -1,309 +1,53 @@
 <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
-
     <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-[1600px]">
-
-        <!-- Page Header -->
         <div class="mb-6 sm:mb-8">
-
-            <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
-                Dashboard
-            </h1>
-
-            <p class="mt-2 text-sm text-gray-500 sm:text-base">
-                Ringkasan aktivitas magang Anda.
-            </p>
-
+            <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Dashboard Tendik / Manajemen</h1>
+            <p class="mt-2 text-sm text-gray-500 sm:text-base">Validasi alasan ketidakhadiran logbook sesuai kewenangan administrasi.</p>
         </div>
 
-
-        <!-- Statistics -->
-        <div class="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 sm:gap-6 sm:mb-8 xl:grid-cols-4">
-
-            <!-- Portfolio -->
-            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-6 rounded-2xl">
-
-                <div class="flex items-start justify-between gap-3">
-
-                    <div class="min-w-0">
-                        <p class="text-sm font-medium text-gray-500">
-                            Portofolio
-                        </p>
-
-                        <p class="mt-3 text-3xl font-bold text-gray-900">
-                            3
-                        </p>
-
-                        <p class="mt-2 text-sm text-gray-400">
-                            Total portofolio
-                        </p>
-                    </div>
-
-                    <div class="flex items-center justify-center w-12 h-12 text-blue-600 bg-blue-50 rounded-xl shrink-0">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M3 7h4l2 3h12M5 7v12a1 1 0 001 1h12a1 1 0 001-1V7M9 11h6"
-                            />
-                        </svg>
-                    </div>
-
+        <?php
+            $pendingDays = array_sum(array_map(static fn(array $item): int => (int) ($item['validasi_menunggu'] ?? 0), $items ?? []));
+            $pendingWeeks = count($items ?? []);
+        ?>
+        <div class="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2 sm:gap-6 xl:grid-cols-4 sm:mb-8">
+            <?php foreach ([
+                ['Minggu Menunggu Validasi', $pendingWeeks, 'Logbook mingguan dengan pengajuan bukti'],
+                ['Catatan Harian Menunggu', $pendingDays, 'Alasan ketidakhadiran untuk diperiksa'],
+            ] as [$label, $value, $caption]): ?>
+                <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-6 rounded-2xl">
+                    <p class="text-sm font-medium text-gray-500"><?= e($label) ?></p>
+                    <p class="mt-3 text-3xl font-bold text-gray-900"><?= e((string) $value) ?></p>
+                    <p class="mt-2 text-sm text-gray-400"><?= e($caption) ?></p>
                 </div>
-
-            </div>
-
-
-            <!-- Sertifikat -->
-            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-6 rounded-2xl">
-
-                <div class="flex items-start justify-between gap-3">
-
-                    <div class="min-w-0">
-                        <p class="text-sm font-medium text-gray-500">
-                            Sertifikat
-                        </p>
-
-                        <p class="mt-3 text-3xl font-bold text-gray-900">
-                            2
-                        </p>
-
-                        <p class="mt-2 text-sm text-gray-400">
-                            Sertifikat dimiliki
-                        </p>
-                    </div>
-
-                    <div class="flex items-center justify-center w-12 h-12 text-green-600 bg-green-50 rounded-xl shrink-0">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9 12h6m-6 4h6M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z"
-                            />
-                        </svg>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- Pengajuan -->
-            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-6 rounded-2xl">
-
-                <div class="flex items-start justify-between gap-3">
-
-                    <div class="min-w-0">
-                        <p class="text-sm font-medium text-gray-500">
-                            Pengajuan Magang
-                        </p>
-
-                        <p class="mt-3 text-3xl font-bold text-gray-900">
-                            1
-                        </p>
-
-                        <span class="inline-flex px-3 py-1 mt-2 text-xs font-medium text-yellow-700 bg-yellow-50 rounded-full">
-                            Dalam Proses
-                        </span>
-                    </div>
-
-                    <div class="flex items-center justify-center w-12 h-12 text-orange-600 bg-orange-50 rounded-xl shrink-0">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a3 3 0 006 0"
-                            />
-                        </svg>
-                    </div>
-
-                </div>
-
-            </div>
-
-
-            <!-- Logbook -->
-            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-6 rounded-2xl">
-
-                <div class="flex items-start justify-between gap-3">
-
-                    <div class="min-w-0">
-                        <p class="text-sm font-medium text-gray-500">
-                            Logbook
-                        </p>
-
-                        <p class="mt-3 text-3xl font-bold text-gray-900">
-                            4
-                        </p>
-
-                        <p class="mt-2 text-sm text-gray-400">
-                            Aktivitas tercatat
-                        </p>
-                    </div>
-
-                    <div class="flex items-center justify-center w-12 h-12 text-purple-600 bg-purple-50 rounded-xl shrink-0">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"
-                            />
-                        </svg>
-                    </div>
-
-                </div>
-
-            </div>
-
+            <?php endforeach; ?>
         </div>
 
-
-        <!-- Bottom Content -->
-        <div class="grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-2">
-
-            <!-- Pengajuan Terbaru -->
-            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-7 rounded-2xl">
-
-                <div class="flex flex-wrap items-start justify-between gap-3 mb-6">
-
-                    <div class="min-w-0">
-                        <h2 class="text-lg font-semibold text-gray-900">
-                            Pengajuan Magang Terbaru
-                        </h2>
-
-                        <p class="mt-1 text-sm text-gray-500">
-                            Status pengajuan magang Anda
-                        </p>
-                    </div>
-
-                    <span class="px-3 py-1 text-xs font-medium text-yellow-700 bg-yellow-50 rounded-full whitespace-nowrap">
-                        Dalam Proses
-                    </span>
-
-                </div>
-
-                <div class="p-4 border border-gray-100 sm:p-5 rounded-xl">
-
-                    <h3 class="text-base font-semibold text-gray-900 break-words">
-                        PT. Semarsoft Technology Indonesia
-                    </h3>
-
-                    <p class="mt-1 text-sm text-gray-600">
-                        Frontend Developer Intern
-                    </p>
-
-                    <p class="mt-4 text-sm text-gray-400">
-                        Diajukan pada 12 Mei 2025
-                    </p>
-
-                </div>
-
-                <button class="w-full px-4 py-3 mt-5 text-sm font-medium text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50">
-                    Lihat Detail Pengajuan
-                </button>
-
+        <section class="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <div class="px-5 py-4 border-b border-gray-100 sm:px-7">
+                <h2 class="text-lg font-semibold text-gray-900">Antrean Validasi Logbook</h2>
+                <p class="mt-1 text-sm text-gray-500">Keputusan validasi dilakukan pada setiap catatan harian melalui detail minggu.</p>
             </div>
-
-
-            <!-- Aktivitas -->
-            <div class="p-5 bg-white border border-gray-100 shadow-sm sm:p-7 rounded-2xl">
-
-                <div class="mb-6">
-                    <h2 class="text-lg font-semibold text-gray-900">
-                        Aktivitas Terbaru
-                    </h2>
-
-                    <p class="mt-1 text-sm text-gray-500">
-                        Aktivitas terakhir Anda
-                    </p>
+            <?php if (!empty($items)): ?>
+                <div class="divide-y divide-gray-100">
+                    <?php foreach ($items as $item): ?>
+                        <div class="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                            <div class="min-w-0">
+                                <p class="font-semibold text-gray-900"><?= e((string) ($item['mahasiswa_nama'] ?? 'Mahasiswa')) ?> <span class="font-normal text-gray-400">· <?= e((string) ($item['nim'] ?? '-')) ?></span></p>
+                                <p class="mt-1 text-sm text-gray-500"><?= e((string) ($item['nama_perusahaan'] ?? '-')) ?> · Minggu <?= e((string) ($item['minggu_ke'] ?? '')) ?></p>
+                                <p class="mt-1 text-xs text-amber-700"><?= e((string) ($item['validasi_menunggu'] ?? 0)) ?> catatan menunggu validasi</p>
+                            </div>
+                            <a href="<?= e(url('/dashboard/tendik/logbook/detail/' . (int) $item['id'])) ?>" class="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50">Periksa Bukti</a>
+                        </div>
+                    <?php endforeach; ?>
                 </div>
-
-                <div class="space-y-5">
-
-                    <div class="flex gap-4">
-                        <div class="flex items-center justify-center w-10 h-10 text-blue-600 bg-blue-50 rounded-full shrink-0">
-                            ✓
-                        </div>
-
-                        <div class="min-w-0">
-                            <p class="text-sm font-medium text-gray-800">
-                                Menambahkan logbook baru
-                            </p>
-
-                            <p class="mt-1 text-xs text-gray-400">
-                                Hari ini, 09:30
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-4">
-                        <div class="flex items-center justify-center w-10 h-10 text-green-600 bg-green-50 rounded-full shrink-0">
-                            ✓
-                        </div>
-
-                        <div class="min-w-0">
-                            <p class="text-sm font-medium text-gray-800">
-                                Sertifikat berhasil ditambahkan
-                            </p>
-
-                            <p class="mt-1 text-xs text-gray-400">
-                                Kemarin, 15:20
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="flex gap-4">
-                        <div class="flex items-center justify-center w-10 h-10 text-purple-600 bg-purple-50 rounded-full shrink-0">
-                            ✓
-                        </div>
-
-                        <div class="min-w-0">
-                            <p class="text-sm font-medium text-gray-800">
-                                Portofolio diperbarui
-                            </p>
-
-                            <p class="mt-1 text-xs text-gray-400">
-                                2 hari yang lalu
-                            </p>
-                        </div>
-                    </div>
-
+            <?php else: ?>
+                <div class="px-5 py-12 text-center">
+                    <p class="text-sm font-medium text-gray-700">Tidak ada catatan yang menunggu validasi.</p>
+                    <p class="mt-1 text-xs text-gray-500">Antrean akan muncul saat mahasiswa mengirim bukti ketidakhadiran.</p>
                 </div>
+            <?php endif; ?>
+        </section>
 
-            </div>
-
-        </div>
-
-
-        <!-- CTA -->
-        <div class="flex flex-col items-start justify-between gap-5 p-5 mt-4 bg-blue-600 shadow-sm sm:p-7 sm:mt-6 rounded-2xl md:flex-row md:items-center">
-
-            <div>
-                <h2 class="text-lg font-semibold text-white">
-                    Sudah melakukan aktivitas magang hari ini?
-                </h2>
-
-                <p class="mt-1 text-sm text-blue-100">
-                    Jangan lupa mencatat aktivitas Anda di logbook.
-                </p>
-            </div>
-
-            <a
-                href="#"
-                class="inline-flex items-center justify-center w-full gap-2 px-5 py-3 text-sm font-semibold text-blue-600 bg-white rounded-xl hover:bg-blue-50 md:w-auto md:shrink-0"
-            >
-                Tambah Logbook
-
-                <span>→</span>
-            </a>
-
-        </div>
-
-        <?php include __DIR__ . "/../Footer.php"; ?>
-
+        <?php include __DIR__ . '/../Footer.php'; ?>
     </div>
-
 </main>

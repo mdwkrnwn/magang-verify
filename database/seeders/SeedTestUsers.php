@@ -34,7 +34,7 @@ try {
         [
             'login_id' => 'mitra_test',
             'name' => 'Mitra Pengujian',
-            'password' => null,
+            'password' => password_hash('MitraTest123!', PASSWORD_DEFAULT),
             'role' => 'mitra',
         ],
     ];
@@ -42,6 +42,7 @@ try {
     $insertUser = $pdo->prepare(
         'INSERT INTO users (login_id, name, password, role)
          VALUES (:login_id, :name, :password, :role)
+         ON CONFLICT (login_id) DO NOTHING
          RETURNING id'
     );
 
@@ -67,19 +68,14 @@ try {
     );
 
     foreach ($users as $user) {
-        $stmt = $pdo->prepare(
-            'SELECT id FROM users WHERE login_id = :login_id'
-        );
-        $stmt->execute(['login_id' => $user['login_id']]);
-
-        if ($stmt->fetch()) {
-            throw new RuntimeException(
-                'Login ID sudah ada: ' . $user['login_id']
-            );
-        }
-
         $insertUser->execute($user);
         $userId = $insertUser->fetchColumn();
+
+        if ($userId === false) {
+            echo 'Dilewati, akun pengujian sudah ada: '
+                . $user['login_id'] . PHP_EOL;
+            continue;
+        }
 
         if ($user['role'] === 'mahasiswa') {
             $insertMahasiswa->execute([

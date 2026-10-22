@@ -42,5 +42,8 @@ Struktur:
 
 Mahasiswa dapat edit sebelum Mitra sign. Jika edit setelah mahasiswa sign, signature mahasiswa dibatalkan dan wajib sign ulang. Setelah Mitra sign, minggu terkunci.
 
+## Permintaan Dosen Pembimbing
+Pada penempatan yang telah diterima dan belum memiliki dosen pembimbing, mahasiswa dapat mengajukan dosen dan alasan. Riwayat permintaan ditolak tetap disimpan; request pending tidak dapat digandakan.
+
 ## Pengaturan
 Keamanan/password, tampilan/theme, dan preferensi yang tersedia.

@@ -74,6 +74,7 @@ class Logbook
                     ((lm.tanggal_selesai - lm.tanggal_mulai) + 1) AS total_hari,
                     COALESCE(d.hari_terisi, 0) AS hari_terisi,
                     COALESCE(d.validasi_menunggu, 0) AS validasi_menunggu,
+                    COALESCE(d.validasi_ditolak, 0) AS validasi_ditolak,
                     COALESCE(s.ttd_mahasiswa, FALSE) AS ttd_mahasiswa,
                     COALESCE(s.ttd_mitra, FALSE) AS ttd_mitra,
                     COALESCE(s.ttd_dosen, FALSE) AS ttd_dosen
@@ -81,7 +82,8 @@ class Logbook
              LEFT JOIN (
                  SELECT logbook_id,
                         COUNT(*) AS hari_terisi,
-                        COUNT(*) FILTER (WHERE status_validasi = \'menunggu\') AS validasi_menunggu
+                        COUNT(*) FILTER (WHERE status_validasi = \'menunggu\') AS validasi_menunggu,
+                        COUNT(*) FILTER (WHERE status_validasi = \'ditolak\') AS validasi_ditolak
                  FROM logbook_harian
                  GROUP BY logbook_id
              ) d ON d.logbook_id = lm.id
@@ -174,16 +176,25 @@ class Logbook
         $params = ['week_id' => $weekId];
 
         if ($role === self::PARTNER) {
-            $sql .= ' AND m.user_id = :user_id';
+            $sql .= " AND m.user_id = :user_id
+                      AND lm.status IN ('menunggu_mitra', 'menunggu_dosen', 'disetujui')";
             $params['user_id'] = $userId;
         } elseif ($role === self::LECTURER) {
-            $sql .= ' AND pd.user_id = :user_id';
+            $sql .= " AND pd.user_id = :user_id
+                      AND lm.status IN ('menunggu_dosen', 'disetujui')";
             $params['user_id'] = $userId;
         } elseif (in_array($role, self::VALIDATORS, true)) {
-            // Tendik/Koordinator dapat memvalidasi ketidakhadiran.
-        } else {
+            $sql .= " AND EXISTS (
+                          SELECT 1 FROM logbook_harian pending_day
+                          WHERE pending_day.logbook_id = lm.id
+                            AND pending_day.status_kehadiran = 'tidak_hadir'
+                            AND pending_day.status_validasi = 'menunggu'
+                      )";
+        } elseif ($role === self::STUDENT) {
             $sql .= ' AND prof.user_id = :user_id';
             $params['user_id'] = $userId;
+        } else {
+            throw new RuntimeException('Peran akses logbook tidak didukung.');
         }
 
         $sql .= ' LIMIT 1';
@@ -679,7 +690,9 @@ class Logbook
                      divalidasi_oleh = :user_id,
                      divalidasi_pada = CURRENT_TIMESTAMP,
                      updated_at = CURRENT_TIMESTAMP
-                 WHERE id = :id'
+                 WHERE id = :id
+                   AND status_kehadiran = \'tidak_hadir\'
+                   AND status_validasi = \'menunggu\''
             );
             $stmt->execute([
                 'status' => $decision,
@@ -687,6 +700,9 @@ class Logbook
                 'user_id' => $userId,
                 'id' => $dailyId,
             ]);
+            if ($stmt->rowCount() !== 1) {
+                throw new RuntimeException('Validasi ketidakhadiran sudah diproses atau tidak lagi tersedia.');
+            }
 
             $revisionStmt = $pdo->prepare('SELECT versi_terkini FROM logbook_mingguan WHERE id = :id FOR UPDATE');
             $revisionStmt->execute(['id' => (int) $daily['logbook_id']]);
@@ -703,6 +719,19 @@ class Logbook
                 null
             );
             $this->refreshRevisionSnapshot((int) $daily['logbook_id'], $revisionId);
+
+            $activityId = (new AktivitasPengguna())->log(
+                $userId,
+                'Validasi logbook harian',
+                'Ketidakhadiran tanggal ' . $daily['tanggal'] . ' divalidasi dengan keputusan ' . $decision . '.',
+                'logbook',
+                'logbook_harian',
+                $dailyId
+            );
+            if ($activityId < 1) {
+                throw new RuntimeException('Pencatatan aktivitas validasi gagal.');
+            }
+
             $pdo->commit();
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
@@ -711,26 +740,20 @@ class Logbook
             throw $e;
         }
 
-        (new AktivitasPengguna())->log(
-            $userId,
-            'Validasi logbook harian',
-            'Ketidakhadiran tanggal ' . $daily['tanggal'] . ' divalidasi dengan keputusan ' . $decision . '.',
-            'logbook',
-            'logbook_harian',
-            $dailyId
-        );
-
-        return $stmt->rowCount() > 0;
+        return true;
     }
 
     public function getReviewQueue(int $userId, string $role): array
     {
         global $pdo;
 
+        $params = [];
         if ($role === self::PARTNER) {
             $condition = 'm.user_id = :user_id AND lm.status = \'menunggu_mitra\'';
+            $params['user_id'] = $userId;
         } elseif ($role === self::LECTURER) {
             $condition = 'pd.user_id = :user_id AND lm.status = \'menunggu_dosen\'';
+            $params['user_id'] = $userId;
         } elseif (in_array($role, self::VALIDATORS, true)) {
             $condition = 'lh.status_validasi = \'menunggu\'';
         } else {
@@ -756,8 +779,33 @@ class Logbook
              ORDER BY lm.tanggal_mulai ASC, lm.minggu_ke ASC';
 
         $stmt = $pdo->prepare($sql);
-        $stmt->execute(['user_id' => $userId]);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getLecturerStatistics(int $userId): array
+    {
+        global $pdo;
+
+        $stmt = $pdo->prepare(
+            "SELECT COUNT(lm.id) AS total,
+                    COUNT(lm.id) FILTER (WHERE lm.status = 'menunggu_dosen') AS menunggu_dosen,
+                    COUNT(lm.id) FILTER (WHERE lm.status = 'disetujui') AS disetujui,
+                    COUNT(lm.id) FILTER (WHERE lm.status NOT IN ('menunggu_dosen', 'disetujui')) AS belum_siap
+             FROM logbook_mingguan lm
+             INNER JOIN penempatan_magang pm ON pm.id = lm.penempatan_id
+             LEFT JOIN profil_dosen pd ON pd.id = pm.dosen_pembimbing_id
+             WHERE pd.user_id = :user_id"
+        );
+        $stmt->execute(['user_id' => $userId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+        return [
+            'total' => (int) ($row['total'] ?? 0),
+            'menunggu_dosen' => (int) ($row['menunggu_dosen'] ?? 0),
+            'disetujui' => (int) ($row['disetujui'] ?? 0),
+            'belum_siap' => (int) ($row['belum_siap'] ?? 0),
+        ];
     }
 
     public function getDailyForStudent(int $dailyId, int $userId): ?array
@@ -802,7 +850,7 @@ class Logbook
     {
         global $pdo;
         $stmt = $pdo->prepare(
-            'SELECT ltt.*, lm.id AS logbook_id, lm.penempatan_id,
+            'SELECT ltt.*, lm.id AS logbook_id, lm.penempatan_id, lm.status AS week_status,
                     m.user_id AS mitra_user_id, pd.user_id AS dosen_user_id,
                     prof.user_id AS mahasiswa_user_id
              FROM logbook_tanda_tangan ltt
@@ -825,9 +873,12 @@ class Logbook
 
         $allowed = match ($role) {
             'mahasiswa' => (int) $row['mahasiswa_user_id'] === $userId,
-            'mitra' => (int) $row['mitra_user_id'] === $userId,
-            'dosen' => (int) ($row['dosen_user_id'] ?? 0) === $userId,
-            'tendik', 'koordinator_magang' => true,
+            'mitra' => (int) $row['mitra_user_id'] === $userId
+                && $row['tahap'] !== 'dosen'
+                && in_array($row['week_status'], ['menunggu_mitra', 'menunggu_dosen', 'disetujui'], true),
+            'dosen' => (int) ($row['dosen_user_id'] ?? 0) === $userId
+                && in_array($row['week_status'], ['menunggu_dosen', 'disetujui'], true),
+            'tendik', 'koordinator_magang' => false,
             default => false,
         };
 
@@ -838,7 +889,8 @@ class Logbook
     {
         global $pdo;
         $stmt = $pdo->prepare(
-            'SELECT lh.id, lh.bukti_path,
+            'SELECT lh.id, lh.bukti_path, lh.status_kehadiran, lh.status_validasi,
+                    lm.status AS week_status,
                     m.user_id AS mitra_user_id, pd.user_id AS dosen_user_id,
                     prof.user_id AS mahasiswa_user_id
              FROM logbook_harian lh
@@ -860,9 +912,13 @@ class Logbook
 
         $allowed = match ($role) {
             'mahasiswa' => (int) $row['mahasiswa_user_id'] === $userId,
-            'mitra' => (int) $row['mitra_user_id'] === $userId,
-            'dosen' => (int) ($row['dosen_user_id'] ?? 0) === $userId,
-            'tendik', 'koordinator_magang' => true,
+            'mitra' => (int) $row['mitra_user_id'] === $userId
+                && in_array($row['week_status'], ['menunggu_mitra', 'menunggu_dosen', 'disetujui'], true),
+            'dosen' => (int) ($row['dosen_user_id'] ?? 0) === $userId
+                && in_array($row['week_status'], ['menunggu_dosen', 'disetujui'], true),
+            'tendik', 'koordinator_magang' =>
+                $row['status_kehadiran'] === 'tidak_hadir'
+                && $row['status_validasi'] === 'menunggu',
             default => false,
         };
 

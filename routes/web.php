@@ -27,7 +27,9 @@ require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LogbookController.ph
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LamarController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengaturanController.php';
 require_once __DIR__ . '/../controllers/dashboard/LogbookFileController.php';
+require_once __DIR__ . '/../controllers/dashboard/NotifikasiController.php';
 require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LaporanController.php';
+require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PermintaanPembimbingController.php';
 
 /* Dashboard Dosen */
 
@@ -36,6 +38,8 @@ require_once __DIR__ . '/../controllers/dashboard/dosen/MahasiswaBimbinganContro
 require_once __DIR__ . '/../controllers/dashboard/dosen/PengajuanMagangController.php';
 require_once __DIR__ . '/../controllers/dashboard/dosen/LogbookController.php';
 require_once __DIR__ . '/../controllers/dashboard/dosen/DosenMonitoringController.php';
+require_once __DIR__ . '/../controllers/dashboard/PenilaianController.php';
+require_once __DIR__ . '/../controllers/dashboard/dosen/PermintaanPembimbingController.php';
 
 /* Dashboard Tendik */
 
@@ -46,13 +50,21 @@ require_once __DIR__ . '/../controllers/dashboard/tendik/LogbookController.php';
 
 require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/KoordinatorMagangDashboardController.php';
 require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/LogbookController.php';
+require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/PenempatanController.php';
 
 /* Dashboard Mitra */
 
 require_once __DIR__ . '/../controllers/dashboard/mitra/MitraDashboardController.php';
 require_once __DIR__ . '/../controllers/dashboard/mitra/LogbookController.php';
+require_once __DIR__ . '/../controllers/dashboard/mitra/PengajuanController.php';
+require_once __DIR__ . '/../controllers/dashboard/mitra/FormasiController.php';
 
 $routes = [
+
+    '/dashboard/notifikasi' => [
+        'controller' => NotifikasiController::class,
+        'method' => 'index',
+    ],
 
     /*
     |------------------
@@ -175,6 +187,11 @@ $routes = [
         'method' => 'index',
     ],
 
+    '/dashboard/mahasiswa/pembimbing' => [
+        'controller' => MahasiswaPermintaanPembimbingController::class,
+        'method' => 'index',
+    ],
+
     // Menu Logbook
 
 '/dashboard/mahasiswa/logbook' => [
@@ -265,15 +282,25 @@ $routes = [
         'method' => 'index',
     ],
 
+    '/dashboard/dosen/permintaan-pembimbing' => [
+        'controller' => DosenPermintaanPembimbingController::class,
+        'method' => 'index',
+    ],
+
     '/dashboard/dosen/pengajuan' => [
         'controller' => PengajuanMagangController::class,
         'method' => 'index',
     ],
 
     '/dashboard/dosen/monitoring' => [
-    'controller' => MonitoringController::class,
+    'controller' => DosenMonitoringController::class,
     'method' => 'index',
 ],
+
+    '/dashboard/dosen/penilaian' => [
+        'controller' => PenilaianController::class,
+        'method' => 'index',
+    ],
     
     /*
     |---------------------
@@ -301,6 +328,11 @@ $routes = [
         'method' => 'index',
     ],
 
+    '/dashboard/koordinator-magang/penempatan' => [
+        'controller' => KoordinatorPenempatanController::class,
+        'method' => 'index',
+    ],
+
     /*
     |---------------------
     | Dashboard Mitra
@@ -311,6 +343,21 @@ $routes = [
 
     '/dashboard/mitra' => [
         'controller' => MitraDashboardController::class,
+        'method' => 'index',
+    ],
+
+    '/dashboard/mitra/formasi' => [
+        'controller' => MitraFormasiController::class,
+        'method' => 'index',
+    ],
+
+    '/dashboard/mitra/pengajuan' => [
+        'controller' => MitraPengajuanController::class,
+        'method' => 'index',
+    ],
+
+    '/dashboard/mitra/penilaian' => [
+        'controller' => PenilaianController::class,
         'method' => 'index',
     ],
 
@@ -836,6 +883,22 @@ function route(string $uri): ?array
     *------------------------------------------------------------------*/
 
 if (preg_match(
+    '#^/dashboard/mahasiswa/laporan/revisi/(\d+)/download$#',
+    $path,
+    $matches
+)) {
+    return [
+        'route' => [
+            'controller' => LaporanController::class,
+            'method' => 'downloadRevision',
+        ],
+        'params' => [
+            'id' => (int) $matches[1],
+        ],
+    ];
+}
+
+if (preg_match(
     '#^/dashboard/mahasiswa/laporan/detail/(\d+)$#',
     $path,
     $matches
@@ -939,8 +1002,38 @@ if (preg_match(
         exit;
     }
 
+    if (preg_match('#^/dashboard/dosen/monitoring/detail/(\d+)$#', $path, $matches)) {
+        (new DosenMonitoringController())->detail(['id' => (int) $matches[1]]);
+        exit;
+    }
+
     if (preg_match('#^/dashboard/dosen/logbook/tanda-tangan/(\d+)$#', $path, $matches)) {
         (new DosenLogbookController())->sign(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/dosen/pengajuan/dokumen/(\d+)$#', $path, $matches)) {
+        (new PengajuanMagangController())->document(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if ($path === '/dashboard/mitra/formasi/tambah') {
+        (new MitraFormasiController())->create();
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mitra/formasi/edit/(\d+)$#', $path, $matches)) {
+        (new MitraFormasiController())->edit(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mitra/formasi/status/(\d+)$#', $path, $matches)) {
+        (new MitraFormasiController())->changeStatus(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mitra/formasi/hapus/(\d+)$#', $path, $matches)) {
+        (new MitraFormasiController())->delete(['id' => (int) $matches[1]]);
         exit;
     }
 
@@ -957,6 +1050,11 @@ if (preg_match(
 
     if (preg_match('#^/dashboard/mitra/logbook/tanda-tangan/(\d+)$#', $path, $matches)) {
         (new MitraLogbookController())->sign(['id' => (int) $matches[1]]);
+        exit;
+    }
+
+    if (preg_match('#^/dashboard/mitra/pengajuan/dokumen/(\d+)$#', $path, $matches)) {
+        (new PengajuanMagangController())->document(['id' => (int) $matches[1]]);
         exit;
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../../config/app.php';
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../function/Helpers.php';
+require_once __DIR__ . '/../../../function/PrivateStorage.php';
 require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 
 require_once __DIR__ . '/../../../models/LaporanMagang.php';
@@ -520,9 +521,14 @@ class LaporanController
                     . $id
                 );
 
-            } catch (Throwable $e) {
-
+            } catch (PDOException $e) {
+                error_log('Gagal membuat draft laporan: ' . $e->getMessage());
+                $error = 'Draft laporan belum dapat dibuat. Silakan coba lagi.';
+            } catch (InvalidArgumentException | RuntimeException $e) {
                 $error = $e->getMessage();
+            } catch (Throwable $e) {
+                error_log('Kesalahan internal saat membuat draft laporan: ' . $e->getMessage());
+                $error = 'Draft laporan belum dapat dibuat karena terjadi kesalahan internal.';
             }
         }
 
@@ -584,6 +590,10 @@ class LaporanController
         );
 
         $error = null;
+        $uploadFormValues = [
+            'ringkasan' => '',
+            'catatan_revisi' => '',
+        ];
 
         $formAction = url(
     '/dashboard/mahasiswa/laporan/detail/' . $id
@@ -601,6 +611,10 @@ class LaporanController
         ) {
 
             $this->validatePost();
+            $uploadFormValues = [
+                'ringkasan' => trim((string) ($_POST['ringkasan'] ?? '')),
+                'catatan_revisi' => trim((string) ($_POST['catatan_revisi'] ?? '')),
+            ];
 
             try {
 
@@ -608,6 +622,11 @@ class LaporanController
                     throw new RuntimeException(
                         'Laporan belum dapat diunggah pada status saat ini.'
                     );
+                }
+
+                if (mb_strlen($uploadFormValues['ringkasan']) > 5000
+                    || mb_strlen($uploadFormValues['catatan_revisi']) > 5000) {
+                    throw new InvalidArgumentException('Ringkasan dan catatan revisi maksimal 5.000 karakter.');
                 }
 
 
@@ -632,21 +651,8 @@ class LaporanController
                     $version =
                         $this->revisiModel->nextVersion($id);
 
-                    $ringkasan =
-                        trim(
-                            (string) (
-                                $_POST['ringkasan']
-                                ?? ''
-                            )
-                        ) ?: null;
-
-                    $catatanRevisi =
-                        trim(
-                            (string) (
-                                $_POST['catatan_revisi']
-                                ?? ''
-                            )
-                        ) ?: null;
+                    $ringkasan = $uploadFormValues['ringkasan'] ?: null;
+                    $catatanRevisi = $uploadFormValues['catatan_revisi'] ?: null;
 
 
                     /*
@@ -743,9 +749,14 @@ class LaporanController
                     . $id
                 );
 
-            } catch (Throwable $e) {
-
+            } catch (PDOException $e) {
+                error_log('Gagal mengunggah laporan: ' . $e->getMessage());
+                $error = 'Laporan belum dapat diunggah. Ringkasan dan catatan tetap tersimpan; silakan coba lagi.';
+            } catch (InvalidArgumentException | RuntimeException $e) {
                 $error = $e->getMessage();
+            } catch (Throwable $e) {
+                error_log('Kesalahan internal saat mengunggah laporan: ' . $e->getMessage());
+                $error = 'Laporan belum dapat diunggah karena terjadi kesalahan internal.';
             }
         }
 
@@ -959,6 +970,25 @@ class LaporanController
     | DOWNLOAD LAPORAN
     |--------------------------------------------------------------------------
     */
+
+    public function downloadRevision($params = []): never
+    {
+        $userId = $this->userId();
+        $revisionId = filter_var($params['id'] ?? null, FILTER_VALIDATE_INT);
+        if (!$revisionId || $revisionId < 1) {
+            $this->notFound();
+        }
+
+        $revision = $this->revisiModel->getByIdForOwner((int) $revisionId, $userId);
+        if (!$revision) {
+            $this->notFound();
+        }
+
+        $versionName = 'laporan-' . ($revision['minggu_ke'] !== null
+            ? 'minggu-' . (int) $revision['minggu_ke']
+            : 'akhir') . '-versi-' . (int) $revision['nomor_versi'];
+        $this->downloadPrivateFile((string) $revision['file_path'], $versionName);
+    }
 
     public function download($params = []): void
     {
@@ -1279,29 +1309,12 @@ class LaporanController
         string $downloadName
     ): never {
 
-        if ($relativePath === '') {
-            $this->notFound();
-        }
-
-
-        $root =
-            dirname(__DIR__, 3);
-
-        $file =
-            realpath(
-                $root
-                . '/'
-                . ltrim(
-                    $relativePath,
-                    '/'
-                )
-            );
-
-
-        if (
-            $file === false
-            || !is_file($file)
-        ) {
+        $file = resolvePrivateStorageFile(
+            dirname(__DIR__, 3),
+            $relativePath,
+            ['storage/laporan', 'storage/templates/laporan']
+        );
+        if ($file === null) {
             $this->notFound();
         }
 

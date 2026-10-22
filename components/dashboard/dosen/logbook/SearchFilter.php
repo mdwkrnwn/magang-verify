@@ -60,18 +60,6 @@
                     Menunggu Dosen
                 </option>
 
-                <option value="disetujui">
-                    Disetujui
-                </option>
-
-                <option value="menunggu_mitra">
-                    Menunggu Mitra
-                </option>
-
-                <option value="draft">
-                    Draft
-                </option>
-
             </select>
 
         </div>

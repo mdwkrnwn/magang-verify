@@ -9,6 +9,8 @@ Nama, kode, kategori, bidang usaha, deskripsi, kontak, website, alamat, status v
 ## Formasi Magang
 Mitra mengelola judul, deskripsi, bidang, kuota, persyaratan, lokasi, sistem kerja, tanggal, tahun akademik, dan status sesuai hak akses.
 
+UI pengelolaan tersedia di `/dashboard/mitra/formasi`. Formasi hanya dapat diubah jika belum memiliki pengajuan; status dapat ditutup tanpa menghapus histori. Formasi tanpa pengajuan/penerimaan dapat dihapus.
+
 ## Pelamar / Pengajuan
 Melihat mahasiswa yang melamar dan memberikan respons sesuai workflow.
 

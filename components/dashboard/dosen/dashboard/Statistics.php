@@ -14,7 +14,7 @@
                 </p>
 
                 <p class="mt-3 text-3xl font-bold text-gray-900">
-                    12
+                    <?= e((string) ($statistics['mahasiswa'] ?? 0)) ?>
                 </p>
 
                 <p class="mt-2 text-sm text-gray-400">
@@ -55,15 +55,15 @@
             <div class="min-w-0">
 
                 <p class="text-sm font-medium text-gray-500">
-                    Pengajuan Menunggu
+                    Sedang Magang
                 </p>
 
                 <p class="mt-3 text-3xl font-bold text-gray-900">
-                    3
+                    <?= e((string) ($statistics['berlangsung'] ?? 0)) ?>
                 </p>
 
                 <p class="mt-2 text-sm text-orange-600">
-                    Menunggu persetujuan
+                    Penempatan berjalan
                 </p>
 
             </div>
@@ -103,11 +103,11 @@
                 </p>
 
                 <p class="mt-3 text-3xl font-bold text-gray-900">
-                    5
+                    <?= e((string) count($pendingLogbooks ?? [])) ?>
                 </p>
 
                 <p class="mt-2 text-sm text-yellow-600">
-                    Menunggu review/signature
+                    Menunggu tanda tangan dosen
                 </p>
 
             </div>
@@ -147,11 +147,11 @@
                 </p>
 
                 <p class="mt-3 text-3xl font-bold text-gray-900">
-                    4
+                    <?= e((string) ($statistics['persiapan'] ?? 0)) ?>
                 </p>
 
                 <p class="mt-2 text-sm text-green-600">
-                    Mahasiswa sedang magang
+                    Menunggu pelaksanaan
                 </p>
 
             </div>

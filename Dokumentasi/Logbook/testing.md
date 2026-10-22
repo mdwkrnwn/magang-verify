@@ -6,7 +6,7 @@
 |---|---|---|---|
 | Mahasiswa aktif | `mhs_dimas` | `Password123!` | Penempatan aktif 1 Sep–30 Nov 2026 |
 | Dosen pembimbing | `dosen_seed` | `Password123!` | Profil dosen dipakai sebagai `dosen_pembimbing_id` |
-| Mitra | `mitra_seed` | tidak digunakan | Login mitra memang tidak memerlukan password pada `LoginController` |
+| Mitra | `mitra_seed` | tidak digunakan | Login memakai `mitra.kode_perusahaan` pada profil yang terhubung ke `users`; fixture dibuat oleh `SeedMitraMagang.php`. |
 | Koordinator | `koord_test` | `KoordTest123!` | Dibuat oleh `database/seeders/SeedTestUsers.php` |
 | Tendik | `tendik_test` | `TendikTest123!` | Dibuat oleh `database/seeders/SeedTestUsers.php` |
 

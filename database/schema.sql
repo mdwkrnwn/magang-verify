@@ -438,6 +438,43 @@ CREATE INDEX idx_penempatan_periode
 
 
 -- ============================================
+-- PERMINTAAN DOSEN PEMBIMBING
+-- Migration: 029_create_permintaan_pembimbing.sql
+-- ============================================
+
+CREATE TABLE public.permintaan_pembimbing (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    penempatan_id BIGINT NOT NULL
+        REFERENCES penempatan_magang(id) ON DELETE RESTRICT,
+    dosen_id BIGINT NOT NULL
+        REFERENCES profil_dosen(id) ON DELETE RESTRICT,
+    alasan_pengajuan TEXT NOT NULL,
+    status_permintaan VARCHAR(20) NOT NULL DEFAULT 'menunggu',
+    catatan_dosen TEXT,
+    tanggal_pengajuan TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    tanggal_respons TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT permintaan_pembimbing_alasan_check
+        CHECK (length(btrim(alasan_pengajuan)) > 0),
+    CONSTRAINT permintaan_pembimbing_status_check
+        CHECK (status_permintaan IN ('menunggu', 'disetujui', 'ditolak')),
+    CONSTRAINT permintaan_pembimbing_respons_check
+        CHECK (
+            (status_permintaan = 'menunggu' AND tanggal_respons IS NULL)
+            OR (status_permintaan IN ('disetujui', 'ditolak') AND tanggal_respons IS NOT NULL)
+        )
+);
+
+CREATE UNIQUE INDEX uq_permintaan_pembimbing_menunggu
+    ON public.permintaan_pembimbing(penempatan_id)
+    WHERE status_permintaan = 'menunggu';
+
+CREATE INDEX idx_permintaan_pembimbing_dosen_status
+    ON public.permintaan_pembimbing(dosen_id, status_permintaan, tanggal_pengajuan DESC);
+
+
+-- ============================================
 -- LOGBOOK MINGGUAN
 -- ============================================
 
@@ -1782,9 +1819,56 @@ FOR EACH ROW
 EXECUTE FUNCTION public.prevent_signed_logbook_revision_mutation();
 
 
+INSERT INTO public.template_laporan (
+    jenis_laporan, nama_template, file_template, versi, status_aktif
+)
+VALUES
+    ('laporan_akhir', 'Template Laporan Magang Industri POLINEMA',
+     'storage/templates/laporan/Template_Laporan_Magang_Industri_Polinema.docx', 1, TRUE),
+    ('laporan_mingguan', 'Template Laporan Mingguan Magang Industri POLINEMA',
+     'storage/templates/laporan/Template_Laporan_Mingguan_Magang_Industri_Polinema.docx', 1, TRUE);
+
+CREATE OR REPLACE VIEW public.view_rekap_magang_koordinator AS
+SELECT
+    pm.id AS mahasiswa_id,
+    pm.nim,
+    um.name AS nama_mahasiswa,
+    pm.program_studi,
+    pm.angkatan,
+    p.id AS pendaftaran_id,
+    p.tanggal_pengajuan,
+    p.status_pendaftaran,
+    p.status_persetujuan_dosen,
+    p.status_respons_mitra,
+    fm.id AS formasi_id,
+    fm.judul AS nama_formasi,
+    fm.tahun_akademik,
+    fm.tanggal_mulai AS tanggal_mulai_formasi,
+    fm.tanggal_selesai AS tanggal_selesai_formasi,
+    m.id AS mitra_id,
+    m.nama_perusahaan,
+    pen.id AS penempatan_id,
+    pen.status AS status_penempatan,
+    pen.tanggal_mulai AS tanggal_mulai_magang,
+    pen.tanggal_selesai AS tanggal_selesai_magang,
+    pd.id AS dosen_pembimbing_id,
+    ud.name AS nama_dosen_pembimbing
+FROM public.pendaftaran_magang AS p
+JOIN public.profil_mahasiswa AS pm ON pm.id = p.mahasiswa_id
+JOIN public.users AS um ON um.id = pm.user_id
+JOIN public.formasi_magang AS fm ON fm.id = p.formasi_id
+JOIN public.mitra AS m ON m.id = fm.mitra_id
+LEFT JOIN public.penempatan_magang AS pen ON pen.pendaftaran_id = p.id
+LEFT JOIN public.profil_dosen AS pd ON pd.id = pen.dosen_pembimbing_id
+LEFT JOIN public.users AS ud ON ud.id = pd.user_id;
+
 INSERT INTO public.schema_migrations (migration)
 VALUES
     ('022_harden_logbook_structure.sql'),
     ('023_restructure_logbook_magang.sql'),
-    ('024_create_laporan_workflow.sql')
+    ('024_create_laporan_workflow.sql'),
+    ('026_seed_template_laporan.sql'),
+    ('027_seed_template_laporan_mingguan.sql'),
+    ('028_create_view_rekap_magang_koordinator.sql'),
+    ('029_create_permintaan_pembimbing.sql')
 ON CONFLICT (migration) DO NOTHING;

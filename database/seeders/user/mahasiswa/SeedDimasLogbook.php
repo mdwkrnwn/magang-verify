@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/_SeedHelper.php';
+require_once __DIR__ . '/../../../../models/PdoParameterBinder.php';
 
 $pdo = seedDb();
 $pdo->beginTransaction();
@@ -59,7 +60,7 @@ try {
             WHERE id = :id
         ');
 
-        $update->execute([
+        PdoParameterBinder::execute($update, [
             'name' => 'Dimas Pratama',
             'role' => 'mahasiswa',
             'is_active' => true,

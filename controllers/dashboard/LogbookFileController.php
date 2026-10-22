@@ -34,6 +34,7 @@ class LogbookFileController
             http_response_code(403);
             exit('Akses ditolak.');
         }
+        AuthMiddleware::handle($role);
 
         $userId = (int) ($_SESSION['user']['id'] ?? 0);
         $model = new Logbook();

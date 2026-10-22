@@ -41,6 +41,21 @@ class LogbookController
         }
     }
 
+    private function safeError(Throwable $exception, string $fallback): string
+    {
+        if ($exception instanceof PDOException) {
+            error_log('Kegagalan database workflow logbook mahasiswa: ' . $exception->getMessage());
+            return $fallback;
+        }
+
+        if ($exception instanceof InvalidArgumentException || $exception instanceof RuntimeException) {
+            return $exception->getMessage();
+        }
+
+        error_log('Kesalahan internal workflow logbook mahasiswa: ' . $exception->getMessage());
+        return $fallback;
+    }
+
     private function dailyData(): array
     {
         $status = (string) ($_POST['status_kehadiran'] ?? 'hadir');
@@ -96,7 +111,7 @@ class LogbookController
 
             $this->redirect('/dashboard/mahasiswa/logbook/detail/' . $id);
         } catch (Throwable $e) {
-            $error = $e->getMessage();
+            $error = $this->safeError($e, 'Minggu logbook belum dapat dibuat. Silakan coba lagi.');
         }
     }
 
@@ -144,7 +159,7 @@ class LogbookController
                 $this->model->createDaily($weekId, $userId, $this->dailyData(), $_FILES['bukti'] ?? null);
                 $this->redirect('/dashboard/mahasiswa/logbook/detail/' . $weekId);
             } catch (Throwable $e) {
-                $error = $e->getMessage();
+                $error = $this->safeError($e, 'Aktivitas harian belum dapat disimpan. Silakan coba lagi.');
                 $item = array_merge($item, $_POST);
             }
         }
@@ -178,7 +193,7 @@ class LogbookController
                 $this->model->updateDaily($dailyId, $userId, $this->dailyData(), $_FILES['bukti'] ?? null);
                 $this->redirect('/dashboard/mahasiswa/logbook/detail/' . $weekId);
             } catch (Throwable $e) {
-                $error = $e->getMessage();
+                $error = $this->safeError($e, 'Aktivitas harian belum dapat diperbarui. Silakan coba lagi.');
                 $item = array_merge($item, $_POST);
             }
         }
@@ -201,7 +216,7 @@ class LogbookController
             $this->redirect('/dashboard/mahasiswa/logbook/detail/' . (int) $params['id']);
         } catch (Throwable $e) {
             http_response_code(422);
-            exit(e($e->getMessage()));
+            exit(e($this->safeError($e, 'Tanda tangan belum dapat disimpan. Silakan coba lagi.')));
         }
     }
 

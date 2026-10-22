@@ -29,7 +29,7 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-4 mb-5 sm:grid-cols-3">
+            <div class="grid grid-cols-1 gap-4 mb-5 sm:grid-cols-2 xl:grid-cols-4">
                 <div class="p-4 bg-white border border-gray-100 shadow-sm rounded-2xl">
                     <p class="text-xs text-gray-400">Hari terisi</p>
                     <p class="mt-1 text-xl font-bold text-gray-900"><?= e((string) $completeness['filled']) ?> / <?= e((string) $completeness['expected']) ?></p>
@@ -37,6 +37,10 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
                 <div class="p-4 bg-white border border-gray-100 shadow-sm rounded-2xl">
                     <p class="text-xs text-gray-400">Validasi menunggu</p>
                     <p class="mt-1 text-xl font-bold text-amber-600"><?= e((string) $completeness['pending_validation']) ?></p>
+                </div>
+                <div class="p-4 bg-white border border-gray-100 shadow-sm rounded-2xl">
+                    <p class="text-xs text-gray-400">Validasi ditolak</p>
+                    <p class="mt-1 text-xl font-bold <?= (int) ($completeness['rejected_validation'] ?? 0) > 0 ? 'text-red-600' : 'text-gray-900' ?>"><?= e((string) ($completeness['rejected_validation'] ?? 0)) ?></p>
                 </div>
                 <div class="p-4 bg-white border border-gray-100 shadow-sm rounded-2xl">
                     <p class="text-xs text-gray-400">Status</p>
@@ -53,6 +57,18 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
             <?php if (!empty($completeness['missing'])): ?>
                 <div class="p-4 mb-5 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl">
                     <strong>Belum lengkap.</strong> Tanggal yang belum memiliki logbook: <?= e(implode(', ', array_map(fn($d) => date('d M Y', strtotime($d)), $completeness['missing']))) ?>.
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($completeness['pending_validation'])): ?>
+                <div class="p-4 mb-5 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl" role="status">
+                    <strong>Menunggu validasi.</strong> <?= e((string) $completeness['pending_validation']) ?> catatan ketidakhadiran masih menunggu validasi. Tanda tangan minggu belum tersedia sampai validasi selesai.
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($completeness['rejected_validation'])): ?>
+                <div class="p-4 mb-5 text-sm text-red-800 bg-red-50 border border-red-200 rounded-xl" role="alert">
+                    <strong>Ada validasi ketidakhadiran yang ditolak.</strong> Periksa catatan validator pada baris aktivitas terkait. Anda dapat memperbaiki data sebelum Mitra menandatangani minggu; perubahan akan meminta validasi ulang bila status tetap tidak hadir.
                 </div>
             <?php endif; ?>
 
@@ -81,7 +97,7 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
                                     <td class="px-4 py-4 text-gray-700">
                                         <div class="max-w-md whitespace-pre-line"><?= e($day['kegiatan']) ?></div><?php if ($day['status_kehadiran'] === 'tidak_hadir'): ?><div class="mt-1 text-xs text-amber-700">Alasan: <?= e($day['alasan_ketidakhadiran']) ?></div><?php endif; ?>
                                     </td>
-                                    <td class="px-4 py-4"><span class="inline-flex px-2.5 py-1 text-[11px] font-medium rounded-full <?= $day['status_kehadiran'] === 'hadir' ? 'text-emerald-700 bg-emerald-50' : ($day['status_validasi'] === 'disetujui' ? 'text-emerald-700 bg-emerald-50' : ($day['status_validasi'] === 'ditolak' ? 'text-red-700 bg-red-50' : 'text-amber-700 bg-amber-50')) ?>"><?= e($day['status_kehadiran'] === 'hadir' ? 'Hadir' : ucfirst(str_replace('_', ' ', $day['status_validasi']))) ?></span><?php if (!empty($day['bukti_path'])): ?><a target="_blank" href="<?= e(url('/dashboard/logbook/file/evidence/' . (int) $day['id'])) ?>" class="block mt-1 text-xs text-blue-600 hover:underline">Lihat bukti</a><?php endif; ?></td>
+                                    <td class="px-4 py-4"><?php $daily = $day; include __DIR__ . '/../../../../components/dashboard/mahasiswa/logbook/DailyValidationStatus.php'; ?></td>
                                     <td class="px-4 py-4 text-right"><?php if (!$locked): ?><a href="<?= e(url('/dashboard/mahasiswa/logbook/hari/edit/' . (int) $day['id'])) ?>" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Edit</a><?php endif; ?></td>
                                 </tr>
                             <?php endforeach; ?>

@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../../models/Portofolio.php';
 require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
+require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 
 class PortofolioController
 {
@@ -35,6 +36,7 @@ class PortofolioController
     private function getMahasiswaId(): int
     {
         $this->startSession();
+        AuthMiddleware::handle('mahasiswa');
 
         $userId = $_SESSION['user']['id'] ?? null;
 
@@ -133,6 +135,11 @@ class PortofolioController
 
         if (!isset($allowedTypes[$mimeType])) {
             $errors['gambar'] = 'Format gambar harus JPG, PNG, atau WEBP.';
+            return null;
+        }
+
+        if (@getimagesize($tmpName) === false) {
+            $errors['gambar'] = 'File gambar tidak valid.';
             return null;
         }
 

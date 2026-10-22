@@ -1,22 +1,8 @@
 <?php
 
-$envPath = dirname(__DIR__) . '/.env';
+require_once __DIR__ . '/../function/Environment.php';
 
-if (!is_file($envPath)) {
-    throw new RuntimeException('File .env tidak ditemukan.');
-}
-
-$env = parse_ini_file($envPath, false, INI_SCANNER_RAW);
-
-if ($env === false) {
-    throw new RuntimeException('File .env gagal dibaca.');
-}
-
-foreach ($env as $key => $value) {
-    if (!is_string($value)) {
-        continue;
-    }
-
-    putenv("$key=$value");
-    $_ENV[$key] = $value;
-}
+loadEnvironmentFileIfRequired(
+    ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'],
+    dirname(__DIR__) . '/.env'
+);

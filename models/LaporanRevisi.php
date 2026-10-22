@@ -43,6 +43,23 @@ class LaporanRevisi
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
+    public function getByIdForOwner(int $revisiId, int $userId): ?array
+    {
+        global $pdo;
+        $stmt = $pdo->prepare(
+            'SELECT lr.*, lm.judul, lm.jenis_laporan, lm.minggu_ke
+             FROM laporan_revisi lr
+             INNER JOIN laporan_magang lm ON lm.id = lr.laporan_id
+             INNER JOIN penempatan_magang pm ON pm.id = lm.penempatan_id
+             INNER JOIN pendaftaran_magang p ON p.id = pm.pendaftaran_id
+             INNER JOIN profil_mahasiswa prof ON prof.id = p.mahasiswa_id
+             WHERE lr.id = :revisi_id AND prof.user_id = :user_id
+             LIMIT 1'
+        );
+        $stmt->execute(['revisi_id' => $revisiId, 'user_id' => $userId]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
     public function nextVersion(int $laporanId): int
     {
         global $pdo;

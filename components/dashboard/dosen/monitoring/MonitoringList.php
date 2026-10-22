@@ -1,51 +1,6 @@
 <?php
 
-$monitoringData = [
-    [
-        'id' => 1,
-        'nama' => 'Ahmad Rizki Pratama',
-        'nim' => '23410001',
-        'prodi' => 'Teknik Informatika',
-        'mitra' => 'PT Semarsoft Technology Indonesia',
-        'periode' => '7 Okt – 30 Des 2026',
-        'status' => 'berlangsung',
-        'status_label' => 'Berlangsung',
-        'initial' => 'AR',
-    ],
-    [
-        'id' => 2,
-        'nama' => 'Siti Aisyah',
-        'nim' => '23410002',
-        'prodi' => 'Manajemen',
-        'mitra' => 'PT Digital Nusantara',
-        'periode' => '1 Jul – 30 Sep 2026',
-        'status' => 'menunggu_penilaian',
-        'status_label' => 'Menunggu Penilaian',
-        'initial' => 'SA',
-    ],
-    [
-        'id' => 3,
-        'nama' => 'Budi Santoso',
-        'nim' => '23410003',
-        'prodi' => 'Sistem Informasi',
-        'mitra' => 'CV Kreasi Digital',
-        'periode' => '1 Apr – 30 Jun 2026',
-        'status' => 'selesai',
-        'status_label' => 'Selesai',
-        'initial' => 'BS',
-    ],
-    [
-        'id' => 4,
-        'nama' => 'Dewi Lestari',
-        'nim' => '23410004',
-        'prodi' => 'Teknik Informatika',
-        'mitra' => 'PT Inovasi Teknologi',
-        'periode' => '10 Okt – 31 Des 2026',
-        'status' => 'persiapan',
-        'status_label' => 'Persiapan',
-        'initial' => 'DL',
-    ],
-];
+$monitoringData = is_array($monitoringData ?? null) ? $monitoringData : [];
 ?>
 
 <section class="overflow-hidden bg-white border border-slate-100 shadow-sm rounded-2xl">
@@ -220,7 +175,7 @@ $monitoringData = [
                         <?php if ($mahasiswa['status'] === 'menunggu_penilaian'): ?>
 
                             <a
-                                href="<?= url('/dashboard/dosen/monitoring/penilaian/' . $mahasiswa['id']) ?>"
+                                href="<?= url('/dashboard/dosen/penilaian') ?>"
                                 class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-white transition bg-blue-600 rounded-xl hover:bg-blue-700"
                             >
                                 Penilaian
@@ -241,7 +196,7 @@ $monitoringData = [
 
         <div
             id="emptyMonitoringState"
-            class="hidden px-5 py-12 text-center"
+            class="<?= $monitoringData ? 'hidden' : '' ?> px-5 py-12 text-center"
         >
 
             <div class="flex items-center justify-center w-12 h-12 mx-auto mb-4 text-slate-400 bg-slate-100 rounded-full">
@@ -263,7 +218,7 @@ $monitoringData = [
             </div>
 
             <h3 class="font-semibold text-slate-700">
-                Mahasiswa tidak ditemukan
+                <?= $monitoringData ? 'Mahasiswa tidak ditemukan' : 'Belum ada mahasiswa bimbingan' ?>
             </h3>
 
             <p class="mt-1 text-sm text-slate-400">

@@ -3,6 +3,7 @@
 
 require_once __DIR__ . '/../../../config/database.php';
 require_once __DIR__ . '/../../../config/app.php';
+require_once __DIR__ . '/../../../function/PrivateStorage.php';
 require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../models/ProfilMahasiswa.php';
 require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
@@ -293,19 +294,25 @@ private function updateBio(int $userId, int $profilId): void
     {
         if (
             !isset($_FILES['foto_profil']) ||
-            $_FILES['foto_profil']['error'] !== UPLOAD_ERR_OK
+            !is_array($_FILES['foto_profil']) ||
+            (int) ($_FILES['foto_profil']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK
         ) {
             $this->redirect('error', 'photo_upload_failed');
         }
 
         $file = $_FILES['foto_profil'];
+        $tmpName = (string) ($file['tmp_name'] ?? '');
 
-        if ($file['size'] > 2 * 1024 * 1024) {
+        if ((int) ($file['size'] ?? 0) < 1 || (int) $file['size'] > 2 * 1024 * 1024) {
             $this->redirect('error', 'photo_too_large');
         }
 
+        if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+            $this->redirect('error', 'invalid_photo');
+        }
+
         $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mime = $finfo->file($file['tmp_name']);
+        $mime = $finfo->file($tmpName);
 
         $allowedTypes = [
             'image/jpeg' => 'jpg',
@@ -317,7 +324,7 @@ private function updateBio(int $userId, int $profilId): void
             $this->redirect('error', 'invalid_photo_type');
         }
 
-        if (@getimagesize($file['tmp_name']) === false) {
+        if (@getimagesize($tmpName) === false) {
             $this->redirect('error', 'invalid_photo');
         }
 
@@ -355,17 +362,10 @@ private function updateBio(int $userId, int $profilId): void
 
             $this->profilModel->updatePhoto($userId, $relativePath);
 
-            $oldPath = $oldProfil['foto_path'] ?? '';
-
-            if (
-                $oldPath !== '' &&
-                str_starts_with($oldPath, 'uploads/profil/')
-            ) {
-                $oldFile = $projectRoot . '/' . $oldPath;
-
-                if (is_file($oldFile)) {
-                    @unlink($oldFile);
-                }
+            $oldPath = (string) ($oldProfil['foto_path'] ?? '');
+            $oldFile = resolvePrivateStorageFile($projectRoot, $oldPath, ['uploads/profil']);
+            if ($oldFile !== null) {
+                @unlink($oldFile);
             }
         } catch (Throwable $e) {
             if (is_file($destination)) {
@@ -392,27 +392,33 @@ private function updateBio(int $userId, int $profilId): void
     {
         if (
             !isset($_FILES['cv']) ||
-            $_FILES['cv']['error'] !== UPLOAD_ERR_OK
+            !is_array($_FILES['cv']) ||
+            (int) ($_FILES['cv']['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK
         ) {
             $this->redirect('error', 'cv_upload_failed');
         }
 
         $file = $_FILES['cv'];
+        $tmpName = (string) ($file['tmp_name'] ?? '');
         $maxSize = 5 * 1024 * 1024;
 
         if ((int) $file['size'] <= 0 || (int) $file['size'] > $maxSize) {
             $this->redirect('error', 'cv_too_large');
         }
 
+        if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+            $this->redirect('error', 'invalid_cv_file');
+        }
+
         $finfo = new finfo(FILEINFO_MIME_TYPE);
-        $mime = $finfo->file($file['tmp_name']);
+        $mime = $finfo->file($tmpName);
 
         if ($mime !== 'application/pdf') {
             $this->redirect('error', 'invalid_cv_type');
         }
 
         // Validasi tambahan agar file benar-benar diawali signature PDF.
-        $handle = @fopen($file['tmp_name'], 'rb');
+        $handle = @fopen($tmpName, 'rb');
         $signature = $handle !== false
             ? fread($handle, 5)
             : false;
@@ -482,16 +488,9 @@ private function updateBio(int $userId, int $profilId): void
             );
 
             $oldPath = trim((string) ($oldProfil['cv_path'] ?? ''));
-
-            if (
-                $oldPath !== '' &&
-                str_starts_with($oldPath, 'uploads/cv/')
-            ) {
-                $oldFile = $projectRoot . '/' . $oldPath;
-
-                if (is_file($oldFile)) {
-                    @unlink($oldFile);
-                }
+            $oldFile = resolvePrivateStorageFile($projectRoot, $oldPath, ['uploads/cv']);
+            if ($oldFile !== null) {
+                @unlink($oldFile);
             }
         } catch (Throwable $e) {
             if (is_file($destination)) {

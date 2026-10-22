@@ -6,7 +6,15 @@
 
 $status = $formasi['status'] ?? 'penuh';
 
-$isTersedia = $status === 'tersedia';
+$isTersedia = $status === 'tersedia' && ($formasi['status_formasi'] ?? '') === 'dibuka';
+$statusLabel = match ((string) ($formasi['status_formasi'] ?? '')) {
+    'dibuka' => 'Kuota Penuh',
+    'draft' => 'Belum Dibuka',
+    'ditutup' => 'Pendaftaran Ditutup',
+    'selesai' => 'Formasi Selesai',
+    'dibatalkan' => 'Formasi Dibatalkan',
+    default => 'Tidak tersedia',
+};
 
 $initial = initials(
     $formasi['perusahaan'] ?? ''
@@ -97,7 +105,7 @@ $initial = initials(
                                        bg-slate-100
                                        rounded-full
                                        shrink-0">
-                                Penuh
+                                <?= e($statusLabel) ?>
                             </span>
 
                         <?php endif; ?>
@@ -196,7 +204,7 @@ $initial = initials(
                                bg-slate-100
                                rounded-lg
                                cursor-not-allowed">
-                        Kuota Penuh
+                        <?= e($statusLabel) ?>
                     </span>
 
                 <?php endif; ?>

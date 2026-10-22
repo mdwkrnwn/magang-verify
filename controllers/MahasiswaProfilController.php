@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/app.php';
 require_once __DIR__ . '/../function/Helpers.php';
+require_once __DIR__ . '/../function/PrivateStorage.php';
 require_once __DIR__ . '/../models/ProfilMahasiswa.php';
 
 class MahasiswaProfilController
@@ -40,12 +41,23 @@ class MahasiswaProfilController
             exit('CV mahasiswa belum tersedia.');
         }
 
-        $projectRoot = dirname(__DIR__);
-        $filePath = $projectRoot . '/' . ltrim((string) $m['cv_path'], '/');
+        $filePath = resolvePrivateStorageFile(
+            dirname(__DIR__),
+            (string) $m['cv_path'],
+            ['uploads/cv']
+        );
 
-        if (!is_file($filePath) || !is_readable($filePath)) {
+        if ($filePath === null || !is_readable($filePath)) {
             http_response_code(404);
             exit('File CV tidak ditemukan.');
+        }
+
+        if (
+            (new finfo(FILEINFO_MIME_TYPE))->file($filePath) !== 'application/pdf'
+            || file_get_contents($filePath, false, null, 0, 5) !== '%PDF-'
+        ) {
+            http_response_code(415);
+            exit('File CV tidak valid.');
         }
 
         $namaFile = basename((string) ($m['cv_nama_asli'] ?: 'CV-Mahasiswa.pdf'));

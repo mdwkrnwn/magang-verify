@@ -317,6 +317,13 @@ $active = $active ?? '';
             </a>
 
 
+            <!-- Permintaan Dosen Pembimbing -->
+            <a href="<?= url('/dashboard/mahasiswa/pembimbing') ?>" title="Permintaan Dosen Pembimbing" class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl <?= $active === 'pembimbing' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span class="sidebar-label text-sm whitespace-nowrap">Permintaan Pembimbing</span>
+            </a>
+
+
             <!-- Laporan Magang -->
             <a
                 href="<?= url('/dashboard/mahasiswa/laporan') ?>"

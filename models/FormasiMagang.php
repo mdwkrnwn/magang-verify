@@ -49,7 +49,12 @@ class FormasiMagang
     public function getBySlug(string $slug): ?array
     {
         if (!ctype_digit($slug) || (int) $slug < 1) return null;
-        return $this->getById((int) $slug, false);
+        $formasi = $this->getById((int) $slug, false);
+        if (!$formasi || $formasi['status_formasi'] === 'draft') {
+            return null;
+        }
+
+        return $formasi;
     }
 
     public function getFilterOptions(): array
@@ -74,6 +79,10 @@ class FormasiMagang
     private function formatFormasi(array $row): array
     {
         $available = max(0, (int)$row['jumlah_kuota'] - (int)$row['jumlah_diterima']);
+        $statusFormasi = (string) ($row['status'] ?? '');
+        $statusAvailability = $statusFormasi === 'dibuka'
+            ? ($available > 0 ? 'tersedia' : 'penuh')
+            : $statusFormasi;
         $start = new DateTime($row['tanggal_mulai']);
         $end = new DateTime($row['tanggal_selesai']);
         $diff = $start->diff($end);
@@ -85,8 +94,8 @@ class FormasiMagang
             'perusahaan' => $row['nama_perusahaan'], 'posisi' => $row['judul'],
             'lokasi' => $location !== '' ? $location : 'Lokasi belum ditentukan',
             'kota' => $row['kota'] ?? '', 'durasi' => max(1, $months) . ' Bulan',
-            'status' => $available > 0 ? 'tersedia' : 'penuh',
-            'status_formasi' => $row['status'], 'kuota' => $available,
+            'status' => $statusAvailability,
+            'status_formasi' => $statusFormasi, 'kuota' => $available,
             'kuota_total' => (int)$row['jumlah_kuota'], 'jumlah_diterima' => (int)$row['jumlah_diterima'],
             'periode' => date('d M Y', strtotime($row['tanggal_mulai'])) . ' - ' . date('d M Y', strtotime($row['tanggal_selesai'])),
             'tanggal_mulai' => $row['tanggal_mulai'], 'tanggal_selesai' => $row['tanggal_selesai'],

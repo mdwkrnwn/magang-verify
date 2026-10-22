@@ -11,7 +11,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    12
+                    <?= e((string) ($statistics['mahasiswa'] ?? 0)) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">
@@ -42,7 +42,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    4
+                    <?= e((string) ($statistics['berlangsung'] ?? 0)) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">
@@ -73,7 +73,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    3
+                    <?= e((string) ($statistics['persiapan'] ?? 0)) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">
@@ -104,7 +104,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    5
+                    <?= e((string) ($statistics['selesai'] ?? 0)) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">

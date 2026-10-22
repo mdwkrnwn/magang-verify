@@ -31,13 +31,11 @@
 
         /*
          * ==========================================================
-         * AKUN DEVELOPMENT / TESTING
+         * IDENTITAS SETIAP ROLE
          * ==========================================================
          *
-         * Akun yang sudah tersedia di database/Supabase.
-         *
-         * Saat role dipilih, data ini otomatis dimasukkan
-         * ke dalam form login.
+         * Hanya metadata label/form field. Kredensial harus
+         * dimasukkan pengguna, bukan diisi otomatis di browser.
          */
 
         const accountConfig = {
@@ -46,50 +44,30 @@
                 label: 'NIM',
                 placeholder: 'Masukkan NIM',
                 inputmode: 'numeric',
-
-                loginId: 'mhs_dimas',
-                password: 'Password123!'
             },
 
             dosen: {
                 label: 'NIP',
                 placeholder: 'Masukkan NIP',
                 inputmode: 'numeric',
-
-                loginId: 'dosen_seed',
-                password: 'Password123!'
             },
 
             koordinator_magang: {
                 label: 'NIP',
                 placeholder: 'Masukkan NIP',
                 inputmode: 'numeric',
-
-                loginId: 'koord_test',
-                password: 'KoordTest123!'
             },
 
             tendik: {
                 label: 'NIP',
                 placeholder: 'Masukkan NIP',
                 inputmode: 'numeric',
-
-                loginId: 'tendik_test',
-                password: 'TendikTest123!'
             },
 
             mitra: {
                 label: 'Kode Mitra',
-                placeholder: 'Masukkan kode mitra',
+                placeholder: 'Kode Mitra',
                 inputmode: 'text',
-
-                loginId: 'mitra_seed',
-
-                /*
-                 * LoginController saat ini tidak mewajibkan
-                 * password untuk role mitra.
-                 */
-                password: ''
             }
 
         };
@@ -225,63 +203,15 @@
                 config.inputmode;
 
 
-            /*
-             * ------------------------------------------------------
-             * ISI LOGIN ID OTOMATIS
-             * ------------------------------------------------------
-             */
+            // Jangan membawa kredensial dari role sebelumnya.
+            identityInput.value = '';
+            passwordInput.value = '';
+            passwordInput.type = 'password';
 
-            identityInput.value =
-                config.loginId;
-
-
-            /*
-             * ------------------------------------------------------
-             * CEK APAKAH MITRA
-             * ------------------------------------------------------
-             *
-             * Sesuai LoginController:
-             * role mitra tidak wajib menggunakan password.
-             */
-
-            const isMitra =
-                selectedRole === 'mitra';
-
-
-            /*
-             * ------------------------------------------------------
-             * TAMPILKAN / SEMBUNYIKAN PASSWORD
-             * ------------------------------------------------------
-             */
-
-            passwordSection.hidden =
-                isMitra;
-
-
-            passwordInput.required =
-                !isMitra;
-
-
-            /*
-             * ------------------------------------------------------
-             * ISI PASSWORD OTOMATIS
-             * ------------------------------------------------------
-             */
-
-            if (isMitra) {
-
-                passwordInput.value = '';
-                passwordInput.type = 'password';
-
-            } else {
-
-                passwordInput.value =
-                    config.password;
-
-                passwordInput.type =
-                    'password';
-
-            }
+            const isMitra = selectedRole === 'mitra';
+            passwordSection.hidden = isMitra;
+            passwordInput.required = !isMitra;
+            passwordInput.disabled = isMitra;
 
 
             /*
@@ -389,8 +319,6 @@
          *
          * Sekaligus:
          *
-         * NIM      = mhs_dimas
-         * Password = Password123!
          */
 
         selectRole('mahasiswa');

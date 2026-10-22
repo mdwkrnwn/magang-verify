@@ -36,7 +36,7 @@ Seeder `database/seeders/SeedTestUsers.php` menyediakan:
 | Dosen | `dosen_test` | `DosenTest123!` |
 | Koordinator Magang | `koord_test` | `KoordTest123!` |
 | Tendik | `tendik_test` | `TendikTest123!` |
-| Mitra | `mitra_test` | tidak memiliki password pada seeder ini |
+| Mitra | `mitra_test` | `MitraTest123!` untuk akun baru yang dibuat seeder |
 
 Akun `mhs_test`, `dosen_test`, `koord_test`, `tendik_test`, dan `mitra_test` dibuat oleh seeder role testing. Untuk pengujian alur Dimas, gunakan akun seed khusus di bagian sebelumnya.
 

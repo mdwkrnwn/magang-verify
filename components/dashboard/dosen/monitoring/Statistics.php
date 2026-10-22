@@ -12,7 +12,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    2
+                    <?= (int) ($statistics['persiapan'] ?? 0) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">
@@ -51,7 +51,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    7
+                    <?= (int) ($statistics['berlangsung'] ?? 0) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">
@@ -90,7 +90,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    2
+                    <?= (int) ($statistics['menunggu_penilaian'] ?? 0) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">
@@ -129,7 +129,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    4
+                    <?= (int) ($statistics['selesai'] ?? 0) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">

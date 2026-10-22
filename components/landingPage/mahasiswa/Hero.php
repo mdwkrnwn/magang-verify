@@ -31,7 +31,7 @@
         </div>
 
         <img
-            src="<?= url('/assets/images/hero-mahasiswa.png') ?>"
+            src="<?= url('/assets/images/hero.png') ?>"
             alt=""
             class="hidden lg:block absolute right-6 bottom-0 h-64 w-auto object-contain"
         >

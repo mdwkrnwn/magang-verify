@@ -12,7 +12,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    8
+                    <?= e((string) ($statistics['total'] ?? 0)) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">
@@ -56,7 +56,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    3
+                    <?= e((string) ($statistics['menunggu'] ?? 0)) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">
@@ -100,7 +100,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    4
+                    <?= e((string) ($statistics['disetujui'] ?? 0)) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">
@@ -144,7 +144,7 @@
                 </p>
 
                 <p class="mt-2 text-3xl font-bold text-slate-900">
-                    1
+                    <?= e((string) ($statistics['perlu_revisi'] ?? 0)) ?>
                 </p>
 
                 <p class="mt-1 text-xs text-slate-400">
