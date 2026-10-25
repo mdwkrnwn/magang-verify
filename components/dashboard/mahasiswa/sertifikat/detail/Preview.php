@@ -26,9 +26,7 @@ $gambar = trim(
     <?php if ($gambar !== ''): ?>
 
         <?php
-        $gambarUrl = url(
-            '/' . ltrim($gambar, '/')
-        );
+        $gambarUrl = url('/dashboard/mahasiswa/sertifikat/pratinjau/' . rawurlencode((string) ($sertifikat['slug'] ?? '')));
         ?>
 
         <button

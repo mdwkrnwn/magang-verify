@@ -18,10 +18,10 @@ $tanggalTerbit =
 $nomorSertifikat =
     $sertifikatItem['nomor_sertifikat'] ?? '';
 
-$gambar =
-    trim(
-        (string) ($sertifikatItem['gambar'] ?? '')
-    );
+$gambar = trim((string) ($sertifikatItem['gambar'] ?? ''));
+$fileUrl = $gambar !== ''
+    ? url('/dashboard/mahasiswa/sertifikat/pratinjau/' . rawurlencode((string) ($sertifikatItem['slug'] ?? '')))
+    : '';
 
 $status =
     $sertifikatItem['verifikasi']['status'] ?? '';
@@ -113,7 +113,7 @@ $adalahGambar = in_array(
     <?php if ($gambar !== '' && $adalahGambar): ?>
 
         <img
-            src="<?= url('/' . ltrim($gambar, '/')) ?>"
+            src="<?= e($fileUrl) ?>"
             alt="Pratinjau sertifikat <?= e($nama) ?>"
             class="w-full h-full object-cover"
             loading="lazy"
@@ -445,10 +445,7 @@ $adalahGambar = in_array(
             <?php if ($gambar !== ''): ?>
 
                 <a
-                    href="<?= url(
-                                '/dashboard/mahasiswa/sertifikat/download/' .
-                                    $slug
-                            ) ?>"
+                    href="<?= e(url('/dashboard/mahasiswa/sertifikat/download/' . $slug)) ?>"
                     title="Unduh Sertifikat PDF"
                     class="inline-flex items-center justify-center
            w-9 h-9

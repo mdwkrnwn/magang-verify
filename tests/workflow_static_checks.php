@@ -26,6 +26,7 @@ $migration016 = file_get_contents(__DIR__ . '/../database/migrations/016_add_con
 $migration017 = file_get_contents(__DIR__ . '/../database/migrations/017_add_cv_to_profil_mahasiswa.sql');
 $migration025 = file_get_contents(__DIR__ . '/../database/migrations/025_verify_laporan_workflow.sql');
 $publicProfileController = file_get_contents(__DIR__ . '/../controllers/MahasiswaProfilController.php');
+$publicProfileModel = file_get_contents(__DIR__ . '/../models/ProfilMahasiswa.php');
 $privateStorageHelper = file_get_contents(__DIR__ . '/../function/PrivateStorage.php');
 $environmentConfig = file_get_contents(__DIR__ . '/../config/env.php');
 $notificationModel = file_get_contents(__DIR__ . '/../models/Notifikasi.php');
@@ -36,6 +37,10 @@ $logoutController = file_get_contents(__DIR__ . '/../controllers/LogoutControlle
 $userModel = file_get_contents(__DIR__ . '/../models/User.php');
 $loginAuthenticator = file_get_contents(__DIR__ . '/../models/LoginAuthenticator.php');
 $authMiddleware = file_get_contents(__DIR__ . '/../middleware/AuthMiddleware.php');
+$tendikUserController = file_get_contents(__DIR__ . '/../controllers/dashboard/tendik/UserController.php');
+$tendikUserPage = file_get_contents(__DIR__ . '/../pages/dashboard/tendik/users/index.php');
+$tendikUserForm = file_get_contents(__DIR__ . '/../pages/dashboard/tendik/users/create.php');
+$userRolesMigration = file_get_contents(__DIR__ . '/../database/migrations/030_create_user_roles.sql');
 $loginScript = file_get_contents(__DIR__ . '/../components/login/Script.php');
 $testAccountSeeder = file_get_contents(__DIR__ . '/../database/seeders/SeedTestUsers.php');
 $lecturerMonitoringController = file_get_contents(__DIR__ . '/../controllers/dashboard/dosen/DosenMonitoringController.php');
@@ -53,6 +58,8 @@ $lecturerDecisionHelper = file_get_contents(__DIR__ . '/../models/PengajuanDecis
 $studentPortfolioController = file_get_contents(__DIR__ . '/../controllers/dashboard/mahasiswa/PortofolioController.php');
 $studentProfileController = file_get_contents(__DIR__ . '/../controllers/dashboard/mahasiswa/ProfilController.php');
 $studentCertificateController = file_get_contents(__DIR__ . '/../controllers/dashboard/mahasiswa/SertifikatController.php');
+$studentCertificateCard = file_get_contents(__DIR__ . '/../components/dashboard/mahasiswa/sertifikat/SertifikatCard.php');
+$studentCertificatePreview = file_get_contents(__DIR__ . '/../components/dashboard/mahasiswa/sertifikat/detail/Preview.php');
 $studentSettingsController = file_get_contents(__DIR__ . '/../controllers/dashboard/mahasiswa/PengaturanController.php');
 $studentFormasiModel = file_get_contents(__DIR__ . '/../models/FormasiMagang.php');
 $studentFormasiHeader = file_get_contents(__DIR__ . '/../components/dashboard/mahasiswa/formasi-magang/detail/Header.php');
@@ -71,7 +78,7 @@ require_once __DIR__ . '/../function/PrivateStorage.php';
 require_once $environmentHelper;
 require_once $documentTypeHelper;
 
-if ($model === false || $fileController === false || $router === false || $apacheStorageRules === false || $reportController === false || $studentLogbookController === false || $coordinatorLogbookController === false || $studentDailyLogbookForm === false || $reportDetailPage === false || $weeklyReportForm === false || $weeklyActivitiesComponent === false || $logbookDetailPage === false || $dailyValidationStatus === false || $reportUploadPanel === false || $reportRevisionModel === false || $applicationController === false || $applicationModel === false || $approvalModel === false || $mitraApplicationModel === false || $mitraApplicationController === false || $mitraApplicationView === false || $lecturerApplicationController === false || $lecturerApplicationView === false || $lecturerMonitoringController === false || $lecturerDashboardModel === false || $assessmentController === false || $studentPortfolioController === false || $studentProfileController === false || $studentCertificateController === false || $studentSettingsController === false || $studentFormasiModel === false || $studentFormasiHeader === false || $applicationAction === false || $applicationMainContent === false || $loginController === false || $logoutController === false || $userModel === false || $authMiddleware === false || $loginScript === false || $testAccountSeeder === false || $publicProfileController === false || $privateStorageHelper === false || $environmentConfig === false || $notificationModel === false || $notificationController === false || $notificationRoute === false || $cvApacheRules === false || $schemaSnapshot === false || $finalDocumentMigration === false || $migration016 === false || $migration017 === false || $migration025 === false) {
+if ($model === false || $fileController === false || $router === false || $apacheStorageRules === false || $reportController === false || $studentLogbookController === false || $coordinatorLogbookController === false || $studentDailyLogbookForm === false || $reportDetailPage === false || $weeklyReportForm === false || $weeklyActivitiesComponent === false || $logbookDetailPage === false || $dailyValidationStatus === false || $reportUploadPanel === false || $reportRevisionModel === false || $applicationController === false || $applicationModel === false || $approvalModel === false || $mitraApplicationModel === false || $mitraApplicationController === false || $mitraApplicationView === false || $lecturerApplicationController === false || $lecturerApplicationView === false || $lecturerMonitoringController === false || $lecturerDashboardModel === false || $assessmentController === false || $studentPortfolioController === false || $studentProfileController === false || $studentCertificateController === false || $studentCertificateCard === false || $studentCertificatePreview === false || $studentSettingsController === false || $studentFormasiModel === false || $studentFormasiHeader === false || $applicationAction === false || $applicationMainContent === false || $loginController === false || $logoutController === false || $userModel === false || $authMiddleware === false || $loginScript === false || $testAccountSeeder === false || $publicProfileController === false || $publicProfileModel === false || $privateStorageHelper === false || $environmentConfig === false || $notificationModel === false || $notificationController === false || $notificationRoute === false || $cvApacheRules === false || $schemaSnapshot === false || $finalDocumentMigration === false || $migration016 === false || $migration017 === false || $migration025 === false) {
     throw new RuntimeException('Unable to read source files for static workflow checks.');
 }
 
@@ -151,6 +158,8 @@ assertSourceContains($coordinatorLogbookController, "AuthMiddleware::handle('koo
 assertSourceContains($coordinatorLogbookController, 'getReviewQueue($userId, \'koordinator_magang\')', 'coordinator forwards authenticated user and role to review queue');
 
 assertSourceContains($reportController, 'resolvePrivateStorageFile(', 'report controller resolves downloads using private storage helper');
+assertSourceContains($reportController, "['storage/templates/laporan']", 'weekly report generation confines templates to the canonical report-template directory');
+assertSourceNotContains($reportController, "dirname(\n        __DIR__,\n        3\n    ) . '/' . ltrim(", 'weekly report generation does not concatenate an untrusted template path directly');
 assertSourceContains($reportController, "'ringkasan' => trim((string) (\$_POST['ringkasan'] ?? ''))", 'report upload controller retains submitted summary on failure');
 assertSourceContains($reportController, 'Ringkasan dan catatan revisi maksimal 5.000 karakter.', 'report upload controller validates submitted text length server-side');
 assertSourceContains($reportController, '$this->logbookModel->getDailyEntries(', 'weekly report preview reads activities from selected logbook');
@@ -195,6 +204,27 @@ assertSourceContains($applicationModel, 'FOR UPDATE OF f', 'application creation
 assertSourceContains($applicationModel, '$this->hasActiveApplication($mahasiswaId)', 'application creation rechecks active applications inside its transaction');
 assertSourceContains($publicProfileController, "['uploads/cv']", 'public CV handler constrains stored path to CV directory');
 assertSourceContains($publicProfileController, 'file_get_contents($filePath', 'public CV handler checks PDF content signature');
+$publicProfileMethod = substr(
+    $publicProfileModel,
+    strpos($publicProfileModel, 'public function getPublicMahasiswaBySlug('),
+    strpos($publicProfileModel, 'public function updatePersonal(') - strpos($publicProfileModel, 'public function getPublicMahasiswaBySlug(')
+);
+assertSourceNotContains($publicProfileMethod, 'INSERT INTO pengalaman', 'public profile and CV reads do not write automatic experience records');
+assertSourceContains($publicProfileMethod, "AND pen.status = 'selesai'", 'public profile reads completed automatic experiences');
+assertSourceContains($publicProfileMethod, 'NOT EXISTS (', 'virtual automatic experience is omitted when a persisted record already exists');
+assertSourceContains($publicProfileMethod, 'e.pendaftaran_id = pd.id', 'virtual automatic experience de-duplicates by application');
+assertSourceContains($publicProfileController, 'public function foto(', 'public profile photos use an explicit controller endpoint');
+assertSourceContains($publicProfileController, 'getPublicMahasiswaByPhotoFilename($filename)', 'public photo endpoint requires a profile to reference the exact path');
+assertSourceContains($publicProfileController, "['uploads/profil']", 'public photo endpoint confines file access to the canonical profile photo directory');
+assertSourceContains($publicProfileModel, 'p.foto_path = :photo_path', 'public photo lookup is backed by a profile record');
+assertSourceContains($publicProfileController, 'public function portofolio(', 'published portfolio images use an explicit endpoint');
+assertSourceContains($publicProfileController, 'getPublicPortfolioImageByFilename($filename)', 'portfolio image endpoint requires the published database record');
+assertSourceContains($publicProfileModel, "p.status_publikasi = 'publik'", 'portfolio image lookup enforces publication state');
+assertSourceContains($publicProfileModel, 'p.gambar_sampul = :image_path', 'portfolio image lookup is exact-path scoped');
+assertSourceContains($notificationRoute, '^/mahasiswa/profil/portofolio/([^/]+)$', 'public portfolio image endpoint has an exact dynamic route');
+assertSourceContains($privateStorageHelper, "['cv', 'profil', 'sertifikat']", 'private upload directories remain statically blocked from unauthorized access');
+assertSourceContains($router, 'isPrivateStorageRequestPath((string) $path)', 'static router blocks private profile photos and certificate uploads');
+assertSourceContains($notificationRoute, "^/mahasiswa/profil/foto/([^/]+)$", 'public profile photo endpoint has an exact dynamic route');
 assertSourceContains($cvApacheRules, 'Require all denied', 'Apache denies direct CV file requests');
 if (
     applicationDocumentKind('bpjs') !== 'bpjs_asuransi'
@@ -217,6 +247,10 @@ if (substr_count($notificationRoute, "'/dashboard/notifikasi' =>") !== 1) {
 assertSourceContains($notificationModel, 'WHERE id = :id AND user_id = :user_id AND sudah_dibaca = FALSE', 'mark-read mutation is owner-scoped and one-way');
 assertSourceContains($notificationModel, 'WHERE user_id = :user_id AND sudah_dibaca = FALSE', 'mark-all mutation is owner-scoped');
 assertSourceContains($notificationModel, 'LIMIT :limit', 'notification listing is bounded');
+assertSourceContains($notificationController, "'koordinator_magang' => 'koordinatorMagang'", 'stored coordinator role uses the actual layout directory');
+assertSourceContains($notificationController, "\$_SESSION['user']['role']", 'notification role is read from the current session');
+assertSourceContains($notificationController, 'AuthMiddleware::handle($role)', 'all supported notification roles refresh active account and role authorization');
+assertSourceContains($notificationModel, 'WHERE user_id = :user_id', 'notification query is scoped to the authenticated user');
 
 assertSourceContains($mitraApplicationModel, "AND status_pendaftaran IN ('menunggu_respons_mitra', 'seleksi')", 'mitra response update is restricted to allowed source states');
 assertSourceContains($mitraApplicationModel, "if (\$decision === 'seleksi' && \$application['status_pendaftaran'] === 'seleksi')", 'repeated transition to selection is rejected at the model boundary');
@@ -244,6 +278,11 @@ assertSourceContains($studentProfileController, "resolvePrivateStorageFile(\$pro
 assertSourceContains($studentProfileController, "resolvePrivateStorageFile(\$projectRoot, \$oldPath, ['uploads/cv'])", 'old CV deletion is constrained to its canonical upload directory');
 assertSourceContains($studentCertificateController, "AuthMiddleware::handle('mahasiswa')", 'certificate controller restricts reads and mutations to student role');
 assertSourceContains($studentCertificateController, 'getSertifikatBySlug($slug, $userId)', 'certificate document operations are owner-scoped');
+assertSourceContains($studentCertificateController, 'public function preview(', 'certificate image preview uses a controller endpoint');
+assertSourceContains($studentCertificateController, 'Cache-Control: private, no-store', 'certificate preview is not publicly cacheable');
+assertSourceContains($studentCertificateController, "preg_match('/^[a-f0-9]{32}\\\\.(?:jpg|jpeg|png|webp)", 'certificate preview requires a generated basename');
+assertSourceContains($studentCertificateCard, '/dashboard/mahasiswa/sertifikat/pratinjau/', 'certificate card uses the authorized preview route');
+assertSourceContains($studentCertificatePreview, '/dashboard/mahasiswa/sertifikat/pratinjau/', 'certificate detail preview uses the authorized preview route');
 assertSourceContains($studentSettingsController, "AuthMiddleware::handle('mahasiswa')", 'student settings controller restricts password changes to student role');
 assertSourceContains($studentFormasiModel, '$statusFormasi === \'dibuka\'', 'available student formasi must also be open');
 assertSourceContains($studentFormasiModel, "\$formasi['status_formasi'] === 'draft'", 'student formasi details do not disclose unpublished drafts');
@@ -272,6 +311,7 @@ assertSourceContains($loginController, "'mitra'              => '/dashboard/mitr
 assertSourceContains($loginController, 'verifyCsrfToken()', 'login POST requires CSRF');
 assertSourceContains($userModel, 'FROM users', 'authentication reads identity from users table');
 assertSourceContains($userModel, 'WHERE login_id = :login_id', 'authentication looks up account by login id');
+assertSourceContains($userModel, 'SELECT role FROM user_roles WHERE user_id', 'authentication resolves secondary roles from the relation');
 assertSourceContains($loginController, "\$role === 'mitra'", 'login explicitly branches into Mitra authentication');
 assertSourceContains($loginController, 'findActiveMitraByCode($loginId)', 'Mitra login resolves the company code');
 assertSourceContains($loginController, 'findByLoginId($loginId)', 'other roles retain the users.login_id lookup');
@@ -284,7 +324,22 @@ assertSourceContains($userModel, 'u.is_active = TRUE', 'Mitra lookup requires ac
 assertSourceContains($userModel, 'm.is_active = TRUE', 'Mitra lookup requires active company profile');
 assertSourceContains($logoutController, 'session_destroy()', 'logout destroys server session');
 assertSourceContains($logoutController, 'verifyCsrfToken()', 'logout requires CSRF');
-assertSourceContains($authMiddleware, "\$user['role'] !== \$requiredRole", 'dashboard middleware enforces stored database role');
+assertSourceContains($authMiddleware, 'handleAny(', 'dashboard middleware supports approved multi-role access');
+assertSourceContains($tendikUserController, "AuthMiddleware::handle('tendik')", 'user management requires Tendik role');
+assertSourceContains($tendikUserController, 'verifyCsrfToken()', 'user creation requires CSRF');
+assertSourceContains($tendikUserController, 'createManaged(', 'user controller delegates validated creation to the model');
+assertSourceContains($userModel, 'password_hash($password, PASSWORD_DEFAULT)', 'managed user passwords are hashed server-side');
+assertSourceContains($userModel, "'SELECT role FROM user_roles WHERE user_id = :user_id'", 'login resolves many roles when the migration is present');
+assertSourceContains($userModel, 'getRolesForUser(', 'login resolves roles through the role relation helper');
+assertSourceContains($userModel, 'Preserve legacy single-role login when migration 030 has not been installed.', 'legacy login lookup remains available before migration');
+assertSourceContains($userModel, 'array_intersect(self::allowedRoles()', 'submitted roles are allowlisted before persistence');
+assertSourceContains($userRolesMigration, 'CREATE TABLE user_roles', 'multi-role migration creates the relation table');
+assertSourceContains($userRolesMigration, 'ON CONFLICT (user_id, role) DO NOTHING', 'multi-role migration preserves existing role data idempotently');
+assertSourceContains($notificationRoute, "'/dashboard/tendik/users' =>", 'Tendik user list route is registered');
+assertSourceContains($notificationRoute, "'/dashboard/tendik/users/create' =>", 'Tendik user creation route is registered');
+assertSourceContains($tendikUserPage, 'name="search"', 'user management page has search input');
+assertSourceContains($tendikUserPage, 'name="role"', 'user management page has role filter');
+assertSourceContains($tendikUserForm, 'name="roles[]"', 'user creation form supports multiple roles');
 assertSourceContains($loginScript, 'passwordSection.hidden = isMitra', 'role selection hides password only for Mitra');
 assertSourceContains($loginScript, 'passwordInput.required = !isMitra', 'password requirement follows the selected role');
 assertSourceContains($loginScript, 'passwordInput.disabled = isMitra', 'hidden Mitra password is excluded from submission');
@@ -510,6 +565,8 @@ foreach ([
     '/storage/logbook/evidence/1.pdf',
     '/uploads/cv/random.pdf',
     '/magang-verify/uploads/cv/random.pdf',
+    '/uploads/profil/random.jpg',
+    '/uploads/sertifikat/random.pdf',
 ] as $privatePath) {
     if (!isPrivateStorageRequestPath($privatePath)) {
         throw new RuntimeException('Private path normalization failed for a protected request.');

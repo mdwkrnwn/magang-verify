@@ -45,12 +45,15 @@ require_once __DIR__ . '/../controllers/dashboard/dosen/PermintaanPembimbingCont
 
 require_once __DIR__ . '/../controllers/dashboard/tendik/TendikDashboardController.php';
 require_once __DIR__ . '/../controllers/dashboard/tendik/LogbookController.php';
+require_once __DIR__ . '/../controllers/dashboard/tendik/UserController.php';
+require_once __DIR__ . '/../controllers/dashboard/tendik/PenetapanDosenController.php';
 
 /* Dashboard Koordinator Magang */
 
 require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/KoordinatorMagangDashboardController.php';
 require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/LogbookController.php';
 require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/PenempatanController.php';
+require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/PenetapanDosenController.php';
 
 /* Dashboard Mitra */
 
@@ -315,6 +318,21 @@ $routes = [
         'method' => 'index',
     ],
 
+    '/dashboard/tendik/users' => [
+        'controller' => TendikUserController::class,
+        'method' => 'index',
+    ],
+
+    '/dashboard/tendik/users/create' => [
+        'controller' => TendikUserController::class,
+        'method' => 'create',
+    ],
+
+    '/dashboard/tendik/penetapan-dosen' => [
+        'controller' => TendikPenetapanDosenController::class,
+        'method' => 'index',
+    ],
+
     /*
     |---------------------
     | Dashboard Koordinator Magang
@@ -330,6 +348,11 @@ $routes = [
 
     '/dashboard/koordinator-magang/penempatan' => [
         'controller' => KoordinatorPenempatanController::class,
+        'method' => 'index',
+    ],
+
+    '/dashboard/koordinator-magang/penetapan-dosen' => [
+        'controller' => KoordinatorPenetapanDosenController::class,
         'method' => 'index',
     ],
 
@@ -479,6 +502,26 @@ function route(string $uri): ?array
             'params' => [
                 'slug' => $matches[1],
             ],
+        ];
+    }
+
+    if (preg_match('#^/mahasiswa/profil/foto/([^/]+)$#', $path, $matches)) {
+        return [
+            'route' => [
+                'controller' => MahasiswaProfilController::class,
+                'method' => 'foto',
+            ],
+            'params' => ['filename' => $matches[1]],
+        ];
+    }
+
+    if (preg_match('#^/mahasiswa/profil/portofolio/([^/]+)$#', $path, $matches)) {
+        return [
+            'route' => [
+                'controller' => MahasiswaProfilController::class,
+                'method' => 'portofolio',
+            ],
+            'params' => ['filename' => $matches[1]],
         ];
     }
 
@@ -875,6 +918,16 @@ function route(string $uri): ?array
             'params' => [
                 'slug' => $matches[1],
             ],
+        ];
+    }
+
+    if (preg_match('#^/dashboard/mahasiswa/sertifikat/pratinjau/([^/]+)$#', $path, $matches)) {
+        return [
+            'route' => [
+                'controller' => SertifikatController::class,
+                'method' => 'preview',
+            ],
+            'params' => ['slug' => $matches[1]],
         ];
     }
 

@@ -12,7 +12,7 @@ $active = 'penempatan';
     <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-6xl">
         <div class="mb-6">
             <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Penempatan Magang</h1>
-            <p class="mt-2 text-sm text-gray-500">Buat penempatan setelah mitra menerima pengajuan. Dosen pembimbing dapat diminta setelah penempatan tercatat.</p>
+            <p class="mt-2 text-sm text-gray-500">Buat penempatan setelah mitra menerima pengajuan. Penetapan dosen pembimbing dilakukan melalui menu Penetapan Dosen Pembimbing.</p>
         </div>
         <?php if ($success): ?><div class="p-4 mb-5 text-sm text-emerald-800 border border-emerald-200 bg-emerald-50 rounded-xl" role="status">Penempatan magang berhasil dibuat.</div><?php endif; ?>
         <?php if ($error): ?><div class="p-4 mb-5 text-sm text-red-800 border border-red-200 bg-red-50 rounded-xl" role="alert"><?= e($error) ?></div><?php endif; ?>

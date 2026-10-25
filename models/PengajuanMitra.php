@@ -31,6 +31,7 @@ class PengajuanMitra
              ) docs ON TRUE
              WHERE m.user_id = :mitra_user_id
                AND p.status_persetujuan_dosen = 'disetujui'
+               AND p.dosen_pembimbing_snapshot_id IS NOT NULL
                AND p.status_pendaftaran IN ('menunggu_respons_mitra', 'seleksi')
              ORDER BY p.tanggal_pengajuan ASC, p.id ASC"
         );

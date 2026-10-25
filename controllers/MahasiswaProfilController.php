@@ -72,4 +72,79 @@ class MahasiswaProfilController
         readfile($filePath);
         exit;
     }
+
+    /** Serve profile photos only when a public profile references the exact stored path. */
+    public function foto($params = []): never
+    {
+        $filename = (string) ($params['filename'] ?? '');
+        if (!preg_match('/^[a-f0-9]{32}\.(?:jpg|png|webp)$/', $filename)) {
+            http_response_code(404);
+            exit('Foto mahasiswa tidak ditemukan.');
+        }
+
+        $profile = $this->profilModel->getPublicMahasiswaByPhotoFilename($filename);
+        if (!$profile) {
+            http_response_code(404);
+            exit('Foto mahasiswa tidak ditemukan.');
+        }
+
+        $filePath = resolvePrivateStorageFile(
+            dirname(__DIR__),
+            'uploads/profil/' . $filename,
+            ['uploads/profil']
+        );
+        if ($filePath === null || !is_readable($filePath)) {
+            http_response_code(404);
+            exit('Foto mahasiswa tidak ditemukan.');
+        }
+
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($filePath);
+        $expectedMime = match (pathinfo($filePath, PATHINFO_EXTENSION)) {
+            'jpg' => 'image/jpeg',
+            'png' => 'image/png',
+            'webp' => 'image/webp',
+            default => null,
+        };
+        if ($expectedMime === null || $mime !== $expectedMime || @getimagesize($filePath) === false) {
+            http_response_code(415);
+            exit('Foto mahasiswa tidak valid.');
+        }
+
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . (string) filesize($filePath));
+        header('Cache-Control: public, max-age=3600');
+        header('X-Content-Type-Options: nosniff');
+        readfile($filePath);
+        exit;
+    }
+
+    /** Serve only published portfolio images through an explicit endpoint. */
+    public function portofolio($params = []): never
+    {
+        $filename = (string) ($params['filename'] ?? '');
+        if (!preg_match('/^[a-f0-9]{32}\.(?:jpg|png|webp)$/', $filename)) {
+            http_response_code(404);
+            exit('Gambar portofolio tidak ditemukan.');
+        }
+        if (!$this->profilModel->getPublicPortfolioImageByFilename($filename)) {
+            http_response_code(404);
+            exit('Gambar portofolio tidak ditemukan.');
+        }
+        $filePath = resolvePrivateStorageFile(dirname(__DIR__), 'uploads/portofolio/' . $filename, ['uploads/portofolio']);
+        if ($filePath === null || !is_readable($filePath)) {
+            http_response_code(404);
+            exit('Gambar portofolio tidak ditemukan.');
+        }
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($filePath);
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true) || @getimagesize($filePath) === false) {
+            http_response_code(415);
+            exit('Gambar portofolio tidak valid.');
+        }
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . (string) filesize($filePath));
+        header('Cache-Control: public, max-age=3600');
+        header('X-Content-Type-Options: nosniff');
+        readfile($filePath);
+        exit;
+    }
 }

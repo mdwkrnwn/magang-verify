@@ -13,21 +13,29 @@ class PersetujuanPengajuan
         global $pdo;
         $stmt = $pdo->prepare(
             "SELECT COUNT(*) FILTER (
-                        WHERE status_pendaftaran = 'menunggu_persetujuan_dosen'
-                           OR dosen_penyetuju_id = :user_id_1
+                        WHERE (assigned_u.id = :pending_user_1
+                               AND p.status_pendaftaran = 'menunggu_persetujuan_dosen')
+                           OR p.dosen_penyetuju_id = :user_id_1
                     ) AS total,
-                    COUNT(*) FILTER (WHERE status_pendaftaran = 'menunggu_persetujuan_dosen') AS menunggu,
                     COUNT(*) FILTER (
-                        WHERE dosen_penyetuju_id = :user_id_2
-                          AND status_persetujuan_dosen = 'disetujui'
+                        WHERE assigned_u.id = :pending_user_2
+                          AND p.status_pendaftaran = 'menunggu_persetujuan_dosen'
+                    ) AS menunggu,
+                    COUNT(*) FILTER (
+                        WHERE p.dosen_penyetuju_id = :user_id_2
+                          AND p.status_persetujuan_dosen = 'disetujui'
                     ) AS disetujui,
                     COUNT(*) FILTER (
-                        WHERE dosen_penyetuju_id = :user_id_3
-                          AND status_persetujuan_dosen = 'perlu_revisi'
+                        WHERE p.dosen_penyetuju_id = :user_id_3
+                          AND p.status_persetujuan_dosen = 'perlu_revisi'
                     ) AS perlu_revisi
-             FROM pendaftaran_magang"
+             FROM pendaftaran_magang p
+             LEFT JOIN profil_dosen assigned_pd ON assigned_pd.id = p.dosen_pembimbing_snapshot_id
+             LEFT JOIN users assigned_u ON assigned_u.id = assigned_pd.user_id"
         );
         $stmt->execute([
+            'pending_user_1' => $dosenUserId,
+            'pending_user_2' => $dosenUserId,
             'user_id_1' => $dosenUserId,
             'user_id_2' => $dosenUserId,
             'user_id_3' => $dosenUserId,
@@ -36,16 +44,17 @@ class PersetujuanPengajuan
         return array_map('intval', $stmt->fetch(PDO::FETCH_ASSOC) ?: []);
     }
 
-    public function getPending(): array
+    public function getPending(int $dosenUserId): array
     {
         global $pdo;
-        $stmt = $pdo->query(
+        $stmt = $pdo->prepare(
             "SELECT p.id, p.tanggal_pengajuan, p.status_pendaftaran,
                     p.status_persetujuan_dosen, p.status_respons_mitra,
                     p.catatan_dosen, prof.nim, prof.program_studi,
                     u.name AS mahasiswa_nama, f.judul, f.tanggal_mulai,
                     f.tanggal_selesai, f.jumlah_kuota, f.jumlah_diterima,
-                    m.nama_perusahaan,
+                    m.nama_perusahaan, p.dosen_pembimbing_snapshot_nama,
+                    p.dosen_pembimbing_snapshot_nidn,
                     docs.dokumen
              FROM pendaftaran_magang p
              INNER JOIN profil_mahasiswa prof ON prof.id = p.mahasiswa_id
@@ -59,10 +68,15 @@ class PersetujuanPengajuan
                  FROM dokumen_pendaftaran_magang d
                  WHERE d.pendaftaran_id = p.id
              ) docs ON TRUE
-             WHERE p.status_pendaftaran = 'menunggu_persetujuan_dosen'
+             INNER JOIN profil_dosen assigned_pd ON assigned_pd.id = p.dosen_pembimbing_snapshot_id
+             INNER JOIN users assigned_u ON assigned_u.id = assigned_pd.user_id
+             WHERE assigned_u.id = :dosen_user_id
+               AND p.status_pendaftaran = 'menunggu_persetujuan_dosen'
                AND p.status_persetujuan_dosen = 'menunggu'
+               AND assigned_u.is_active = TRUE
              ORDER BY p.tanggal_pengajuan ASC, p.id ASC"
         );
+        $stmt->execute(['dosen_user_id' => $dosenUserId]);
         $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($items as &$item) {
             $item['dokumen'] = is_string($item['dokumen'] ?? null)
@@ -96,6 +110,17 @@ class PersetujuanPengajuan
             if ($application['status_pendaftaran'] !== 'menunggu_persetujuan_dosen'
                 || $application['status_persetujuan_dosen'] !== 'menunggu') {
                 throw new RuntimeException('Pengajuan sudah tidak menunggu persetujuan dosen.');
+            }
+
+            $ownership = $pdo->prepare(
+                "SELECT 1
+                 FROM pendaftaran_magang p
+                 INNER JOIN profil_dosen pd ON pd.id = p.dosen_pembimbing_snapshot_id
+                 WHERE p.id = :id AND pd.user_id = :dosen_user_id"
+            );
+            $ownership->execute(['id' => $applicationId, 'dosen_user_id' => $dosenUserId]);
+            if ($ownership->fetchColumn() === false) {
+                throw new RuntimeException('Pengajuan ini bukan berada pada antrean Dosen Anda.');
             }
 
             if ($decision === 'disetujui') {
@@ -191,9 +216,12 @@ class PersetujuanPengajuan
              INNER JOIN pendaftaran_magang p ON p.id = d.pendaftaran_id
              INNER JOIN formasi_magang f ON f.id = p.formasi_id
              INNER JOIN mitra m ON m.id = f.mitra_id
+             LEFT JOIN profil_dosen assigned_pd ON assigned_pd.id = p.dosen_pembimbing_snapshot_id
+             LEFT JOIN users assigned_u ON assigned_u.id = assigned_pd.user_id
              WHERE d.id = :id
                AND (
                     (:role_dosen = 'dosen'
+                     AND assigned_u.id = :actor_id
                      AND p.status_pendaftaran = 'menunggu_persetujuan_dosen'
                      AND p.status_persetujuan_dosen = 'menunggu')
                     OR

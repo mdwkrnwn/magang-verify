@@ -25,7 +25,8 @@ class KoordinatorPenempatanController
             $applicationId = filter_var($_POST['pendaftaran_id'] ?? null, FILTER_VALIDATE_INT);
             if (!$applicationId) {
                 $error = 'Pengajuan magang tidak valid.';
-            } else {
+            }
+            if ($error === null) {
                 try {
                     $model->create(
                         $applicationId,
@@ -41,8 +42,8 @@ class KoordinatorPenempatanController
                 } catch (Throwable $e) {
                     $error = $e->getMessage();
                 }
-                $items = $model->getAcceptedWithoutPlacement();
             }
+            $items = $model->getAcceptedWithoutPlacement();
         }
 
         require __DIR__ . '/../../../pages/dashboard/koordinatorMagang/penempatan/index.php';

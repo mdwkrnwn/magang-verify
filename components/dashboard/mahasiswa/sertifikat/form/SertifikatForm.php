@@ -42,6 +42,9 @@ $tautan =
 $gambar =
     $old['gambar'] ?? '';
 
+$slug =
+    $old['slug'] ?? '';
+
 ?>
 
 <form
@@ -313,7 +316,6 @@ $gambar =
                     $projectRoot = dirname(__DIR__, 5);
                     $relativeFilePath = 'uploads/sertifikat/' . basename($gambar);
                     $filePath = $projectRoot . '/' . $relativeFilePath;
-                    $fileUrl = url('/' . $relativeFilePath);
                     $fileExtension = strtolower(pathinfo($gambar, PATHINFO_EXTENSION));
                     ?>
 
@@ -328,7 +330,7 @@ $gambar =
                             <?php if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'webp'], true)): ?>
 
                                 <img
-                                    src="<?= e($fileUrl) ?>"
+                                    src="<?= e(url('/dashboard/mahasiswa/sertifikat/pratinjau/' . rawurlencode($slug))) ?>"
                                     alt="Foto sertifikat <?= e($nama) ?>"
                                     class="object-contain w-full max-h-[280px] rounded-lg">
 
@@ -337,7 +339,7 @@ $gambar =
                                 <div class="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg">
                                     <span class="text-sm font-medium text-gray-700">Dokumen PDF</span>
                                     <a
-                                        href="<?= e($fileUrl) ?>"
+                                        href="<?= e(url('/dashboard/mahasiswa/sertifikat/download/' . $slug)) ?>"
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         class="text-sm font-medium text-blue-600 hover:text-blue-700">

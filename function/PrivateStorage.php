@@ -40,7 +40,7 @@ function isPrivateStorageRequestPath(string $requestUri): bool
         $segments[] = $segment;
     }
 
-    $privateDirectories = ['private', 'logbook', 'pendaftaran', 'laporan'];
+    $privateDirectories = ['private', 'logbook', 'pendaftaran', 'laporan', 'sertifikat'];
     $segments = array_map('strtolower', $segments);
     foreach ($segments as $index => $segment) {
         if (
@@ -48,7 +48,7 @@ function isPrivateStorageRequestPath(string $requestUri): bool
                 && isset($segments[$index + 1])
                 && in_array($segments[$index + 1], $privateDirectories, true))
             || ($segment === 'uploads'
-                && ($segments[$index + 1] ?? null) === 'cv')
+                && in_array($segments[$index + 1] ?? null, ['cv', 'profil', 'sertifikat'], true))
         ) {
             return true;
         }

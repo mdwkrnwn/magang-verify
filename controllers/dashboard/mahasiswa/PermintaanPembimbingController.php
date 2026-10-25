@@ -19,7 +19,6 @@ class MahasiswaPermintaanPembimbingController
 
         $model = new PermintaanPembimbing();
         $placements = $model->getStudentPlacements($userId);
-        $dosen = $model->getDosenOptions();
         $history = $model->getStudentHistory($userId);
         $error = null;
         $success = ($_GET['success'] ?? '') === '1';
@@ -29,27 +28,22 @@ class MahasiswaPermintaanPembimbingController
                 http_response_code(403);
                 exit('Permintaan tidak valid. Silakan muat ulang halaman.');
             }
-
             $placementId = filter_var($_POST['penempatan_id'] ?? null, FILTER_VALIDATE_INT);
-            $dosenId = filter_var($_POST['dosen_id'] ?? null, FILTER_VALIDATE_INT);
-            if (!$placementId || !$dosenId) {
-                $error = 'Pilih penempatan dan dosen pembimbing yang valid.';
+            if (!$placementId) {
+                $error = 'Penempatan magang tidak valid.';
             } else {
                 try {
-                    $model->create(
-                        $userId,
-                        $placementId,
-                        $dosenId,
-                        (string) ($_POST['alasan_pengajuan'] ?? '')
-                    );
+                    $model->create($userId, $placementId, (string) ($_POST['alasan_pengajuan'] ?? ''));
                     header('Location: ' . url('/dashboard/mahasiswa/pembimbing?success=1'));
                     exit;
                 } catch (PDOException $e) {
-                    error_log('Gagal menyimpan permintaan dosen pembimbing: ' . $e->getMessage());
+                    error_log('Gagal menyimpan permintaan bimbingan: ' . $e->getMessage());
                     $error = 'Permintaan belum dapat disimpan. Silakan coba lagi.';
                 } catch (Throwable $e) {
                     $error = $e->getMessage();
                 }
+                $placements = $model->getStudentPlacements($userId);
+                $history = $model->getStudentHistory($userId);
             }
         }
 

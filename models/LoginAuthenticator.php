@@ -5,9 +5,33 @@
  */
 final class LoginAuthenticator
 {
+    public static function normalizeRoles(array $user): array
+    {
+        $roles = $user['roles'] ?? [$user['role'] ?? null];
+        if (is_string($roles)) {
+            $trimmed = trim($roles);
+            if ($trimmed === '' || $trimmed === '{}') {
+                $roles = [];
+            } elseif (str_starts_with($trimmed, '{') && str_ends_with($trimmed, '}')) {
+                $inner = substr($trimmed, 1, -1);
+                $roles = $inner === '' ? [] : explode(',', $inner);
+            } else {
+                $roles = [$roles];
+            }
+        }
+        $normalized = [];
+        foreach ((array) $roles as $role) {
+            $clean = is_string($role) ? trim($role, " \"'") : null;
+            if (is_string($clean) && $clean !== '') {
+                $normalized[] = $clean;
+            }
+        }
+        return array_values(array_unique($normalized));
+    }
+
     public static function accepts(string $requestedRole, array $user, string $password): bool
     {
-        if (($user['role'] ?? null) !== $requestedRole || !self::isActive($user['is_active'] ?? null)) {
+        if (!in_array($requestedRole, self::normalizeRoles($user), true) || !self::isActive($user['is_active'] ?? null)) {
             return false;
         }
 

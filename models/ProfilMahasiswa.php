@@ -306,7 +306,9 @@ public function getPublicMahasiswaBySlug(string $slug): ?array
             'deskripsi' => (string) $portfolio['deskripsi'],
             'tech' => array_map('strval', $techStmt->fetchAll(PDO::FETCH_COLUMN)),
             'url' => $url !== '' ? $url : '#',
-            'gambar' => $gambar !== '' ? url('/' . ltrim($gambar, '/')) : '',
+            'gambar' => preg_match('/^uploads\/portofolio\/[a-f0-9]{32}\.(?:jpg|png|webp)$/', $gambar)
+                ? url('/mahasiswa/profil/portofolio/' . rawurlencode(basename($gambar)))
+                : '',
         ];
     }
 
@@ -327,29 +329,43 @@ public function getPublicMahasiswaBySlug(string $slug): ?array
         ];
     }
 
-    $syncExperienceStmt = $this->pdo->prepare("
-        INSERT INTO pengalaman (mahasiswa_id, pendaftaran_id, jenis, posisi, instansi, lokasi, deskripsi, tanggal_mulai, tanggal_selesai, status_publikasi, is_otomatis)
-        SELECT pm.id, pd.id, 'magang', fm.judul, m.nama_perusahaan, fm.lokasi_magang, fm.deskripsi, pen.tanggal_mulai, pen.tanggal_selesai, 'publik', TRUE
-        FROM penempatan_magang pen
-        JOIN pendaftaran_magang pd ON pd.id = pen.pendaftaran_id
-        JOIN profil_mahasiswa pm ON pm.id = pd.mahasiswa_id
-        JOIN formasi_magang fm ON fm.id = pd.formasi_id
-        JOIN mitra m ON m.id = fm.mitra_id
-        LEFT JOIN verifikasi_penyelesaian_magang v ON v.penempatan_id = pen.id
-        WHERE pm.id = :profil_id AND pen.status = 'selesai'
-          AND (v.status = 'terverifikasi' OR v.id IS NULL)
-          AND NOT EXISTS (SELECT 1 FROM pengalaman e WHERE e.pendaftaran_id = pd.id)
-    " );
-    $syncExperienceStmt->execute(['profil_id' => $profilId]);
-
     $experienceStmt = $this->pdo->prepare("
-        SELECT jenis, posisi, instansi, lokasi, deskripsi, tanggal_mulai, tanggal_selesai, is_otomatis
-        FROM pengalaman
-        WHERE mahasiswa_id = :profil_id
-          AND status_publikasi = 'publik'
-        ORDER BY tanggal_selesai DESC NULLS LAST, tanggal_mulai DESC NULLS LAST, id DESC
-    " );
-    $experienceStmt->execute(['profil_id' => $profilId]);
+        SELECT jenis, posisi, instansi, lokasi, deskripsi, tanggal_mulai,
+               tanggal_selesai, is_otomatis
+        FROM (
+            SELECT jenis, posisi, instansi, lokasi, deskripsi, tanggal_mulai,
+                   tanggal_selesai, status_publikasi, is_otomatis,
+                   pendaftaran_id, created_at
+            FROM pengalaman
+            WHERE mahasiswa_id = :experience_profile_id
+
+            UNION ALL
+
+            SELECT 'magang', fm.judul, m.nama_perusahaan, fm.lokasi_magang,
+                   fm.deskripsi, pen.tanggal_mulai, pen.tanggal_selesai,
+                   'publik', TRUE, pd.id, pd.created_at
+            FROM penempatan_magang pen
+            JOIN pendaftaran_magang pd ON pd.id = pen.pendaftaran_id
+            JOIN profil_mahasiswa pm ON pm.id = pd.mahasiswa_id
+            JOIN formasi_magang fm ON fm.id = pd.formasi_id
+            JOIN mitra m ON m.id = fm.mitra_id
+            LEFT JOIN verifikasi_penyelesaian_magang v ON v.penempatan_id = pen.id
+            WHERE pm.id = :completed_profile_id
+              AND pen.status = 'selesai'
+              AND (v.status = 'terverifikasi' OR v.id IS NULL)
+              AND NOT EXISTS (
+                  SELECT 1 FROM pengalaman e WHERE e.pendaftaran_id = pd.id
+              )
+        ) combined_experience
+        WHERE status_publikasi = 'publik' OR is_otomatis = TRUE
+        ORDER BY tanggal_selesai DESC NULLS LAST,
+                 tanggal_mulai DESC NULLS LAST,
+                 created_at DESC
+    ");
+    $experienceStmt->execute([
+        'experience_profile_id' => $profilId,
+        'completed_profile_id' => $profilId,
+    ]);
     $row['pengalaman'] = [];
     foreach ($experienceStmt->fetchAll(PDO::FETCH_ASSOC) as $experience) {
         $mulai = $experience['tanggal_mulai'] ? date('M Y', strtotime((string)$experience['tanggal_mulai'])) : '';
@@ -374,6 +390,38 @@ public function getPublicMahasiswaBySlug(string $slug): ?array
     ];
 
     return $row;
+}
+
+/** Return a public profile photo only when that profile stores the exact path. */
+public function getPublicMahasiswaByPhotoFilename(string $filename): ?array
+{
+    $stmt = $this->pdo->prepare(
+        "SELECT p.foto_path
+         FROM users u
+         INNER JOIN profil_mahasiswa p ON p.user_id = u.id
+         WHERE u.role = 'mahasiswa'
+           AND p.foto_path = :photo_path
+         LIMIT 1"
+    );
+    $stmt->execute(['photo_path' => 'uploads/profil/' . $filename]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+}
+
+/** Return a published portfolio image only when its owner published that exact path. */
+public function getPublicPortfolioImageByFilename(string $filename): ?array
+{
+    $stmt = $this->pdo->prepare(
+        "SELECT p.gambar_sampul
+         FROM portofolios p
+         INNER JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
+         INNER JOIN users u ON u.id = pm.user_id
+         WHERE u.role = 'mahasiswa'
+           AND p.status_publikasi = 'publik'
+           AND p.gambar_sampul = :image_path
+         LIMIT 1"
+    );
+    $stmt->execute(['image_path' => 'uploads/portofolio/' . $filename]);
+    return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
 }
 
 /**

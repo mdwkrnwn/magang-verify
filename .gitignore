@@ -1,5 +1,12 @@
 .env
 .git
-echo "magang_verify_backup.dump" >> .gitignore
+# Database backups - jangan commit ke Git
+/backups/
+/magang_verify_backup.dump
+*.dump
+*.backup
 # File logbook privat (signature dan bukti ketidakhadiran)
 storage/private/
+
+# Dokumen pendaftaran pengguna - jangan commit
+/storage/pendaftaran/

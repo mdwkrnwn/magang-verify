@@ -27,7 +27,7 @@ symlink($outsideRoot . '/private.css', $assetsRoot . '/css/escape.css');
 
 try {
     $css = resolvePublicAsset('/assets/css/app.css', $assetsRoot);
-    assertAsset(true, is_array($css) && ($css['mime'] ?? '') === 'text/css', 'allowlisted asset resolves with an explicit MIME type');
+    assertAsset(true, is_array($css) && ($css['mime'] ?? '') === 'text/css; charset=utf-8', 'allowlisted asset resolves with an explicit MIME type');
     assertAsset(true, resolvePublicAsset('/assets/source.php', $assetsRoot) === null, 'PHP source is never exposed as a static asset');
     assertAsset(true, resolvePublicAsset('/assets/css/escape.css', $assetsRoot) === null, 'symlink escape is rejected');
     assertAsset(true, resolvePublicAsset('/controllers/LoginController.php', $assetsRoot) === null, 'non-asset repository paths are not served');

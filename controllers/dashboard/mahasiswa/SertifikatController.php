@@ -311,8 +311,12 @@ class SertifikatController
             'deskripsi' => $sertifikat['deskripsi'] ?? '',
             'tautan' => $sertifikat['tautan']['sertifikat'] ?? '',
             'gambar' => $sertifikat['gambar'] ?? '',
+            'slug' => $sertifikat['slug'] ?? '',
         ];
 
+        if (isset($params['old']) && is_array($params['old'])) {
+            $old = array_merge($old, $params['old']);
+        }
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             $this->validatePostRequest();
             $old = array_merge($old, $this->oldFormData());
@@ -381,6 +385,43 @@ class SertifikatController
         $this->redirect('/dashboard/mahasiswa/sertifikat');
     }
 
+    public function preview($params = []): never
+    {
+        $userId = $this->getMahasiswaId();
+        $slug = trim((string) ($params['slug'] ?? ''));
+        $sertifikat = $this->sertifikatModel->getSertifikatBySlug($slug, $userId);
+        if (!$sertifikat) {
+            $this->showNotFound();
+        }
+
+        $relativePath = (string) ($sertifikat['file_path'] ?? $sertifikat['gambar'] ?? '');
+        if (
+            $relativePath === ''
+            || !str_starts_with($relativePath, $this->uploadRelativePath . '/')
+            || !preg_match('/^[a-f0-9]{32}\\.(?:jpg|jpeg|png|webp)$/', basename($relativePath))
+        ) {
+            $this->showNotFound();
+        }
+        $base = realpath($this->uploadDirectory);
+        $file = realpath(dirname(__DIR__, 3) . '/' . $relativePath);
+        if ($base === false || $file === false || !str_starts_with($file, $base . DIRECTORY_SEPARATOR) || !is_file($file)) {
+            $this->showNotFound();
+        }
+
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file);
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true) || @getimagesize($file) === false) {
+            http_response_code(415);
+            exit('Format file sertifikat tidak didukung.');
+        }
+
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . (string) filesize($file));
+        header('Cache-Control: private, no-store, max-age=0');
+        header('X-Content-Type-Options: nosniff');
+        readfile($file);
+        exit;
+    }
+
     public function download($params = []): void
     {
         $userId = $this->getMahasiswaId();
@@ -391,7 +432,11 @@ class SertifikatController
         }
 
         $relativePath = (string) ($sertifikat['file_path'] ?? $sertifikat['gambar'] ?? '');
-        if ($relativePath === '' || !str_starts_with($relativePath, $this->uploadRelativePath . '/')) {
+        if (
+            $relativePath === ''
+            || !str_starts_with($relativePath, $this->uploadRelativePath . '/')
+            || !preg_match('/^[a-f0-9]{32}\\.(?:jpg|jpeg|png|webp|pdf)$/', basename($relativePath))
+        ) {
             $this->showNotFound();
         }
         $base = realpath($this->uploadDirectory);

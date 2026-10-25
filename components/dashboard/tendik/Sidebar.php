@@ -131,6 +131,28 @@
 
         <div class="mt-1">
             <a
+                href="<?= url('/dashboard/tendik/users') ?>"
+                title="Manajemen User"
+                class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl <?= $active === 'users' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m7-8a4 4 0 100-8 4 4 0 000 8Zm9-3v6m3-3h-6" />
+                </svg>
+                <span class="sidebar-label text-sm whitespace-nowrap">Manajemen User</span>
+            </a>
+        </div>
+
+        <div class="mt-1">
+            <a
+                href="<?= url('/dashboard/tendik/penetapan-dosen') ?>"
+                title="Penetapan Dosen Pembimbing"
+                class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl <?= $active === 'penetapan-dosen' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14a4 4 0 100-8 4 4 0 000 8Zm-7 7a7 7 0 0114 0" /></svg>
+                <span class="sidebar-label text-sm whitespace-nowrap">Penetapan Dosen Pembimbing</span>
+            </a>
+        </div>
+
+        <div class="mt-1">
+            <a
                 href="<?= url('/dashboard/tendik/logbook') ?>"
                 title="Logbook"
                 class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl <?= $active === 'logbook' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">

@@ -66,6 +66,7 @@ class LoginController
         if (
             !$user ||
             !is_string($password) ||
+            !in_array($role, LoginAuthenticator::normalizeRoles($user), true) ||
             !LoginAuthenticator::accepts($role, $user, $password)
         ) {
             $this->redirectToLogin();
@@ -80,7 +81,8 @@ class LoginController
             'id'       => $user['id'],
             'login_id' => $user['login_id'],
             'name'     => $user['name'],
-            'role'     => $user['role'],
+            'role'     => $role,
+            'roles'    => LoginAuthenticator::normalizeRoles($user),
         ];
 
         $aktivitasModel->log(

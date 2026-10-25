@@ -40,7 +40,7 @@ class DashboardMahasiswa
             . 'p.email, p.no_telepon, p.alamat, p.foto_path, p.cv_path '
             . 'FROM users u '
             . 'INNER JOIN profil_mahasiswa p ON p.user_id = u.id '
-            . 'WHERE u.id = :user_id AND u.role = \'mahasiswa\' AND u.is_active = TRUE '
+            . 'WHERE u.id = :user_id AND u.is_active = TRUE '
             . 'LIMIT 1'
         );
         $stmt->execute(['user_id' => $userId]);

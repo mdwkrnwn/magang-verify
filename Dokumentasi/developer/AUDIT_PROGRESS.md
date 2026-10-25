@@ -8,11 +8,12 @@ Dokumen audit pendamping: `Dokumentasi/Repository-Audit-Matrix.md` dan `Dokument
 
 ## Status Git dan perlindungan perubahan lokal
 
-- Pemeriksaan terakhir menunjukkan branch `main` mengikuti `origin/main`, dengan banyak file modified dan untracked sebelum checkpoint ini. Daftarnya mencakup kode role, schema, dokumentasi, migration/seed files, tes, uploads, dan rancangan.
-- `git diff --name-only` mengonfirmasi perubahan tracked yang tersebar di dokumentasi, komponen, controller, schema, model, router, dan route. Banyak file untracked juga terlihat pada status.
-- Karena tidak ada baseline bersih untuk membedakan kepemilikan tiap perubahan, jangan menganggap semua perubahan sebagai hasil audit. Pertahankan semuanya; jangan reset, clean, checkout destruktif, commit, atau push.
-- `git diff --check` dijalankan bersama pemeriksaan status dan lulus (exit 0). Status Git diperiksa tanpa mengubah atau membuang perubahan.
-- File ini dibuat di `Dokumentasi/developer/` sesuai permintaan; direktori tersebut sebelumnya belum ada. File dokumentasi lain tidak ditimpa.
+- Saat audit dilanjutkan, `git status --short --branch` menunjukkan `## main...origin/main` dengan empat file modified dari checkpoint sebelumnya: dokumen progres, model profil mahasiswa, dan dua file tes.
+- Setelah batch audit ini, status akhir menunjukkan sembilan file modified: checkpoint; controller/profile helper/model/routing; private path helper; dan tiga file tes. Tidak ada file lokal lain yang dihapus atau ditimpa.
+- `git diff --check` lulus pada pemeriksaan awal dan akhir sesi. Tidak ada commit, push, migrasi, seeder, server, atau perubahan database.
+- Perubahan batch saat ini mencakup delapan file implementasi/tes ditambah checkpoint; perubahan historis yang tidak ada di diff batch tidak diubah.
+- File ini dibuat di `Dokumentasi/developer/` tanpa menimpa dokumentasi lain.
+- Progres ini tidak boleh dianggap menutup audit total. `router.php` kini mengandalkan `function/PrivateStorage.php` ditambah `function/PublicAsset.php`; verifikasi HTTP belum dijalankan. Perubahan lanjutan di bawah menambah endpoint foto profil publik dan memperlebar pemblokiran statis; periksa ulang regresi sebelum merge/deploy.
 
 ## Inventaris role, fitur, dan cakupan audit
 
@@ -46,6 +47,9 @@ Peta ini menunjukkan dependensi, bukan bukti bahwa setiap transisi telah diuji e
 | Sedang | `pages/dashboard/index.php` adalah halaman legacy tanpa route/caller, tetapi meng-include komponen dashboard generik yang tidak tersedia. | Dijadikan fail-safe 404 menggunakan halaman error yang ada. |
 | Tinggi | `LogbookFileController` dipanggil lewat dynamic route langsung, sebelum middleware prefix dashboard; guard sebelumnya tidak memuat ulang status akun/role. | `AuthMiddleware::handle($role)` ditambahkan sebelum metadata/file privat diambil. Runtime authorization belum diuji. |
 | Tinggi | Nilai boolean PHP yang dikirim lewat `execute([...])` dapat tiba di PostgreSQL sebagai string kosong. Posisi `$4` pada UPDATE respons Mitra adalah `:terminal` (false untuk keputusan seleksi); assessment juga memiliki `CASE WHEN :is_submitted` pada INSERT dan UPDATE. | Binding typed melalui `models/PdoParameterBinder.php` diterapkan pada `PengajuanMitra` dan `PenilaianMagang`; Dosen memakai helper binding eksplisit yang sudah ada. Seeder Dimas memakai binder pada update boolean. Tidak ada query/migrasi/seeder dijalankan. PostgreSQL belum diuji. |
+| Tinggi | Media upload profil dan sertifikat tidak memiliki jalur serving publik yang aman. Sebelum perbaikan, foto profil diakses langsung dari `/uploads/profil/...` dan router tidak secara eksplisit memblokir `/uploads/profil/`, `/uploads/sertifikat/`, atau `/storage/.../sertifikat`; sementara `ViewHelpers::foto()` bisa mengembalikan URL atau string remote yang tidak divalidasi. | Foto profil kini memakai endpoint `GET /mahasiswa/profil/foto/{filename}` dengan basename allowlist (`[a-f0-9]{32}.jpg/png/webp`), lookup profil publik ke `foto_path` yang tersimpan persis, resolver privat canonical, pengecekan MIME JPEG/PNG/WEBP plus decode gambar, dan tidak lagi mengembalikan URL mentah. Helper hanya mengembalikan route tersebut bila path diawali `uploads/profil/` dan bentuknya valid. `/uploads/profil/`, `/uploads/sertifikat/`, dan `/storage/*sertifikat` ditolak router; CV tetap dikirim lewat endpoint CV yang memeriksa kepemilikan path dan `%PDF-`. Perubahan foto tergantung logika get-by-user yang sudah ada. Sertifikat portofolio publik masih perlu rekonsiliasi jalur serving; jangan menganggap media tersebut sudah aman hanya dari deny rule. |
+| Tinggi | Preview sertifikat pada dashboard mengeluarkan URL langsung `/uploads/sertifikat/...`, sehingga file tersaji tanpa endpoint ownership walaupun download memakai controller mahasiswa. Form edit juga membentuk URL langsung. | Ditambahkan `SertifikatController::preview()` dan route `/dashboard/mahasiswa/sertifikat/pratinjau/{slug}`; endpoint memerlukan session mahasiswa, owner-scoped slug, generated basename, canonical containment, MIME gambar dan decode, serta `private, no-store`. Card/detail/form preview kini memakai route tersebut; download juga membatasi basename generated. Static router tetap memblokir uploads/sertifikat. Runtime HTTP belum diuji. |
+| Tinggi | Gambar portofolio publik pada profil publik memakai URL langsung `uploads/portofolio/...` tanpa pengecekan publikasi. Sebelumnya helper foto profil juga bisa meneruskan URL mentah. | Ditambahkan endpoint publikasi-aware `GET /mahasiswa/profil/portofolio/{filename}`; endpoint memeriksa basename generated, lalu kecocokan `gambar_sampul` persis dengan `status_publikasi='publik'` dan role mahasiswa, kemudian canonical containment + MIME/decode gambar. Query profil publik hanya membangun route baru bila path cocok pola; selain itu dikosongkan. File yatim berupa record DB menunjuk gambar yang tidak ada di disk kini fail 404 lewat endpoint, belum ada pencacahan/orphan cleanup. Runtime HTTP belum diuji. |
 | Sedang | Referensi asset hero Mahasiswa dan foto kampus menunjuk file yang tidak ada (`hero-mahasiswa.png`, `polinema.png`). | Diganti ke aset yang memang ditemukan (`hero.png`, `gedung-polinema.jpeg`) dan pemeriksaan source/file ditambahkan ke smoke test. |
 | Tinggi, baru ditemukan | `router.php` sebelumnya menyajikan file repository arbitrer bila path adalah file, bukan hanya asset publik; ini berpotensi mengekspos source/config jika front controller menerima request tersebut. Tidak diperiksa apakah `.env` ada atau dibaca. | Baru dibatasi ke resolver asset allowlist `function/PublicAsset.php`, canonical path di bawah `assets/`, symlink keluar ditolak, dan ekstensi publik yang dikenal diberi MIME eksplisit. Regression test disposable dibuat tetapi **belum dijalankan setelah helper dibuat**. Perlu uji resolver dan review router sebelum menganggap perbaikan terverifikasi. |
 | Belum diputuskan | Direktori `/mitra` publik menggunakan data dummy sesuai komentar source, sementara struktur migration/schema Mitra bertentangan pada beberapa definisi. | Tidak diubah: perlu keputusan publikasi data dan rekonsiliasi schema, serta tidak boleh menjalankan migration tanpa izin. |
@@ -61,6 +65,7 @@ Daftar ini adalah file yang tercatat disentuh untuk temuan/perbaikan audit; buka
 - `components/dashboard/mahasiswa/portofolio/MainContent.php`
 - `pages/dashboard/index.php`
 - `controllers/dashboard/LogbookFileController.php`
+- `controllers/dashboard/mahasiswa/SertifikatController.php`
 - `function/PublicAsset.php` (baru)
 - `router.php`
 - `models/PdoParameterBinder.php` (baru)
@@ -69,10 +74,18 @@ Daftar ini adalah file yang tercatat disentuh untuk temuan/perbaikan audit; buka
 - `database/seeders/user/mahasiswa/SeedDimasLogbook.php` (tidak dijalankan)
 - `components/landingPage/mahasiswa/Hero.php`
 - `components/landingPage/mahasiswa/profil/Hero.php`
+- `components/dashboard/mahasiswa/sertifikat/SertifikatCard.php`
+- `components/dashboard/mahasiswa/sertifikat/detail/Preview.php`
+- `components/dashboard/mahasiswa/sertifikat/form/SertifikatForm.php`
+- `controllers/MahasiswaProfilController.php`
+- `models/ProfilMahasiswa.php`
 - `tests/smoke_views.php`
 - `tests/workflow_static_checks.php`
 - `tests/pdo_parameter_binder.php` (baru)
-- `tests/public_asset_resolution.php` (baru; belum dijalankan setelah helper tersedia)
+- `routes/web.php`
+- `tests/public_asset_resolution.php` (baru; telah dijalankan ulang dan lulus setelah perbaikan MIME, lihat riwayat tes di bawah)
+- `function/landingPage/mahasiswa/ViewHelpers.php`
+- `function/PrivateStorage.php`
 - `Dokumentasi/Repository-Audit-Matrix.md`
 - `Dokumentasi/developer/AUDIT_PROGRESS.md` (checkpoint ini)
 
@@ -88,11 +101,14 @@ Hasil berikut berasal dari eksekusi terdahulu yang tercatat di matrix audit; bed
 - `php tests/pengajuan_decision.php` — lulus: `Isolated Dosen decision validation and PDO binding tests passed.` Isolated, bukan HTTP/DB runtime.
 - `php tests/login_authentication.php` — lulus: `Isolated login authentication policy checks passed.` PDO double, bukan bukti akun aktif/schema live.
 - `node tests/login_role_behavior.js` — lulus: `Login role behavior checks passed (synthetic DOM; no server/database).`
-- PHP lint untuk source PHP di luar `vendor/` dan `node_modules/` — lulus pada run terdahulu: 374 file, 0 kesalahan sintaks. File baru `function/PublicAsset.php` dan `tests/public_asset_resolution.php` ditambahkan setelah hitungan itu, jadi perlu lint ulang.
+- PHP lint repository terdahulu — 374 file, 0 kesalahan sintaks. Lint target pada sesi lanjutan untuk `function/PublicAsset.php`, `tests/public_asset_resolution.php`, `router.php`, kedua Hero, `tests/smoke_views.php`, `tests/workflow_static_checks.php`, `models/PdoParameterBinder.php`, serta `models/ProfilMahasiswa.php` — lulus.
 - Pemetaan source route/controller — 83 pasangan method, 0 unresolved; tidak membuktikan HTTP dispatch/otorisasi.
 - Scan include literal — 713 kandidat diperiksa; laporan tersisa diperiksa sebagai potongan string test atau include dinamis. Tidak mencakup seluruh ekspresi dinamis.
 - `git diff --check` — lulus pada pemeriksaan Git terakhir.
-- `php tests/public_asset_resolution.php` — sempat dijalankan sebelum `function/PublicAsset.php` dibuat dan gagal karena file helper belum ada. **Belum ada hasil run ulang setelah implementasi. Jangan catat sebagai lulus.**
+- `php tests/public_asset_resolution.php` — lulus pada run ulang: `Public asset containment checks passed (scratch fixtures; no server/database).` Run awal yang tercatat di checkpoint lama gagal sebelum helper tersedia; pada sesi ini juga sempat gagal karena assertion MIME test tidak cocok dengan MIME yang benar-benar dikembalikan, lalu assertion diperbaiki dan tes lulus.
+- `php -l models/ProfilMahasiswa.php`, `php -l tests/workflow_static_checks.php`, `php -l tests/public_asset_resolution.php` — lulus setelah perubahan sesi ini.
+- Rerun regresi batch ini: `php tests/smoke_views.php`, `php tests/workflow_static_checks.php`, `node tests/login_role_behavior.js`, `php tests/public_asset_resolution.php`, `php tests/pdo_parameter_binder.php`, `php tests/pengajuan_decision.php`, `php tests/login_authentication.php` — semua lulus dengan output yang tercatat pada terminal sesi; hasil masing-masing ada di run terminal terakhir. `git diff --check` juga lulus.
+- `php -l` dijalankan untuk `function/PrivateStorage.php`, `function/landingPage/mahasiswa/ViewHelpers.php`, `controllers/MahasiswaProfilController.php`, `models/ProfilMahasiswa.php`, `routes/web.php`, `tests/smoke_views.php`, dan `tests/workflow_static_checks.php` — semua lulus tanpa syntax error setelah perubahan batch ini.
 
 Runtime PostgreSQL, browser, HTTP, migrasi, seeder, server, dan container tidak dijalankan. Tes statis/render/isolated tidak membuktikan database, session runtime, transaksi, keamanan HTTP, responsif, atau alur end-to-end.
 
@@ -107,19 +123,33 @@ Runtime PostgreSQL, browser, HTTP, migrasi, seeder, server, dan container tidak 
 - Seluruh urutan perubahan status, pengaruh ke dashboard/antrian role lain, history, notifikasi, tujuan tautan, dan duplikasi request.
 - Upload/download: validasi signature/MIME/ukuran, containment, deletion, header, akses langsung storage, serta konfigurasi virtual host efektif.
 - Seluruh dokumen bisnis dibandingkan source; direktori Mitra dummy dan kebijakan datanya.
-- Tes resolver asset baru, lint ulang file yang baru ditambahkan, dan semua tes setelah perubahan router/aset terbaru.
+- Uji HTTP/browser atas router, resolver asset, dan media upload; helper resolver sudah lolos test terisolasi, tetapi server tidak dijalankan.
 - Tidak ada hasil runtime database/browser/HTTP. Tidak diketahui apakah schema live sesuai snapshot/migration.
+- Jalur serving media: foto profil kini memiliki endpoint otorisasi; sertifikat, gambar portofolio publik, CV selain endpoint yang ada, dan generated laporan template masih perlu dipetakan route-by-route ke handler resmi versus deny rule agar tidak ada file privat yang tersaji langsung. Jangan menambahkan akses statis untuk uploads tanpa memeriksa aturan publikasi dan kepemilikan.
+- Query `getPublicMahasiswa()` dan `getPublicMahasiswaBySlug()` menyertakan beberapa kolom kontak/identitas untuk semua profil yang dirender publik. PRD menghendaki direktori publik, tetapi tidak mendefinisikan pilihan/consent per field; tinjau kebijakan privasi sebelum mengubah field mana yang tampak.
+- Workflow pengajuan ditelusuri tambahan pada source; penerima notifikasi untuk pengajuan baru belum jelas karena schema/source tidak menetapkan reviewer Dosen spesifik. Jangan menebak broadcast/assignment.
 
 ## Kendala dan langkah berikutnya (urut)
 
-1. Jalankan `php tests/public_asset_resolution.php` di scratch yang diatur `TMPDIR`; pastikan fixture/symlink cleanup, akses CSS diizinkan, PHP/non-asset/missing/symlink escape ditolak. Jika gagal, perbaiki akar masalah dan jalankan ulang.
-2. Jalankan `php -l` untuk `function/PublicAsset.php`, `tests/public_asset_resolution.php`, `router.php`, dua Hero, serta `tests/smoke_views.php`; lalu jalankan `php tests/smoke_views.php`, `php tests/workflow_static_checks.php`, semua tes terisolasi di atas, dan `git diff --check` lagi.
-3. Review diff terbatas pada file audit yang disebut di atas, lalu periksa ulang `git status --short`; jangan menyentuh atau membuang perubahan lokal lain. Konfirmasi static asset yang dibutuhkan memang berada di `assets/` dan semua pemanggil yang sah hanya mengakses tipe allowlist.
-4. Lanjutkan audit endpoint secara role-per-role dari `routes/web.php` dan dynamic dispatch; catat setiap route dengan caller, middleware, CSRF, controller, model/query, schema, ownership, state/history/notification, redirect/view dan hasil cek.
-5. Telusuri seluruh kelompok query/schema serta workflow lintas-role. Untuk konflik migration/schema, kumpulkan bukti dan tulis opsi tanpa menerapkan perubahan atau menjalankan migration.
-6. Lanjutkan audit upload/download/router dan browser/JavaScript/assets setelah langkah 1–3 lulus; bedakan pemeriksaan source dari hasil HTTP/browser.
-7. Dapatkan persetujuan eksplisit serta target database/browser disposable yang terverifikasi sebelum tes runtime atau operasi data. Tanpa prasyarat tersebut, tandai runtime NOT RUN dan jangan menjalankan migration/seeder/query tulis.
-8. Perbarui `Dokumentasi/Repository-Audit-Matrix.md` dan checkpoint ini dengan bukti/hasil aktual setiap batch; jangan tandai audit total selesai sebelum semua area terbuka dicatat dan pengujian yang diizinkan dilaporkan.
+1. Audit rute serving untuk setiap aset media yang masih dirender publik: gambar portofolio publik, file sertifikat, avatar/dashboard, generated laporan, template, bukti/ttd logbook, dokumen pendaftaran, dan CV. Tandai handler resmi, aturan publikasi, dan kemungkinan bypass static/Apache/Nginx. Uji HTTP/browser hanya pada target aman yang disetujui; tanpa itu tetap NOT RUN.
+2. Periksa/putuskan field profil mahasiswa yang boleh tampil publik; dokumentasikan keputusan sebelum mengubah SELECT atau UI.
+3. Lanjutkan route audit per-role dari `routes/web.php`/dynamic dispatch; untuk setiap aksi catat caller, method, middleware, CSRF, controller, model/query, ownership, state/history/notification dan destination.
+4. Lanjutkan tracing seluruh query/schema dan workflow lintas-role, terutama notifikasi pengajuan baru, revisi pengajuan, pemeriksaan laporan, serta verifikasi penyelesaian yang kebijakan bisnisnya belum ditetapkan.
+5. Selesaikan audit upload/download dan aset, termasuk HTTP/server mapping; uji browser/HTTP hanya jika target yang aman disetujui.
+6. Setelah code changes berikutnya, jalankan tes yang relevan, lint file berubah, semua tes proyek yang tersedia, `git diff --check`, dan cek ulang status; jangan membuang perubahan lokal.
+7. Dapatkan target PostgreSQL/browser disposable serta persetujuan eksplisit sebelum tes runtime atau operasi data. Jangan menjalankan migration/seeder/query tulis.
+8. Perbarui `Dokumentasi/Repository-Audit-Matrix.md` dan checkpoint ini berdasarkan bukti; audit total tetap terbuka sampai seluruh role/route/fitur/workflow diperiksa.
+
+## Batch lanjutan sesi ini
+
+- Memulihkan konteks dengan membaca checkpoint ini, `Dokumentasi/Repository-Audit-Matrix.md`, `Dokumentasi/E2E-Test-Plan.md`, PRD, daftar tes, `routes/web.php`, `index.php`, `router.php`, helper aset, serta workflow pengajuan/logbook terkait. Snapshot schema dan migration dibaca secara statis; konfigurasi credential, `.env`, database, server, dan browser tidak digunakan.
+- Status awal sesi bersih (`main` mengikuti `origin/main`). Audit awal router mengonfirmasi helper allowlist hanya menghidangkan asset di `/assets/`; `Readme.md` menggunakan custom router PHP built-in. Referensi media upload pada source perlu jalur pemeriksaan publikasi sebelum dapat diperbaiki dengan aman.
+- `php tests/public_asset_resolution.php` awalnya gagal karena test mengharapkan MIME `text/css`, sedangkan resolver dengan benar menghasilkan `text/css; charset=utf-8`. Assertion test diselaraskan dengan MIME eksplisit. Hasil run ulang lulus.
+- Ditemukan akar masalah baru: `MahasiswaProfilController::index()` dan `cv()` memanggil `ProfilMahasiswa::getPublicMahasiswaBySlug()`, dan method model itu dahulu menjalankan `INSERT INTO pengalaman` pada request GET (termasuk sebelum mengirim CV publik). Insert tersebut bisa terjadi tanpa pencatatan aktivitas pada jalur ini. Pengalaman auto juga sudah dapat ditampilkan sebagai derived row oleh `Pengalaman::getCombinedQuery()` dan disinkronkan di alur model Pengalaman.
+- Perbaikan source: `getPublicMahasiswaBySlug()` kini membaca pengalaman tersimpan dan pengalaman magang selesai yang eligible lewat `UNION ALL`, de-duplicate melalui `pendaftaran_id`, dan tidak memutasi tabel. Kriteria status `selesai` serta verifikasi `terverifikasi`/record verifikasi kosong dipertahankan dari implementasi sebelumnya; tidak ada aturan bisnis baru. File: `models/ProfilMahasiswa.php`.
+- Regression test source-level ditambahkan pada `tests/workflow_static_checks.php`. Tes baru dijalankan merah dan gagal tepat karena `INSERT INTO pengalaman` ada dalam getter publik; setelah perbaikan tes lulus. Ini static assertion, bukan validasi SQL PostgreSQL.
+- Pengajuan lintas role ditelusuri pada `LamarController`, `PendaftaranMagang`, `PersetujuanPengajuan`, `PengajuanMitra`, `PenempatanMagangCoordinator`, tiga controller role dan migration schema: file/documen upload dan insert/history transaction mahasiswa; keputusan Dosen pending + syarat enam dokumen + history/notifikasi transaction; respons Mitra ownership + status + kuota + binding bool + history/notifikasi; placement Koordinator untuk diterima/tanpa placement. Belum ditemukan tes HTTP/database atau alur revision upload. Potensi notifikasi pengajuan baru ke Dosen tidak diimplementasikan tanpa aturan penerima yang jelas.
+- File yang berubah pada batch audit saat ini: `controllers/MahasiswaProfilController.php`, `function/PrivateStorage.php`, `function/landingPage/mahasiswa/ViewHelpers.php`, `models/ProfilMahasiswa.php`, `routes/web.php`, `tests/public_asset_resolution.php`, `tests/smoke_views.php`, `tests/workflow_static_checks.php`, `Dokumentasi/developer/AUDIT_PROGRESS.md`.
 
 ## Keputusan/konfirmasi bisnis yang belum boleh ditebak
 
@@ -130,3 +160,130 @@ Runtime PostgreSQL, browser, HTTP, migrasi, seeder, server, dan container tidak 
 - Batas kewenangan Koordinator Magang dan Tendik pada validasi/administrasi.
 - Provisioning resmi akun Mitra, sumber kebenaran kode, status aktif, dan mitigasi login berbasis kode saja.
 - Target PostgreSQL/browser disposable dan izin menjalankan tes integrasi; tanpa izin, runtime tetap tidak diuji.
+
+## Batch terbaru: audit media sertifikat dan portofolio publik
+
+### Source yang diperiksa
+
+- `controllers/dashboard/mahasiswa/SertifikatController.php`
+- `models/Sertifikat.php`
+- `components/dashboard/mahasiswa/sertifikat/SertifikatCard.php`
+- `components/dashboard/mahasiswa/sertifikat/detail/Preview.php`
+- `components/dashboard/mahasiswa/sertifikat/form/SertifikatForm.php`
+- `routes/web.php` pada dynamic route sertifikat
+- `controllers/MahasiswaProfilController.php`
+- `models/ProfilMahasiswa.php` pada query portofolio publik/foto profil
+- `function/landingPage/mahasiswa/ViewHelpers.php`
+- `function/PrivateStorage.php`, `router.php`, `storage/.htaccess`, `uploads/cv/.htaccess`
+- `tests/workflow_static_checks.php` dan `tests/smoke_views.php`
+
+### Temuan dan perubahan
+
+- Preview gambar sertifikat memakai URL langsung ke `uploads/sertifikat`, sehingga ownership hanya dijaga pada page/download controller dan dapat dilewati melalui URL file. Ditambahkan `SertifikatController::preview()` dengan role mahasiswa, owner-scoped slug, pola basename generated, canonical containment, MIME/image validation, dan cache privat. Card, detail, dan form edit diarahkan ke route preview; PDF tetap memakai download handler.
+- Gambar portofolio publik memakai URL langsung dari nilai database. Ditambahkan `MahasiswaProfilController::portofolio()` dan route `/mahasiswa/profil/portofolio/{filename}`. Model memerlukan exact stored path, `u.role='mahasiswa'`, dan `status_publikasi='publik'` sebelum file dikirim. Query profil publik mengubah path gambar yang cocok menjadi endpoint ini dan mengosongkan path yang tidak memenuhi pola generated.
+- Foto profil dari batch sebelumnya tetap memakai handler publik profile-photo yang owner/path scoped. Private path helper tetap memblokir `uploads/cv`, `uploads/profil`, `uploads/sertifikat`, dan storage private yang terdaftar; static router tidak dibuka untuk seluruh uploads.
+- Seed path yang ditemukan (`uploads/mahasiswa/...` pada `SeedProfilMahasiswa.php` dan `uploads/sertifikat/seed/...` pada `SeedSertifikatMahasiswa.php`) belum diubah karena seed tidak boleh dijalankan dan data fixture/operasional belum dikonfirmasi. Ini dicatat sebagai potensi mismatch/path yatim untuk batch seed/fixture terpisah.
+- `storage/pendaftaran/README.txt` muncul sebagai modified pada status akhir, tetapi tidak disentuh oleh batch ini dan dipertahankan sebagai perubahan lokal pengguna.
+
+### Verification batch
+
+- `php tests/smoke_views.php` — lulus: `Repository view smoke checks passed (38 components).`
+- `php tests/workflow_static_checks.php` — lulus: `Workflow static security checks passed (conditional validation and private file access).`
+- `node tests/login_role_behavior.js` — lulus; synthetic DOM, tanpa server/database.
+- `php tests/public_asset_resolution.php` — lulus; scratch fixtures, tanpa server/database.
+- `php tests/pdo_parameter_binder.php` — lulus.
+- `php tests/pengajuan_decision.php` — lulus; PDO statement double.
+- `php tests/login_authentication.php` — lulus; isolated policy/PDO double.
+- PHP lint untuk controller Sertifikat, komponen sertifikat, `MahasiswaProfilController`, `ProfilMahasiswa`, `routes/web.php`, dan `tests/workflow_static_checks.php` — lulus tanpa syntax error.
+- `git diff --check` — lulus.
+- Tidak ada HTTP/browser/PostgreSQL/runtime authorization, migration, seeder, atau query tulis yang dijalankan.
+
+### Tugas tertunda berikutnya
+
+1. Audit jalur file laporan: upload PDF, template DOCX, generated DOCX/PDF, revision download, direct static bypass, dan ownership/role.
+2. Audit dokumen pengajuan dan logbook evidence/signature secara per endpoint, termasuk path yang tersimpan dan MIME/content checks.
+3. Audit semua route/controller per role dengan matriks endpoint hidup; status saat ini masih partial, bukan selesai.
+4. Rekonsiliasi seed paths dan file orphan secara read-only/source-only tanpa menjalankan seeder.
+5. Lanjutkan audit query/schema lintas modul dan update matriks endpoint. Runtime tetap NOT RUN sampai target terisolasi disetujui.
+
+## Batch berikutnya: keamanan laporan dan workflow file
+
+### Source yang diperiksa
+
+- `controllers/dashboard/mahasiswa/LaporanController.php`
+- `models/LaporanMagang.php`, `models/LaporanRevisi.php`, `models/TemplateLaporan.php`, `models/PemeriksaanLaporan.php`
+- `database/schema.sql` dan migration laporan `006_create_laporan_dan_penilaian.sql`, `024_create_laporan_workflow.sql`
+- `function/PrivateStorage.php`, `router.php`, `storage/.htaccess`
+
+### Temuan dan perubahan
+
+- Upload laporan Mahasiswa divalidasi server-side: POST+CSRF, status hanya `draft`/`perlu_revisi`, max 10 MB, `is_uploaded_file`, MIME `application/pdf`, ekstensi `.pdf`, dan signature `%PDF-`. Penyimpanan memakai random 48-hex basename di `storage/laporan`; update laporan dan record revisi berada dalam transaksi; file baru dihapus jika transaksi gagal. Ownership update dan download ditelusuri melalui `prof.user_id`.
+- Download laporan terbaru/revisi dan template melewati `resolvePrivateStorageFile()` dengan allowlist `storage/laporan`/`storage/templates/laporan`, MIME/extension checks, dan owner-scoped lookup untuk Mahasiswa. Direct static storage ditolak oleh router/`storage/.htaccess` pada source yang diperiksa.
+- Ditemukan kelemahan pada generated weekly report: template path sebelumnya dibentuk dengan konkatenasi root + nilai `file_template` database. Walaupun download akhir memakai resolver, generator membaca file template sebelum itu. Ini dapat membuka path template arbitrer jika record database berisi path manipulatif. Diperbaiki memakai `resolvePrivateStorageFile(..., ['storage/templates/laporan'])` sebelum generator berjalan.
+- `PemeriksaanLaporan` memiliki model CRUD/status, tetapi tidak ada route/controller yang menjalankan `decide()` pada source yang diperiksa; urutan reviewer/otorisasi Koordinator/Tendik belum menjadi workflow operasional. Tidak dibuat endpoint baru tanpa aturan bisnis.
+- Path record/file seed dan orphan cleanup belum diubah. Tidak ada database dibaca atau file dihapus. Akses lintas role reviewer laporan belum dapat dibuktikan runtime dan perlu keputusan kewenangan.
+
+### Verification batch
+
+- `php tests/smoke_views.php` — lulus, 38 komponen.
+- `php tests/workflow_static_checks.php` — lulus; termasuk regression bahwa generated report template memakai canonical allowlist.
+- `node tests/login_role_behavior.js` — lulus; synthetic DOM.
+- `php tests/public_asset_resolution.php` — lulus; scratch fixtures.
+- `php tests/pdo_parameter_binder.php` — lulus.
+- `php tests/pengajuan_decision.php` — lulus; PDO double.
+- `php tests/login_authentication.php` — lulus; isolated policy/PDO double.
+- PHP lint `LaporanController.php` dan `tests/workflow_static_checks.php` — lulus.
+- `git diff --check` — lulus.
+- Tidak ada HTTP/browser/PostgreSQL, migration, seeder, server, atau query tulis.
+
+### Tugas tertunda berikutnya
+
+1. Lanjutkan audit dokumen pengajuan magang: upload, endpoint dokumen Dosen/Mitra, static bypass, ownership perusahaan/mahasiswa, MIME dan orphan paths.
+2. Lanjutkan audit evidence/signature Logbook termasuk upload replacement dan role/status gates.
+3. Susun matriks endpoint hidup per role dari dynamic routes; source coverage masih partial.
+4. Rekonsiliasi seed path laporan/sertifikat/profil dan file orphan secara read-only.
+
+## Batch: Pemisahan Administrasi Penetapan Dosen Pembimbing
+
+### Sources checked
+
+- `Dokumentasi/prd/prd.md`, `Dokumentasi/developer/IMPLEMENTATION_PROGRESS.md`, dan checkpoint audit ini.
+- `components/dashboard/koordinatorMagang/Sidebar.php` dan `components/dashboard/tendik/Sidebar.php`.
+- `controllers/dashboard/mahasiswa/LamarController.php`, `models/PendaftaranMagang.php`, `models/PersetujuanPengajuan.php`, dan `pages/dashboard/mahasiswa/pengajuan/detail.php`.
+- `models/PenempatanMagangCoordinator.php`, controller/page Penempatan Koordinator, `models/PermintaanPembimbing.php`, controller/page Mahasiswa dan Dosen, serta `routes/web.php`.
+
+### Findings and file changes
+
+- `menunggu_persetujuan_dosen` tetap merupakan status awal `pendaftaran_magang`, dibuat oleh `PendaftaranMagang::create()` dan ditampilkan pada timeline Status Pengajuan. Status ini tetap dipakai `PersetujuanPengajuan` untuk persetujuan pengajuan magang; tidak diubah dan tidak dicampur dengan assignment pembimbing.
+- Relasi assignment tetap `penempatan_magang.dosen_pembimbing_id`, dengan actor `ditetapkan_oleh`. Query assignment hanya menampilkan pendaftaran `diterima` dan penempatan `persiapan`/`berlangsung`; mutation tetap memakai Koordinator, CSRF, transaksi, validasi dosen aktif, dan guard `dosen_pembimbing_id IS NULL`.
+- Ditambahkan route khusus `/dashboard/koordinator-magang/penetapan-dosen`, `KoordinatorPenetapanDosenController`, dan halaman `pages/dashboard/koordinatorMagang/penetapan-dosen/index.php`.
+- Sidebar Koordinator sekarang memiliki menu `Penetapan Dosen Pembimbing` menuju route khusus tersebut. Sidebar Tendik tidak diberi menu atau hak assignment.
+- Halaman `/dashboard/koordinator-magang/penempatan` kini hanya membuat penempatan; UI pemilihan dosen dan assignment dipindahkan ke halaman administrasi khusus.
+- Teks halaman mahasiswa dikoreksi agar menyatakan penetapan dilakukan Koordinator Magang, tanpa membuka selector dosen. Permintaan bimbingan mahasiswa dan keputusan Dosen tetap dipertahankan.
+- Tidak ada perubahan schema, migration, seeder, operasi database, commit, atau push.
+
+### Test evidence
+
+- PHP lint untuk controller/page baru, controller/page penempatan, Sidebar Koordinator, halaman mahasiswa, route, model, dan test — passed.
+- `php tests/bimbingan_dosen.php` — passed setelah regression checks diperluas untuk route/sidebar/page terpisah dan status awal pengajuan.
+- `php tests/workflow_static_checks.php` — passed.
+- `php tests/smoke_views.php` — passed (38 components).
+- `php tests/login_authentication.php` — passed.
+- `php tests/pdo_parameter_binder.php` — passed.
+- `php tests/pengajuan_decision.php` — passed.
+- `php tests/public_asset_resolution.php` — passed.
+- `php tests/tendik_user_management.php` — passed.
+- `node tests/login_role_behavior.js` — passed.
+- `git diff --check` — passed.
+- Output juga menunjukkan `Permission denied` saat Git mencoba membaca file existing di `storage/pendaftaran`; file tersebut tidak disentuh.
+
+### Remaining risks
+
+- HTTP/browser dan PostgreSQL runtime belum diuji; tidak ada target disposable yang disetujui.
+- Route baru belum diverifikasi melalui server aktif.
+- Status workflow pengajuan tetap mengikuti PRD/source saat ini; jika produk bermaksud mengubah urutan persetujuan, keputusan bisnis eksplisit masih diperlukan.
+
+### Next batch
+
+1. Uji manual route baru pada database/browser disposable yang telah disetujui.
+2. Lanjutkan audit dokumen pengajuan dan endpoint file tanpa menjalankan operasi tulis.

@@ -70,6 +70,18 @@ $active = 'permintaan-pembimbing';
                 </div>
             <?php endif; ?>
         </section>
+
+        <section class="mt-6 overflow-hidden bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <div class="px-5 py-4 border-b border-gray-100"><h2 class="font-semibold text-gray-900">Riwayat Permintaan</h2><p class="mt-1 text-xs text-gray-500">Hanya permintaan dari mahasiswa yang ditujukan kepada Anda.</p></div>
+            <?php if ($history): ?>
+                <div class="divide-y divide-gray-100">
+                    <?php foreach ($history as $request): ?>
+                        <?php $statusClass = match ($request['status_permintaan']) { 'disetujui' => 'text-emerald-700 bg-emerald-50', 'ditolak' => 'text-red-700 bg-red-50', default => 'text-amber-700 bg-amber-50' }; ?>
+                        <article class="p-5"><div class="flex flex-wrap items-start justify-between gap-3"><div><h3 class="font-semibold text-gray-900"><?= e((string) $request['mahasiswa_nama']) ?> · <?= e((string) $request['nim']) ?></h3><p class="mt-1 text-sm text-gray-500"><?= e((string) $request['nama_perusahaan']) ?> · <?= e((string) $request['judul']) ?></p><p class="mt-2 text-sm text-gray-700 whitespace-pre-line"><?= e((string) $request['alasan_pengajuan']) ?></p><?php if (!empty($request['catatan_dosen'])): ?><p class="mt-2 text-xs text-gray-500 whitespace-pre-line">Catatan Anda: <?= e((string) $request['catatan_dosen']) ?></p><?php endif; ?></div><span class="px-3 py-1 text-xs font-medium <?= e($statusClass) ?> rounded-full"><?= e(ucfirst((string) $request['status_permintaan'])) ?></span></div></article>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?><p class="p-8 text-sm text-center text-gray-400">Belum ada riwayat permintaan.</p><?php endif; ?>
+        </section>
     </div>
 </main>
 </body>

@@ -25,6 +25,24 @@ class PendaftaranMagang
         global $pdo;
         $pdo->beginTransaction();
         try {
+            $assignmentStmt = $pdo->prepare(
+                "SELECT pr.id AS proses_magang_id, pp.id AS penugasan_pembimbing_id,
+                        pp.dosen_pembimbing_id, u.name AS dosen_nama, pd.nidn
+                 FROM proses_magang pr
+                 INNER JOIN penugasan_pembimbing pp
+                    ON pp.proses_magang_id = pr.id AND pp.status = 'aktif'
+                 INNER JOIN profil_dosen pd ON pd.id = pp.dosen_pembimbing_id
+                 INNER JOIN users u ON u.id = pd.user_id
+                 WHERE pr.mahasiswa_id = :mahasiswa_id
+                   AND pr.status = 'aktif'
+                   AND u.role = 'dosen' AND u.is_active = TRUE
+                 FOR UPDATE OF pr, pp"
+            );
+            $assignmentStmt->execute(['mahasiswa_id' => $mahasiswaId]);
+            $assignment = $assignmentStmt->fetch(PDO::FETCH_ASSOC);
+            if (!$assignment) {
+                throw new DomainException('Anda belum memiliki dosen pembimbing yang ditetapkan pengelola untuk proses magang ini.');
+            }
             $stmt = $pdo->prepare("SELECT f.id, f.jumlah_kuota, f.jumlah_diterima FROM formasi_magang f JOIN mitra m ON m.id=f.mitra_id WHERE f.id=:id AND f.status='dibuka' AND m.status_verifikasi='terverifikasi' AND m.is_active=TRUE FOR UPDATE OF f");
             $stmt->execute(['id' => $formasiId]);
             $formasi = $stmt->fetch();
@@ -34,8 +52,16 @@ class PendaftaranMagang
             if ($this->hasActiveApplication($mahasiswaId)) {
                 throw new DomainException('Anda masih memiliki pengajuan magang aktif. Selesaikan atau batalkan pengajuan tersebut sebelum mengajukan formasi lain.');
             }
-            $stmt = $pdo->prepare("INSERT INTO pendaftaran_magang (mahasiswa_id, formasi_id, status_persetujuan_dosen, status_respons_mitra, status_pendaftaran) VALUES (:mahasiswa_id, :formasi_id, 'menunggu', 'menunggu', 'menunggu_persetujuan_dosen') RETURNING id");
-            $stmt->execute(['mahasiswa_id' => $mahasiswaId, 'formasi_id' => $formasiId]);
+            $stmt = $pdo->prepare("INSERT INTO pendaftaran_magang (mahasiswa_id, formasi_id, proses_magang_id, penugasan_pembimbing_id, dosen_pembimbing_snapshot_id, dosen_pembimbing_snapshot_nama, dosen_pembimbing_snapshot_nidn, status_persetujuan_dosen, status_respons_mitra, status_pendaftaran) VALUES (:mahasiswa_id, :formasi_id, :process_id, :assignment_id, :advisor_id, :advisor_name, :advisor_nidn, 'menunggu', 'menunggu', 'menunggu_persetujuan_dosen') RETURNING id");
+            $stmt->execute([
+                'mahasiswa_id' => $mahasiswaId,
+                'formasi_id' => $formasiId,
+                'process_id' => (int) $assignment['proses_magang_id'],
+                'assignment_id' => (int) $assignment['penugasan_pembimbing_id'],
+                'advisor_id' => (int) $assignment['dosen_pembimbing_id'],
+                'advisor_name' => (string) $assignment['dosen_nama'],
+                'advisor_nidn' => $assignment['nidn'] !== null ? (string) $assignment['nidn'] : null,
+            ]);
             $applicationId = (int)$stmt->fetchColumn();
             $docStmt = $pdo->prepare('INSERT INTO dokumen_pendaftaran_magang (pendaftaran_id, jenis_dokumen, nama_asli, path_file, mime_type, ukuran_bytes) VALUES (:pendaftaran_id, :jenis, :nama, :path, :mime, :size)');
             foreach ($documents as $jenis => $doc) {

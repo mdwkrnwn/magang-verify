@@ -21,7 +21,8 @@ class PermintaanPembimbing
                     latest.catatan_dosen,
                     latest.tanggal_pengajuan,
                     latest.tanggal_respons,
-                    du.name AS dosen_nama
+                    assigned_u.name AS dosen_nama,
+                    assigned_pd.nidn AS dosen_nidn
              FROM penempatan_magang pm
              INNER JOIN pendaftaran_magang p ON p.id = pm.pendaftaran_id
              INNER JOIN profil_mahasiswa prof ON prof.id = p.mahasiswa_id
@@ -34,26 +35,12 @@ class PermintaanPembimbing
                  ORDER BY pp.tanggal_pengajuan DESC, pp.id DESC
                  LIMIT 1
              ) latest ON TRUE
-             LEFT JOIN profil_dosen pd ON pd.id = latest.dosen_id
-             LEFT JOIN users du ON du.id = pd.user_id
+             LEFT JOIN profil_dosen assigned_pd ON assigned_pd.id = pm.dosen_pembimbing_id
+             LEFT JOIN users assigned_u ON assigned_u.id = assigned_pd.user_id
              WHERE prof.user_id = :user_id
              ORDER BY pm.tanggal_mulai DESC, pm.id DESC"
         );
         $stmt->execute(['user_id' => $userId]);
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    public function getDosenOptions(): array
-    {
-        global $pdo;
-        $stmt = $pdo->query(
-            "SELECT pd.id, u.name, pd.nidn
-             FROM profil_dosen pd
-             INNER JOIN users u ON u.id = pd.user_id
-             WHERE u.role = 'dosen' AND u.is_active = TRUE
-             ORDER BY u.name"
-        );
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -79,6 +66,30 @@ class PermintaanPembimbing
         );
         $stmt->execute(['user_id' => $userId]);
 
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getHistoryForDosen(int $userId): array
+    {
+        global $pdo;
+        $stmt = $pdo->prepare(
+            "SELECT pp.id, pp.penempatan_id, pp.alasan_pengajuan, pp.status_permintaan,
+                    pp.catatan_dosen, pp.tanggal_pengajuan, pp.tanggal_respons,
+                    mahasiswa.name AS mahasiswa_nama, prof.nim, prof.program_studi,
+                    f.judul, m.nama_perusahaan
+             FROM permintaan_pembimbing pp
+             INNER JOIN profil_dosen pd ON pd.id = pp.dosen_id
+             INNER JOIN users dosen ON dosen.id = pd.user_id
+             INNER JOIN penempatan_magang pm ON pm.id = pp.penempatan_id
+             INNER JOIN pendaftaran_magang p ON p.id = pm.pendaftaran_id
+             INNER JOIN profil_mahasiswa prof ON prof.id = p.mahasiswa_id
+             INNER JOIN users mahasiswa ON mahasiswa.id = prof.user_id
+             INNER JOIN formasi_magang f ON f.id = p.formasi_id
+             INNER JOIN mitra m ON m.id = f.mitra_id
+             WHERE dosen.id = :user_id
+             ORDER BY pp.tanggal_pengajuan DESC, pp.id DESC"
+        );
+        $stmt->execute(['user_id' => $userId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -110,7 +121,7 @@ class PermintaanPembimbing
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function create(int $userId, int $placementId, int $dosenId, string $reason): int
+    public function create(int $userId, int $placementId, string $reason): int
     {
         global $pdo;
         $reason = trim($reason);
@@ -121,10 +132,12 @@ class PermintaanPembimbing
         $pdo->beginTransaction();
         try {
             $placementStmt = $pdo->prepare(
-                "SELECT pm.id, pm.status, pm.dosen_pembimbing_id, p.status_pendaftaran
+                "SELECT pm.id, pm.status, pm.dosen_pembimbing_id, p.status_pendaftaran,
+                        pd.user_id AS dosen_user_id
                  FROM penempatan_magang pm
                  INNER JOIN pendaftaran_magang p ON p.id = pm.pendaftaran_id
                  INNER JOIN profil_mahasiswa prof ON prof.id = p.mahasiswa_id
+                 LEFT JOIN profil_dosen pd ON pd.id = pm.dosen_pembimbing_id
                  WHERE pm.id = :placement_id AND prof.user_id = :user_id
                  FOR UPDATE OF pm, p"
             );
@@ -137,20 +150,8 @@ class PermintaanPembimbing
                 || !in_array($placement['status'], ['persiapan', 'berlangsung'], true)) {
                 throw new RuntimeException('Permintaan pembimbing hanya dapat diajukan untuk penempatan magang yang telah diterima dan belum selesai.');
             }
-            if ($placement['dosen_pembimbing_id'] !== null) {
-                throw new RuntimeException('Penempatan ini sudah memiliki dosen pembimbing.');
-            }
-
-            $dosenStmt = $pdo->prepare(
-                "SELECT pd.id, pd.user_id
-                 FROM profil_dosen pd
-                 INNER JOIN users u ON u.id = pd.user_id
-                 WHERE pd.id = :dosen_id AND u.role = 'dosen' AND u.is_active = TRUE"
-            );
-            $dosenStmt->execute(['dosen_id' => $dosenId]);
-            $dosen = $dosenStmt->fetch(PDO::FETCH_ASSOC);
-            if (!$dosen) {
-                throw new InvalidArgumentException('Dosen yang dipilih tidak tersedia.');
+            if ($placement['dosen_pembimbing_id'] === null || !$placement['dosen_user_id']) {
+                throw new RuntimeException('Penempatan ini belum memiliki dosen pembimbing yang ditetapkan pengelola.');
             }
 
             $pendingStmt = $pdo->prepare(
@@ -171,7 +172,7 @@ class PermintaanPembimbing
             );
             $insert->execute([
                 'placement_id' => $placementId,
-                'dosen_id' => $dosenId,
+                'dosen_id' => (int) $placement['dosen_pembimbing_id'],
                 'reason' => $reason,
             ]);
             $requestId = (int) $insert->fetchColumn();
@@ -181,7 +182,7 @@ class PermintaanPembimbing
                  VALUES (:user_id, :judul, :pesan, 'persetujuan', 'permintaan_pembimbing', :reference_id, :tautan)"
             );
             $notification->execute([
-                'user_id' => (int) $dosen['user_id'],
+                'user_id' => (int) $placement['dosen_user_id'],
                 'judul' => 'Permintaan dosen pembimbing baru',
                 'pesan' => 'Mahasiswa mengajukan Anda sebagai dosen pembimbing magang.',
                 'reference_id' => $requestId,
@@ -253,24 +254,10 @@ class PermintaanPembimbing
             if ($currentAdvisor === false) {
                 throw new RuntimeException('Penempatan magang tidak ditemukan.');
             }
-            if ($decision === 'disetujui') {
-                if ($currentAdvisor['dosen_pembimbing_id'] !== null) {
-                    throw new RuntimeException('Penempatan sudah memiliki dosen pembimbing dan tidak dapat menerima penetapan lain.');
-                }
-                if ($currentAdvisor['status_pendaftaran'] !== 'diterima'
-                    || !in_array($currentAdvisor['status'], ['persiapan', 'berlangsung'], true)) {
-                    throw new RuntimeException('Penempatan tidak lagi memenuhi syarat untuk menerima pembimbing.');
-                }
-            }
-
-            if ($decision === 'disetujui') {
-                $assign = $pdo->prepare(
-                    'UPDATE penempatan_magang SET dosen_pembimbing_id = :dosen_id, updated_at = CURRENT_TIMESTAMP WHERE id = :placement_id'
-                );
-                $assign->execute([
-                    'dosen_id' => (int) $request['dosen_id'],
-                    'placement_id' => (int) $request['penempatan_id'],
-                ]);
+            if ((int) ($currentAdvisor['dosen_pembimbing_id'] ?? 0) !== (int) $request['dosen_id']
+                || $currentAdvisor['status_pendaftaran'] !== 'diterima'
+                || !in_array($currentAdvisor['status'], ['persiapan', 'berlangsung'], true)) {
+                throw new RuntimeException('Penempatan tidak lagi terkait dengan dosen pembimbing ini atau tidak memenuhi syarat.');
             }
 
             $update = $pdo->prepare(

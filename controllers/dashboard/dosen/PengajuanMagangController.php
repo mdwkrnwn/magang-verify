@@ -18,7 +18,7 @@ class PengajuanMagangController
         $formValues = [];
         $success = ($_GET['success'] ?? '') === '1';
         try {
-            $items = $model->getPending();
+            $items = $model->getPending($userId);
             $statistics = $model->getStatistics($userId);
         } catch (PDOException $loadException) {
             error_log('Gagal memuat antrean persetujuan Dosen: ' . $loadException->getMessage());
@@ -58,7 +58,7 @@ class PengajuanMagangController
                     $error = $e->getMessage();
                 }
                 try {
-                    $items = $model->getPending();
+                    $items = $model->getPending($userId);
                     $statistics = $model->getStatistics($userId);
                 } catch (PDOException $refreshException) {
                     error_log('Gagal memuat ulang antrean persetujuan Dosen: ' . $refreshException->getMessage());

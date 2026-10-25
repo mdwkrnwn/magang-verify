@@ -19,6 +19,7 @@ class DosenPermintaanPembimbingController
 
         $model = new PermintaanPembimbing();
         $requests = $model->getPendingForDosen($userId);
+        $history = $model->getHistoryForDosen($userId);
         $error = null;
         $success = ($_GET['success'] ?? '') === '1';
 

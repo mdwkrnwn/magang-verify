@@ -91,6 +91,8 @@ expectContains((string) $notificationPageSource, 'dirname(__DIR__, 3)', 'shared 
 $notificationProjectRoot = dirname(__DIR__ . '/../pages/dashboard/shared', 3);
 expectContains((string) $notificationPageSource, '$componentRoot . \'/Head.php\'', 'notification page includes the resolved role layout head');
 expectContains((string) $notificationPageSource, '$projectRoot . \'/components/dashboard/shared/Notifications.php\'', 'notification page includes the shared notification view');
+$notificationControllerSource = file_get_contents(__DIR__ . '/../controllers/dashboard/NotifikasiController.php');
+expectContains((string) $notificationControllerSource, "'koordinator_magang' => 'koordinatorMagang'", 'notification controller maps the stored coordinator role to its existing layout directory');
 foreach (['mahasiswa', 'dosen', 'mitra', 'koordinatorMagang', 'tendik'] as $notificationLayout) {
     foreach (['Head.php', 'Sidebar.php', 'Header.php'] as $layoutComponent) {
         if (!is_file($notificationProjectRoot . '/components/dashboard/' . $notificationLayout . '/' . $layoutComponent)) {
@@ -100,6 +102,14 @@ foreach (['mahasiswa', 'dosen', 'mitra', 'koordinatorMagang', 'tendik'] as $noti
 }
 if (!is_file($notificationProjectRoot . '/components/dashboard/shared/Notifications.php')) {
     throw new RuntimeException('Shared notification component path does not resolve.');
+}
+foreach (['mahasiswa', 'dosen', 'mitra', 'koordinatorMagang', 'tendik'] as $notificationLayout) {
+    $headerPath = $notificationProjectRoot . '/components/dashboard/' . $notificationLayout . '/Header.php';
+    $headerSource = file_get_contents($headerPath);
+    expectContains((string) $headerSource, "../shared/NotificationBell.php", 'notification header include exists for ' . $notificationLayout);
+    if (!is_file(dirname($headerPath) . '/../shared/NotificationBell.php')) {
+        throw new RuntimeException('Notification bell include target is missing for ' . $notificationLayout);
+    }
 }
 $portfolioMainContent = file_get_contents(__DIR__ . '/../components/dashboard/mahasiswa/portofolio/MainContent.php');
 expectContains((string) $portfolioMainContent, "__DIR__ . '/../Footer.php'", 'portfolio page resolves the Mahasiswa footer relative to its component directory');

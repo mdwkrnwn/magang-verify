@@ -12,8 +12,12 @@ function foto(array $mahasiswa): string
     }
 
     if (preg_match('#^https?://#i', $path)) {
-        return $path;
+        return '';
     }
 
-    return url('/' . ltrim($path, '/'));
+    if (!str_starts_with($path, 'uploads/profil/')) {
+        return '';
+    }
+
+    return url('/mahasiswa/profil/foto/' . rawurlencode(basename($path)));
 }

@@ -12,7 +12,7 @@ $active = 'pembimbing';
     <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-6xl">
         <div class="mb-6">
             <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Permintaan Dosen Pembimbing</h1>
-            <p class="mt-2 text-sm text-gray-500">Ajukan dosen untuk penempatan magang yang sudah diterima dan belum memiliki pembimbing.</p>
+            <p class="mt-2 text-sm text-gray-500">Dosen pembimbing ditetapkan oleh Koordinator Magang.</p>
         </div>
 
         <?php if ($success): ?>
@@ -29,7 +29,7 @@ $active = 'pembimbing';
                     <?php
                         $eligible = $placement['status_pendaftaran'] === 'diterima'
                             && in_array($placement['status_penempatan'], ['persiapan', 'berlangsung'], true)
-                            && $placement['dosen_pembimbing_id'] === null
+                            && $placement['dosen_pembimbing_id'] !== null
                             && ($placement['status_permintaan'] ?? null) !== 'menunggu';
                         $start = strtotime((string) $placement['tanggal_mulai']);
                         $end = strtotime((string) $placement['tanggal_selesai']);
@@ -52,31 +52,24 @@ $active = 'pembimbing';
                             <?php endif; ?>
                         </div>
 
-                        <?php if ($eligible && $dosen): ?>
-                            <form method="POST" action="<?= e(url('/dashboard/mahasiswa/pembimbing')) ?>" class="grid grid-cols-1 gap-4 mt-5 sm:grid-cols-2">
+                        <?php if ($placement['dosen_pembimbing_id'] === null): ?>
+                            <p class="mt-4 text-xs text-amber-700">Belum ada dosen pembimbing yang ditetapkan oleh pengelola.</p>
+                        <?php elseif ($eligible): ?>
+                            <form method="POST" action="<?= e(url('/dashboard/mahasiswa/pembimbing')) ?>" class="mt-5 space-y-4">
                                 <input type="hidden" name="_csrf_token" value="<?= e(csrfToken()) ?>">
                                 <input type="hidden" name="penempatan_id" value="<?= e((string) $placement['penempatan_id']) ?>">
-                                <label class="text-sm font-medium text-gray-700">
-                                    Dosen yang diminta
-                                    <select name="dosen_id" required class="block w-full mt-2 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500">
-                                        <option value="">Pilih dosen</option>
-                                        <?php foreach ($dosen as $option): ?>
-                                            <option value="<?= e((string) $option['id']) ?>"><?= e((string) $option['name']) ?><?= !empty($option['nidn']) ? ' · ' . e((string) $option['nidn']) : '' ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                <label class="block text-sm font-medium text-gray-700">
+                                    Topik dan deskripsi bimbingan
+                                    <textarea name="alasan_pengajuan" required maxlength="5000" rows="3" class="block w-full mt-2 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Contoh: konsultasi rencana kegiatan minggu pertama dan target luaran magang."></textarea>
                                 </label>
-                                <label class="text-sm font-medium text-gray-700">
-                                    Alasan pengajuan
-                                    <textarea name="alasan_pengajuan" required maxlength="5000" rows="3" class="block w-full mt-2 rounded-xl border-gray-300 focus:border-blue-500 focus:ring-blue-500" placeholder="Jelaskan alasan Anda meminta dosen pembimbing ini."></textarea>
-                                </label>
-                                <div class="sm:col-span-2">
-                                    <button type="submit" class="inline-flex items-center justify-center px-5 py-3 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700">Kirim Permintaan</button>
+                                <div>
+                                    <button type="submit" class="inline-flex items-center justify-center px-5 py-3 text-sm font-semibold text-white bg-blue-600 rounded-xl hover:bg-blue-700">Kirim Permintaan Bimbingan</button>
                                 </div>
                             </form>
-                        <?php elseif ($eligible && !$dosen): ?>
-                            <p class="mt-4 text-sm text-amber-700">Belum ada dosen aktif yang dapat dipilih.</p>
-                        <?php elseif (!$eligible && $placement['dosen_pembimbing_id'] === null && ($placement['status_permintaan'] ?? '') !== 'menunggu'): ?>
-                            <p class="mt-4 text-xs text-gray-500">Permintaan tersedia setelah pengajuan diterima dan penempatan berada pada tahap persiapan atau berlangsung.</p>
+                        <?php elseif (($placement['status_permintaan'] ?? '') === 'menunggu'): ?>
+                            <p class="mt-4 text-xs text-gray-500">Permintaan bimbingan Anda sedang menunggu respons dosen pembimbing.</p>
+                        <?php elseif ($placement['status_pendaftaran'] !== 'diterima' || !in_array($placement['status_penempatan'], ['persiapan', 'berlangsung'], true)): ?>
+                            <p class="mt-4 text-xs text-gray-500">Permintaan bimbingan tersedia setelah pengajuan diterima dan penempatan berada pada tahap persiapan atau berlangsung.</p>
                         <?php endif; ?>
                     </article>
                 <?php endforeach; ?>

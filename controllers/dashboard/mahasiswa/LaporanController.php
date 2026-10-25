@@ -881,15 +881,13 @@ class LaporanController
         $laporan['file_template'] ?? ''
     );
 
-    $templatePath = dirname(
-        __DIR__,
-        3
-    ) . '/' . ltrim(
+    $templatePath = resolvePrivateStorageFile(
+        dirname(__DIR__, 3),
         $templateRelativePath,
-        '/'
+        ['storage/templates/laporan']
     );
 
-    if (!is_file($templatePath)) {
+    if ($templatePath === null) {
         throw new RuntimeException(
             'File template laporan mingguan tidak ditemukan.'
         );

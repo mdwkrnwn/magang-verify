@@ -125,9 +125,43 @@
 
             </a>
 
+            <!-- Penetapan Dosen Pembimbing -->
+            <a
+                href="<?= url('/dashboard/koordinator-magang/penetapan-dosen') ?>"
+                title="Penetapan Dosen Pembimbing"
+                class="sidebar-nav-item
+                       flex items-center gap-3
+                       px-4 py-3
+                       rounded-xl
+                    <?= $active === 'penetapan-dosen'
+                        ? 'bg-blue-50 text-blue-600 font-semibold'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+
+                <svg
+                    class="w-5 h-5 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true">
+
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="1.8"
+                        d="M12 14a4 4 0 100-8 4 4 0 000 8Zm-7 7a7 7 0 0114 0" />
+
+                </svg>
+
+                <span
+                    class="sidebar-label text-sm whitespace-nowrap">
+
+                    Penetapan Dosen Pembimbing
+
+                </span>
+
+            </a>
+
         </div>
-
-
 
         <div class="mt-1">
             <a href="<?= url('/dashboard/koordinator-magang/penempatan') ?>" title="Penempatan Magang" class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl <?= $active === 'penempatan' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
@@ -136,15 +170,9 @@
             </a>
         </div>
 
-
         <div class="mt-1">
-            <a
-                href="<?= url('/dashboard/koordinator-magang/logbook') ?>"
-                title="Logbook"
-                class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl <?= $active === 'logbook' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2Zm8 0v5h4M9 13h6M9 17h6" />
-                </svg>
+            <a href="<?= url('/dashboard/koordinator-magang/logbook') ?>" title="Logbook" class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl <?= $active === 'logbook' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2Zm8 0v5h4M9 13h6M9 17h6" /></svg>
                 <span class="sidebar-label text-sm whitespace-nowrap">Logbook</span>
             </a>
         </div>
