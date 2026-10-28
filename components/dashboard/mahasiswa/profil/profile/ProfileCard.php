@@ -27,10 +27,10 @@ if ($namaProfil !== '') {
                 <?php if ($fotoProfil !== ''): ?>
 
                     <img
-                        src="<?= e(url('/' . ltrim($fotoProfil, '/'))) ?>"
+                        src="<?= e(url('/mahasiswa/profil/foto/' . rawurlencode(basename($fotoProfil)))) ?>"
                         alt="Foto profil <?= e($namaProfil !== '' ? $namaProfil : 'mahasiswa') ?>"
                         class="h-full w-full object-cover"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        onerror="this.style.display='none'; this.nextElementSibling?.style && (this.nextElementSibling.style.display='flex');">
 
                     <span
                         class="hidden h-full w-full items-center justify-center text-4xl font-bold text-blue-600">

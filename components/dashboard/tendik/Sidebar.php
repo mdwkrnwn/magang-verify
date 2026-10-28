@@ -38,6 +38,7 @@
 
             <!-- Nama -->
             <?php
+$active = $active ?? '';
             $role = $_SESSION['user']['role'] ?? '';
 
             $roleLabels = [
@@ -138,6 +139,26 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m7-8a4 4 0 100-8 4 4 0 000 8Zm9-3v6m3-3h-6" />
                 </svg>
                 <span class="sidebar-label text-sm whitespace-nowrap">Manajemen User</span>
+            </a>
+        </div>
+
+        <div class="mt-1">
+            <a
+                href="<?= url('/dashboard/tendik/verifikasi/portofolio') ?>"
+                title="Verifikasi Portofolio"
+                class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl <?= $active === 'verifikasi-portofolio' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 7h4l2 3h12M5 7v12a1 1 0 001 1h12a1 1 0 001-1V7M9 11h6" /></svg>
+                <span class="sidebar-label text-sm whitespace-nowrap">Verifikasi Portofolio</span>
+            </a>
+        </div>
+
+        <div class="mt-1">
+            <a
+                href="<?= url('/dashboard/tendik/verifikasi/sertifikat') ?>"
+                title="Verifikasi Sertifikat"
+                class="sidebar-nav-item flex items-center gap-3 px-4 py-3 rounded-xl <?= $active === 'verifikasi-sertifikat' ? 'bg-blue-50 text-blue-600 font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" /></svg>
+                <span class="sidebar-label text-sm whitespace-nowrap">Verifikasi Sertifikat</span>
             </a>
         </div>
 

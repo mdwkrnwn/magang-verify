@@ -132,8 +132,8 @@ class SertifikatController
         }
 
         $filename = bin2hex(random_bytes(16)) . '.' . $extensions[$mime];
-        if (!move_uploaded_file($tmp, $this->uploadDirectory . '/' . $filename)) {
-            $errors['gambar'] = 'File gagal disimpan.';
+        if (!is_writable($this->uploadDirectory) || !@move_uploaded_file($tmp, $this->uploadDirectory . '/' . $filename)) {
+            $errors['gambar'] = 'Penyimpanan file sedang tidak tersedia. Silakan coba lagi nanti.';
             return null;
         }
 
@@ -293,7 +293,9 @@ class SertifikatController
         if (!$sertifikat) {
             $this->showNotFound();
         }
-        if (($sertifikat['verifikasi']['status'] ?? '') !== 'belum_terverifikasi') {
+        $currentStatus = (string) ($sertifikat['verifikasi']['status'] ?? '');
+        $oldFilePath = $this->sertifikatModel->getFilePathBySlug($slug, $userId);
+        if (!in_array($currentStatus, ['belum_terverifikasi', 'ditolak', 'perlu_perbaikan'], true)) {
             http_response_code(403);
             exit('Sertifikat yang sedang atau sudah diverifikasi tidak dapat diubah.');
         }
@@ -324,14 +326,19 @@ class SertifikatController
             $newFilePath = $this->storeUploadedFile($errors, false);
 
             if (!$errors) {
+                $databaseUpdated = false;
                 try {
                     $data = $old;
                     if ($newFilePath !== null) {
                         $data['file_path'] = $newFilePath;
                     }
                     $newSlug = $this->sertifikatModel->update((int) $sertifikat['id'], $userId, $data);
-                    if ($newFilePath !== null) {
-                        $this->deleteStoredFile($sertifikat['file_path'] ?? $sertifikat['gambar'] ?? null);
+                    $databaseUpdated = true;
+                    if ($newFilePath !== null && $currentStatus !== 'ditolak') {
+                        $this->deleteStoredFile($oldFilePath);
+                    }
+                    if ($currentStatus === 'ditolak') {
+                        $this->aktivitasModel->log($userId, 'Sertifikat diajukan ulang', 'Sertifikat "' . ($data['nama'] ?? 'Sertifikat') . '" diajukan ulang untuk pemeriksaan.', 'sertifikat', 'sertifikat', (int) $sertifikat['id']);
                     }
                     $this->aktivitasModel->log(
                         $userId,
@@ -343,7 +350,7 @@ class SertifikatController
                     );
                     $this->redirect('/dashboard/mahasiswa/sertifikat/detail/' . rawurlencode($newSlug));
                 } catch (Throwable $e) {
-                    if ($newFilePath !== null) {
+                    if (!$databaseUpdated && $newFilePath !== null) {
                         $this->deleteStoredFile($newFilePath);
                     }
                     error_log('Gagal memperbarui sertifikat: ' . $e->getMessage());
@@ -355,6 +362,26 @@ class SertifikatController
         }
 
         require __DIR__ . '/../../../pages/dashboard/mahasiswa/sertifikat/form.php';
+    }
+
+    public function ajukanUlang($params = []): never
+    {
+        $this->validatePostRequest();
+        $userId = $this->getMahasiswaId();
+        $slug = trim((string) ($params['slug'] ?? ''));
+        $sertifikat = $this->sertifikatModel->getSertifikatBySlug($slug, $userId);
+        if (!$sertifikat || ($sertifikat['verifikasi']['status'] ?? '') !== 'ditolak') {
+            $this->showNotFound();
+        }
+        try {
+            $this->sertifikatModel->resubmit((int) $sertifikat['id'], $userId);
+            $this->aktivitasModel->log($userId, 'Sertifikat diajukan ulang', 'Sertifikat "' . $sertifikat['nama'] . '" diajukan ulang untuk pemeriksaan.', 'sertifikat', 'sertifikat', (int) $sertifikat['id']);
+            $this->redirect('/dashboard/mahasiswa/sertifikat/detail/' . rawurlencode($slug));
+        } catch (Throwable $exception) {
+            error_log('Gagal mengajukan ulang sertifikat: ' . $exception->getMessage());
+            http_response_code(409);
+            exit('Sertifikat tidak dapat diajukan ulang.');
+        }
     }
 
     public function hapus($params = []): void
@@ -371,8 +398,9 @@ class SertifikatController
             exit('Sertifikat yang sedang atau sudah diverifikasi tidak dapat dihapus.');
         }
 
+        $filePath = $this->sertifikatModel->getFilePathBySlug($slug, $userId);
         if ($this->sertifikatModel->deleteBySlug($slug, $userId)) {
-            $this->deleteStoredFile($sertifikat['file_path'] ?? $sertifikat['gambar'] ?? null);
+            $this->deleteStoredFile($filePath);
             $this->aktivitasModel->log(
                 $userId,
                 'Sertifikat dihapus',
@@ -394,21 +422,25 @@ class SertifikatController
             $this->showNotFound();
         }
 
-        $relativePath = (string) ($sertifikat['file_path'] ?? $sertifikat['gambar'] ?? '');
-        if (
-            $relativePath === ''
-            || !str_starts_with($relativePath, $this->uploadRelativePath . '/')
-            || !preg_match('/^[a-f0-9]{32}\\.(?:jpg|jpeg|png|webp)$/', basename($relativePath))
-        ) {
+        $relativePath = (string) ($this->sertifikatModel->getFilePathBySlug($slug, $userId) ?? '');
+        if ($relativePath === '' || !str_starts_with($relativePath, $this->uploadRelativePath . '/')) {
             $this->showNotFound();
         }
-        $base = realpath($this->uploadDirectory);
-        $file = realpath(dirname(__DIR__, 3) . '/' . $relativePath);
-        if ($base === false || $file === false || !str_starts_with($file, $base . DIRECTORY_SEPARATOR) || !is_file($file)) {
+        $file = resolvePrivateStorageFile(dirname(__DIR__, 3), $relativePath, [$this->uploadRelativePath]);
+        if ($file === null) {
             $this->showNotFound();
         }
 
         $mime = (new finfo(FILEINFO_MIME_TYPE))->file($file);
+        if ($mime === 'application/pdf') {
+            header('Content-Type: application/pdf');
+            header('Content-Length: ' . (string) filesize($file));
+            header('Content-Disposition: inline; filename="sertifikat.pdf"');
+            header('Cache-Control: private, no-store, max-age=0');
+            header('X-Content-Type-Options: nosniff');
+            readfile($file);
+            exit;
+        }
         if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true) || @getimagesize($file) === false) {
             http_response_code(415);
             exit('Format file sertifikat tidak didukung.');
@@ -431,17 +463,12 @@ class SertifikatController
             $this->showNotFound();
         }
 
-        $relativePath = (string) ($sertifikat['file_path'] ?? $sertifikat['gambar'] ?? '');
-        if (
-            $relativePath === ''
-            || !str_starts_with($relativePath, $this->uploadRelativePath . '/')
-            || !preg_match('/^[a-f0-9]{32}\\.(?:jpg|jpeg|png|webp|pdf)$/', basename($relativePath))
-        ) {
+        $relativePath = (string) ($this->sertifikatModel->getFilePathBySlug($slug, $userId) ?? '');
+        if ($relativePath === '' || !str_starts_with($relativePath, $this->uploadRelativePath . '/')) {
             $this->showNotFound();
         }
-        $base = realpath($this->uploadDirectory);
-        $file = realpath(dirname(__DIR__, 3) . '/' . $relativePath);
-        if ($base === false || $file === false || !str_starts_with($file, $base . DIRECTORY_SEPARATOR) || !is_file($file)) {
+        $file = resolvePrivateStorageFile(dirname(__DIR__, 3), $relativePath, [$this->uploadRelativePath]);
+        if ($file === null) {
             $this->showNotFound();
         }
 

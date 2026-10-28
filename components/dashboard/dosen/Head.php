@@ -42,5 +42,8 @@
         rel="stylesheet"
         href="<?= url('/assets/css/style.css') ?>"
     >
+    <link rel="stylesheet" href="<?= e(url('/assets/css/dashboard-theme.css')) ?>">
+    <link rel="stylesheet" href="<?= e(url('/assets/css/dashboard-ui.css')) ?>">
+    <script src="<?= e(url('/assets/js/dashboard-theme.js')) ?>"></script>
 
 </head>

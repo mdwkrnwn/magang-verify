@@ -6,6 +6,8 @@ $gambar = trim(
     $sertifikat['gambar'] ?? ''
 );
 
+$tipeFile = (string) ($sertifikat['tipe_file'] ?? '');
+
 ?>
 
 <section class="p-5 bg-white border border-gray-200 rounded-xl shadow-sm sm:p-6">
@@ -28,6 +30,11 @@ $gambar = trim(
         <?php
         $gambarUrl = url('/dashboard/mahasiswa/sertifikat/pratinjau/' . rawurlencode((string) ($sertifikat['slug'] ?? '')));
         ?>
+
+        <?php if ($tipeFile === 'pdf'): ?>
+            <iframe src="<?= e($gambarUrl) ?>" title="Sertifikat <?= e($nama) ?>" class="w-full h-[520px] rounded-xl border border-gray-200"></iframe>
+            <a href="<?= e($gambarUrl) ?>" target="_blank" rel="noopener" class="inline-flex mt-3 text-sm font-medium text-blue-600 hover:underline">Buka PDF di tab baru</a>
+        <?php else: ?>
 
         <button
             type="button"
@@ -181,6 +188,7 @@ $gambar = trim(
             })();
         </script>
 
+        <?php endif; ?>
 
     <?php else: ?>
 

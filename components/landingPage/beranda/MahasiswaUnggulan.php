@@ -64,7 +64,7 @@
                                 <?php if ($foto !== ''): ?>
 
                                     <img
-                                        src="<?= e(url('/' . ltrim($foto, '/'))) ?>"
+                                        src="<?= e(url('/mahasiswa/profil/foto/' . rawurlencode(basename($foto)))) ?>"
                                         alt="Foto <?= e($nama) ?>"
                                         class="w-full h-full object-cover"
                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';">

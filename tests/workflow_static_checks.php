@@ -222,7 +222,7 @@ assertSourceContains($publicProfileController, 'getPublicPortfolioImageByFilenam
 assertSourceContains($publicProfileModel, "p.status_publikasi = 'publik'", 'portfolio image lookup enforces publication state');
 assertSourceContains($publicProfileModel, 'p.gambar_sampul = :image_path', 'portfolio image lookup is exact-path scoped');
 assertSourceContains($notificationRoute, '^/mahasiswa/profil/portofolio/([^/]+)$', 'public portfolio image endpoint has an exact dynamic route');
-assertSourceContains($privateStorageHelper, "['cv', 'profil', 'sertifikat']", 'private upload directories remain statically blocked from unauthorized access');
+assertSourceContains($privateStorageHelper, "['cv', 'profil', 'sertifikat', 'portofolio']", 'private upload directories remain statically blocked from unauthorized access');
 assertSourceContains($router, 'isPrivateStorageRequestPath((string) $path)', 'static router blocks private profile photos and certificate uploads');
 assertSourceContains($notificationRoute, "^/mahasiswa/profil/foto/([^/]+)$", 'public profile photo endpoint has an exact dynamic route');
 assertSourceContains($cvApacheRules, 'Require all denied', 'Apache denies direct CV file requests');
@@ -280,7 +280,7 @@ assertSourceContains($studentCertificateController, "AuthMiddleware::handle('mah
 assertSourceContains($studentCertificateController, 'getSertifikatBySlug($slug, $userId)', 'certificate document operations are owner-scoped');
 assertSourceContains($studentCertificateController, 'public function preview(', 'certificate image preview uses a controller endpoint');
 assertSourceContains($studentCertificateController, 'Cache-Control: private, no-store', 'certificate preview is not publicly cacheable');
-assertSourceContains($studentCertificateController, "preg_match('/^[a-f0-9]{32}\\\\.(?:jpg|jpeg|png|webp)", 'certificate preview requires a generated basename');
+assertSourceContains($studentCertificateController, 'resolvePrivateStorageFile(dirname(__DIR__, 3), $relativePath, [$this->uploadRelativePath])', 'certificate preview resolves the stored path through the private storage resolver');
 assertSourceContains($studentCertificateCard, '/dashboard/mahasiswa/sertifikat/pratinjau/', 'certificate card uses the authorized preview route');
 assertSourceContains($studentCertificatePreview, '/dashboard/mahasiswa/sertifikat/pratinjau/', 'certificate detail preview uses the authorized preview route');
 assertSourceContains($studentSettingsController, "AuthMiddleware::handle('mahasiswa')", 'student settings controller restricts password changes to student role');
@@ -567,6 +567,7 @@ foreach ([
     '/magang-verify/uploads/cv/random.pdf',
     '/uploads/profil/random.jpg',
     '/uploads/sertifikat/random.pdf',
+    '/uploads/portofolio/random.webp',
 ] as $privatePath) {
     if (!isPrivateStorageRequestPath($privatePath)) {
         throw new RuntimeException('Private path normalization failed for a protected request.');
@@ -577,7 +578,6 @@ foreach ([
     '/assets/app.css',
     '/storage/public/report.pdf',
     '/storage/laporan-public/report.pdf',
-    '/uploads/portofolio/public.jpg',
 ] as $publicPath) {
     if (isPrivateStorageRequestPath($publicPath)) {
         throw new RuntimeException('Private path normalization incorrectly blocked an unrelated public path.');

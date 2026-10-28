@@ -167,8 +167,8 @@ if (!empty($bagianNama)) {
                                 class="w-full h-full object-cover"
                                 onerror="
                                     this.remove();
-                                    this.nextElementSibling.classList.remove('hidden');
-                                    this.nextElementSibling.classList.add('flex');
+                                    this.nextElementSibling?.classList.remove('hidden');
+                                    this.nextElementSibling?.classList.add('flex');
                                 ">
 
                             <span

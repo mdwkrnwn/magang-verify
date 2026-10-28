@@ -1,7 +1,7 @@
 <?php
 $gambar = trim($portofolioDetail['gambar'] ?? '');
 $gambarUrl = $gambar !== ''
-    ? url('/' . ltrim($gambar, '/'))
+    ? url('/dashboard/mahasiswa/portofolio/cover/' . rawurlencode((string) ($portofolioDetail['slug'] ?? '')))
     : '';
 ?>
 

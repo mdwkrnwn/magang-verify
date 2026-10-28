@@ -21,10 +21,10 @@ if (!empty($bagianNama)) {
             <div class="flex items-center justify-center w-14 h-14 overflow-hidden text-lg font-bold text-blue-600 bg-blue-100 rounded-2xl shrink-0 sm:w-16 sm:h-16 sm:text-xl">
                 <?php if ($foto !== ''): ?>
                     <img
-                        src="<?= e(url('/' . ltrim($foto, '/'))) ?>"
+                        src="<?= e(url('/mahasiswa/profil/foto/' . rawurlencode(basename($foto)))) ?>"
                         alt="Foto <?= e($nama) ?>"
                         class="object-cover w-full h-full"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                        onerror="this.style.display='none'; this.nextElementSibling?.style && (this.nextElementSibling.style.display='flex');"
                     >
                     <span class="items-center justify-center hidden w-full h-full"><?= e($inisial ?: 'M') ?></span>
                 <?php else: ?>

@@ -4,6 +4,126 @@ require_once __DIR__ . '/../config/database.php';
 
 class Sertifikat
 {
+    public function getVerificationQueue(string $status = 'belum_terverifikasi', int $page = 1, int $perPage = 20): array
+    {
+        global $pdo;
+        if (!in_array($status, ['belum_terverifikasi', 'dalam_peninjauan', 'perlu_perbaikan'], true)) {
+            throw new InvalidArgumentException('Filter status sertifikat tidak valid.');
+        }
+        $page = max(1, $page);
+        $perPage = max(1, min($perPage, 100));
+        $count = $pdo->prepare('SELECT COUNT(*) FROM sertifikat WHERE status_verifikasi = :status');
+        $count->execute(['status' => $status]);
+        $total = (int) $count->fetchColumn();
+        $stmt = $pdo->prepare(
+            'SELECT s.id, s.user_id, s.nama, s.penerbit, s.tanggal_terbit,
+                    s.tanggal_kedaluwarsa, s.nomor_sertifikat, s.deskripsi,
+                    s.file_path, s.tautan, s.status_verifikasi, s.catatan_verifikasi,
+                    s.created_at, u.name AS mahasiswa_nama, pm.nim
+             FROM sertifikat s
+             INNER JOIN users u ON u.id = s.user_id
+             LEFT JOIN profil_mahasiswa pm ON pm.user_id = u.id
+             WHERE s.status_verifikasi = :status
+             ORDER BY s.created_at ASC, s.id ASC
+             LIMIT :limit OFFSET :offset'
+        );
+        $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', ($page - 1) * $perPage, PDO::PARAM_INT);
+        $stmt->execute();
+        return ['items' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'total' => $total, 'page' => $page, 'per_page' => $perPage];
+    }
+
+    public function getForVerification(int $id): ?array
+    {
+        global $pdo;
+        $stmt = $pdo->prepare(
+            'SELECT s.*, u.name AS mahasiswa_nama, pm.nim
+             FROM sertifikat s
+             INNER JOIN users u ON u.id = s.user_id
+             LEFT JOIN profil_mahasiswa pm ON pm.user_id = u.id
+             WHERE s.id = :id LIMIT 1'
+        );
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    public function verify(int $id, int $actorId, string $decision, string $note): void
+    {
+        global $pdo;
+        if (!in_array($decision, ['terverifikasi', 'perlu_perbaikan', 'ditolak'], true)) {
+            throw new InvalidArgumentException('Keputusan verifikasi tidak valid.');
+        }
+        $note = trim($note);
+        if ($decision !== 'terverifikasi' && $note === '') {
+            throw new InvalidArgumentException('Catatan wajib diisi saat sertifikat perlu diperbaiki atau ditolak.');
+        }
+        if (mb_strlen($note) > 5000) {
+            throw new InvalidArgumentException('Catatan maksimal 5.000 karakter.');
+        }
+        $pdo->beginTransaction();
+        try {
+            $update = $pdo->prepare(
+                "UPDATE sertifikat
+                 SET status_verifikasi = :decision, catatan_verifikasi = :note,
+                     diverifikasi_oleh = :actor_id, diverifikasi_pada = CURRENT_TIMESTAMP,
+                     updated_at = CURRENT_TIMESTAMP
+                 WHERE id = :id AND status_verifikasi IN ('belum_terverifikasi', 'dalam_peninjauan', 'perlu_perbaikan')"
+            );
+            $update->execute([
+                'decision' => $decision,
+                'note' => $note !== '' ? $note : null,
+                'actor_id' => $actorId,
+                'id' => $id,
+            ]);
+            if ($update->rowCount() !== 1) {
+                throw new RuntimeException('Sertifikat tidak ditemukan atau sudah diputuskan.');
+            }
+            $owner = $pdo->prepare('SELECT user_id FROM sertifikat WHERE id = :id');
+            $owner->execute(['id' => $id]);
+            $ownerId = (int) $owner->fetchColumn();
+            $notification = $pdo->prepare(
+                "INSERT INTO notifikasi (user_id, judul, pesan, jenis, referensi_tabel, referensi_id, tautan)
+                 VALUES (:user_id, :judul, :pesan, 'sertifikat', 'sertifikat', :id, :tautan)"
+            );
+            $notification->execute([
+                'user_id' => $ownerId,
+                'judul' => $decision === 'terverifikasi' ? 'Sertifikat terverifikasi' : 'Sertifikat perlu diperbaiki',
+                'pesan' => $decision === 'terverifikasi' ? 'Sertifikat Anda telah diverifikasi.' : 'Sertifikat Anda ditolak. Catatan: ' . $note,
+                'id' => $id,
+                'tautan' => '/dashboard/mahasiswa/sertifikat',
+            ]);
+            $pdo->commit();
+        } catch (Throwable $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $exception;
+        }
+    }
+
+    public function getVerificationFile(int $id): ?array
+    {
+        global $pdo;
+        $stmt = $pdo->prepare('SELECT id, file_path FROM sertifikat WHERE id = :id LIMIT 1');
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+    public function resubmit(int $id, int $userId): void
+    {
+        global $pdo;
+        $stmt = $pdo->prepare(
+            "UPDATE sertifikat SET status_verifikasi = 'belum_terverifikasi',
+             catatan_verifikasi = NULL, diverifikasi_oleh = NULL, diverifikasi_pada = NULL,
+             updated_at = CURRENT_TIMESTAMP
+             WHERE id = :id AND user_id = :user_id AND status_verifikasi = 'ditolak'"
+        );
+        $stmt->execute(['id' => $id, 'user_id' => $userId]);
+        if ($stmt->rowCount() !== 1) {
+            throw new RuntimeException('Sertifikat tidak ditemukan atau tidak dapat diajukan ulang.');
+        }
+    }
+
     /** Ambil sertifikat milik mahasiswa dengan filter dan pagination. */
     public function getAllSertifikat(
         int $userId,
@@ -144,9 +264,9 @@ class Sertifikat
     {
         global $pdo;
         $stmt = $pdo->prepare("
-            SELECT slug FROM sertifikat
+            SELECT slug, status_verifikasi FROM sertifikat
             WHERE id = :id AND user_id = :user_id
-              AND status_verifikasi = 'belum_terverifikasi'
+              AND status_verifikasi IN ('belum_terverifikasi', 'ditolak', 'perlu_perbaikan')
             LIMIT 1
         ");
         $stmt->execute(['id' => $id, 'user_id' => $userId]);
@@ -155,6 +275,7 @@ class Sertifikat
             throw new RuntimeException('Sertifikat tidak ditemukan atau tidak dapat diedit.');
         }
 
+        $previousStatus = (string) $existing['status_verifikasi'];
         $slug = $this->generateUniqueSlug((string) $data['nama'], (string) $existing['slug']);
         $sql = "
             UPDATE sertifikat SET
@@ -188,16 +309,21 @@ class Sertifikat
             $params['file_path'] = $this->nullableValue($data['file_path']);
         }
 
-        $sql .= " WHERE id = :id AND user_id = :user_id AND status_verifikasi = 'belum_terverifikasi'";
+        if (in_array($previousStatus, ['ditolak', 'perlu_perbaikan'], true)) {
+            $sql .= ", status_verifikasi = 'belum_terverifikasi',
+                catatan_verifikasi = NULL, diverifikasi_oleh = NULL, diverifikasi_pada = NULL";
+        }
+        $sql .= ' WHERE id = :id AND user_id = :user_id AND status_verifikasi = :previous_status';
+        $params['previous_status'] = $previousStatus;
         $update = $pdo->prepare($sql);
         $update->execute($params);
 
         if ($update->rowCount() < 1) {
-            // rowCount bisa 0 jika nilainya sama; data tetap dianggap berhasil jika record masih ada.
-            $check = $pdo->prepare('SELECT 1 FROM sertifikat WHERE id = :id AND user_id = :user_id');
+            // rowCount bisa nol untuk data pending yang tidak berubah; status tetap harus sama.
+            $check = $pdo->prepare('SELECT status_verifikasi FROM sertifikat WHERE id = :id AND user_id = :user_id');
             $check->execute(['id' => $id, 'user_id' => $userId]);
-            if (!$check->fetchColumn()) {
-                throw new RuntimeException('Sertifikat gagal diperbarui.');
+            if ($check->fetchColumn() !== $previousStatus) {
+                throw new RuntimeException('Sertifikat berubah atau tidak dapat diperbarui.');
             }
         }
 
@@ -237,6 +363,7 @@ class Sertifikat
             'dalam_peninjauan' => 'Dalam Peninjauan',
             'terverifikasi' => 'Terverifikasi',
             'ditolak' => 'Ditolak',
+            'perlu_perbaikan' => 'Perlu Perbaikan',
         ];
         $filePath = (string) ($item['file_path'] ?? '');
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
@@ -252,8 +379,7 @@ class Sertifikat
             'tanggal_kedaluwarsa' => $item['tanggal_kedaluwarsa'] ?? '',
             'nomor_sertifikat' => $item['nomor_sertifikat'] ?? '',
             'deskripsi' => $item['deskripsi'] ?? '',
-            'gambar' => $filePath,
-            'file_path' => $filePath,
+            'gambar' => basename($filePath),
             'tipe_file' => in_array($extension, ['jpg', 'jpeg', 'png', 'webp'], true)
                 ? 'gambar'
                 : ($extension === 'pdf' ? 'pdf' : ($extension === '' ? '' : 'lainnya')),

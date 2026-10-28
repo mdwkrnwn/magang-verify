@@ -1,0 +1,93 @@
+/* Shared dashboard polish: follows the Mahasiswa blue/neutral visual language. */
+:root {
+    --mv-blue: #2563eb;
+    --mv-ink: #111827;
+    --mv-muted: #64748b;
+    --mv-line: #e5e7eb;
+    --mv-surface: #ffffff;
+    --mv-canvas: #f8fafc;
+    --mv-radius: 1rem;
+    --mv-shadow: 0 8px 24px rgba(15, 23, 42, .045);
+}
+
+body:has(#sidebar) {
+    background: var(--mv-canvas);
+    color: var(--mv-ink);
+    font-family: Poppins, sans-serif;
+}
+
+body:has(#sidebar) #sidebar {
+    background: var(--mv-surface);
+    border-color: var(--mv-line);
+    box-shadow: 4px 0 20px rgba(15, 23, 42, .025);
+}
+
+body:has(#sidebar) #sidebar nav {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+}
+
+body:has(#sidebar) #sidebar .sidebar-nav-item {
+    min-height: 2.75rem;
+    transition: color .18s ease, background-color .18s ease, transform .18s ease;
+}
+
+body:has(#sidebar) #sidebar .sidebar-nav-item:hover {
+    transform: translateX(2px);
+}
+
+body:has(#sidebar) header {
+    background: rgba(255, 255, 255, .96);
+    border-color: var(--mv-line);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, .025);
+    backdrop-filter: blur(12px);
+}
+
+body:has(#sidebar) main {
+    min-height: 100vh;
+    background-color: var(--mv-canvas);
+}
+
+body:has(#sidebar) main > :first-child {
+    scroll-margin-top: 6rem;
+}
+
+body:has(#sidebar) main .bg-white.rounded-xl,
+body:has(#sidebar) main .bg-white.rounded-2xl,
+body:has(#sidebar) main .bg-white.rounded-3xl {
+    border: 1px solid rgba(226, 232, 240, .9);
+    box-shadow: var(--mv-shadow);
+}
+
+body:has(#sidebar) main input:not([type="checkbox"]):not([type="radio"]),
+body:has(#sidebar) main select,
+body:has(#sidebar) main textarea {
+    border-radius: .75rem;
+}
+
+body:has(#sidebar) main button,
+body:has(#sidebar) main a[class*="bg-blue-"] {
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+body:has(#sidebar) :focus-visible {
+    outline: 3px solid rgba(59, 130, 246, .35);
+    outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+    body:has(#sidebar) main {
+        padding-bottom: 2rem;
+    }
+}
+
+html.dark body:has(#sidebar) {
+    --mv-canvas: #020617;
+    --mv-surface: #0f172a;
+    --mv-line: #1e293b;
+    --mv-ink: #f1f5f9;
+}
+
+html.dark body:has(#sidebar) header {
+    background: rgba(15, 23, 42, .96);
+}

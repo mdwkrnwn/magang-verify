@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../../models/Portofolio.php';
 require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
 require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../../../function/PrivateStorage.php';
 
 class PortofolioController
 {
@@ -66,6 +67,32 @@ class PortofolioController
     {
         http_response_code(404);
         require __DIR__ . '/../../../pages/errors/404.php';
+        exit;
+    }
+
+    public function cover(array $params = []): never
+    {
+        $userId = $this->getMahasiswaId();
+        $slug = trim((string) ($params['slug'] ?? ''));
+        $item = $this->portofolioModel->getPortofolioBySlug($slug, $userId);
+        if (!$item) {
+            $this->showNotFound();
+        }
+        $relativePath = trim((string) ($item['gambar'] ?? ''));
+        $path = resolvePrivateStorageFile(dirname(__DIR__, 3), $relativePath, ['uploads/portofolio']);
+        if ($path === null) {
+            $this->showNotFound();
+        }
+        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($path);
+        if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true) || @getimagesize($path) === false) {
+            http_response_code(415);
+            exit('Gambar portofolio tidak valid.');
+        }
+        header('Content-Type: ' . $mime);
+        header('Content-Length: ' . (string) filesize($path));
+        header('Cache-Control: private, no-store, max-age=0');
+        header('X-Content-Type-Options: nosniff');
+        readfile($path);
         exit;
     }
 
@@ -158,8 +185,8 @@ class PortofolioController
         $fileName = bin2hex(random_bytes(16)) . '.' . $allowedTypes[$mimeType];
         $destination = $uploadDirectory . '/' . $fileName;
 
-        if (!move_uploaded_file($tmpName, $destination)) {
-            $errors['gambar'] = 'Gambar gagal disimpan ke server.';
+        if (!is_writable($uploadDirectory) || !@move_uploaded_file($tmpName, $destination)) {
+            $errors['gambar'] = 'Penyimpanan gambar sedang tidak tersedia. Silakan coba lagi nanti.';
             return null;
         }
 
@@ -593,10 +620,11 @@ class PortofolioController
             $this->showNotFound();
         }
 
-        if (
-            $portofolioEdit['verifikasi']['status']
-            !== 'belum_diverifikasi'
-        ) {
+        if (!in_array(
+            $portofolioEdit['verifikasi']['status'],
+            ['belum_diverifikasi', 'ditolak', 'perlu_perbaikan'],
+            true
+        )) {
             header(
                 'Location: ' .
                 url('/dashboard/mahasiswa/portofolio/detail/' . $slug)
@@ -643,6 +671,7 @@ class PortofolioController
                     );
 
                     if (
+                        $portofolioEdit['verifikasi']['status'] === 'belum_diverifikasi' &&
                         !empty($data['gambar_path']) &&
                         $gambarLama !== '' &&
                         $gambarLama !== $data['gambar_path']

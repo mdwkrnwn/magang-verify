@@ -46,6 +46,7 @@ require_once __DIR__ . '/../controllers/dashboard/dosen/PermintaanPembimbingCont
 require_once __DIR__ . '/../controllers/dashboard/tendik/TendikDashboardController.php';
 require_once __DIR__ . '/../controllers/dashboard/tendik/LogbookController.php';
 require_once __DIR__ . '/../controllers/dashboard/tendik/UserController.php';
+require_once __DIR__ . '/../controllers/dashboard/tendik/VerifikasiDokumenController.php';
 require_once __DIR__ . '/../controllers/dashboard/tendik/PenetapanDosenController.php';
 
 /* Dashboard Koordinator Magang */
@@ -328,6 +329,19 @@ $routes = [
         'method' => 'create',
     ],
 
+    '/dashboard/tendik/verifikasi' => [
+        'controller' => TendikVerifikasiDokumenController::class,
+        'method' => 'index',
+    ],
+    '/dashboard/tendik/verifikasi/portofolio' => [
+        'controller' => TendikVerifikasiDokumenController::class,
+        'method' => 'portfolioQueue',
+    ],
+    '/dashboard/tendik/verifikasi/sertifikat' => [
+        'controller' => TendikVerifikasiDokumenController::class,
+        'method' => 'certificateQueue',
+    ],
+
     '/dashboard/tendik/penetapan-dosen' => [
         'controller' => TendikPenetapanDosenController::class,
         'method' => 'index',
@@ -445,6 +459,37 @@ function route(string $uri): ?array
         return [
             'route' => $routes[$path],
             'params' => [],
+        ];
+    }
+
+    if (preg_match('#^/dashboard/tendik/verifikasi/(portofolio|sertifikat)/(\d+)$#', $path, $matches)) {
+        return [
+            'route' => [
+                'controller' => TendikVerifikasiDokumenController::class,
+                'method' => $matches[1] === 'portofolio' ? 'portfolioDetail' : 'certificateDetail',
+            ],
+            'params' => ['id' => (int) $matches[2]],
+        ];
+    }
+
+    if (preg_match('#^/dashboard/tendik/verifikasi/portofolio/(\d+)/sampul$#', $path, $matches)) {
+        return [
+            'route' => ['controller' => TendikVerifikasiDokumenController::class, 'method' => 'portfolioCover'],
+            'params' => ['id' => (int) $matches[1]],
+        ];
+    }
+
+    if (preg_match('#^/dashboard/tendik/verifikasi/(portofolio|sertifikat)/(\d+)/(keputusan|berkas)(?:/(\d+))?$#', $path, $matches)) {
+        $method = $matches[1] === 'portofolio'
+            ? ($matches[3] === 'keputusan' ? 'decidePortfolio' : 'portfolioFile')
+            : ($matches[3] === 'keputusan' ? 'decideCertificate' : 'certificateFile');
+        $params = ['id' => (int) $matches[2]];
+        if ($matches[3] === 'berkas') {
+            $params['file_id'] = (int) ($matches[4] ?? 0);
+        }
+        return [
+            'route' => ['controller' => TendikVerifikasiDokumenController::class, 'method' => $method],
+            'params' => $params,
         ];
     }
 
@@ -684,6 +729,13 @@ function route(string $uri): ?array
     |
     */
 
+    if (preg_match('#^/dashboard/mahasiswa/portofolio/cover/([^/]+)$#', $path, $matches)) {
+        return [
+            'route' => ['controller' => PortofolioController::class, 'method' => 'cover'],
+            'params' => ['slug' => $matches[1]],
+        ];
+    }
+
     if (preg_match(
         '#^/dashboard/mahasiswa/portofolio/detail/([^/]+)$#',
         $path,
@@ -841,6 +893,16 @@ function route(string $uri): ?array
     | /dashboard/mahasiswa/sertifikat/edit/web-development-basic
     |
     */
+
+    if (preg_match('#^/dashboard/mahasiswa/sertifikat/ajukan-ulang/([^/]+)$#', $path, $matches)) {
+        return [
+            'route' => [
+                'controller' => SertifikatController::class,
+                'method' => 'ajukanUlang',
+            ],
+            'params' => ['slug' => $matches[1]],
+        ];
+    }
 
     if (preg_match(
         '#^/dashboard/mahasiswa/sertifikat/edit/([^/]+)$#',

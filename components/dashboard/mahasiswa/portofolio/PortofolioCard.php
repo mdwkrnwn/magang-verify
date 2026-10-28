@@ -48,7 +48,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
     $gambar = trim($portofolioItem['gambar'] ?? '');
 
     $gambarUrl = $gambar !== ''
-        ? url('/' . ltrim($gambar, '/'))
+        ? url('/dashboard/mahasiswa/portofolio/cover/' . rawurlencode((string) ($portofolioItem['slug'] ?? '')))
         : '';
     ?>
 
@@ -66,7 +66,9 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
                 src="<?= e($gambarUrl) ?>"
                 alt="<?= e('Gambar portofolio ' . $judul) ?>"
                 class="w-full h-full object-cover"
-                loading="lazy">
+                loading="lazy"
+                onerror="this.hidden=true; this.nextElementSibling.hidden=false;">
+            <span hidden class="items-center justify-center w-full h-full px-3 text-xs text-center text-red-500">Gambar tidak dapat ditampilkan.</span>
 
         <?php else: ?>
 
@@ -105,7 +107,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
             </div>
 
 
-<?php if ($status === 'belum_diverifikasi'): ?>
+<?php if (in_array($status, ['belum_diverifikasi', 'ditolak', 'perlu_perbaikan'], true)): ?>
 
     <div class="relative shrink-0">
 
@@ -139,20 +141,17 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
                 Edit
             </a>
 
-            <button
-                type="button"
-                onclick="openDeletePortfolioModal(
-                    '<?= e($modalId) ?>',
-                    'menu-<?= e($portofolioItem['id']) ?>'
-                )"
-                class="w-full flex items-center gap-2
-                       px-3 py-2
-                       text-sm text-red-600
-                       rounded-md hover:bg-red-50
-                       transition text-left">
-                <span>🗑</span>
-                Hapus
-            </button>
+            <?php if ($status === 'belum_diverifikasi'): ?>
+                <button
+                    type="button"
+                    onclick="openDeletePortfolioModal(
+                        '<?= e($modalId) ?>',
+                        'menu-<?= e($portofolioItem['id']) ?>'
+                    )"
+                    class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 rounded-md hover:bg-red-50 transition text-left">
+                    <span>🗑</span>Hapus
+                </button>
+            <?php endif; ?>
 
         </div>
 
@@ -163,6 +162,9 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
         </div>
 
 
+        <?php if (in_array($status, ['ditolak', 'perlu_perbaikan'], true) && trim((string) ($portofolioItem['verifikasi']['catatan'] ?? '')) !== ''): ?>
+            <p class="mt-2 text-sm text-red-700"><strong>Catatan pemeriksaan:</strong> <?= e((string) $portofolioItem['verifikasi']['catatan']) ?></p>
+        <?php endif; ?>
         <div class="mt-2">
 
 
@@ -239,6 +241,7 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
 </div>
 
 
+<?php if ($status === 'belum_diverifikasi'): ?>
 <dialog
     id="<?= e($modalId) ?>"
     class="w-[calc(100%-2rem)] max-w-md
@@ -321,3 +324,4 @@ $modalId = 'hapus-portofolio-' . ($portofolioItem['id'] ?? uniqid());
     </div>
 
 </dialog>
+<?php endif; ?>

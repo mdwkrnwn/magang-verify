@@ -162,18 +162,23 @@ if (!empty($bagianNama)) {
                         <?php if ($fotoProfil !== ''): ?>
 
                             <img
-                                src="<?= e(url('/' . ltrim($fotoProfil, '/'))) ?>"
+                                src="<?= e(url('/mahasiswa/profil/foto/' . rawurlencode(basename($fotoProfil)))) ?>"
                                 alt="Foto profil <?= e($namaPengguna) ?>"
                                 class="w-full h-full object-cover"
                                 onerror="
+                                    this.onerror = null;
                                     this.remove();
-                                    this.nextElementSibling.classList.remove('hidden');
-                                    this.nextElementSibling.classList.add('flex');
+                                    const fallback = this.parentElement?.querySelector('[data-profile-fallback]');
+                                    if (fallback) {
+                                        fallback.classList.remove('hidden');
+                                        fallback.classList.add('flex');
+                                    }
                                 ">
 
                             <span
                                 class="hidden w-full h-full
-                                       items-center justify-center">
+                                       items-center justify-center"
+                                data-profile-fallback>
                                 <?= e($inisial) ?>
                             </span>
 

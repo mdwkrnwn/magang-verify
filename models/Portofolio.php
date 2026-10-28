@@ -1,10 +1,131 @@
-
 <?php
 
 require_once __DIR__ . '/../config/database.php';
 
 class Portofolio
 {
+    public function getVerificationQueue(string $status = 'belum_diverifikasi', int $page = 1, int $perPage = 20): array
+    {
+        global $pdo;
+        if (!in_array($status, ['belum_diverifikasi', 'perlu_perbaikan'], true)) {
+            throw new InvalidArgumentException('Filter status portofolio tidak valid.');
+        }
+        $page = max(1, $page);
+        $perPage = max(1, min($perPage, 100));
+        $count = $pdo->prepare('SELECT COUNT(*) FROM portofolios WHERE status_verifikasi = :status');
+        $count->execute(['status' => $status]);
+        $total = (int) $count->fetchColumn();
+        $stmt = $pdo->prepare(
+            'SELECT p.id, p.mahasiswa_id, p.judul, p.slug, p.jenis, p.deskripsi,
+                    p.tanggal_perolehan, p.penyelenggara, p.tautan, p.tautan_github,
+                    p.tautan_demo, p.gambar_sampul, p.status_verifikasi,
+                    p.catatan_verifikasi, p.created_at, pm.user_id,
+                    pm.nim, u.name AS mahasiswa_nama
+             FROM portofolios p
+             INNER JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
+             INNER JOIN users u ON u.id = pm.user_id
+             WHERE p.status_verifikasi = :status
+             ORDER BY p.created_at ASC, p.id ASC
+             LIMIT :limit OFFSET :offset'
+        );
+        $stmt->bindValue(':status', $status, PDO::PARAM_STR);
+        $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', ($page - 1) * $perPage, PDO::PARAM_INT);
+        $stmt->execute();
+        return ['items' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'total' => $total, 'page' => $page, 'per_page' => $perPage];
+    }
+
+    public function getForVerification(int $id): ?array
+    {
+        global $pdo;
+        $stmt = $pdo->prepare(
+            'SELECT p.*, pm.user_id, pm.nim, u.name AS mahasiswa_nama
+             FROM portofolios p
+             INNER JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
+             INNER JOIN users u ON u.id = pm.user_id
+             WHERE p.id = :id LIMIT 1'
+        );
+        $stmt->execute(['id' => $id]);
+        $item = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$item) {
+            return null;
+        }
+        $stmt = $pdo->prepare('SELECT id, nama_berkas, file_path, tipe_mime, ukuran_byte FROM berkas_portofolio WHERE portofolio_id = :id ORDER BY id');
+        $stmt->execute(['id' => $id]);
+        $item['berkas'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $item;
+    }
+
+    public function verify(int $id, int $actorId, string $decision, string $note): void
+    {
+        global $pdo;
+        if (!in_array($decision, ['terverifikasi', 'ditolak', 'perlu_perbaikan'], true)) {
+            throw new InvalidArgumentException('Keputusan verifikasi tidak valid.');
+        }
+        $note = trim($note);
+        if ($decision !== 'terverifikasi' && $note === '') {
+            throw new InvalidArgumentException('Catatan wajib diisi saat portofolio ditolak atau perlu diperbaiki.');
+        }
+        if (mb_strlen($note) > 5000) {
+            throw new InvalidArgumentException('Catatan maksimal 5.000 karakter.');
+        }
+        $pdo->beginTransaction();
+        try {
+            $current = $pdo->prepare('SELECT status_verifikasi FROM portofolios WHERE id = :id FOR UPDATE');
+            $current->execute(['id' => $id]);
+            $previous = $current->fetchColumn();
+            if (!in_array($previous, ['belum_diverifikasi', 'perlu_perbaikan'], true)) {
+                throw new RuntimeException('Portofolio tidak ditemukan atau sudah diputuskan.');
+            }
+            $update = $pdo->prepare(
+                'UPDATE portofolios SET status_verifikasi = :decision, catatan_verifikasi = :note,
+                 diverifikasi_oleh = :actor_id, diverifikasi_pada = CURRENT_TIMESTAMP,
+                 updated_at = CURRENT_TIMESTAMP WHERE id = :id AND status_verifikasi = :previous'
+            );
+            $update->execute([
+                'decision' => $decision,
+                'note' => $note !== '' ? $note : null,
+                'actor_id' => $actorId,
+                'id' => $id,
+                'previous' => $previous,
+            ]);
+            if ($update->rowCount() !== 1) {
+                throw new RuntimeException('Status portofolio berubah; muat ulang antrean.');
+            }
+            $history = $pdo->prepare(
+                'INSERT INTO riwayat_verifikasi_portofolio
+                 (portofolio_id, status_sebelumnya, status_baru, catatan, diverifikasi_oleh)
+                 VALUES (:id, :previous, :decision, :note, :actor_id)'
+            );
+            $history->execute([
+                'id' => $id,
+                'previous' => $previous,
+                'decision' => $decision,
+                'note' => $note !== '' ? $note : null,
+                'actor_id' => $actorId,
+            ]);
+            $owner = $pdo->prepare('SELECT pm.user_id FROM portofolios p INNER JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id WHERE p.id = :id');
+            $owner->execute(['id' => $id]);
+            $ownerId = (int) $owner->fetchColumn();
+            $notification = $pdo->prepare(
+                "INSERT INTO notifikasi (user_id, judul, pesan, jenis, referensi_tabel, referensi_id, tautan)
+                 VALUES (:user_id, :judul, :pesan, 'portofolio', 'portofolios', :id, :tautan)"
+            );
+            $notification->execute([
+                'user_id' => $ownerId,
+                'judul' => $decision === 'terverifikasi' ? 'Portofolio terverifikasi' : 'Portofolio perlu diperbaiki',
+                'pesan' => $decision === 'terverifikasi' ? 'Portofolio Anda telah diverifikasi.' : 'Portofolio Anda perlu diperbaiki. Catatan: ' . $note,
+                'id' => $id,
+                'tautan' => '/dashboard/mahasiswa/portofolio',
+            ]);
+            $pdo->commit();
+        } catch (Throwable $exception) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $exception;
+        }
+    }
     /**
      * Mengambil seluruh portofolio milik mahasiswa.
      */
@@ -126,6 +247,7 @@ class Portofolio
             'verifikasi' => [
                 'status' => $status,
                 'label' => $labelStatus[$status] ?? $status,
+                'catatan' => $item['catatan_verifikasi'] ?? '',
             ],
         ];
     }
@@ -297,7 +419,13 @@ public function create(int $userId, array $data): string
         $pdo->beginTransaction();
 
         try {
-            
+            $current = $pdo->prepare('SELECT status_verifikasi FROM portofolios WHERE id = :id AND mahasiswa_id = (SELECT id FROM profil_mahasiswa WHERE user_id = :user_id) FOR UPDATE');
+            $current->execute(['id' => $id, 'user_id' => $userId]);
+            $previousStatus = $current->fetchColumn();
+            if (!in_array($previousStatus, ['belum_diverifikasi', 'ditolak', 'perlu_perbaikan'], true)) {
+                throw new RuntimeException('Portofolio tidak ditemukan atau tidak dapat diedit.');
+            }
+
 $sql = "
 UPDATE portofolios
 SET
@@ -317,7 +445,7 @@ WHERE id = :id
       FROM profil_mahasiswa
       WHERE user_id = :user_id
   )
-  AND status_verifikasi = 'belum_diverifikasi'
+  AND status_verifikasi = :previous_status
 ";
             
 $stmt = $pdo->prepare($sql);
@@ -334,6 +462,7 @@ $stmt->execute([
     'demo' => $data['demo'] !== '' ? $data['demo'] : null,
     'id' => $id,
     'user_id' => $userId,
+    'previous_status' => $previousStatus,
 ]);
 
             
@@ -361,13 +490,31 @@ WHERE p.id = :id
 
     if (
         $portofolio['status_verifikasi']
-        !== 'belum_diverifikasi'
+        !== $previousStatus
     ) {
         throw new RuntimeException(
             'Portofolio tidak dapat diedit karena status verifikasi sudah berubah.'
         );
     }
 }
+
+            if (in_array($previousStatus, ['ditolak', 'perlu_perbaikan'], true)) {
+                $resubmit = $pdo->prepare(
+                    "UPDATE portofolios SET status_verifikasi = 'belum_diverifikasi',
+                     catatan_verifikasi = NULL, diverifikasi_oleh = NULL, diverifikasi_pada = NULL,
+                     updated_at = CURRENT_TIMESTAMP WHERE id = :id AND status_verifikasi = :previous_status"
+                );
+                $resubmit->execute(['id' => $id, 'previous_status' => $previousStatus]);
+                if ($resubmit->rowCount() !== 1) {
+                    throw new RuntimeException('Status portofolio berubah; muat ulang halaman.');
+                }
+                $history = $pdo->prepare(
+                    'INSERT INTO riwayat_verifikasi_portofolio
+                     (portofolio_id, status_sebelumnya, status_baru, catatan)
+                     VALUES (:id, :previous_status, \'belum_diverifikasi\', \'Mahasiswa mengajukan perbaikan.\')'
+                );
+                $history->execute(['id' => $id, 'previous_status' => $previousStatus]);
+            }
 
             // Ganti daftar teknologi dengan data terbaru dari form.
             $deleteTech = $pdo->prepare(

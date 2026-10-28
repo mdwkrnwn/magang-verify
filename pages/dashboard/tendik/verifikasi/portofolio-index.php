@@ -1,0 +1,22 @@
+<?php
+$active = 'verifikasi-portofolio';
+$items = $portfolios['items'] ?? [];
+$status = $status ?? 'belum_diverifikasi';
+$label = ['belum_diverifikasi' => 'Belum diverifikasi', 'perlu_perbaikan' => 'Perlu perbaikan'][$status] ?? $status;
+?><!DOCTYPE html>
+<html lang="id">
+<?php include __DIR__ . '/../../../../components/dashboard/tendik/Head.php'; ?>
+<body class="bg-slate-50 font-[Poppins] text-gray-900 overflow-x-hidden">
+<?php include __DIR__ . '/../../../../components/dashboard/tendik/Sidebar.php'; ?>
+<?php include __DIR__ . '/../../../../components/dashboard/tendik/Header.php'; ?>
+<main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
+<div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-7xl">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div><p class="text-sm font-medium text-blue-600">Verifikasi dokumen</p><h1 class="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Verifikasi Portofolio</h1><p class="mt-2 text-sm text-gray-500">Tinjau portofolio mahasiswa yang membutuhkan keputusan Tendik.</p></div>
+        <a href="<?= e(url('/dashboard/tendik/verifikasi')) ?>" class="text-sm font-medium text-blue-600 hover:text-blue-700">Ringkasan verifikasi</a>
+    </div>
+    <section class="p-5 mt-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><h2 class="text-lg font-semibold">Antrean portofolio</h2><p class="mt-1 text-sm text-gray-500"><?= e($label) ?> · <?= (int) ($portfolios['total'] ?? count($items)) ?> dokumen</p></div><form method="get" class="flex gap-2"><select name="status" class="text-sm border-gray-300 rounded-xl"><option value="belum_diverifikasi" <?= $status === 'belum_diverifikasi' ? 'selected' : '' ?>>Belum diverifikasi</option><option value="perlu_perbaikan" <?= $status === 'perlu_perbaikan' ? 'selected' : '' ?>>Perlu perbaikan</option></select><button class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-xl hover:bg-blue-700">Terapkan</button></form></div>
+        <?php if ($items): ?><div class="mt-5 overflow-x-auto"><table class="w-full text-sm"><thead><tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-100"><th class="px-3 py-3">Mahasiswa</th><th class="px-3 py-3">Portofolio</th><th class="px-3 py-3">Jenis</th><th class="px-3 py-3">Diajukan</th><th class="px-3 py-3">Status</th><th class="px-3 py-3"></th></tr></thead><tbody><?php foreach ($items as $item): ?><tr class="border-b border-gray-100 last:border-0"><td class="px-3 py-4"><div class="font-medium text-gray-900"><?= e((string) $item['mahasiswa_nama']) ?></div><div class="text-xs text-gray-500"><?= e((string) ($item['nim'] ?? '-')) ?></div></td><td class="max-w-xs px-3 py-4"><div class="font-medium"><?= e((string) $item['judul']) ?></div><div class="mt-1 text-xs text-gray-500 line-clamp-2"><?= e((string) $item['deskripsi']) ?></div></td><td class="px-3 py-4 text-gray-600"><?= e((string) ($item['jenis'] ?? '-')) ?></td><td class="px-3 py-4 text-gray-500"><?= e((string) ($item['updated_at'] ?? $item['created_at'] ?? '-')) ?></td><td class="px-3 py-4"><span class="inline-flex px-2.5 py-1 text-xs font-medium text-amber-700 bg-amber-50 rounded-full"><?= e($label) ?></span></td><td class="px-3 py-4 text-right"><a class="font-medium text-blue-600 hover:text-blue-700" href="<?= e(url('/dashboard/tendik/verifikasi/portofolio/' . (int) $item['id'])) ?>">Buka detail</a></td></tr><?php endforeach; ?></tbody></table></div><?php else: ?><div class="px-4 py-10 mt-5 text-center border border-dashed border-gray-200 rounded-xl"><p class="font-medium text-gray-700">Tidak ada portofolio pada antrean ini.</p><p class="mt-1 text-sm text-gray-500">Dokumen yang perlu ditangani akan muncul di sini.</p></div><?php endif; ?>
+    </section>
+</div></main></body></html>

@@ -39,8 +39,8 @@ $inisial =
 |--------------------------------------------------------------------------
 */
 
-$canModify =
-    $status === 'belum_terverifikasi';
+$canModify = in_array($status, ['belum_terverifikasi', 'ditolak'], true);
+$canDelete = $status === 'belum_terverifikasi';
 
 /*
 |--------------------------------------------------------------------------
@@ -117,7 +117,7 @@ $adalahGambar = in_array(
             alt="Pratinjau sertifikat <?= e($nama) ?>"
             class="w-full h-full object-cover"
             loading="lazy"
-            onerror="this.classList.add('hidden'); this.nextElementSibling.classList.remove('hidden');">
+            onerror="this.onerror=null; this.classList.add('hidden'); this.nextElementSibling?.classList.remove('hidden');">
 
         <div
             class="hidden absolute inset-0
@@ -242,6 +242,9 @@ $adalahGambar = in_array(
                     <?php endif; ?>
 
                 </div>
+                <?php if ($status === 'ditolak' && trim((string) ($sertifikatItem['verifikasi']['catatan'] ?? '')) !== ''): ?>
+                    <p class="mt-2 text-xs text-red-700"><strong>Catatan:</strong> <?= e((string) $sertifikatItem['verifikasi']['catatan']) ?></p>
+                <?php endif; ?>
 
             </div>
 
@@ -330,6 +333,7 @@ $adalahGambar = in_array(
                         </a>
 
 
+                        <?php if ($canDelete): ?>
                         <button
                             type="button"
                             onclick="openHapusSertifikat('<?= e($deleteDialogId) ?>', '<?= e($menuId) ?>')"
@@ -372,6 +376,7 @@ $adalahGambar = in_array(
                             Hapus
 
                         </button>
+                        <?php endif; ?>
 
                     </div>
 
@@ -482,7 +487,7 @@ $adalahGambar = in_array(
 </div>
 
 
-<?php if ($canModify): ?>
+<?php if ($canDelete): ?>
 
     <!-- Delete Modal -->
 

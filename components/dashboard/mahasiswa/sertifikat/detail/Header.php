@@ -16,7 +16,10 @@ $isVerified =
     $status === 'terverifikasi';
 
 $canModify =
-    $status === 'belum_terverifikasi';
+    $status === 'belum_terverifikasi' || $status === 'ditolak';
+
+$canDelete = $status === 'belum_terverifikasi';
+$rejectionNote = trim((string) ($sertifikat['verifikasi']['catatan'] ?? ''));
 
 $deleteDialogId =
     'hapusSertifikatModal-' . $slug;
@@ -107,6 +110,9 @@ $deleteDialogId =
             <?php endif; ?>
 
         </div>
+        <?php if ($status === 'ditolak' && $rejectionNote !== ''): ?>
+            <p class="mt-3 max-w-2xl text-sm text-red-700"><strong>Catatan pemeriksaan:</strong> <?= e($rejectionNote) ?></p>
+        <?php endif; ?>
 
     </div>
 
@@ -115,6 +121,12 @@ $deleteDialogId =
 
         <div class="flex flex-wrap gap-2 sm:justify-end">
 
+            <?php if ($status === 'ditolak'): ?>
+                <form method="POST" action="<?= e(url('/dashboard/mahasiswa/sertifikat/ajukan-ulang/' . $slug)) ?>">
+                    <input type="hidden" name="_csrf_token" value="<?= e(csrfToken()) ?>">
+                    <button type="submit" class="inline-flex items-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700">Ajukan Ulang</button>
+                </form>
+            <?php else: ?>
             <a
                 href="<?= url('/dashboard/mahasiswa/sertifikat/edit/' . $slug) ?>"
                 class="inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 transition bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50">
@@ -139,8 +151,9 @@ $deleteDialogId =
                 Edit
 
             </a>
+            <?php endif; ?>
 
-
+            <?php if ($canDelete): ?>
             <button
                 type="button"
                 onclick="document.getElementById('<?= e($deleteDialogId) ?>').showModal()"
@@ -162,10 +175,12 @@ $deleteDialogId =
                 Hapus
 
             </button>
+            <?php endif; ?>
 
         </div>
 
 
+        <?php if ($canDelete): ?>
         <dialog
             id="<?= e($deleteDialogId) ?>"
             class="w-full max-w-md p-0 m-auto overflow-hidden bg-white rounded-xl shadow-2xl backdrop:bg-black/50">
@@ -243,6 +258,7 @@ $deleteDialogId =
             </div>
 
         </dialog>
+        <?php endif; ?>
 
     <?php endif; ?>
 
