@@ -149,10 +149,38 @@ class Portofolio
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['user_id' => $userId]);
 
-        $portofolios = $stmt->fetchAll();
+        $portofolios = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($portofolios === []) {
+            return [];
+        }
+
+        $ids = array_values(array_unique(array_map(
+            static fn(array $item): int => (int) $item['id'],
+            $portofolios
+        )));
+        $placeholders = [];
+        $parameters = [];
+        foreach ($ids as $index => $id) {
+            $placeholder = ':portfolio_' . $index;
+            $placeholders[] = $placeholder;
+            $parameters[$placeholder] = $id;
+        }
+        $technologyQuery = $pdo->prepare(
+            'SELECT portofolio_id, nama_teknologi FROM portofolio_teknologi '
+            . 'WHERE portofolio_id IN (' . implode(', ', $placeholders) . ') '
+            . 'ORDER BY nama_teknologi ASC'
+        );
+        $technologyQuery->execute($parameters);
+        $technologiesByPortfolio = [];
+        foreach ($technologyQuery->fetchAll(PDO::FETCH_ASSOC) as $technology) {
+            $technologiesByPortfolio[(int) $technology['portofolio_id']][] = $technology['nama_teknologi'];
+        }
 
         foreach ($portofolios as &$item) {
-            $item = $this->formatPortofolio($item);
+            $item = $this->formatPortofolio(
+                $item,
+                $technologiesByPortfolio[(int) $item['id']] ?? []
+            );
         }
         unset($item);
 
@@ -201,22 +229,18 @@ class Portofolio
      * Mengubah format data database agar kompatibel
      * dengan struktur data yang digunakan oleh view.
      */
-    private function formatPortofolio(array $item): array
+    private function formatPortofolio(array $item, ?array $teknologi = null): array
     {
-        global $pdo;
+        if ($teknologi === null) {
+            global $pdo;
 
-        $stmt = $pdo->prepare("
-            SELECT nama_teknologi
-            FROM portofolio_teknologi
-            WHERE portofolio_id = :portofolio_id
-            ORDER BY nama_teknologi ASC
-        ");
-
-        $stmt->execute([
-            'portofolio_id' => $item['id'],
-        ]);
-
-        $teknologi = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $stmt = $pdo->prepare(
+                'SELECT nama_teknologi FROM portofolio_teknologi '
+                . 'WHERE portofolio_id = :portofolio_id ORDER BY nama_teknologi ASC'
+            );
+            $stmt->execute(['portofolio_id' => $item['id']]);
+            $teknologi = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        }
 
         $status = $item['status_verifikasi'];
 

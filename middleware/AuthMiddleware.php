@@ -4,6 +4,9 @@ require_once __DIR__ . '/../config/database.php';
 
 class AuthMiddleware
 {
+    /** @var array<int, array{0: array, 1: array}> */
+    private static array $requestUsers = [];
+
     public static function handle(string $requiredRole): void
     {
         self::handleAny([$requiredRole]);
@@ -26,9 +29,12 @@ class AuthMiddleware
             exit;
         }
 
-        global $pdo;
+        $userId = (int) $_SESSION['user']['id'];
+        if (!array_key_exists($userId, self::$requestUsers)) {
+            self::$requestUsers[$userId] = self::loadUserWithRoles($userId);
+        }
 
-        [$user, $roles] = self::loadUserWithRoles((int) $_SESSION['user']['id']);
+        [$user, $roles] = self::$requestUsers[$userId];
 
         // Jika pengguna sudah tidak ditemukan atau akun tidak aktif
         if (
