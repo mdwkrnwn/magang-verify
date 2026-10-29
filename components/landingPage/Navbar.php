@@ -83,7 +83,7 @@ if (!empty($nameParts)) {
             <img
                 src="<?= url('/assets/images/icon.png') ?>"
                 alt="MagangVerify"
-                class="h-14 w-auto shrink-0">
+                class="h-12 w-auto shrink-0">
 
             <div class="ml-3 flex flex-col min-w-0">
                 <h2 class="font-bold text-lg leading-tight">

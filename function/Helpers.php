@@ -77,6 +77,11 @@ function icon(string $name, string $class = 'w-5 h-5'): string
         'globe' => 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM3 12h18M12 3c2.5 2.5 3.75 5.5 3.75 9S14.5 18.5 12 21c-2.5-2.5-3.75-5.5-3.75-9S9.5 5.5 12 3Z',
         'code' => 'm8.25 8.25-4.5 3.75 4.5 3.75m7.5-7.5 4.5 3.75-4.5 3.75',
         'reset' => 'M4.5 9.75A7.5 7.5 0 1 1 6.7 16',
+        'instagram' => 'M7 2.5h10A4.5 4.5 0 0 1 21.5 7v10a4.5 4.5 0 0 1-4.5 4.5H7A4.5 4.5 0 0 1 2.5 17V7A4.5 4.5 0 0 1 7 2.5ZM12 16.5a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM17.5 6.5h.01',
+
+        'linkedin' => 'M6.5 8.5v9m0-12v.01M10.5 17.5v-5a3 3 0 0 1 6 0v5m-6-5v-4',
+
+        'youtube' => 'M22 12s0-3.5-.45-5.15a2.5 2.5 0 0 0-1.75-1.75C18.15 4.65 12 4.65 12 4.65s-6.15 0-7.8.45A2.5 2.5 0 0 0 2.45 6.85C2 8.5 2 12 2 12s0 3.5.45 5.15a2.5 2.5 0 0 0 1.75 1.75c1.65.45 7.8.45 7.8.45s6.15 0 7.8-.45a2.5 2.5 0 0 0 1.75-1.75C22 15.5 22 12 22 12Zm-12 3.5v-7l6 3.5-6 3.5Z',
     ];
 
     return '<svg class="' . e($class) . '" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true"><path d="' . ($paths[$name] ?? '') . '"/></svg>';
@@ -106,7 +111,7 @@ function initials($name)
 
     return strtoupper(
         mb_substr($words[0], 0, 1)
-        . mb_substr($words[1], 0, 1)
+            . mb_substr($words[1], 0, 1)
     );
 }
 

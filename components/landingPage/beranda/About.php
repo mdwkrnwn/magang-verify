@@ -31,14 +31,26 @@
 
                 <!-- Button -->
                 <a
-                    href="<?=url('/tentang')?>"
+                    href="<?= url('/tentang') ?>"
                     class="inline-flex items-center mt-5 justify-center gap-2
-                           px-5 py-4 bg-blue-600 text-white text-sm font-medium
-                           rounded-md hover:bg-blue-700 transition">
-
+           px-5 py-4 bg-blue-600 text-white text-sm font-medium
+           rounded-md hover:bg-blue-700 transition">
                     Pelajari Lebih Lanjut
 
-                    <span>→</span>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true">
+                        <path d="M5 12h14" />
+                        <path d="m12 5 7 7-7 7" />
+                    </svg>
                 </a>
             </div>
 
@@ -47,10 +59,9 @@
             <div class="flex justify-center lg:justify-end">
 
                 <img
-                 src="<?= url('/assets/images/about.png') ?>"
+                    src="<?= url('/assets/images/about.png') ?>"
                     alt="Tentang VerifyMagang"
-                    class="w-full max-w-lg object-contain"
-                >
+                    class="w-full max-w-lg object-contain">
             </div>
 
         </div>

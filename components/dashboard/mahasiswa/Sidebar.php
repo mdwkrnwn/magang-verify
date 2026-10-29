@@ -29,14 +29,13 @@ $active = $active ?? '';
             <div
                 class="flex items-center justify-center
                        w-10 h-10
-                       rounded-xl
                        overflow-hidden
                        shrink-0">
 
                 <img
                     src="<?= url('/assets/images/icon.png') ?>"
                     alt="VerifyMagang"
-                    class="w-14 h-14 object-contain">
+                    class="w-12 h-12 object-contain">
 
             </div>
 

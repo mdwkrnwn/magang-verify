@@ -32,16 +32,27 @@
 
                     <a
                         href="<?= url('/mahasiswa') ?>"
-                        class="inline-flex items-center justify-center gap-2 px-5 py-4 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition"
-                    >
+                        class="inline-flex items-center justify-center gap-2 px-5 py-4 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition">
                         Lihat Daftar Mahasiswa
-                        <span>→</span>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true">
+                            <path d="M5 12h14" />
+                            <path d="m12 5 7 7-7 7" />
+                        </svg>
                     </a>
 
                     <a
                         href="#"
-                        class="inline-flex items-center justify-center px-5 py-4 border border-blue-500 text-blue-600 text-sm font-medium rounded-md hover:bg-blue-50 transition"
-                    >
+                        class="inline-flex items-center justify-center px-5 py-4 border border-blue-500 text-blue-600 text-sm font-medium rounded-md hover:bg-blue-50 transition">
                         Pelajari Sistem
                     </a>
 
@@ -59,8 +70,7 @@
                 <img
                     src="<?= url('/assets/images/hero.png') ?>"
                     alt="Mahasiswa MagangVerify"
-                    class="relative z-10 w-auto max-w-full max-h-[400px] sm:max-h-[450px] lg:max-h-[500px] object-contain"
-                >
+                    class="relative z-10 w-auto max-w-full max-h-[400px] sm:max-h-[450px] lg:max-h-[500px] object-contain">
 
             </div>
 

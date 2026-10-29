@@ -25,7 +25,6 @@
             <div
                 class="flex items-center justify-center
                        w-10 h-10
-                       rounded-xl
                        overflow-hidden
                        shrink-0">
 

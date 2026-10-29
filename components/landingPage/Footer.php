@@ -7,9 +7,8 @@
                 <img
                     src="<?= url('/assets/images/icon.png') ?>"
                     alt="VerifyMagang"
-                    class="h-14 w-auto"
-                >
-                
+                    class="h-14 w-auto">
+
                 <div class="ml-3 flex flex-col w-max">
                     <h2 class="font-bold text-lg leading-tight">
                         VerifyMagang
@@ -28,15 +27,15 @@
 
             <div class="flex gap-4 mt-5 text-slate-800">
                 <a href="#" aria-label="Instagram">
-                    <?= icon('instagram') ?>
+                    <?= icon('instagram', 'w-5 h-5') ?>
                 </a>
 
                 <a href="#" aria-label="LinkedIn">
-                    <?= icon('briefcase') ?>
+                    <?= icon('linkedin', 'w-5 h-5') ?>
                 </a>
 
                 <a href="#" aria-label="YouTube">
-                    <?= icon('youtube') ?>
+                    <?= icon('youtube', 'w-5 h-5') ?>
                 </a>
             </div>
         </div>
