@@ -289,9 +289,9 @@ if (!empty($bagianNama)) {
 
 
                         <!-- Pengaturan -->
-                        <?php if ($role === 'mahasiswa'): ?>
+                        <?php if ($role === 'tendik'): ?>
                         <a
-                            href="<?= e(url('/dashboard/mahasiswa/pengaturan')) ?>"
+                            href="<?= e(url('/dashboard/tendik/pengaturan')) ?>"
                             class="flex items-center gap-3
                                    px-3 py-2.5
                                    rounded-lg

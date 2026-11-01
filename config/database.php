@@ -1,3 +1,4 @@
+
 <?php
 
 require_once __DIR__ . '/app.php';
@@ -9,9 +10,11 @@ $dbname = getenv('DB_NAME') ?: 'magang_verify';
 $username = getenv('DB_USER') ?: 'magangverify';
 $password = getenv('DB_PASSWORD') ?: 'magangverify';
 
+$startedAt = microtime(true);
+
 try {
     $pdo = new PDO(
-        "pgsql:host={$host};port={$port};dbname={$dbname}",
+        "pgsql:host={$host};port={$port};dbname={$dbname};connect_timeout=5",
         $username,
         $password,
         [
@@ -20,8 +23,20 @@ try {
             PDO::ATTR_EMULATE_PREPARES => false,
         ]
     );
+
+    $elapsed = microtime(true) - $startedAt;
+
+    error_log(sprintf(
+        '[DB PERF] PDO connection: %.3f s',
+        $elapsed
+    ));
+
 } catch (PDOException $e) {
-    error_log('Koneksi database gagal: ' . $e->getMessage());
+    error_log(sprintf(
+        '[DB ERROR] PDO connection failed after %.3f s: %s',
+        microtime(true) - $startedAt,
+        $e->getMessage()
+    ));
 
     http_response_code(500);
     exit('Terjadi kesalahan koneksi database.');

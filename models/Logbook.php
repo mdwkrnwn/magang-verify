@@ -183,13 +183,19 @@ class Logbook
             $sql .= " AND pd.user_id = :user_id
                       AND lm.status IN ('menunggu_dosen', 'disetujui')";
             $params['user_id'] = $userId;
+            // } elseif (in_array($role, self::VALIDATORS, true)) {
+            //     $sql .= " AND EXISTS (
+            //                   SELECT 1 FROM logbook_harian pending_day
+            //                   WHERE pending_day.logbook_id = lm.id
+            //                     AND pending_day.status_kehadiran = 'tidak_hadir'
+            //                     AND pending_day.status_validasi = 'menunggu'
+            //               )";
         } elseif (in_array($role, self::VALIDATORS, true)) {
             $sql .= " AND EXISTS (
-                          SELECT 1 FROM logbook_harian pending_day
-                          WHERE pending_day.logbook_id = lm.id
-                            AND pending_day.status_kehadiran = 'tidak_hadir'
-                            AND pending_day.status_validasi = 'menunggu'
-                      )";
+                  SELECT 1 FROM logbook_harian attendance_day
+                  WHERE attendance_day.logbook_id = lm.id
+                    AND attendance_day.status_kehadiran = 'tidak_hadir'
+              )";
         } elseif ($role === self::STUDENT) {
             $sql .= ' AND prof.user_id = :user_id';
             $params['user_id'] = $userId;
@@ -917,7 +923,7 @@ class Logbook
             'dosen' => (int) ($row['dosen_user_id'] ?? 0) === $userId
                 && in_array($row['week_status'], ['menunggu_dosen', 'disetujui'], true),
             'tendik', 'koordinator_magang' =>
-                $row['status_kehadiran'] === 'tidak_hadir'
+            $row['status_kehadiran'] === 'tidak_hadir'
                 && $row['status_validasi'] === 'menunggu',
             default => false,
         };

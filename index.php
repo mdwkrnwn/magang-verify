@@ -1,17 +1,53 @@
+
 <?php
 
+$GLOBALS['perf_start'] = microtime(true);
+$GLOBALS['perf_last'] = $GLOBALS['perf_start'];
+
+function perfMark(string $label): void
+{
+    $now = microtime(true);
+
+    error_log(sprintf(
+        '[PERF] %-32s | step: %.3f s | total: %.3f s',
+        $label,
+        $now - $GLOBALS['perf_last'],
+        $now - $GLOBALS['perf_start']
+    ));
+
+    $GLOBALS['perf_last'] = $now;
+}
+
+error_log('[PERF] START ' . ($_SERVER['REQUEST_URI'] ?? ''));
+
+register_shutdown_function(function (): void {
+    error_log(sprintf(
+        '[PERF] END | Total PHP: %.3f s | Peak memory: %.1f MB',
+        microtime(true) - $GLOBALS['perf_start'],
+        memory_get_peak_usage(true) / 1048576
+    ));
+});
+
 require_once __DIR__ . '/config/app.php';
+perfMark('index: config/app.php');
+
 require_once __DIR__ . '/function/Helpers.php';
+perfMark('index: Helpers.php');
+
 require_once __DIR__ . '/routes/web.php';
+perfMark('index: routes/web.php loaded');
+
 require_once __DIR__ . '/middleware/AuthMiddleware.php';
+perfMark('index: AuthMiddleware.php');
 
 $matchedRoute = route($_SERVER['REQUEST_URI']);
+perfMark('index: route matching');
 
 if (!$matchedRoute) {
     require __DIR__ . '/pages/errors/404.php';
     exit;
 }
-
+perfMark('index: before session');
 $route = $matchedRoute['route'];
 $params = $matchedRoute['params'];
 
@@ -24,7 +60,7 @@ $params = $matchedRoute['params'];
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_start();
 }
-
+perfMark('index: after session');
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $basePath = rtrim(APP_URL, '/');
 
@@ -54,7 +90,10 @@ foreach ($protectedRoutes as $prefix => $requiredRole) {
         $path === $prefix ||
         str_starts_with($path, $prefix . '/')
     ) {
+        perfMark('index: before AuthMiddleware');
         AuthMiddleware::handle($requiredRole);
+        perfMark('index: after AuthMiddleware');
+
         break;
     }
 }
@@ -84,8 +123,9 @@ if (
     $method = $route['method'];
 
     $controller = new $controllerClass();
-
-    $controller->$method($params);
+perfMark('index: before controller method');
+$controller->$method($params);
+perfMark('index: after controller method');
     exit;
 }
 
