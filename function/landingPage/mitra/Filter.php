@@ -1,17 +1,38 @@
+
 <?php
 
-// Nilai filter dari URL: /mitra?q=cloud&bidang[]=Data+%26+AI&lokasi[]=Malang
-$arr = fn($k) => array_values(array_filter((array)($_GET[$k] ?? []), 'is_string'));
+// Nilai filter dari URL
+$arr = fn($k) => array_values(
+    array_filter((array)($_GET[$k] ?? []), 'is_string')
+);
 
-$fQ      = trim($_GET['q'] ?? '');
+$fQ      = trim((string)($_GET['q'] ?? ''));
 $fBidang = $arr('bidang');
 $fLokasi = $arr('lokasi');
 $fSkema  = $arr('skema');
 
-// Pilihan checkbox diambil dari data
+// Pilihan checkbox dari data mitra
 $opt = function ($key) use ($mitra) {
-    $list = array_unique(array_merge(...array_map(fn($m) => (array)$m[$key], $mitra)));
+    $values = [];
+
+    foreach ((array)$mitra as $m) {
+        if (!is_array($m)) {
+            continue;
+        }
+
+        $items = $m[$key] ?? [];
+
+        // Mendukung data array maupun string
+        foreach ((array)$items as $item) {
+            if (is_string($item) && trim($item) !== '') {
+                $values[] = trim($item);
+            }
+        }
+    }
+
+    $list = array_values(array_unique($values));
     sort($list);
+
     return $list;
 };
 
