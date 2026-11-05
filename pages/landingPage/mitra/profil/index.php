@@ -2,13 +2,11 @@
 
 $active = "mitra";
 
-require_once __DIR__ . "/../../../../data/landingPage/Mitra.php";
-
 $slug = $params['slug'] ?? '';
 $m = null;
 
 foreach ($mitra as $row) {
-    if ($row['slug'] === $slug) {
+    if (($row['slug'] ?? '') === $slug) {
         $m = $row;
         break;
     }
