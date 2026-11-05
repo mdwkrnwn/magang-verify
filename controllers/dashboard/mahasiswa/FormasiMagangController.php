@@ -1,50 +1,134 @@
 <?php
 
 require_once __DIR__ . '/../../../config/database.php';
-require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../models/FormasiMagang.php';
 
 class FormasiMagangController
 {
     private FormasiMagang $model;
-    public function __construct() { $this->model = new FormasiMagang(); }
+
+    public function __construct()
+    {
+        $this->model = new FormasiMagang();
+    }
+
 
     public function index($params = [])
     {
-        AuthMiddleware::handle('mahasiswa');
         $q = trim($_GET['q'] ?? '');
         $fLokasi = trim($_GET['lokasi'] ?? '');
         $fDurasi = trim($_GET['durasi'] ?? '');
         $fStatus = trim($_GET['status'] ?? '');
         $fSistemKerja = trim($_GET['sistem_kerja'] ?? '');
         $fTahun = trim($_GET['tahun_akademik'] ?? '');
-        $all = $this->model->getAll(['q' => $q, 'lokasi' => $fLokasi, 'sistem_kerja' => $fSistemKerja, 'tahun_akademik' => $fTahun]);
-        if ($fDurasi !== '') $all = array_values(array_filter($all, fn($x) => $x['durasi'] === $fDurasi));
-        if ($fStatus !== '') $all = array_values(array_filter($all, fn($x) => $x['status'] === $fStatus));
-        $options = $this->model->getFilterOptions();
+
+        $perPage = 5;
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+
+        $filter = [
+            'q' => $q,
+            'lokasi' => $fLokasi,
+            'durasi' => $fDurasi,
+            'status' => $fStatus,
+            'sistem_kerja' => $fSistemKerja,
+            'tahun_akademik' => $fTahun
+        ];
+
+        // Ambil data sesuai halaman.
+        $result = $this->model->getPaginated(
+            $filter,
+            $page,
+            $perPage
+        );
+
+        $tampil = $result['data'];
+        $total = $result['total'];
+
+        $pages = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $pages);
+
+        // Jika halaman melebihi jumlah halaman, ambil ulang halaman terakhir.
+        if ($page !== max(1, (int) ($_GET['page'] ?? 1))) {
+            $result = $this->model->getPaginated(
+                $filter,
+                $page,
+                $perPage
+            );
+
+            $tampil = $result['data'];
+        }
+
+        // Opsi filter tidak dipengaruhi filter durasi dan status.
+        $filterOptions = [
+            'q' => $q,
+            'lokasi' => $fLokasi,
+            'sistem_kerja' => $fSistemKerja,
+            'tahun_akademik' => $fTahun
+        ];
+
+        $options = $this->model->getFilterOptions($filterOptions);
+
         $optLokasi = $options['lokasi'];
         $optTahun = $options['tahun_akademik'];
-        $optDurasi = array_values(array_unique(array_column($all, 'durasi')));
-        sort($optDurasi);
+
+        $optDurasi = $this->model->getDurasiOptions($filterOptions);
+
         $optStatus = ['tersedia'];
-        $perPage = 5;
-        $total = count($all);
-        $pages = max(1, (int)ceil($total / $perPage));
-        $page = min(max(1, (int)($_GET['page'] ?? 1)), $pages);
-        $tampil = array_slice($all, ($page - 1) * $perPage, $perPage);
-        $url = fn($n) => '?' . http_build_query(array_merge($_GET, ['page' => $n]));
+
+        $url = fn($n) => '?' . http_build_query(
+            array_merge($_GET, ['page' => $n])
+        );
+
+        $perf = microtime(true);
+
+        $result = $this->model->getPaginated(
+            $filter,
+            $page,
+            $perPage
+        );
+
+        error_log(sprintf(
+            '[FORMASI PERF] getPaginated: %.3f s',
+            microtime(true) - $perf
+        ));
+
+        $tampil = $result['data'];
+        $total = $result['total'];
+
+        $perf = microtime(true);
+
+        $options = $this->model->getFilterOptions($filterOptions);
+
+        error_log(sprintf(
+            '[FORMASI PERF] getFilterOptions: %.3f s',
+            microtime(true) - $perf
+        ));
+
+        $perf = microtime(true);
+
+        $optDurasi = $this->model->getDurasiOptions($filterOptions);
+
+        error_log(sprintf(
+            '[FORMASI PERF] getDurasiOptions: %.3f s',
+            microtime(true) - $perf
+        ));
+
         require __DIR__ . '/../../../pages/dashboard/mahasiswa/formasi-magang/index.php';
     }
 
+
     public function detail($params = [])
     {
-        AuthMiddleware::handle('mahasiswa');
-        $formasi = $this->model->getBySlug((string)($params['slug'] ?? ''));
+        $formasi = $this->model->getBySlug(
+            (string) ($params['slug'] ?? '')
+        );
+
         if (!$formasi) {
             http_response_code(404);
             require __DIR__ . '/../../../pages/errors/404.php';
             exit;
         }
+
         require __DIR__ . '/../../../pages/dashboard/mahasiswa/formasi-magang/detail.php';
     }
 }

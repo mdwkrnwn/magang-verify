@@ -1,83 +1,69 @@
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
 
-        /*
-         * ==========================================================
-         * ELEMENT FORM
-         * ==========================================================
-         */
+        // ==========================================================
+        // ELEMENT FORM
+        // ==========================================================
 
-        const roleButtons =
-            document.querySelectorAll('[data-role]');
+        const roleButtons = document.querySelectorAll('[data-role]');
 
-        const roleInput =
-            document.getElementById('role');
+        const roleInput = document.getElementById('role');
+        const identityLabel = document.getElementById('identityLabel');
+        const identityInput = document.getElementById('login_id');
 
-        const identityLabel =
-            document.getElementById('identityLabel');
+        const passwordSection = document.getElementById('passwordSection');
+        const passwordInput = document.getElementById('password');
+        const togglePassword = document.getElementById('togglePassword');
 
-        const identityInput =
-            document.getElementById('login_id');
-
-        const passwordSection =
-            document.getElementById('passwordSection');
-
-        const passwordInput =
-            document.getElementById('password');
-
-        const togglePassword =
-            document.getElementById('togglePassword');
+        const loginForm = document.querySelector('form');
+        const loginButton = document.getElementById('loginButton');
+        const loginButtonText = document.getElementById('loginButtonText');
+        const loginSpinner = document.getElementById('loginSpinner');
+        const loginArrow = document.getElementById('loginArrow');
 
 
-        /*
-         * ==========================================================
-         * IDENTITAS SETIAP ROLE
-         * ==========================================================
-         *
-         * Hanya metadata label/form field. Kredensial harus
-         * dimasukkan pengguna, bukan diisi otomatis di browser.
-         */
+        // ==========================================================
+        // KONFIGURASI IDENTITAS ROLE
+        // ==========================================================
 
         const accountConfig = {
 
             mahasiswa: {
                 label: 'NIM',
                 placeholder: 'Masukkan NIM',
-                inputmode: 'numeric',
+                inputmode: 'numeric'
             },
 
             dosen: {
                 label: 'NIP',
                 placeholder: 'Masukkan NIP',
-                inputmode: 'numeric',
+                inputmode: 'numeric'
             },
 
             koordinator_magang: {
                 label: 'NIP',
                 placeholder: 'Masukkan NIP',
-                inputmode: 'numeric',
+                inputmode: 'numeric'
             },
 
             tendik: {
                 label: 'NIP',
                 placeholder: 'Masukkan NIP',
-                inputmode: 'numeric',
+                inputmode: 'numeric'
             },
 
             mitra: {
                 label: 'Kode Mitra',
-                placeholder: 'Kode Mitra',
-                inputmode: 'text',
+                placeholder: 'Masukkan kode mitra',
+                inputmode: 'text'
             }
 
         };
 
 
-        /*
-         * ==========================================================
-         * CLASS TOMBOL ROLE
-         * ==========================================================
-         */
+        // ==========================================================
+        // CLASS TOMBOL ROLE
+        // ==========================================================
 
         const activeClasses = [
             'bg-blue-600',
@@ -92,134 +78,73 @@
         ];
 
 
-        /*
-         * ==========================================================
-         * FUNGSI MEMILIH ROLE
-         * ==========================================================
-         */
+        // ==========================================================
+        // FUNGSI MEMILIH ROLE
+        // ==========================================================
 
         function selectRole(selectedRole) {
 
-            const config =
-                accountConfig[selectedRole];
+            const config = accountConfig[selectedRole];
 
-
-            /*
-             * Jika role tidak ditemukan,
-             * hentikan proses.
-             */
             if (!config) {
-                console.error(
-                    'Konfigurasi role tidak ditemukan:',
-                    selectedRole
-                );
-
+                console.error('Konfigurasi role tidak ditemukan:', selectedRole);
                 return;
             }
 
-
-            /*
-             * ------------------------------------------------------
-             * SIMPAN ROLE
-             * ------------------------------------------------------
-             */
-
-            roleInput.value =
-                selectedRole;
+            // Simpan role
+            roleInput.value = selectedRole;
 
 
-            /*
-             * ------------------------------------------------------
-             * UPDATE TOMBOL ROLE
-             * ------------------------------------------------------
-             */
+            // Update tombol role
+            roleButtons.forEach(function(button) {
 
-            roleButtons.forEach(function (button) {
-
-                const isActive =
-                    button.dataset.role === selectedRole;
-
+                const isActive = button.dataset.role === selectedRole;
 
                 button.setAttribute(
                     'aria-checked',
-                    isActive
-                        ? 'true'
-                        : 'false'
+                    isActive ? 'true' : 'false'
                 );
-
 
                 if (isActive) {
 
-                    button.classList.add(
-                        ...activeClasses
-                    );
-
-                    button.classList.remove(
-                        ...inactiveClasses
-                    );
+                    button.classList.add(...activeClasses);
+                    button.classList.remove(...inactiveClasses);
 
                 } else {
 
-                    button.classList.remove(
-                        ...activeClasses
-                    );
-
-                    button.classList.add(
-                        ...inactiveClasses
-                    );
+                    button.classList.remove(...activeClasses);
+                    button.classList.add(...inactiveClasses);
 
                 }
 
             });
 
 
-            /*
-             * ------------------------------------------------------
-             * UPDATE LABEL IDENTITAS
-             * ------------------------------------------------------
-             */
+            // Update label identitas
+            identityLabel.textContent = config.label;
 
-            identityLabel.textContent =
-                config.label;
+            // Update placeholder
+            identityInput.placeholder = config.placeholder;
 
-
-            /*
-             * ------------------------------------------------------
-             * UPDATE PLACEHOLDER
-             * ------------------------------------------------------
-             */
-
-            identityInput.placeholder =
-                config.placeholder;
+            // Update input mode
+            identityInput.inputMode = config.inputmode;
 
 
-            /*
-             * ------------------------------------------------------
-             * UPDATE INPUT MODE
-             * ------------------------------------------------------
-             */
-
-            identityInput.inputMode =
-                config.inputmode;
-
-
-            // Jangan membawa kredensial dari role sebelumnya.
+            // Reset input ketika role berubah
             identityInput.value = '';
             passwordInput.value = '';
             passwordInput.type = 'password';
 
+
+            // Pengaturan khusus role Mitra
             const isMitra = selectedRole === 'mitra';
+
             passwordSection.hidden = isMitra;
             passwordInput.required = !isMitra;
             passwordInput.disabled = isMitra;
 
 
-            /*
-             * ------------------------------------------------------
-             * RESET TOGGLE PASSWORD
-             * ------------------------------------------------------
-             */
-
+            // Reset toggle password
             if (togglePassword) {
 
                 togglePassword.setAttribute(
@@ -237,89 +162,95 @@
         }
 
 
-        /*
-         * ==========================================================
-         * EVENT KLIK SETIAP ROLE
-         * ==========================================================
-         */
+        // ==========================================================
+        // EVENT KLIK ROLE
+        // ==========================================================
 
-        roleButtons.forEach(function (button) {
+        roleButtons.forEach(function(button) {
 
-            button.addEventListener(
-                'click',
-                function () {
+            button.addEventListener('click', function() {
 
-                    const selectedRole =
-                        button.dataset.role;
+                selectRole(button.dataset.role);
 
-
-                    selectRole(
-                        selectedRole
-                    );
-
-                }
-            );
+            });
 
         });
 
 
-        /*
-         * ==========================================================
-         * TOGGLE PASSWORD
-         * ==========================================================
-         */
+        // ==========================================================
+        // TOGGLE PASSWORD
+        // ==========================================================
 
-        if (
-            passwordInput &&
-            togglePassword
-        ) {
+        if (passwordInput && togglePassword) {
 
-            togglePassword.addEventListener(
-                'click',
-                function () {
+            togglePassword.addEventListener('click', function() {
 
-                    const showPassword =
-                        passwordInput.type === 'password';
+                const showPassword = passwordInput.type === 'password';
 
+                passwordInput.type = showPassword ? 'text' : 'password';
 
-                    passwordInput.type =
-                        showPassword
-                            ? 'text'
-                            : 'password';
+                togglePassword.setAttribute(
+                    'aria-label',
+                    showPassword ?
+                    'Sembunyikan password' :
+                    'Tampilkan password'
+                );
 
+                togglePassword.setAttribute(
+                    'aria-pressed',
+                    showPassword ? 'true' : 'false'
+                );
 
-                    togglePassword.setAttribute(
-                        'aria-label',
-                        showPassword
-                            ? 'Sembunyikan password'
-                            : 'Tampilkan password'
-                    );
-
-
-                    togglePassword.setAttribute(
-                        'aria-pressed',
-                        showPassword
-                            ? 'true'
-                            : 'false'
-                    );
-
-                }
-            );
+            });
 
         }
 
 
-        /*
-         * ==========================================================
-         * DEFAULT ROLE
-         * ==========================================================
-         *
-         * Saat halaman login pertama kali dibuka,
-         * Mahasiswa otomatis dipilih.
-         *
-         * Sekaligus:
-         *
-         */
+        // ==========================================================
+        // LOGIN BUTTON LOADING
+        // ==========================================================
+
+        if (loginForm && loginButton) {
+
+            loginForm.addEventListener('submit', function(event) {
+
+                // Cegah submit berulang
+                if (loginButton.disabled) {
+                    event.preventDefault();
+                    return;
+                }
+
+                // Aktifkan loading
+                loginButton.disabled = true;
+
+                // Ubah teks
+                if (loginButtonText) {
+                    loginButtonText.textContent = 'Memproses...';
+                }
+
+                // Tampilkan spinner Tailwind
+                if (loginSpinner) {
+                    loginSpinner.classList.remove('hidden');
+                    loginSpinner.classList.add('animate-spin');
+                }
+
+                // Sembunyikan ikon panah
+                if (loginArrow) {
+                    loginArrow.classList.add('hidden');
+                }
+
+                // Ubah warna tombol
+                loginButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                loginButton.classList.add('bg-blue-700', 'cursor-not-allowed');
+
+            });
+
+        }
+
+
+        // ==========================================================
+        // DEFAULT ROLE
+        // ==========================================================
 
         selectRole('mahasiswa');
 

@@ -311,23 +311,48 @@ $error = $_GET['error'] ?? '';
          ========================================================= -->
     <button
         type="submit"
-        class="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700">
+        id="loginButton"
+        class="mt-6 flex min-h-12 w-full items-center justify-center gap-2 rounded-lg bg-blue-600 py-3.5 text-sm font-semibold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-75">
 
-        <span>Masuk</span>
+        <span id="loginButtonText">Masuk</span>
 
+        <!-- Loading Spinner -->
         <svg
+            id="loginSpinner"
+            class="hidden h-5 w-5 animate-spin"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24">
+
+            <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4">
+            </circle>
+
+            <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z">
+            </path>
+        </svg>
+
+        <!-- Ikon panah -->
+        <svg
+            id="loginArrow"
             class="h-4 w-4 shrink-0"
             fill="none"
             stroke="currentColor"
             stroke-width="1.8"
             stroke-linecap="round"
             stroke-linejoin="round"
-            viewBox="0 0 24 24"
-            aria-hidden="true">
+            viewBox="0 0 24 24">
 
             <path d="M5 12h14" />
             <path d="M13 6l6 6-6 6" />
-
         </svg>
 
     </button>
@@ -357,9 +382,6 @@ $error = $_GET['error'] ?? '';
 
             Gunakan akun yang telah diberikan oleh pihak kampus.
             Jika mengalami kendala, silakan hubungi admin kampus.
-
         </p>
-
     </div>
-
 </form>

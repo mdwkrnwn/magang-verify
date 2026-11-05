@@ -34,12 +34,15 @@ perfMark('index: config/app.php');
 require_once __DIR__ . '/function/Helpers.php';
 perfMark('index: Helpers.php');
 
+// Controller Lazy Loading
+require_once __DIR__ . '/config/ControllerAutoload.php';
+perfMark('index: ControllerAutoload.php');
+
 require_once __DIR__ . '/routes/web.php';
 perfMark('index: routes/web.php loaded');
 
-require_once __DIR__ . '/middleware/AuthMiddleware.php';
-perfMark('index: AuthMiddleware.php');
-
+// require_once __DIR__ . '/middleware/AuthMiddleware.php';
+// perfMark('index: AuthMiddleware.php');
 $matchedRoute = route($_SERVER['REQUEST_URI']);
 perfMark('index: route matching');
 
@@ -86,12 +89,16 @@ $protectedRoutes = [
 ];
 
 foreach ($protectedRoutes as $prefix => $requiredRole) {
-    if (
-        $path === $prefix ||
-        str_starts_with($path, $prefix . '/')
-    ) {
+    if ($path === $prefix || str_starts_with($path, $prefix . '/')) {
+
+        // Middleware hanya dimuat untuk halaman yang dilindungi.
+        require_once __DIR__ . '/middleware/AuthMiddleware.php';
+        perfMark('index: AuthMiddleware.php loaded');
+
         perfMark('index: before AuthMiddleware');
+
         AuthMiddleware::handle($requiredRole);
+
         perfMark('index: after AuthMiddleware');
 
         break;
@@ -122,10 +129,23 @@ if (
     $controllerClass = $route['controller'];
     $method = $route['method'];
 
+    // TEST LAZY LOADING
+    error_log(
+        '[AUTOLOAD TEST] Declared controller classes: ' .
+        json_encode(array_values(array_filter(
+            get_declared_classes(),
+            fn($class) => str_contains($class, 'Controller')
+        )))
+    );
+
     $controller = new $controllerClass();
-perfMark('index: before controller method');
-$controller->$method($params);
-perfMark('index: after controller method');
+
+    perfMark('index: before controller method');
+
+    $controller->$method($params);
+
+    perfMark('index: after controller method');
+
     exit;
 }
 

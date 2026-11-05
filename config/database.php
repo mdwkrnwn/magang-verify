@@ -24,13 +24,15 @@ try {
         ]
     );
 
+    // Pastikan koneksi tersedia di global scope.
+    $GLOBALS['pdo'] = $pdo;
+
     $elapsed = microtime(true) - $startedAt;
 
     error_log(sprintf(
         '[DB PERF] PDO connection: %.3f s',
         $elapsed
     ));
-
 } catch (PDOException $e) {
     error_log(sprintf(
         '[DB ERROR] PDO connection failed after %.3f s: %s',

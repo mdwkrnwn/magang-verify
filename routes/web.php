@@ -1,91 +1,17 @@
+
 <?php
 
-
-/* Authenticator */
-
-$perfAuthStart = microtime(true);
-
-require_once __DIR__ . '/../controllers/LoginController.php';
-perfMark(sprintf(
-    'file: LoginController.php (%.3f s)',
-    microtime(true) - $perfAuthStart
-));
-
-$perfLogoutStart = microtime(true);
-
-require_once __DIR__ . '/../controllers/LogoutController.php';
-perfMark(sprintf(
-    'file: LogoutController.php (%.3f s)',
-    microtime(true) - $perfLogoutStart
-));
-
-perfMark('routes: authenticator complete');
-
-/* Landing Page */
-
-require_once __DIR__ . '/../controllers/LandingPageController.php';
-require_once __DIR__ . '/../controllers/MahasiswaController.php';
-require_once __DIR__ . '/../controllers/MahasiswaProfilController.php';
-require_once __DIR__ . '/../controllers/MitraController.php';
-require_once __DIR__ . '/../controllers/MitraProfilController.php';
-require_once __DIR__ . '/../controllers/TentangController.php';
-perfMark('routes: landing');
-
-
-/* Dashboard Mahasiswa */
-
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/DashboardController.php';
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/ProfilController.php';
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PortofolioController.php';
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/SertifikatController.php';
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengalamanController.php';
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/FormasiMagangController.php';
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengajuanController.php';
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LogbookController.php';
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LamarController.php';
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PengaturanController.php';
-require_once __DIR__ . '/../controllers/dashboard/LogbookFileController.php';
-require_once __DIR__ . '/../controllers/dashboard/NotifikasiController.php';
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/LaporanController.php';
-require_once __DIR__ . '/../controllers/dashboard/mahasiswa/PermintaanPembimbingController.php';
-perfMark('routes: mahasiswa');
-
-/* Dashboard Dosen */
-
-require_once __DIR__ . '/../controllers/dashboard/dosen/DosenDashboardController.php';
-require_once __DIR__ . '/../controllers/dashboard/dosen/MahasiswaBimbinganController.php';
-require_once __DIR__ . '/../controllers/dashboard/dosen/PengajuanMagangController.php';
-require_once __DIR__ . '/../controllers/dashboard/dosen/LogbookController.php';
-require_once __DIR__ . '/../controllers/dashboard/dosen/DosenMonitoringController.php';
-require_once __DIR__ . '/../controllers/dashboard/PenilaianController.php';
-require_once __DIR__ . '/../controllers/dashboard/dosen/PermintaanPembimbingController.php';
-perfMark('routes: dosen');
-
-/* Dashboard Tendik */
-
-require_once __DIR__ . '/../controllers/dashboard/tendik/TendikDashboardController.php';
-require_once __DIR__ . '/../controllers/dashboard/tendik/LogbookController.php';
-require_once __DIR__ . '/../controllers/dashboard/tendik/UserController.php';
-require_once __DIR__ . '/../controllers/dashboard/tendik/VerifikasiDokumenController.php';
-require_once __DIR__ . '/../controllers/dashboard/tendik/PenetapanDosenController.php';
-perfMark('routes: tendik');
-
-/* Dashboard Koordinator Magang */
-
-require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/KoordinatorMagangDashboardController.php';
-require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/LogbookController.php';
-require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/PenempatanController.php';
-require_once __DIR__ . '/../controllers/dashboard/koordinatorMagang/PenetapanDosenController.php';
-perfMark('routes: koordinator magang');
-
-/* Dashboard Mitra */
-
-require_once __DIR__ . '/../controllers/dashboard/mitra/MitraDashboardController.php';
-require_once __DIR__ . '/../controllers/dashboard/mitra/LogbookController.php';
-require_once __DIR__ . '/../controllers/dashboard/mitra/PengajuanController.php';
-require_once __DIR__ . '/../controllers/dashboard/mitra/FormasiController.php';
-perfMark('routes: mitra');
-
+/*
+|--------------------------------------------------------------------------
+| ROUTE DEFINITIONS
+|--------------------------------------------------------------------------
+|
+| Semua controller menggunakan Lazy Loading melalui
+| config/ControllerAutoload.php yang didaftarkan di index.php.
+|
+| Tidak perlu require_once controller di file ini.
+|
+*/
 $routes = [
 
     '/dashboard/notifikasi' => [
