@@ -296,11 +296,10 @@ $error = $_GET['error'] ?? '';
 
         <a
             href="#"
+            id="forgotPassword"
             class="text-blue-600 transition hover:text-blue-700"
             onclick="return false;">
-
             Lupa password?
-
         </a>
 
     </div>

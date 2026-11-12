@@ -2,17 +2,26 @@
 
 $hasDashboardCount = isset($dashboard) && is_array($dashboard)
     && array_key_exists('notifikasi_belum_dibaca', $dashboard);
-$unreadNotifications = isset($unreadCount)
-    ? max(0, (int) $unreadCount)
-    : ($hasDashboardCount ? max(0, (int) $dashboard['notifikasi_belum_dibaca']) : 0);
+$hasAuthContextCount = isset($GLOBALS['auth_context'])
+    && array_key_exists('unread_notifications', $GLOBALS['auth_context']);
 
-if (!isset($unreadCount) && !$hasDashboardCount && isset($_SESSION['user']['id'])) {
-    try {
-        require_once __DIR__ . '/../../../models/Notifikasi.php';
-        $notificationModel = new Notifikasi();
-        $unreadNotifications = $notificationModel->countUnread((int) $_SESSION['user']['id']);
-    } catch (Throwable $exception) {
-        error_log('Unable to load unread notification count for header.');
+if (isset($unreadCount)) {
+    $unreadNotifications = max(0, (int) $unreadCount);
+} elseif ($hasDashboardCount) {
+    $unreadNotifications = max(0, (int) $dashboard['notifikasi_belum_dibaca']);
+} elseif ($hasAuthContextCount) {
+    $unreadNotifications = max(0, (int) $GLOBALS['auth_context']['unread_notifications']);
+} else {
+    $unreadNotifications = 0;
+
+    if (isset($_SESSION['user']['id'])) {
+        try {
+            require_once __DIR__ . '/../../../models/Notifikasi.php';
+            $notificationModel = new Notifikasi();
+            $unreadNotifications = $notificationModel->countUnread((int) $_SESSION['user']['id']);
+        } catch (Throwable $exception) {
+            error_log('Unable to load unread notification count for header.');
+        }
     }
 }
 

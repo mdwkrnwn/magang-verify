@@ -10,159 +10,238 @@ class DashboardMahasiswa
     {
         global $pdo;
 
-        $profil = $this->getProfil($userId);
-        if (!$profil) {
+        $stmt = $pdo->prepare($this->dashboardQuery());
+        $stmt->execute(['user_id' => $userId]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
             throw new RuntimeException('Profil mahasiswa tidak ditemukan.');
         }
 
-        $mahasiswaId = (int) $profil['mahasiswa_id'];
+        $profil = [
+            'user_id' => (int) $row['user_id'],
+            'nama_lengkap' => $row['nama_lengkap'],
+            'mahasiswa_id' => (int) $row['mahasiswa_id'],
+            'nim' => $row['nim'],
+            'program_studi' => $row['program_studi'],
+            'angkatan' => $row['angkatan'],
+            'email' => $row['email'],
+            'no_telepon' => $row['no_telepon'],
+            'alamat' => $row['alamat'],
+            'foto_path' => $row['foto_path'],
+            'cv_path' => $row['cv_path'],
+        ];
 
         return [
             'profil' => $profil,
-            'statistik' => $this->getStatistik($userId, $mahasiswaId),
-            'pengajuan' => $this->getPengajuanTerbaru($mahasiswaId),
-            'penempatan' => $this->getPenempatanTerbaru($mahasiswaId),
-            'progress' => $this->getProgress($mahasiswaId),
-            'aktivitas' => $this->getAktivitas($userId),
+            'statistik' => [
+                'portofolio' => (int) ($row['stat_portofolio'] ?? 0),
+                'sertifikat' => (int) ($row['stat_sertifikat'] ?? 0),
+                'pengalaman' => (int) ($row['stat_pengalaman'] ?? 0),
+                'pengajuan' => (int) ($row['stat_pengajuan'] ?? 0),
+                'logbook' => (int) ($row['stat_logbook'] ?? 0),
+            ],
+            'pengajuan' => $this->buildPengajuan($row),
+            'penempatan' => $this->buildPenempatan($row),
+            'progress' => $this->buildProgress($row),
+            'aktivitas' => $this->buildAktivitas($row['aktivitas_json'] ?? '[]'),
             'notifikasi_belum_dibaca' => $this->getUnreadNotificationCount($userId),
             'profil_progress' => $this->getProfilProgress($profil),
         ];
     }
 
-    private function getProfil(int $userId): ?array
+    /**
+     * Satu query untuk seluruh data dashboard: profil, statistik, pengajuan
+     * terbaru, penempatan terbaru, progress, dan aktivitas terakhir.
+     */
+    private function dashboardQuery(): string
     {
-        global $pdo;
-
-        $stmt = $pdo->prepare(''
-            . 'SELECT '
-            . 'u.id AS user_id, u.name AS nama_lengkap, '
-            . 'p.id AS mahasiswa_id, p.nim, p.program_studi, p.angkatan, '
-            . 'p.email, p.no_telepon, p.alamat, p.foto_path, p.cv_path '
-            . 'FROM users u '
-            . 'INNER JOIN profil_mahasiswa p ON p.user_id = u.id '
-            . 'WHERE u.id = :user_id AND u.is_active = TRUE '
-            . 'LIMIT 1'
-        );
-        $stmt->execute(['user_id' => $userId]);
-
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        return <<<'SQL'
+            WITH profil AS (
+                SELECT u.id AS user_id,
+                       u.name AS nama_lengkap,
+                       p.id AS mahasiswa_id,
+                       p.nim,
+                       p.program_studi,
+                       p.angkatan,
+                       p.email,
+                       p.no_telepon,
+                       p.alamat,
+                       p.foto_path,
+                       p.cv_path
+                FROM users u
+                INNER JOIN profil_mahasiswa p ON p.user_id = u.id
+                WHERE u.id = :user_id
+                  AND u.is_active = TRUE
+                LIMIT 1
+            ),
+            statistik AS (
+                SELECT
+                    (SELECT COUNT(*) FROM portofolios po
+                     WHERE po.mahasiswa_id = profil.mahasiswa_id) AS portofolio,
+                    (SELECT COUNT(*) FROM sertifikat s
+                     WHERE s.user_id = profil.user_id) AS sertifikat,
+                    (SELECT COUNT(*) FROM pengalaman pe
+                     WHERE pe.mahasiswa_id = profil.mahasiswa_id) AS pengalaman,
+                    (SELECT COUNT(*) FROM pendaftaran_magang pd
+                     WHERE pd.mahasiswa_id = profil.mahasiswa_id) AS pengajuan,
+                    (SELECT COUNT(*)
+                     FROM logbook_mingguan lm
+                     INNER JOIN penempatan_magang pm ON pm.id = lm.penempatan_id
+                     INNER JOIN pendaftaran_magang pd ON pd.id = pm.pendaftaran_id
+                     WHERE pd.mahasiswa_id = profil.mahasiswa_id) AS logbook
+                FROM profil
+            ),
+            pengajuan_terbaru AS (
+                SELECT pd.id, pd.status_pendaftaran, pd.tanggal_pengajuan,
+                       f.judul, f.lokasi_magang, f.sistem_kerja,
+                       m.nama_perusahaan
+                FROM pendaftaran_magang pd
+                INNER JOIN formasi_magang f ON f.id = pd.formasi_id
+                INNER JOIN mitra m ON m.id = f.mitra_id
+                CROSS JOIN profil
+                WHERE pd.mahasiswa_id = profil.mahasiswa_id
+                ORDER BY pd.tanggal_pengajuan DESC, pd.id DESC
+                LIMIT 1
+            ),
+            penempatan_terbaru AS (
+                SELECT pm.id, pm.status, pm.tanggal_mulai, pm.tanggal_selesai,
+                       f.judul, m.nama_perusahaan
+                FROM penempatan_magang pm
+                INNER JOIN pendaftaran_magang pd ON pd.id = pm.pendaftaran_id
+                INNER JOIN formasi_magang f ON f.id = pd.formasi_id
+                INNER JOIN mitra m ON m.id = f.mitra_id
+                CROSS JOIN profil
+                WHERE pd.mahasiswa_id = profil.mahasiswa_id
+                ORDER BY pm.created_at DESC, pm.id DESC
+                LIMIT 1
+            ),
+            progress AS (
+                SELECT pd.status_pendaftaran,
+                       pd.status_persetujuan_dosen,
+                       pd.status_respons_mitra,
+                       pm.status AS status_penempatan
+                FROM pendaftaran_magang pd
+                LEFT JOIN penempatan_magang pm ON pm.pendaftaran_id = pd.id
+                CROSS JOIN profil
+                WHERE pd.mahasiswa_id = profil.mahasiswa_id
+                ORDER BY pd.tanggal_pengajuan DESC, pd.id DESC
+                LIMIT 1
+            ),
+            aktivitas AS (
+                SELECT COALESCE(
+                           json_agg(
+                               json_build_object(
+                                   'id', a.id,
+                                   'aksi', a.aksi,
+                                   'deskripsi', a.deskripsi,
+                                   'modul', a.modul,
+                                   'created_at', a.created_at
+                               )
+                               ORDER BY a.created_at DESC, a.id DESC
+                           ),
+                           '[]'::json
+                       ) AS items
+                FROM (
+                    SELECT a.id, a.aksi, a.deskripsi, a.modul, a.created_at
+                    FROM aktivitas_pengguna a
+                    CROSS JOIN profil
+                    WHERE a.user_id = profil.user_id
+                      AND (a.modul IS NULL OR a.modul <> 'auth')
+                    ORDER BY a.created_at DESC, a.id DESC
+                    LIMIT 5
+                ) a
+            )
+            SELECT
+                profil.user_id,
+                profil.nama_lengkap,
+                profil.mahasiswa_id,
+                profil.nim,
+                profil.program_studi,
+                profil.angkatan,
+                profil.email,
+                profil.no_telepon,
+                profil.alamat,
+                profil.foto_path,
+                profil.cv_path,
+                statistik.portofolio AS stat_portofolio,
+                statistik.sertifikat AS stat_sertifikat,
+                statistik.pengalaman AS stat_pengalaman,
+                statistik.pengajuan AS stat_pengajuan,
+                statistik.logbook AS stat_logbook,
+                pengajuan_terbaru.id AS pengajuan_id,
+                pengajuan_terbaru.status_pendaftaran AS pengajuan_status,
+                pengajuan_terbaru.tanggal_pengajuan AS pengajuan_tanggal,
+                pengajuan_terbaru.judul AS pengajuan_judul,
+                pengajuan_terbaru.lokasi_magang AS pengajuan_lokasi,
+                pengajuan_terbaru.sistem_kerja AS pengajuan_sistem_kerja,
+                pengajuan_terbaru.nama_perusahaan AS pengajuan_perusahaan,
+                penempatan_terbaru.id AS penempatan_id,
+                penempatan_terbaru.status AS penempatan_status,
+                penempatan_terbaru.tanggal_mulai AS penempatan_tanggal_mulai,
+                penempatan_terbaru.tanggal_selesai AS penempatan_tanggal_selesai,
+                penempatan_terbaru.judul AS penempatan_judul,
+                penempatan_terbaru.nama_perusahaan AS penempatan_perusahaan,
+                progress.status_pendaftaran AS progress_status_pendaftaran,
+                progress.status_persetujuan_dosen AS progress_status_dosen,
+                progress.status_respons_mitra AS progress_status_mitra,
+                progress.status_penempatan AS progress_status_penempatan,
+                aktivitas.items AS aktivitas_json
+            FROM profil
+            CROSS JOIN statistik
+            CROSS JOIN aktivitas
+            LEFT JOIN pengajuan_terbaru ON TRUE
+            LEFT JOIN penempatan_terbaru ON TRUE
+            LEFT JOIN progress ON TRUE
+            SQL;
     }
 
-    private function getStatistik(int $userId, int $mahasiswaId): array
+    private function buildPengajuan(array $row): ?array
     {
-        global $pdo;
+        if (empty($row['pengajuan_id'])) {
+            return null;
+        }
 
-        $stmt = $pdo->prepare(''
-            . 'SELECT '
-            . '(SELECT COUNT(*) FROM portofolios WHERE mahasiswa_id = :mahasiswa_id_1) AS portofolio, '
-            . '(SELECT COUNT(*) FROM sertifikat WHERE user_id = :user_id) AS sertifikat, '
-            . '(SELECT COUNT(*) FROM pengalaman WHERE mahasiswa_id = :mahasiswa_id_2) AS pengalaman, '
-            . '(SELECT COUNT(*) FROM pendaftaran_magang WHERE mahasiswa_id = :mahasiswa_id_3) AS pengajuan, '
-            . '(SELECT COUNT(*) '
-            . ' FROM logbook_mingguan lm '
-            . ' INNER JOIN penempatan_magang pm ON pm.id = lm.penempatan_id '
-            . ' INNER JOIN pendaftaran_magang pg ON pg.id = pm.pendaftaran_id '
-            . ' WHERE pg.mahasiswa_id = :mahasiswa_id_4) AS logbook'
-        );
-        $stmt->execute([
-            'user_id' => $userId,
-            'mahasiswa_id_1' => $mahasiswaId,
-            'mahasiswa_id_2' => $mahasiswaId,
-            'mahasiswa_id_3' => $mahasiswaId,
-            'mahasiswa_id_4' => $mahasiswaId,
-        ]);
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+        $status = (string) ($row['pengajuan_status'] ?? '');
 
         return [
-            'portofolio' => (int) ($row['portofolio'] ?? 0),
-            'sertifikat' => (int) ($row['sertifikat'] ?? 0),
-            'pengalaman' => (int) ($row['pengalaman'] ?? 0),
-            'pengajuan' => (int) ($row['pengajuan'] ?? 0),
-            'logbook' => (int) ($row['logbook'] ?? 0),
+            'id' => (int) $row['pengajuan_id'],
+            'status_pendaftaran' => $status,
+            'tanggal_pengajuan' => $row['pengajuan_tanggal'],
+            'judul' => $row['pengajuan_judul'],
+            'lokasi_magang' => $row['pengajuan_lokasi'],
+            'sistem_kerja' => $row['pengajuan_sistem_kerja'],
+            'nama_perusahaan' => $row['pengajuan_perusahaan'],
+            'status_label' => $this->statusLabel($status),
+            'status_class' => $this->statusClass($status),
+            'tanggal_label' => $this->formatDate($row['pengajuan_tanggal']),
+            'slug' => (string) $row['pengajuan_id'],
         ];
     }
 
-    private function getPengajuanTerbaru(int $mahasiswaId): ?array
+    private function buildPenempatan(array $row): ?array
     {
-        global $pdo;
-
-        $stmt = $pdo->prepare(''
-            . 'SELECT '
-            . 'p.id, p.status_pendaftaran, p.tanggal_pengajuan, '
-            . 'f.judul, f.lokasi_magang, f.sistem_kerja, '
-            . 'm.nama_perusahaan '
-            . 'FROM pendaftaran_magang p '
-            . 'INNER JOIN formasi_magang f ON f.id = p.formasi_id '
-            . 'INNER JOIN mitra m ON m.id = f.mitra_id '
-            . 'WHERE p.mahasiswa_id = :mahasiswa_id '
-            . 'ORDER BY p.tanggal_pengajuan DESC, p.id DESC '
-            . 'LIMIT 1'
-        );
-        $stmt->execute(['mahasiswa_id' => $mahasiswaId]);
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row) {
+        if (empty($row['penempatan_id'])) {
             return null;
         }
 
-        $row['status_label'] = $this->statusLabel((string) $row['status_pendaftaran']);
-        $row['status_class'] = $this->statusClass((string) $row['status_pendaftaran']);
-        $row['tanggal_label'] = $this->formatDate($row['tanggal_pengajuan']);
-        $row['slug'] = (string) $row['id'];
+        $status = (string) ($row['penempatan_status'] ?? '');
 
-        return $row;
+        return [
+            'id' => (int) $row['penempatan_id'],
+            'status' => $status,
+            'tanggal_mulai' => $row['penempatan_tanggal_mulai'],
+            'tanggal_selesai' => $row['penempatan_tanggal_selesai'],
+            'judul' => $row['penempatan_judul'],
+            'nama_perusahaan' => $row['penempatan_perusahaan'],
+            'status_label' => $this->placementStatusLabel($status),
+            'tanggal_mulai_label' => $this->formatDate($row['penempatan_tanggal_mulai']),
+            'tanggal_selesai_label' => $this->formatDate($row['penempatan_tanggal_selesai']),
+        ];
     }
 
-    private function getPenempatanTerbaru(int $mahasiswaId): ?array
+    private function buildProgress(array $row): array
     {
-        global $pdo;
-
-        $stmt = $pdo->prepare(''
-            . 'SELECT '
-            . 'pm.id, pm.status, pm.tanggal_mulai, pm.tanggal_selesai, '
-            . 'f.judul, m.nama_perusahaan '
-            . 'FROM penempatan_magang pm '
-            . 'INNER JOIN pendaftaran_magang p ON p.id = pm.pendaftaran_id '
-            . 'INNER JOIN formasi_magang f ON f.id = p.formasi_id '
-            . 'INNER JOIN mitra m ON m.id = f.mitra_id '
-            . 'WHERE p.mahasiswa_id = :mahasiswa_id '
-            . 'ORDER BY pm.created_at DESC, pm.id DESC '
-            . 'LIMIT 1'
-        );
-        $stmt->execute(['mahasiswa_id' => $mahasiswaId]);
-
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$row) {
-            return null;
-        }
-
-        $row['status_label'] = $this->placementStatusLabel((string) $row['status']);
-        $row['tanggal_mulai_label'] = $this->formatDate($row['tanggal_mulai']);
-        $row['tanggal_selesai_label'] = $this->formatDate($row['tanggal_selesai']);
-
-        return $row;
-    }
-
-    private function getProgress(int $mahasiswaId): array
-    {
-        global $pdo;
-
-        $stmt = $pdo->prepare(''
-            . 'SELECT '
-            . 'p.status_pendaftaran, '
-            . 'p.status_persetujuan_dosen, '
-            . 'p.status_respons_mitra, '
-            . 'pm.status AS status_penempatan '
-            . 'FROM pendaftaran_magang p '
-            . 'LEFT JOIN penempatan_magang pm ON pm.pendaftaran_id = p.id '
-            . 'WHERE p.mahasiswa_id = :mahasiswa_id '
-            . 'ORDER BY p.tanggal_pengajuan DESC, p.id DESC '
-            . 'LIMIT 1'
-        );
-        $stmt->execute(['mahasiswa_id' => $mahasiswaId]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
         $steps = [
             ['key' => 'pengajuan', 'label' => 'Pengajuan'],
             ['key' => 'dosen', 'label' => 'Persetujuan Dosen'],
@@ -172,7 +251,7 @@ class DashboardMahasiswa
             ['key' => 'selesai', 'label' => 'Selesai'],
         ];
 
-        if (!$row) {
+        if (($row['progress_status_pendaftaran'] ?? null) === null) {
             foreach ($steps as &$step) {
                 $step['state'] = 'pending';
             }
@@ -185,10 +264,10 @@ class DashboardMahasiswa
             ];
         }
 
-        $status = (string) $row['status_pendaftaran'];
-        $dosen = (string) $row['status_persetujuan_dosen'];
-        $mitra = (string) $row['status_respons_mitra'];
-        $penempatan = (string) ($row['status_penempatan'] ?? '');
+        $status = (string) $row['progress_status_pendaftaran'];
+        $dosen = (string) ($row['progress_status_dosen'] ?? '');
+        $mitra = (string) ($row['progress_status_mitra'] ?? '');
+        $penempatan = (string) ($row['progress_status_penempatan'] ?? '');
 
         $completed = match (true) {
             $status === 'selesai' => 6,
@@ -217,29 +296,29 @@ class DashboardMahasiswa
         ];
     }
 
-    private function getAktivitas(int $userId): array
+    private function buildAktivitas(string $json): array
     {
-        global $pdo;
-
-        $stmt = $pdo->prepare(''
-            . 'SELECT id, aksi, deskripsi, modul, created_at '
-            . 'FROM aktivitas_pengguna '
-            . 'WHERE user_id = :user_id '
-            . 'AND (modul IS NULL OR modul <> \'auth\') '
-            . 'ORDER BY created_at DESC, id DESC '
-            . 'LIMIT 5'
-        );
-        $stmt->execute(['user_id' => $userId]);
+        $items = json_decode($json, true);
+        if (!is_array($items)) {
+            return [];
+        }
 
         return array_map(function (array $row): array {
-            $row['waktu_label'] = $this->relativeTime($row['created_at']);
+            $row['waktu_label'] = $this->relativeTime($row['created_at'] ?? null);
             $row['icon'] = $this->activityIcon((string) ($row['modul'] ?? ''));
             return $row;
-        }, $stmt->fetchAll(PDO::FETCH_ASSOC));
+        }, $items);
     }
 
     private function getUnreadNotificationCount(int $userId): int
     {
+        if (
+            isset($GLOBALS['auth_context'])
+            && array_key_exists('unread_notifications', $GLOBALS['auth_context'])
+        ) {
+            return max(0, (int) $GLOBALS['auth_context']['unread_notifications']);
+        }
+
         global $pdo;
 
         $stmt = $pdo->prepare('SELECT COUNT(*) FROM notifikasi WHERE user_id = :user_id AND sudah_dibaca = FALSE');

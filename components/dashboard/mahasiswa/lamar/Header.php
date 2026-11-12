@@ -1,24 +1,35 @@
 <div class="mb-5">
 
-    <a
-        href="<?= e(url(
-            '/dashboard/mahasiswa/formasi-magang/detail/'
-            . $formasi['slug']
-        )) ?>"
-        class="inline-flex items-center gap-2 mb-4
-               text-sm font-medium
-               text-slate-500
-               hover:text-blue-600
-               transition"
+   <a
+    href="<?= e(url(
+        '/dashboard/mahasiswa/formasi-magang/detail/'
+        . $formasi['slug']
+    )) ?>"
+    class="inline-flex items-center gap-2 mb-4
+           text-sm font-medium
+           text-slate-500
+           hover:text-blue-600
+           transition"
+>
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="shrink-0"
+        aria-hidden="true"
     >
+        <path d="m12 19-7-7 7-7" />
+        <path d="M19 12H5" />
+    </svg>
 
-        <?= icon('arrow-left', 'w-4 h-4 shrink-0') ?>
-
-        <span>
-            Kembali ke Detail Formasi
-        </span>
-
-    </a>
+    <span>Kembali ke Detail Formasi</span>
+</a>
 
 
     <div>

@@ -72,35 +72,59 @@ $jenisLabel = $jenisLabels[$jenisItem] ?? ucfirst($jenisItem);
 
                 <?php if (!$isOtomatis && $pengalamanId > 0): ?>
                     <div class="flex shrink-0 gap-2">
+                        <!-- Tombol Edit -->
                         <a
                             href="<?= e(url('/dashboard/mahasiswa/pengalaman/edit/' . $pengalamanId)) ?>"
-                            class="inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-gray-700 transition hover:bg-slate-50">
-                            ✏ Edit
+                            class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-gray-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600">
+
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.8"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="h-4 w-4">
+                                <path d="M12 20h9" />
+                                <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L8 18l-4 1 1-4Z" />
+                            </svg>
+
+                            Edit
                         </a>
 
+                        <!-- Tombol Hapus -->
                         <form
                             method="POST"
-                            action="<?= e(url('/dashboard/mahasiswa/pengalaman/hapus/' . $pengalamanId)) ?>"
-                            onsubmit="return confirm('Hapus pengalaman ini?')">
-                            <input type="hidden" name="_csrf_token" value="<?= e(csrfToken()) ?>">
+                            action="<?= e(url('/dashboard/mahasiswa/pengalaman/hapus/' . $pengalamanId)) ?>">
+
+                            <input
+                                type="hidden"
+                                name="_csrf_token"
+                                value="<?= e(csrfToken()) ?>">
+
                             <button
                                 type="button"
-                                class="inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-slate-50"
+                                class="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-red-600 transition hover:border-red-200 hover:bg-red-50"
                                 data-delete-pengalaman
                                 data-id="<?= e((string) $item['id']) ?>"
                                 data-nama="<?= e($item['posisi']) ?>">
+
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 24 24"
                                     fill="none"
                                     stroke="currentColor"
                                     stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
                                     class="h-4 w-4">
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        d="M6 7h12M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7m-7 0 .75 12h6.5L16 7M10 11v5m4-5v5" />
+                                    <path d="M3 6h18" />
+                                    <path d="M8 6V4h8v2" />
+                                    <path d="m19 6-1 14H6L5 6" />
+                                    <path d="M10 11v5M14 11v5" />
                                 </svg>
+
                                 Hapus
                             </button>
                         </form>

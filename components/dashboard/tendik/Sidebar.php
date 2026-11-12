@@ -37,18 +37,6 @@ $menuItems = [
         'key'   => 'verifikasi-sertifikat',
         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" />',
     ],
-    [
-        'label' => 'Penetapan Dosen Pembimbing',
-        'url'   => '/dashboard/tendik/penetapan-dosen',
-        'key'   => 'penetapan-dosen',
-        'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14a4 4 0 100-8 4 4 0 000 8Zm-7 7a7 7 0 0114 0" />',
-    ],
-    [
-        'label' => 'Logbook',
-        'url'   => '/dashboard/tendik/logbook',
-        'key'   => 'logbook',
-        'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2Zm8 0v5h4M9 13h6M9 17h6" />',
-    ],
 ];
 ?>
 

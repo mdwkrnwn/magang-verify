@@ -10,25 +10,24 @@
     <div class="divide-y divide-slate-100">
         <?php foreach (($students ?? []) as $student): ?>
             <?php
-                $studentName = (string) ($student['mahasiswa_nama'] ?? 'Mahasiswa');
-                $status = (string) ($student['status_penempatan'] ?? 'persiapan');
-                $initials = function_exists('initials') ? initials($studentName) : strtoupper(mb_substr($studentName, 0, 2));
-                $start = strtotime((string) ($student['tanggal_mulai'] ?? ''));
-                $end = strtotime((string) ($student['tanggal_selesai'] ?? ''));
-                $period = $start && $end ? date('d M Y', $start) . ' – ' . date('d M Y', $end) : '-';
-                [$badgeClass, $dotClass] = match ($status) {
-                    'berlangsung' => ['text-emerald-700 bg-emerald-50', 'bg-emerald-500'],
-                    'selesai' => ['text-violet-700 bg-violet-50', 'bg-violet-500'],
-                    'dibatalkan' => ['text-red-700 bg-red-50', 'bg-red-500'],
-                    default => ['text-amber-700 bg-amber-50', 'bg-amber-500'],
-                };
+            $studentName = (string) ($student['mahasiswa_nama'] ?? 'Mahasiswa');
+            $status = (string) ($student['status_penempatan'] ?? 'persiapan');
+            $initials = function_exists('initials') ? initials($studentName) : strtoupper(mb_substr($studentName, 0, 2));
+            $start = strtotime((string) ($student['tanggal_mulai'] ?? ''));
+            $end = strtotime((string) ($student['tanggal_selesai'] ?? ''));
+            $period = $start && $end ? date('d M Y', $start) . ' – ' . date('d M Y', $end) : '-';
+            [$badgeClass, $dotClass] = match ($status) {
+                'berlangsung' => ['text-emerald-700 bg-emerald-50', 'bg-emerald-500'],
+                'selesai' => ['text-violet-700 bg-violet-50', 'bg-violet-500'],
+                'dibatalkan' => ['text-red-700 bg-red-50', 'bg-red-500'],
+                default => ['text-amber-700 bg-amber-50', 'bg-amber-500'],
+            };
             ?>
             <article
                 data-student-row
                 data-search="<?= e($studentName . ' ' . ($student['nim'] ?? '') . ' ' . ($student['nama_perusahaan'] ?? '') . ' ' . ($student['judul'] ?? '')) ?>"
                 data-status="<?= e($status) ?>"
-                class="p-5 transition hover:bg-slate-50/70"
-            >
+                class="p-5 transition hover:bg-slate-50/70">
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div class="flex items-start gap-4 min-w-0">
                         <div class="flex items-center justify-center flex-shrink-0 w-11 h-11 font-semibold text-blue-700 bg-blue-50 rounded-xl">
@@ -47,8 +46,26 @@
                             <p class="mt-2 text-xs text-slate-400"><?= e((string) ($student['judul'] ?? '')) ?> · <?= e($period) ?></p>
                         </div>
                     </div>
-                    <div class="text-xs text-slate-500 lg:text-right">
-                        Penempatan #<?= e((string) ($student['penempatan_id'] ?? '')) ?>
+                    <div class="flex items-center justify-between gap-3 lg:flex-col lg:items-end">
+                        <span class="text-xs text-slate-500">
+                            Penempatan #<?= e((string) ($student['penempatan_id'] ?? '')) ?>
+                        </span>
+
+                        <a
+                            href="<?= e(url('/dashboard/dosen/bimbingan/detail/' . (string) $student['penempatan_id'])) ?>"
+                            class="inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold text-blue-700 transition bg-blue-50 rounded-3xl hover:bg-blue-100">
+
+                            Detail
+
+                            <svg
+                                class="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                            </svg>
+                        </a>
                     </div>
                 </div>
             </article>

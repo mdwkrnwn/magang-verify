@@ -4,22 +4,38 @@
             <h2 class="text-lg font-semibold text-gray-900">Monitoring Penempatan</h2>
             <p class="mt-1 text-sm text-gray-500">Status penempatan mahasiswa bimbingan Anda.</p>
         </div>
-        <a href="<?= e(url('/dashboard/dosen/monitoring')) ?>" class="text-sm font-medium text-blue-600 hover:text-blue-700">Lihat Semua →</a>
+        <a href="<?= e(url('/dashboard/dosen/monitoring')) ?>"
+            class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 transition hover:text-blue-700">
+            Lihat Semua
+
+            <svg xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+            </svg>
+        </a>
     </div>
 
     <div class="space-y-3">
         <?php foreach (array_slice($students ?? [], 0, 3) as $student): ?>
             <?php
-                $status = (string) ($student['status_penempatan'] ?? 'persiapan');
-                $badge = match ($status) {
-                    'berlangsung' => 'text-green-700 bg-green-50',
-                    'selesai' => 'text-violet-700 bg-violet-50',
-                    'dibatalkan' => 'text-red-700 bg-red-50',
-                    default => 'text-blue-700 bg-blue-50',
-                };
-                $start = strtotime((string) ($student['tanggal_mulai'] ?? ''));
-                $end = strtotime((string) ($student['tanggal_selesai'] ?? ''));
-                $period = $start && $end ? date('d M Y', $start) . ' – ' . date('d M Y', $end) : '-';
+            $status = (string) ($student['status_penempatan'] ?? 'persiapan');
+            $badge = match ($status) {
+                'berlangsung' => 'text-green-700 bg-green-50',
+                'selesai' => 'text-violet-700 bg-violet-50',
+                'dibatalkan' => 'text-red-700 bg-red-50',
+                default => 'text-blue-700 bg-blue-50',
+            };
+            $start = strtotime((string) ($student['tanggal_mulai'] ?? ''));
+            $end = strtotime((string) ($student['tanggal_selesai'] ?? ''));
+            $period = $start && $end ? date('d M Y', $start) . ' – ' . date('d M Y', $end) : '-';
             ?>
             <div class="p-4 border border-gray-100 rounded-xl">
                 <div class="flex items-start justify-between gap-3">

@@ -32,25 +32,31 @@ $menuItems = [
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h4M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2Zm8 0v5h4"/>',
     ],
     [
+        'label' => 'Verifikasi Laporan',
+        'url' => '/dashboard/dosen/verifikasi-laporan',
+        'key' => 'verifikasi-laporan',
+        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 14l2 2 4-4"/>',
+    ],
+    [
         'label' => 'Logbook',
         'url' => '/dashboard/dosen/logbook',
         'key' => 'logbook',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2Zm8 0v5h4M9 13h6M9 17h6"/>',
     ],
-    [
-        'label' => 'Monitoring & Penilaian',
-        'url' => '/dashboard/dosen/monitoring',
-        'key' => 'monitoring',
-        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V5a2 2 0 012-2h2a2 2 0 012 2v14M5 19v-8a2 2 0 012-2h2m6 10v-5a2 2 0 012-2h2M3 21h18"/>',
-    ],
+    // [
+    //     'label' => 'Monitoring & Penilaian',
+    //     'url' => '/dashboard/dosen/monitoring',
+    //     'key' => 'monitoring',
+    //     'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V5a2 2 0 012-2h2a2 2 0 012 2v14M5 19v-8a2 2 0 012-2h2m6 10v-5a2 2 0 012-2h2M3 21h18"/>',
+    // ],
+
 ];
 
 ?>
 
 <aside
     id="sidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-64 max-w-[85vw] -translate-x-full flex-col overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 ease-in-out lg:translate-x-0"
->
+    class="fixed inset-y-0 left-0 z-40 flex w-64 max-w-[85vw] -translate-x-full flex-col overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 ease-in-out lg:translate-x-0">
 
     <!-- Logo -->
     <div class="flex h-20 shrink-0 items-center border-b border-gray-100 px-6">
@@ -60,8 +66,7 @@ $menuItems = [
                 <img
                     src="<?= url('/assets/images/icon.png') ?>"
                     alt="VerifyMagang"
-                    class="h-12 w-12 object-contain"
-                >
+                    class="h-12 w-12 object-contain">
             </div>
 
             <div class="sidebar-logo-text min-w-0">
@@ -80,8 +85,7 @@ $menuItems = [
 
     <!-- Navigation -->
     <nav
-        class="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-4 py-6"
-    >
+        class="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-4 py-6">
 
         <p class="sidebar-section-label mb-3 whitespace-nowrap px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
             Menu Utama
@@ -100,20 +104,18 @@ $menuItems = [
                         <?= $isActive
                             ? 'bg-blue-50 font-semibold text-blue-600'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>"
-                    <?= $isActive ? 'aria-current="page"' : '' ?>
-                >
+                    <?= $isActive ? 'aria-current="page"' : '' ?>>
 
                     <svg
                         class="h-5 w-5 shrink-0"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
-                        aria-hidden="true"
-                    >
+                        aria-hidden="true">
                         <?= $menu['icon'] ?>
                     </svg>
 
-                    <span class="sidebar-label min-w-0 flex-1 whitespace-normal break-words text-sm leading-5">
+                    <span class="sidebar-label min-w-0 flex-1 whitespace-nowrap break-words text-sm leading-5">
                         <?= e($menu['label']) ?>
                     </span>
 
@@ -131,5 +133,4 @@ $menuItems = [
 <!-- Overlay -->
 <div
     id="sidebar-overlay"
-    class="fixed inset-0 z-[35] hidden bg-black/50 lg:hidden"
-></div>
+    class="fixed inset-0 z-[35] hidden bg-black/50 lg:hidden"></div>

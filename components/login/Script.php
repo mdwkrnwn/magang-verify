@@ -22,6 +22,8 @@
         const loginArrow = document.getElementById('loginArrow');
 
 
+        const forgotPassword = document.getElementById('forgotPassword');
+
         // ==========================================================
         // KONFIGURASI IDENTITAS ROLE
         // ==========================================================
@@ -138,7 +140,10 @@
 
             // Pengaturan khusus role Mitra
             const isMitra = selectedRole === 'mitra';
-
+            // Sembunyikan lupa password untuk role Mitra
+            if (forgotPassword) {
+                forgotPassword.hidden = isMitra;
+            }
             passwordSection.hidden = isMitra;
             passwordInput.required = !isMitra;
             passwordInput.disabled = isMitra;

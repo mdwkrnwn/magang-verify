@@ -34,67 +34,70 @@ $controllerMap = [
     */
 
     'DashboardController' =>
-        $controllerPath . '/dashboard/mahasiswa/DashboardController.php',
+    $controllerPath . '/dashboard/mahasiswa/DashboardController.php',
 
     'ProfilController' =>
-        $controllerPath . '/dashboard/mahasiswa/ProfilController.php',
+    $controllerPath . '/dashboard/mahasiswa/ProfilController.php',
 
     'PortofolioController' =>
-        $controllerPath . '/dashboard/mahasiswa/PortofolioController.php',
+    $controllerPath . '/dashboard/mahasiswa/PortofolioController.php',
 
     'SertifikatController' =>
-        $controllerPath . '/dashboard/mahasiswa/SertifikatController.php',
+    $controllerPath . '/dashboard/mahasiswa/SertifikatController.php',
 
     'PengalamanController' =>
-        $controllerPath . '/dashboard/mahasiswa/PengalamanController.php',
+    $controllerPath . '/dashboard/mahasiswa/PengalamanController.php',
 
     'FormasiMagangController' =>
-        $controllerPath . '/dashboard/mahasiswa/FormasiMagangController.php',
+    $controllerPath . '/dashboard/mahasiswa/FormasiMagangController.php',
 
     'PengajuanController' =>
-        $controllerPath . '/dashboard/mahasiswa/PengajuanController.php',
+    $controllerPath . '/dashboard/mahasiswa/PengajuanController.php',
 
     'LogbookController' =>
-        $controllerPath . '/dashboard/mahasiswa/LogbookController.php',
+    $controllerPath . '/dashboard/mahasiswa/LogbookController.php',
 
     'LamarController' =>
-        $controllerPath . '/dashboard/mahasiswa/LamarController.php',
+    $controllerPath . '/dashboard/mahasiswa/LamarController.php',
 
     'PengaturanController' =>
-        $controllerPath . '/dashboard/mahasiswa/PengaturanController.php',
+    $controllerPath . '/dashboard/mahasiswa/PengaturanController.php',
 
     'LaporanController' =>
-        $controllerPath . '/dashboard/mahasiswa/LaporanController.php',
+    $controllerPath . '/dashboard/mahasiswa/LaporanController.php',
 
     'MahasiswaPermintaanPembimbingController' =>
-        $controllerPath . '/dashboard/mahasiswa/PermintaanPembimbingController.php',
+    $controllerPath . '/dashboard/mahasiswa/PermintaanPembimbingController.php',
 
     /*
-    |--------------------------------------------------------------------------
-    | DASHBOARD DOSEN
-    |--------------------------------------------------------------------------
-    */
+|--------------------------------------------------------------------------
+| DASHBOARD DOSEN
+|--------------------------------------------------------------------------
+*/
 
     'DosenDashboardController' =>
-        $controllerPath . '/dashboard/dosen/DosenDashboardController.php',
+    $controllerPath . '/dashboard/dosen/DosenDashboardController.php',
 
     'MahasiswaBimbinganController' =>
-        $controllerPath . '/dashboard/dosen/MahasiswaBimbinganController.php',
+    $controllerPath . '/dashboard/dosen/MahasiswaBimbinganController.php',
+
+    'VerifikasiLaporanController' =>
+    $controllerPath . '/dashboard/dosen/VerifikasiLaporanController.php',
 
     'PengajuanMagangController' =>
-        $controllerPath . '/dashboard/dosen/PengajuanMagangController.php',
+    $controllerPath . '/dashboard/dosen/PengajuanMagangController.php',
 
     'DosenLogbookController' =>
-        $controllerPath . '/dashboard/dosen/LogbookController.php',
+    $controllerPath . '/dashboard/dosen/LogbookController.php',
 
     'DosenMonitoringController' =>
-        $controllerPath . '/dashboard/dosen/DosenMonitoringController.php',
+    $controllerPath . '/dashboard/dosen/DosenMonitoringController.php',
 
     'PenilaianController' =>
-        $controllerPath . '/dashboard/PenilaianController.php',
+    $controllerPath . '/dashboard/PenilaianController.php',
 
     'DosenPermintaanPembimbingController' =>
-        $controllerPath . '/dashboard/dosen/PermintaanPembimbingController.php',
+    $controllerPath . '/dashboard/dosen/PermintaanPembimbingController.php',
 
     /*
     |--------------------------------------------------------------------------
@@ -103,19 +106,19 @@ $controllerMap = [
     */
 
     'TendikDashboardController' =>
-        $controllerPath . '/dashboard/tendik/TendikDashboardController.php',
+    $controllerPath . '/dashboard/tendik/TendikDashboardController.php',
 
     'TendikLogbookController' =>
-        $controllerPath . '/dashboard/tendik/LogbookController.php',
+    $controllerPath . '/dashboard/tendik/LogbookController.php',
 
     'TendikUserController' =>
-        $controllerPath . '/dashboard/tendik/UserController.php',
+    $controllerPath . '/dashboard/tendik/UserController.php',
 
     'TendikVerifikasiDokumenController' =>
-        $controllerPath . '/dashboard/tendik/VerifikasiDokumenController.php',
+    $controllerPath . '/dashboard/tendik/VerifikasiDokumenController.php',
 
     'TendikPenetapanDosenController' =>
-        $controllerPath . '/dashboard/tendik/PenetapanDosenController.php',
+    $controllerPath . '/dashboard/tendik/PenetapanDosenController.php',
 
     /*
     |--------------------------------------------------------------------------
@@ -124,16 +127,16 @@ $controllerMap = [
     */
 
     'KoordinatorMagangDashboardController' =>
-        $controllerPath . '/dashboard/koordinatorMagang/KoordinatorMagangDashboardController.php',
+    $controllerPath . '/dashboard/koordinatorMagang/KoordinatorMagangDashboardController.php',
 
     'KoordinatorMagangLogbookController' =>
-        $controllerPath . '/dashboard/koordinatorMagang/LogbookController.php',
+    $controllerPath . '/dashboard/koordinatorMagang/LogbookController.php',
 
     'KoordinatorPenempatanController' =>
-        $controllerPath . '/dashboard/koordinatorMagang/PenempatanController.php',
+    $controllerPath . '/dashboard/koordinatorMagang/PenempatanController.php',
 
     'KoordinatorPenetapanDosenController' =>
-        $controllerPath . '/dashboard/koordinatorMagang/PenetapanDosenController.php',
+    $controllerPath . '/dashboard/koordinatorMagang/PenetapanDosenController.php',
 
     /*
     |--------------------------------------------------------------------------
@@ -142,16 +145,16 @@ $controllerMap = [
     */
 
     'MitraDashboardController' =>
-        $controllerPath . '/dashboard/mitra/MitraDashboardController.php',
+    $controllerPath . '/dashboard/mitra/MitraDashboardController.php',
 
     'MitraLogbookController' =>
-        $controllerPath . '/dashboard/mitra/LogbookController.php',
+    $controllerPath . '/dashboard/mitra/LogbookController.php',
 
     'MitraPengajuanController' =>
-        $controllerPath . '/dashboard/mitra/PengajuanController.php',
+    $controllerPath . '/dashboard/mitra/PengajuanController.php',
 
     'MitraFormasiController' =>
-        $controllerPath . '/dashboard/mitra/FormasiController.php',
+    $controllerPath . '/dashboard/mitra/FormasiController.php',
 
     /*
     |--------------------------------------------------------------------------
@@ -160,10 +163,10 @@ $controllerMap = [
     */
 
     'LogbookFileController' =>
-        $controllerPath . '/dashboard/LogbookFileController.php',
+    $controllerPath . '/dashboard/LogbookFileController.php',
 
     'NotifikasiController' =>
-        $controllerPath . '/dashboard/NotifikasiController.php',
+    $controllerPath . '/dashboard/NotifikasiController.php',
 ];
 
 

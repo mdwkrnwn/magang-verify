@@ -753,36 +753,55 @@ class Logbook
     {
         global $pdo;
 
-        $params = [];
+        $baseSelect =
+            'SELECT lm.id, lm.penempatan_id, lm.minggu_ke, lm.tanggal_mulai, lm.tanggal_selesai,
+                    lm.status, u.name AS mahasiswa_nama, prof.nim,
+                    m.nama_perusahaan, f.judul';
+        $baseJoins =
+            ' FROM logbook_mingguan lm
+              INNER JOIN penempatan_magang pm ON pm.id = lm.penempatan_id
+              INNER JOIN pendaftaran_magang p ON p.id = pm.pendaftaran_id
+              INNER JOIN profil_mahasiswa prof ON prof.id = p.mahasiswa_id
+              INNER JOIN users u ON u.id = prof.user_id
+              INNER JOIN formasi_magang f ON f.id = p.formasi_id
+              INNER JOIN mitra m ON m.id = f.mitra_id';
+        $order = ' ORDER BY lm.tanggal_mulai ASC, lm.minggu_ke ASC';
+
         if ($role === self::PARTNER) {
-            $condition = 'm.user_id = :user_id AND lm.status = \'menunggu_mitra\'';
-            $params['user_id'] = $userId;
+            // Mitra hanya perlu minggu yang menunggu tanda tangannya.
+            $sql = $baseSelect . ', 0 AS validasi_menunggu'
+                . $baseJoins
+                . " WHERE m.user_id = :user_id AND lm.status = 'menunggu_mitra'"
+                . $order;
+            $params = ['user_id' => $userId];
         } elseif ($role === self::LECTURER) {
-            $condition = 'pd.user_id = :user_id AND lm.status = \'menunggu_dosen\'';
-            $params['user_id'] = $userId;
+            // Dosen hanya perlu minggu yang menunggu tanda tangannya.
+            $sql = $baseSelect . ', 0 AS validasi_menunggu'
+                . $baseJoins
+                . ' INNER JOIN profil_dosen pd ON pd.id = pm.dosen_pembimbing_id'
+                . " WHERE pd.user_id = :user_id AND lm.status = 'menunggu_dosen'"
+                . $order;
+            $params = ['user_id' => $userId];
         } elseif (in_array($role, self::VALIDATORS, true)) {
-            $condition = 'lh.status_validasi = \'menunggu\'';
+            // Tendik/Koordinator membutuhkan jumlah hari yang menunggu validasi
+            // per minggu, tanpa join+GROUP BY seluruh tabel.
+            $sql = $baseSelect . ',
+                    (SELECT COUNT(*)
+                     FROM logbook_harian lh
+                     WHERE lh.logbook_id = lm.id
+                       AND lh.status_validasi = \'menunggu\') AS validasi_menunggu'
+                . $baseJoins
+                . " WHERE EXISTS (
+                        SELECT 1
+                        FROM logbook_harian lh2
+                        WHERE lh2.logbook_id = lm.id
+                          AND lh2.status_validasi = 'menunggu'
+                    )"
+                . $order;
+            $params = [];
         } else {
             throw new RuntimeException('Peran review logbook tidak didukung.');
         }
-
-        $sql =
-            'SELECT DISTINCT lm.id, lm.penempatan_id, lm.minggu_ke, lm.tanggal_mulai, lm.tanggal_selesai,
-                    lm.status, u.name AS mahasiswa_nama, prof.nim,
-                    m.nama_perusahaan, f.judul,
-                    COUNT(lh.id) FILTER (WHERE lh.status_validasi = \'menunggu\') AS validasi_menunggu
-             FROM logbook_mingguan lm
-             INNER JOIN penempatan_magang pm ON pm.id = lm.penempatan_id
-             INNER JOIN pendaftaran_magang p ON p.id = pm.pendaftaran_id
-             INNER JOIN profil_mahasiswa prof ON prof.id = p.mahasiswa_id
-             INNER JOIN users u ON u.id = prof.user_id
-             INNER JOIN formasi_magang f ON f.id = p.formasi_id
-             INNER JOIN mitra m ON m.id = f.mitra_id
-             LEFT JOIN profil_dosen pd ON pd.id = pm.dosen_pembimbing_id
-             LEFT JOIN logbook_harian lh ON lh.logbook_id = lm.id
-             WHERE ' . $condition . '
-             GROUP BY lm.id, pm.id, u.id, prof.id, m.id, f.id
-             ORDER BY lm.tanggal_mulai ASC, lm.minggu_ke ASC';
 
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);

@@ -28,27 +28,35 @@ $roleLabels = [
 
 $fotoProfil = '';
 
-try {
+$dashboardProfil = (isset($dashboard) && is_array($dashboard))
+    ? ($dashboard['profil'] ?? null)
+    : null;
 
-    require_once __DIR__ . '/../../../models/ProfilMahasiswa.php';
+if (is_array($dashboardProfil) && array_key_exists('foto_path', $dashboardProfil)) {
+    // Dashboard sudah menyediakan foto profil, tidak perlu query tambahan.
+    $fotoProfil = trim((string) ($dashboardProfil['foto_path'] ?? ''));
+} elseif ($role === 'mahasiswa') {
+    // Halaman mahasiswa non-dashboard: ambil satu kolom saja.
+    try {
+        global $pdo;
 
-    global $pdo;
+        $stmt = $pdo->prepare(
+            'SELECT foto_path
+             FROM profil_mahasiswa
+             WHERE user_id = :user_id
+             LIMIT 1'
+        );
+        $stmt->execute([
+            'user_id' => (int) ($_SESSION['user']['id'] ?? 0),
+        ]);
 
-    $profilModel = new ProfilMahasiswa($pdo);
-
-    $profil = $profilModel->getByUserId(
-        (int) ($_SESSION['user']['id'] ?? 0)
-    );
-
-    $fotoProfil = trim(
-        (string) ($profil['foto_path'] ?? '')
-    );
-} catch (Throwable $e) {
-
-    error_log(
-        'Gagal mengambil foto profil header: '
-            . $e->getMessage()
-    );
+        $fotoProfil = trim((string) ($stmt->fetchColumn() ?: ''));
+    } catch (Throwable $e) {
+        error_log(
+            'Gagal mengambil foto profil header: '
+                . $e->getMessage()
+        );
+    }
 }
 
 /*

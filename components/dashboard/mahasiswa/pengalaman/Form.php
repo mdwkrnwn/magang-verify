@@ -21,7 +21,7 @@ $deskripsi = $item['deskripsi'] ?? '';
 
     <div class="px-4 py-6 sm:px-6 lg:px-8">
 
-        <div class="mx-auto w-full max-w-4xl">
+        <div class="mx-auto w-full max-w-8xl">
 
             <!-- Header -->
             <div class="mb-5">
@@ -29,13 +29,26 @@ $deskripsi = $item['deskripsi'] ?? '';
                 <!-- Back -->
                 <a
                     href="<?= e(url('/dashboard/mahasiswa/pengalaman')) ?>"
-                    class="mb-4 inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-blue-600"
-                >
+                    class="mb-4 inline-flex items-center gap-2
+           text-sm font-medium text-slate-500
+           transition hover:text-blue-600">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="shrink-0"
+                        aria-hidden="true">
+                        <path d="m12 19-7-7 7-7" />
+                        <path d="M19 12H5" />
+                    </svg>
 
-                    <span>
-                        ← Kembali ke Pengalaman
-                    </span>
-
+                    <span>Kembali ke Pengalaman</span>
                 </a>
 
 
@@ -64,14 +77,12 @@ $deskripsi = $item['deskripsi'] ?? '';
                             class="h-5 w-5"
                             fill="none"
                             stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
+                            viewBox="0 0 24 24">
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
                                 stroke-width="2"
-                                d="M13 16h-1v-4h-1m1-4h.01M12 21a9 9 0 100-18 9 9 0 000 18z"
-                            />
+                                d="M13 16h-1v-4h-1m1-4h.01M12 21a9 9 0 100-18 9 9 0 000 18z" />
                         </svg>
 
                     </div>
@@ -99,20 +110,18 @@ $deskripsi = $item['deskripsi'] ?? '';
             <form
                 method="POST"
                 action="<?= e(
-                    url(
-                        $editing
-                            ? '/dashboard/mahasiswa/pengalaman/edit/' . ($item['id'] ?? 0)
-                            : '/dashboard/mahasiswa/pengalaman/tambah'
-                    )
-                ) ?>"
-                class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm"
-            >
+                            url(
+                                $editing
+                                    ? '/dashboard/mahasiswa/pengalaman/edit/' . ($item['id'] ?? 0)
+                                    : '/dashboard/mahasiswa/pengalaman/tambah'
+                            )
+                        ) ?>"
+                class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
 
                 <input
                     type="hidden"
                     name="_csrf_token"
-                    value="<?= e(csrfToken()) ?>"
-                >
+                    value="<?= e(csrfToken()) ?>">
 
 
                 <!-- Form Header -->
@@ -141,8 +150,7 @@ $deskripsi = $item['deskripsi'] ?? '';
 
                             <label
                                 for="jenis"
-                                class="mb-2 block text-sm font-semibold text-gray-700"
-                            >
+                                class="mb-2 block text-sm font-semibold text-gray-700">
                                 Jenis
                                 <span class="text-red-500">*</span>
                             </label>
@@ -151,41 +159,35 @@ $deskripsi = $item['deskripsi'] ?? '';
                                 id="jenis"
                                 name="jenis"
                                 required
-                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                            >
+                                class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10">
 
                                 <option
                                     value="pekerjaan"
-                                    <?= $jenis === 'pekerjaan' ? 'selected' : '' ?>
-                                >
+                                    <?= $jenis === 'pekerjaan' ? 'selected' : '' ?>>
                                     Pekerjaan
                                 </option>
 
                                 <option
                                     value="organisasi"
-                                    <?= $jenis === 'organisasi' ? 'selected' : '' ?>
-                                >
+                                    <?= $jenis === 'organisasi' ? 'selected' : '' ?>>
                                     Organisasi
                                 </option>
 
                                 <option
                                     value="freelance"
-                                    <?= $jenis === 'freelance' ? 'selected' : '' ?>
-                                >
+                                    <?= $jenis === 'freelance' ? 'selected' : '' ?>>
                                     Freelance
                                 </option>
 
                                 <option
                                     value="proyek"
-                                    <?= $jenis === 'proyek' ? 'selected' : '' ?>
-                                >
+                                    <?= $jenis === 'proyek' ? 'selected' : '' ?>>
                                     Proyek
                                 </option>
 
                                 <option
                                     value="lainnya"
-                                    <?= $jenis === 'lainnya' ? 'selected' : '' ?>
-                                >
+                                    <?= $jenis === 'lainnya' ? 'selected' : '' ?>>
                                     Lainnya
                                 </option>
 
@@ -199,8 +201,7 @@ $deskripsi = $item['deskripsi'] ?? '';
 
                             <label
                                 for="posisi"
-                                class="mb-2 block text-sm font-semibold text-gray-700"
-                            >
+                                class="mb-2 block text-sm font-semibold text-gray-700">
                                 Posisi / Peran
                                 <span class="text-red-500">*</span>
                             </label>
@@ -213,8 +214,7 @@ $deskripsi = $item['deskripsi'] ?? '';
                                 required
                                 value="<?= e($posisi) ?>"
                                 placeholder="Contoh: Frontend Developer"
-                                class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                            >
+                                class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10">
 
                             <p class="mt-1.5 text-xs text-gray-400">
                                 Posisi atau peran yang kamu jalankan.
@@ -230,8 +230,7 @@ $deskripsi = $item['deskripsi'] ?? '';
 
                         <label
                             for="instansi"
-                            class="mb-2 block text-sm font-semibold text-gray-700"
-                        >
+                            class="mb-2 block text-sm font-semibold text-gray-700">
                             Instansi / Perusahaan
                             <span class="text-red-500">*</span>
                         </label>
@@ -244,8 +243,7 @@ $deskripsi = $item['deskripsi'] ?? '';
                             required
                             value="<?= e($instansi) ?>"
                             placeholder="Contoh: Himpunan Mahasiswa Teknologi Informasi"
-                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                        >
+                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10">
 
                     </div>
 
@@ -255,8 +253,7 @@ $deskripsi = $item['deskripsi'] ?? '';
 
                         <label
                             for="lokasi"
-                            class="mb-2 block text-sm font-semibold text-gray-700"
-                        >
+                            class="mb-2 block text-sm font-semibold text-gray-700">
                             Lokasi
                             <span class="font-normal text-gray-400">
                                 (Opsional)
@@ -270,8 +267,7 @@ $deskripsi = $item['deskripsi'] ?? '';
                             maxlength="200"
                             value="<?= e($lokasi) ?>"
                             placeholder="Contoh: Malang, Jawa Timur"
-                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                        >
+                            class="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10">
 
                     </div>
 
@@ -298,8 +294,7 @@ $deskripsi = $item['deskripsi'] ?? '';
 
                                 <label
                                     for="tanggal_mulai"
-                                    class="mb-2 block text-sm font-medium text-gray-600"
-                                >
+                                    class="mb-2 block text-sm font-medium text-gray-600">
                                     Tanggal Mulai
                                 </label>
 
@@ -308,8 +303,7 @@ $deskripsi = $item['deskripsi'] ?? '';
                                     type="date"
                                     name="tanggal_mulai"
                                     value="<?= e($tanggalMulai) ?>"
-                                    class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                                >
+                                    class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10">
 
                             </div>
 
@@ -318,8 +312,7 @@ $deskripsi = $item['deskripsi'] ?? '';
 
                                 <label
                                     for="tanggal_selesai"
-                                    class="mb-2 block text-sm font-medium text-gray-600"
-                                >
+                                    class="mb-2 block text-sm font-medium text-gray-600">
                                     Tanggal Selesai
                                 </label>
 
@@ -328,8 +321,7 @@ $deskripsi = $item['deskripsi'] ?? '';
                                     type="date"
                                     name="tanggal_selesai"
                                     value="<?= e($tanggalSelesai) ?>"
-                                    class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                                >
+                                    class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10">
 
                             </div>
 
@@ -343,8 +335,7 @@ $deskripsi = $item['deskripsi'] ?? '';
 
                         <label
                             for="deskripsi"
-                            class="mb-2 block text-sm font-semibold text-gray-700"
-                        >
+                            class="mb-2 block text-sm font-semibold text-gray-700">
                             Deskripsi
                             <span class="font-normal text-gray-400">
                                 (Opsional)
@@ -360,8 +351,7 @@ $deskripsi = $item['deskripsi'] ?? '';
                             name="deskripsi"
                             rows="6"
                             placeholder="Contoh: Mengembangkan website internal organisasi menggunakan Laravel dan PostgreSQL..."
-                            class="w-full resize-y rounded-xl border border-gray-200 px-4 py-3 text-sm leading-6 text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"
-                        ><?= e($deskripsi) ?></textarea>
+                            class="w-full resize-y rounded-xl border border-gray-200 px-4 py-3 text-sm leading-6 text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"><?= e($deskripsi) ?></textarea>
 
                     </div>
 
@@ -381,15 +371,13 @@ $deskripsi = $item['deskripsi'] ?? '';
 
                         <a
                             href="<?= e(url('/dashboard/mahasiswa/pengalaman')) ?>"
-                            class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-                        >
+                            class="inline-flex items-center justify-center rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50">
                             Batal
                         </a>
 
                         <button
                             type="submit"
-                            class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20"
-                        >
+                            class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20">
                             <?= $editing ? 'Simpan Perubahan' : 'Simpan Pengalaman' ?>
                         </button>
 

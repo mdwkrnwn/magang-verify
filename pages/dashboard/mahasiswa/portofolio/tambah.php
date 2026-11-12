@@ -65,7 +65,7 @@ $demo = $_POST['demo']
 
     <main class="ml-0 lg:ml-64 pt-20 min-h-screen">
 
-        <div class="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
+        <div class="p-4 sm:p-6 lg:p-8 max-w-8xl mx-auto">
 
             <div class="mb-6">
 

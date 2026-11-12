@@ -5,8 +5,12 @@ $active = $active ?? '';
 
 $navD = fn($k) =>
 $active === $k
-    ? 'relative h-full flex items-center text-sm font-semibold text-blue-600 whitespace-nowrap'
-    : 'h-full flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition whitespace-nowrap';
+    ? 'relative inline-flex items-center text-sm font-semibold text-blue-600 whitespace-nowrap'
+    : 'relative inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 transition whitespace-nowrap';
+
+$navUnderline = '
+    <span class="absolute left-0 right-0 -bottom-2 h-0.5 rounded-full bg-blue-500"></span>
+';
 
 
 $navM = fn($k) =>
@@ -14,9 +18,6 @@ $active === $k
     ? 'block py-3 text-sm font-semibold text-blue-600'
     : 'block py-3 text-sm font-medium text-gray-700 hover:text-blue-600';
 
-
-$navUnderline =
-    '<span class="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500"></span>';
 
 
 /*
@@ -106,12 +107,15 @@ if (!empty($nameParts)) {
                 <a
                     href="<?= $href ?>"
                     class="<?= $navD($key) ?>">
+
                     <?= $label ?>
 
                     <?= $active === $key ? $navUnderline : '' ?>
+
                 </a>
 
             <?php endforeach; ?>
+
 
 
             <?php if (!$isLoggedIn): ?>

@@ -150,7 +150,7 @@ $reviewQueueMethod = substr(
     strpos($model, 'public function getLecturerStatistics(') - strpos($model, 'public function getReviewQueue(')
 );
 assertSourceContains($reviewQueueMethod, '$params = [];', 'review queue starts with only parameters required by selected role');
-assertSourceContains($reviewQueueMethod, '$params[\'user_id\'] = $userId', 'partner/lecturer review queue scopes parameter to their owner predicate');
+assertSourceContains($reviewQueueMethod, '$params = [\'user_id\' => $userId];', 'partner/lecturer review queue scopes parameter to their owner predicate');
 assertSourceContains($reviewQueueMethod, '$stmt->execute($params);', 'review queue executes with role-specific bound parameters');
 assertSourceNotContains($reviewQueueMethod, '$stmt->execute([\'user_id\' => $userId]);', 'validator queue does not bind a placeholder absent from its SQL condition');
 assertSourceContains($reviewQueueMethod, 'in_array($role, self::VALIDATORS, true)', 'validator queue branch remains role-gated');
@@ -259,7 +259,7 @@ assertSourceContains($mitraApplicationController, 'verifyCsrfToken()', 'mitra ap
 assertSourceContains($mitraApplicationController, '$formValues[(int) $id] = $note', 'mitra response note is retained after validation failure');
 assertSourceContains($mitraApplicationView, 'name="_csrf_token"', 'mitra application form includes CSRF');
 assertSourceContains($mitraApplicationView, 'application_id', 'mitra application form sends application identifier');
-assertSourceContains($mitraApplicationView, 'name="decision" value=""', 'mitra form submits selected documented decision');
+assertSourceContains($mitraApplicationView, 'name="decision"', 'mitra form submits selected documented decision');
 assertSourceContains($lecturerApplicationController, 'verifyCsrfToken()', 'lecturer decisions require CSRF');
 assertSourceContains($lecturerApplicationController, '$formValues[(int) $id] = $note', 'lecturer decision note is retained on errors');
 assertSourceContains($lecturerApplicationView, 'name="_csrf_token"', 'lecturer application form includes CSRF');

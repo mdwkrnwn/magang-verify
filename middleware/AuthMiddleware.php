@@ -4,6 +4,15 @@ require_once __DIR__ . '/../config/database.php';
 
 class AuthMiddleware
 {
+    /**
+     * Cache konteks auth per request agar pemanggilan middleware berulang
+     * (index.php + controller) tidak menambah round-trip ke database.
+     * Disimpan per user agar aman bila proses yang sama melayani user lain.
+     *
+     * @var array<int, array{0: ?array, 1: array<int, string>, 2: int}>
+     */
+    private static array $contextCache = [];
+
     public static function handle(string $requiredRole): void
     {
         self::handleAny([$requiredRole]);
@@ -26,9 +35,9 @@ class AuthMiddleware
             exit;
         }
 
-        global $pdo;
+        $userId = (int) $_SESSION['user']['id'];
 
-        [$user, $roles] = self::loadUserWithRoles((int) $_SESSION['user']['id']);
+        [$user, $roles, $unreadNotifications] = self::loadAuthContext($userId);
 
         // Jika pengguna sudah tidak ditemukan atau akun tidak aktif
         if (
@@ -83,40 +92,99 @@ class AuthMiddleware
         if (!in_array($_SESSION['user']['role'], $requiredRoles, true)) {
             $_SESSION['user']['role'] = $matchedRole;
         }
+
+        // Bagikan konteks auth ke komponen (header/notifikasi) tanpa query ulang.
+        $GLOBALS['auth_context'] = [
+            'user_id' => $userId,
+            'name' => (string) ($user['name'] ?? ''),
+            'roles' => $roles,
+            'unread_notifications' => $unreadNotifications,
+        ];
     }
 
-    private static function loadUserWithRoles(int $userId): array
+    /**
+     * Memuat user, seluruh role, dan jumlah notifikasi belum dibaca dalam
+     * satu query. Fallback ke query user saja bila tabel user_roles belum ada.
+     */
+    private static function loadAuthContext(int $userId): array
     {
-        global $pdo;
-        $stmt = $pdo->prepare(
-            'SELECT name, role, is_active
-             FROM users
-             WHERE id = :id
-             LIMIT 1'
-        );
-        $stmt->execute(['id' => $userId]);
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-        if (!$user) {
-            return [null, []];
+        if (isset(self::$contextCache[$userId])) {
+            return self::$contextCache[$userId];
         }
-        $roles = [$user['role'] ?? null];
+
+        global $pdo;
+
         try {
-            $statement = $pdo->prepare('SELECT role FROM user_roles WHERE user_id = :id');
-            $statement->execute(['id' => $userId]);
-            foreach ($statement->fetchAll(PDO::FETCH_COLUMN) as $role) {
-                if (is_string($role) && $role !== '') {
-                    $roles[] = $role;
-                }
-            }
+            $stmt = $pdo->prepare(
+                'SELECT u.name, u.role, u.is_active,
+                        COALESCE(string_agg(DISTINCT ur.role, \',\'), \'\') AS roles,
+                        (SELECT COUNT(*) FROM notifikasi n
+                         WHERE n.user_id = u.id AND n.sudah_dibaca = FALSE) AS unread_notifications
+                 FROM users u
+                 LEFT JOIN user_roles ur ON ur.user_id = u.id
+                 WHERE u.id = :id
+                 GROUP BY u.id, u.name, u.role, u.is_active
+                 LIMIT 1'
+            );
+            $stmt->execute(['id' => $userId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $exception) {
-            if (!User::isMissingUserRolesTable($exception)) {
+            if (!self::isMissingUserRolesTable($exception)) {
                 throw $exception;
             }
+
+            // Legacy: tabel user_roles belum tersedia.
+            $stmt = $pdo->prepare(
+                'SELECT name, role, is_active
+                 FROM users
+                 WHERE id = :id
+                 LIMIT 1'
+            );
+            $stmt->execute(['id' => $userId]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) {
+                $row['roles'] = '';
+                $row['unread_notifications'] = 0;
+            }
         }
-        $primaryRole = (string) ($user['role'] ?? '');
-        if ($primaryRole !== '' && !in_array($primaryRole, $roles, true)) {
-            array_unshift($roles, $primaryRole);
+
+        if (!$row) {
+            return self::$contextCache[$userId] = [null, [], 0];
         }
-        return [$user, $roles === [] ? [$primaryRole] : $roles];
+
+        $roles = [];
+        $primaryRole = (string) ($row['role'] ?? '');
+        if ($primaryRole !== '') {
+            $roles[] = $primaryRole;
+        }
+        foreach (explode(',', (string) ($row['roles'] ?? '')) as $role) {
+            $role = trim($role);
+            if ($role !== '' && !in_array($role, $roles, true)) {
+                $roles[] = $role;
+            }
+        }
+        if ($roles === [] && $primaryRole !== '') {
+            $roles = [$primaryRole];
+        }
+
+        return self::$contextCache[$userId] = [
+            $row,
+            $roles,
+            max(0, (int) ($row['unread_notifications'] ?? 0)),
+        ];
+    }
+
+    private static function isMissingUserRolesTable(PDOException $exception): bool
+    {
+        // Preserve legacy single-role login when migration 030 has not been installed.
+        // SQLSTATE 42P01 is PostgreSQL undefined_table.
+        $code = (string) $exception->getCode();
+        $message = strtolower($exception->getMessage());
+        if (in_array($code, ['42P01', 'HY000'], true)) {
+            return true;
+        }
+        return str_contains($message, 'user_roles')
+            || str_contains($message, 'does not exist')
+            || str_contains($message, 'no such table');
     }
 }

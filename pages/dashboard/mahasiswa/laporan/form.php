@@ -39,7 +39,7 @@ foreach ($templates as $template) {
     ========================================================== -->
     <main class="lg:ml-64 pt-20 min-h-screen">
 
-        <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
 
             <!-- =================================================
@@ -47,14 +47,26 @@ foreach ($templates as $template) {
             ================================================== -->
             <a
                 href="<?= e(
-                    url(
-                        '/dashboard/mahasiswa/laporan?penempatan='
-                        . (int) $placement['id']
-                    )
-                ) ?>"
-                class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 transition hover:text-blue-700"
-            >
-                <span>←</span>
+                            url(
+                                '/dashboard/mahasiswa/laporan?penempatan='
+                                    . (int) $placement['id']
+                            )
+                        ) ?>"
+                class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 transition hover:text-blue-700">
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true">
+                    <path d="m12 19-7-7 7-7" />
+                    <path d="M19 12H5" />
+                </svg>
                 Kembali
             </a>
 
@@ -100,8 +112,7 @@ foreach ($templates as $template) {
                     action="<?= e($formAction) ?>"
                     method="POST"
                     enctype="multipart/form-data"
-                    class="space-y-6"
-                >
+                    class="space-y-6">
 
                     <!-- =================================================
                          CSRF
@@ -109,8 +120,7 @@ foreach ($templates as $template) {
                     <input
                         type="hidden"
                         name="_csrf_token"
-                        value="<?= e(csrfToken()) ?>"
-                    >
+                        value="<?= e(csrfToken()) ?>">
 
 
                     <!-- =================================================
@@ -120,8 +130,7 @@ foreach ($templates as $template) {
 
                         <label
                             for="jenis-laporan"
-                            class="mb-2 block text-sm font-semibold text-gray-700"
-                        >
+                            class="mb-2 block text-sm font-semibold text-gray-700">
                             Jenis Laporan
                         </label>
 
@@ -129,15 +138,13 @@ foreach ($templates as $template) {
                             name="jenis_laporan"
                             id="jenis-laporan"
                             class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                            required
-                        >
+                            required>
 
                             <option
                                 value="laporan_mingguan"
                                 <?= $form['jenis_laporan'] === 'laporan_mingguan'
                                     ? 'selected'
-                                    : '' ?>
-                            >
+                                    : '' ?>>
                                 Laporan Mingguan
                             </option>
 
@@ -146,11 +153,10 @@ foreach ($templates as $template) {
                                 <?= $form['jenis_laporan'] === 'laporan_akhir'
                                     ? 'selected'
                                     : '' ?>
-                                <?= !$finalOpen ? 'disabled' : '' ?>
-                            >
+                                <?= !$finalOpen ? 'disabled' : '' ?>>
                                 Laporan Akhir<?= !$finalOpen
-                                    ? ' — belum terbuka'
-                                    : '' ?>
+                                                    ? ' — belum terbuka'
+                                                    : '' ?>
                             </option>
 
                         </select>
@@ -165,8 +171,7 @@ foreach ($templates as $template) {
 
                         <label
                             for="minggu-ke"
-                            class="mb-2 block text-sm font-semibold text-gray-700"
-                        >
+                            class="mb-2 block text-sm font-semibold text-gray-700">
                             Minggu Ke-
                         </label>
 
@@ -177,8 +182,7 @@ foreach ($templates as $template) {
                                 id="minggu-ke"
                                 name="minggu_ke"
                                 class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                required
-                            >
+                                required>
 
                                 <?php foreach ($logbookWeeks as $week): ?>
 
@@ -187,8 +191,7 @@ foreach ($templates as $template) {
                                         <?= (int) $form['minggu_ke']
                                             === (int) $week['minggu_ke']
                                             ? 'selected'
-                                            : '' ?>
-                                    >
+                                            : '' ?>>
                                         Minggu ke-<?= (int) $week['minggu_ke'] ?>
                                         —
                                         <?= e($week['tanggal_mulai']) ?>
@@ -234,8 +237,7 @@ foreach ($templates as $template) {
 
                         <label
                             for="judul"
-                            class="mb-2 block text-sm font-semibold text-gray-700"
-                        >
+                            class="mb-2 block text-sm font-semibold text-gray-700">
                             Judul Laporan
                         </label>
 
@@ -247,8 +249,7 @@ foreach ($templates as $template) {
                             value="<?= e($form['judul']) ?>"
                             placeholder="Masukkan judul laporan"
                             class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                            required
-                        >
+                            required>
 
                     </div>
 
@@ -270,13 +271,11 @@ foreach ($templates as $template) {
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
-                                    stroke-width="2"
-                                >
+                                    stroke-width="2">
                                     <path
                                         stroke-linecap="round"
                                         stroke-linejoin="round"
-                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                    />
+                                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
 
                             </div>
@@ -361,8 +360,7 @@ foreach ($templates as $template) {
 
                         <button
                             type="submit"
-                            class="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                        >
+                            class="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                             Buat Draft Laporan
                         </button>
 
@@ -381,7 +379,6 @@ foreach ($templates as $template) {
          JAVASCRIPT
     ========================================================== -->
     <script>
-
         const type = document.getElementById('jenis-laporan');
         const weekField = document.getElementById('minggu-field');
         const weekInput = document.getElementById('minggu-ke');
@@ -432,7 +429,7 @@ foreach ($templates as $template) {
 
             weekInput.addEventListener(
                 'change',
-                function () {
+                function() {
 
                     if (
                         !type ||
@@ -463,7 +460,6 @@ foreach ($templates as $template) {
          * Jalankan saat halaman pertama kali dibuka.
          */
         syncWeekField();
-
     </script>
 
 </body>

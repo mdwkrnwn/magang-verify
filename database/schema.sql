@@ -1872,3 +1872,22 @@ VALUES
     ('028_create_view_rekap_magang_koordinator.sql'),
     ('029_create_permintaan_pembimbing.sql')
 ON CONFLICT (migration) DO NOTHING;
+
+-- ============================================================
+-- MIGRATION 033: OPTIMASI QUERY DASHBOARD
+-- ============================================================
+CREATE INDEX IF NOT EXISTS idx_pendaftaran_mahasiswa_recent
+    ON public.pendaftaran_magang(mahasiswa_id, tanggal_pengajuan DESC, id DESC);
+CREATE INDEX IF NOT EXISTS idx_pendaftaran_formasi_status
+    ON public.pendaftaran_magang(formasi_id, status_pendaftaran);
+CREATE INDEX IF NOT EXISTS idx_pendaftaran_recent
+    ON public.pendaftaran_magang(tanggal_pengajuan DESC, id DESC);
+CREATE INDEX IF NOT EXISTS idx_penempatan_dosen_status
+    ON public.penempatan_magang(dosen_pembimbing_id, status);
+CREATE INDEX IF NOT EXISTS idx_logbook_penempatan_status
+    ON public.logbook_mingguan(penempatan_id, status);
+CREATE INDEX IF NOT EXISTS idx_logbook_harian_logbook_validasi
+    ON public.logbook_harian(logbook_id, status_validasi);
+INSERT INTO public.schema_migrations (migration)
+VALUES ('033_optimize_dashboard_queries.sql')
+ON CONFLICT (migration) DO NOTHING;

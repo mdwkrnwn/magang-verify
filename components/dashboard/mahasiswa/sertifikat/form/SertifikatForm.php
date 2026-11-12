@@ -435,7 +435,7 @@ $slug =
 
         <button
             type="submit"
-            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white transition bg-gray-900 rounded-lg hover:bg-gray-800">
+            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 text-sm font-medium text-white transition bg-blue-600 rounded-lg hover:bg-gray-800">
 
             <svg
                 class="w-4 h-4"

@@ -1,4 +1,3 @@
-
 <?php
 
 require_once __DIR__ . '/app.php';
@@ -9,6 +8,13 @@ $port = getenv('DB_PORT') ?: '5432';
 $dbname = getenv('DB_NAME') ?: 'magang_verify';
 $username = getenv('DB_USER') ?: 'magangverify';
 $password = getenv('DB_PASSWORD') ?: 'magangverify';
+
+// Opsional: aktifkan lewat DB_PERSISTENT=true untuk mengurangi biaya
+// handshake TLS/autentikasi ke database remote pada request berulang.
+$persistent = filter_var(
+    getenv('DB_PERSISTENT') ?: 'false',
+    FILTER_VALIDATE_BOOLEAN
+);
 
 $startedAt = microtime(true);
 
@@ -21,6 +27,7 @@ try {
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false,
+            PDO::ATTR_PERSISTENT => $persistent,
         ]
     );
 
