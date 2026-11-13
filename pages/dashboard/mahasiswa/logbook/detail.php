@@ -14,10 +14,29 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Sidebar.php'; ?>
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Header.php'; ?>
     <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
-        <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-6xl">
+        <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-8xl">
             <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                    <a href="<?= e(url('/dashboard/mahasiswa/logbook')) ?>" class="text-sm font-medium text-blue-600 hover:text-blue-700">← Kembali ke Logbook</a>
+                    <a
+                        href="<?= e(url('/dashboard/mahasiswa/logbook')) ?>"
+                        class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            class="h-4 w-4 shrink-0"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            aria-hidden="true">
+                            <path d="m12 19-7-7 7-7" />
+                            <path d="M19 12H5" />
+                        </svg>
+
+                        <span>Kembali ke Logbook</span>
+                    </a>
                     <h1 class="mt-3 text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">Minggu <?= e((string) $week['minggu_ke']) ?></h1>
                     <p class="mt-1 text-sm text-gray-500"><?= e(date('d M Y', strtotime($week['tanggal_mulai']))) ?> – <?= e(date('d M Y', strtotime($week['tanggal_selesai']))) ?> · <?= e($week['nama_perusahaan']) ?></p>
                 </div>
@@ -97,7 +116,8 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
                                     <td class="px-4 py-4 text-gray-700">
                                         <div class="max-w-md whitespace-pre-line"><?= e($day['kegiatan']) ?></div><?php if ($day['status_kehadiran'] === 'tidak_hadir'): ?><div class="mt-1 text-xs text-amber-700">Alasan: <?= e($day['alasan_ketidakhadiran']) ?></div><?php endif; ?>
                                     </td>
-                                    <td class="px-4 py-4"><?php $daily = $day; include __DIR__ . '/../../../../components/dashboard/mahasiswa/logbook/DailyValidationStatus.php'; ?></td>
+                                    <td class="px-4 py-4"><?php $daily = $day;
+                                                            include __DIR__ . '/../../../../components/dashboard/mahasiswa/logbook/DailyValidationStatus.php'; ?></td>
                                     <td class="px-4 py-4 text-right"><?php if (!$locked): ?><a href="<?= e(url('/dashboard/mahasiswa/logbook/hari/edit/' . (int) $day['id'])) ?>" class="text-xs font-semibold text-blue-600 hover:text-blue-700">Edit</a><?php endif; ?></td>
                                 </tr>
                             <?php endforeach; ?>

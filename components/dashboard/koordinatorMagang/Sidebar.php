@@ -36,6 +36,24 @@ $menuItems = [
         'key' => 'logbook',
         'icon' => 'M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2Zm8 0v5h4M9 13h6M9 17h6',
     ],
+    [
+        'label' => 'Data Mitra',
+        'url' => url('/dashboard/koordinator-magang/mitra'),
+        'key' => 'mitra',
+        'icon' => 'M16 11a4 4 0 10-8 0 4 4 0 008 0ZM3 21a7 7 0 0114 0M19 8a4 4 0 010 8m2 5a7 7 0 00-4-5',
+    ],
+    [
+        'label' => 'Lowongan Magang',
+        'url' => url('/dashboard/koordinator-magang/lowongan'),
+        'key' => 'lowongan',
+        'icon' => 'M3 7h18v14H3zM8 7V4h8v3M3 12h18M10 12v2h4v-2',
+    ],
+    [
+        'label' => 'Generate Login Mitra',
+        'url' => url('/dashboard/koordinator-magang/generate-login'),
+        'key' => 'generate-login',
+        'icon' => 'M12 15v2m-6 4h12a2 2 0 002-2v-7a2 2 0 00-2-2H6a2 2 0 00-2 2v7a2 2 0 002 2Zm2-9V7a4 4 0 118 0v3',
+    ],
 ];
 ?>
 

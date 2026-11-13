@@ -287,18 +287,12 @@ foreach ($templates as $template) {
                                 <h2 class="text-sm font-semibold text-gray-800">
                                     Template Laporan
                                 </h2>
-
                                 <div class="mt-2 space-y-2 text-sm text-gray-600">
-
-
                                     <!-- Template Mingguan -->
                                     <div>
-
                                         <span class="font-medium text-gray-700">
                                             Template mingguan:
                                         </span>
-
-
                                         <?php if ($weeklyTemplate): ?>
 
                                             <span>
@@ -308,24 +302,18 @@ foreach ($templates as $template) {
                                             </span>
 
                                         <?php else: ?>
-
                                             <span class="text-gray-400">
                                                 Belum tersedia
                                             </span>
-
                                         <?php endif; ?>
-
                                     </div>
 
 
                                     <!-- Template Akhir -->
                                     <div>
-
                                         <span class="font-medium text-gray-700">
                                             Template akhir:
                                         </span>
-
-
                                         <?php if ($finalTemplate): ?>
 
                                             <span>
@@ -333,25 +321,16 @@ foreach ($templates as $template) {
                                                     $finalTemplate['nama_template']
                                                 ) ?>
                                             </span>
-
                                         <?php else: ?>
-
                                             <span class="text-gray-400">
                                                 Belum tersedia
                                             </span>
-
                                         <?php endif; ?>
-
                                     </div>
-
                                 </div>
-
                             </div>
-
                         </div>
-
                     </div>
-
 
                     <!-- =================================================
                          SUBMIT
