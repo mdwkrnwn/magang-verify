@@ -61,7 +61,7 @@ $controllerMap = [
     'LamarController' =>
     $controllerPath . '/dashboard/mahasiswa/LamarController.php',
 
-    'PengaturanController' =>
+    'MahasiswaPengaturanController' =>
     $controllerPath . '/dashboard/mahasiswa/PengaturanController.php',
 
     'LaporanController' =>
@@ -100,6 +100,9 @@ $controllerMap = [
     'DosenPermintaanPembimbingController' =>
     $controllerPath . '/dashboard/dosen/PermintaanPembimbingController.php',
 
+    'DosenPengaturanController' =>
+    $controllerPath . '/dashboard/dosen/PengaturanController.php',
+
     /*
     |--------------------------------------------------------------------------
     | DASHBOARD TENDIK
@@ -122,6 +125,9 @@ $controllerMap = [
 
     'TendikPenetapanDosenController' =>
     $controllerPath . '/dashboard/tendik/PenetapanDosenController.php',
+
+    'TendikPengaturanController' =>
+    $controllerPath . '/dashboard/tendik/PengaturanController.php',
 
     /*
     |--------------------------------------------------------------------------
@@ -146,6 +152,8 @@ $controllerMap = [
 
     'KoordinatorLowonganController' =>
     $controllerPath . '/dashboard/koordinatorMagang/KoordinatorLowonganController.php',
+    'KoordinatorMagangPengaturanController' =>
+    $controllerPath . '/dashboard/koordinatorMagang/PengaturanController.php',
 
     /*
     |--------------------------------------------------------------------------
@@ -170,6 +178,15 @@ $controllerMap = [
     | SHARED CONTROLLERS
     |--------------------------------------------------------------------------
     */
+
+
+    /**
+     * PENGATURAN BASE CONTROLLER
+     */
+
+    'PengaturanBaseController' =>
+    $controllerPath . '/dashboard/shared/PengaturanBaseController.php',
+
 
     'LogbookFileController' =>
     $controllerPath . '/dashboard/LogbookFileController.php',

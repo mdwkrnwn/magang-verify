@@ -298,9 +298,9 @@ if (!empty($bagianNama)) {
 
                         <!-- Pengaturan -->
                         <?php if ($role === 'koordinator_magang'): ?>
-                        <a
-                            href="<?= e(url('/dashboard/koordinator/pengaturan')) ?>"
-                            class="flex items-center gap-3
+                            <a
+                                href="<?= e(url('/dashboard/koordinator-magang/pengaturan')) ?>"
+                                class="flex items-center gap-3
                                    px-3 py-2.5
                                    rounded-lg
                                    text-sm text-gray-700
@@ -308,29 +308,29 @@ if (!empty($bagianNama)) {
                                    hover:text-blue-600
                                    transition">
 
-                            <svg
-                                class="w-5 h-5 shrink-0"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24">
+                                <svg
+                                    class="w-5 h-5 shrink-0"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24">
 
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.8"
-                                    d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
 
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.8"
-                                    d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.8 1.8-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.04 1.56V20H11v-.1a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.8-1.8.06-.06A1.7 1.7 0 0 0 6.62 15a1.7 1.7 0 0 0-1.56-1.04H5V11h.06A1.7 1.7 0 0 0 6.62 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.8-1.8.06.06A1.7 1.7 0 0 0 9.1 6.46 1.7 1.7 0 0 0 11 5.1V5h3v.1a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.8 1.8-.06.06A1.7 1.7 0 0 0 18.38 10a1.7 1.7 0 0 0 1.56 1.04H20v3h-.06A1.7 1.7 0 0 0 19.4 15Z" />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.8 1.8-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.04 1.56V20H11v-.1a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.8-1.8.06-.06A1.7 1.7 0 0 0 6.62 15a1.7 1.7 0 0 0-1.56-1.04H5V11h.06A1.7 1.7 0 0 0 6.62 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.8-1.8.06.06A1.7 1.7 0 0 0 9.1 6.46 1.7 1.7 0 0 0 11 5.1V5h3v.1a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.8 1.8-.06.06A1.7 1.7 0 0 0 18.38 10a1.7 1.7 0 0 0 1.56 1.04H20v3h-.06A1.7 1.7 0 0 0 19.4 15Z" />
 
-                            </svg>
+                                </svg>
 
-                            <span>Pengaturan</span>
+                                <span>Pengaturan</span>
 
-                        </a>
+                            </a>
                         <?php endif; ?>
 
 

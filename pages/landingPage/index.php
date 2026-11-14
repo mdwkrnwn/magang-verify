@@ -31,5 +31,4 @@ $active = "beranda";
     <?php include __DIR__ . '/../../components/landingPage/Script.php'; ?>
 
 </body>
-
 </html>

@@ -14,8 +14,7 @@ include __DIR__
 
 <body
     class="min-h-screen overflow-x-hidden
-           bg-slate-50 font-[Poppins] text-gray-900"
->
+           bg-slate-50 font-[Poppins] text-gray-900">
 
     <?php
     include __DIR__
@@ -32,8 +31,7 @@ include __DIR__
     <main
         class="min-h-screen
                pt-20
-               lg:ml-64"
-    >
+               lg:ml-64">
 
         <?php
         include __DIR__

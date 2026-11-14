@@ -189,12 +189,35 @@ $routes = [
         'method' => 'download',
     ],
 
-    // Menu Setting
 
+    /**
+     * Menu Pengaturan
+     */
+
+    // Mahasiswa
     '/dashboard/mahasiswa/pengaturan' => [
-        'controller' => PengaturanController::class,
+        'controller' => MahasiswaPengaturanController::class,
         'method' => 'index',
     ],
+
+    // Dosen
+    '/dashboard/dosen/pengaturan' => [
+        'controller' => DosenPengaturanController::class,
+        'method' => 'index',
+    ],
+
+    // Koordinator Magang
+    '/dashboard/koordinator-magang/pengaturan' => [
+        'controller' => KoordinatorMagangPengaturanController::class,
+        'method' => 'index',
+    ],
+
+    // Tendik
+    '/dashboard/tendik/pengaturan' => [
+        'controller' => TendikPengaturanController::class,
+        'method' => 'index',
+    ],
+
 
     // Menu Logbook Dosen
 
