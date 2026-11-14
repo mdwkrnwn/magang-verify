@@ -148,39 +148,252 @@ class User
         ]);
     }
 
+
+    public function getManagementDetail(int $id): ?array
+    {
+        $stmt = $this->db->prepare(
+            'SELECT id, name, role, is_active, created_at
+         FROM users
+         WHERE id = :id
+         LIMIT 1'
+        );
+
+        $stmt->execute(['id' => $id]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            return null;
+        }
+
+        $user['roles'] = $this->getRolesForUser(
+            $id,
+            (string) $user['role']
+        );
+
+        $user['mahasiswa'] = null;
+        $user['dosen'] = null;
+
+        if (in_array('mahasiswa', $user['roles'], true)) {
+            $stmt = $this->db->prepare(
+                'SELECT nim, program_studi, angkatan, email, no_telepon
+             FROM profil_mahasiswa
+             WHERE user_id = :user_id
+             LIMIT 1'
+            );
+
+            $stmt->execute(['user_id' => $id]);
+            $user['mahasiswa'] = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        }
+
+        if (
+            in_array('dosen', $user['roles'], true) ||
+            in_array('koordinator_magang', $user['roles'], true)
+        ) {
+            $stmt = $this->db->prepare(
+                'SELECT nidn, email, no_telepon
+             FROM profil_dosen
+             WHERE user_id = :user_id
+             LIMIT 1'
+            );
+
+            $stmt->execute(['user_id' => $id]);
+            $user['dosen'] = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        }
+
+        return $user;
+    }
+
+    public function updateManagementProfile(
+        int $id,
+        array $data
+    ): void {
+        $user = $this->getManagementDetail($id);
+
+        if (!$user) {
+            throw new InvalidArgumentException('User tidak ditemukan.');
+        }
+
+        $this->db->beginTransaction();
+
+        try {
+            // Profil mahasiswa
+            if (in_array('mahasiswa', $user['roles'], true)) {
+                $nim = trim((string) ($data['nim'] ?? ''));
+                $programStudi = trim((string) ($data['program_studi'] ?? ''));
+                $angkatan = trim((string) ($data['angkatan'] ?? ''));
+
+                if (
+                    $nim === '' ||
+                    mb_strlen($nim) > 30 ||
+                    mb_strlen($programStudi) > 150 ||
+                    ($angkatan !== '' &&
+                        (!ctype_digit($angkatan) ||
+                            (int) $angkatan < 2000 ||
+                            (int) $angkatan > 2100))
+                ) {
+                    throw new InvalidArgumentException(
+                        'NIM, program studi, atau angkatan tidak valid.'
+                    );
+                }
+
+                $stmt = $this->db->prepare(
+                    'SELECT id FROM profil_mahasiswa
+                 WHERE user_id = :user_id
+                 LIMIT 1'
+                );
+                $stmt->execute(['user_id' => $id]);
+
+                if ($stmt->fetchColumn() !== false) {
+                    $stmt = $this->db->prepare(
+                        'UPDATE profil_mahasiswa
+                     SET nim = :nim,
+                         program_studi = :program_studi,
+                         angkatan = :angkatan,
+                         updated_at = CURRENT_TIMESTAMP
+                     WHERE user_id = :user_id'
+                    );
+                } else {
+                    $stmt = $this->db->prepare(
+                        'INSERT INTO profil_mahasiswa
+                     (user_id, nim, program_studi, angkatan)
+                     VALUES
+                     (:user_id, :nim, :program_studi, :angkatan)'
+                    );
+                }
+
+                $stmt->execute([
+                    'user_id' => $id,
+                    'nim' => $nim,
+                    'program_studi' => $programStudi !== '' ? $programStudi : null,
+                    'angkatan' => $angkatan !== '' ? (int) $angkatan : null,
+                ]);
+            }
+
+            // Profil dosen dan koordinator magang
+            if (
+                in_array('dosen', $user['roles'], true) ||
+                in_array('koordinator_magang', $user['roles'], true)
+            ) {
+                $nidn = trim((string) ($data['nidn'] ?? ''));
+
+                if (mb_strlen($nidn) > 30) {
+                    throw new InvalidArgumentException('NIDN maksimal 30 karakter.');
+                }
+
+                $stmt = $this->db->prepare(
+                    'SELECT id FROM profil_dosen
+                 WHERE user_id = :user_id
+                 LIMIT 1'
+                );
+                $stmt->execute(['user_id' => $id]);
+
+                if ($stmt->fetchColumn() !== false) {
+                    $stmt = $this->db->prepare(
+                        'UPDATE profil_dosen
+                     SET nidn = :nidn,
+                         updated_at = CURRENT_TIMESTAMP
+                     WHERE user_id = :user_id'
+                    );
+                } else {
+                    $stmt = $this->db->prepare(
+                        'INSERT INTO profil_dosen (user_id, nidn)
+                     VALUES (:user_id, :nidn)'
+                    );
+                }
+
+                $stmt->execute([
+                    'user_id' => $id,
+                    'nidn' => $nidn !== '' ? $nidn : null,
+                ]);
+            }
+
+            $this->db->commit();
+        } catch (Throwable $exception) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+
+            throw $exception;
+        }
+    }
+
+
+
     public function getForManagement(array $filters = []): array
     {
         $where = [];
         $params = [];
+
         $search = trim((string) ($filters['search'] ?? ''));
-        if ($search !== '') {
-            $where[] = '(u.login_id ILIKE :search OR u.name ILIKE :search)';
-            $params['search'] = '%' . $search . '%';
-        }
         $role = trim((string) ($filters['role'] ?? ''));
         $status = trim((string) ($filters['status'] ?? ''));
+
+        // Pencarian nama atau ID login
+        if ($search !== '') {
+            $where[] = '(u.login_id ILIKE :search_login OR u.name ILIKE :search_name)';
+            $params['search_login'] = '%' . $search . '%';
+            $params['search_name'] = '%' . $search . '%';
+        }
+
+        // Filter berdasarkan role
+        if (in_array($role, self::allowedRoles(), true)) {
+            if ($this->hasUserRolesTable()) {
+                $where[] = '(
+                u.role = :primary_role
+                OR EXISTS (
+                    SELECT 1
+                    FROM user_roles ur
+                    WHERE ur.user_id = u.id
+                    AND ur.role = :assigned_role
+                )
+            )';
+
+                $params['primary_role'] = $role;
+                $params['assigned_role'] = $role;
+            } else {
+                $where[] = 'u.role = :primary_role';
+                $params['primary_role'] = $role;
+            }
+        }
+
+        // Filter status akun
         if (in_array($status, ['active', 'inactive'], true)) {
             $where[] = 'u.is_active = :is_active';
             $params['is_active'] = $status === 'active';
         }
-        $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        $whereSql = $where
+            ? 'WHERE ' . implode(' AND ', $where)
+            : '';
+
         $stmt = $this->db->prepare(
-            "SELECT u.id, u.login_id, u.name, u.role AS primary_role, u.is_active
-             FROM users u
-             {$whereSql}
-             ORDER BY u.created_at DESC, u.id DESC"
+            "SELECT
+            u.id,
+            u.login_id,
+            u.name,
+            u.role AS primary_role,
+            u.is_active
+         FROM users u
+         {$whereSql}
+         ORDER BY u.created_at DESC, u.id DESC"
         );
+
         $stmt->execute($params);
+
         $items = [];
+
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $item) {
-            $item['roles'] = $this->getRolesForUser((int) $item['id'], (string) $item['primary_role']);
-            if ($role !== '' && !in_array($role, $item['roles'], true)) {
-                continue;
-            }
+            $item['roles'] = $this->getRolesForUser(
+                (int) $item['id'],
+                (string) $item['primary_role']
+            );
+
             $items[] = $item;
         }
+
         return $items;
     }
+
 
     public function createManaged(array $data, int $actorId): int
     {

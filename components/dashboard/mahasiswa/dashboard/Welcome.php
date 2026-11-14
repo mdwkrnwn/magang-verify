@@ -1,4 +1,5 @@
 <?php
+
 /** @var array $dashboard */
 $profil = $dashboard['profil'] ?? [];
 $nama = trim((string) ($profil['nama_lengkap'] ?? 'Mahasiswa'));
@@ -24,8 +25,7 @@ if (!empty($bagianNama)) {
                         src="<?= e(url('/mahasiswa/profil/foto/' . rawurlencode(basename($foto)))) ?>"
                         alt="Foto <?= e($nama) ?>"
                         class="object-cover w-full h-full"
-                        onerror="this.style.display='none'; this.nextElementSibling?.style && (this.nextElementSibling.style.display='flex');"
-                    >
+                        onerror="this.style.display='none'; this.nextElementSibling?.style && (this.nextElementSibling.style.display='flex');">
                     <span class="items-center justify-center hidden w-full h-full"><?= e($inisial ?: 'M') ?></span>
                 <?php else: ?>
                     <?= e($inisial ?: 'M') ?>
@@ -44,9 +44,25 @@ if (!empty($bagianNama)) {
             </div>
         </div>
 
-        <a href="<?= e(url('/dashboard/mahasiswa/profil')) ?>" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50 sm:w-auto">
+        <a
+            href="<?= e(url('/dashboard/mahasiswa/profil')) ?>"
+            class="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50 sm:w-auto transition-colors">
+
             Lihat Profil
-            <span aria-hidden="true">→</span>
+
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+            </svg>
         </a>
     </div>
 </section>

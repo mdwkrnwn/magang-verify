@@ -57,26 +57,37 @@ final class TendikVerifikasiDokumenController
     public function portfolioDetail(array $params = []): void
     {
         $this->actorId();
+
         $id = $this->validatedId($params['id'] ?? null);
-        $item = (new Portofolio())->getForVerification($id);
-        if (!$item) {
+
+        $portfolioDetailData = (new Portofolio())->getForVerification($id);
+
+        if (!$portfolioDetailData) {
             $this->notFound();
         }
+
         $history = $this->portfolioHistory($id);
+
         $error = null;
+
         require __DIR__ . '/../../../pages/dashboard/tendik/verifikasi/portofolio.php';
     }
 
     public function certificateDetail(array $params = []): void
     {
         $this->actorId();
+
         $id = $this->validatedId($params['id'] ?? null);
-        $item = (new Sertifikat())->getForVerification($id);
-        if (!$item) {
+
+        $certificateDetailData = (new Sertifikat())->getForVerification($id);
+
+        if (!$certificateDetailData) {
             $this->notFound();
         }
+
         $history = $this->certificateHistory($id);
         $error = null;
+
         require __DIR__ . '/../../../pages/dashboard/tendik/verifikasi/sertifikat.php';
     }
 
@@ -115,9 +126,18 @@ final class TendikVerifikasiDokumenController
             header('Location: ' . url('/dashboard/tendik/verifikasi?success=sertifikat'));
             exit;
         } catch (PDOException $exception) {
-            error_log('Gagal memverifikasi sertifikat: ' . $exception->getMessage());
+            error_log('========== ERROR VERIFIKASI SERTIFIKAT ==========');
+            error_log('SERTIFIKAT ID: ' . $id);
+            error_log('ACTOR ID: ' . $actorId);
+            error_log('DECISION: ' . $decision);
+            error_log('SQLSTATE: ' . $exception->getCode());
+            error_log('ERROR MESSAGE: ' . $exception->getMessage());
+            error_log('ERROR FILE: ' . $exception->getFile());
+            error_log('ERROR LINE: ' . $exception->getLine());
+            error_log('=================================================');
+
             http_response_code(500);
-            exit('Keputusan sertifikat gagal disimpan.');
+            exit('Keputusan sertifikat gagal disimpan. Periksa PHP error log.');
         } catch (Throwable $exception) {
             http_response_code($exception instanceof InvalidArgumentException ? 422 : 409);
             exit($exception->getMessage());
@@ -182,32 +202,96 @@ final class TendikVerifikasiDokumenController
         exit;
     }
 
+
     public function certificateFile(array $params = []): never
     {
+        // 1. Pastikan pengguna memiliki hak akses Tendik
         $this->actorId();
+
+        // 2. Validasi ID sertifikat
         $id = $this->validatedId($params['id'] ?? null);
+
+        // 3. Ambil data sertifikat dari database
         $model = new Sertifikat();
         $item = $model->getForVerification($id);
+
         if (!$item) {
             $this->notFound();
         }
-        $path = resolvePrivateStorageFile(dirname(__DIR__, 3), (string) $item['file_path'], ['uploads/sertifikat']);
-        if ($path === null) {
+
+        // 4. Cari file berdasarkan path yang tersimpan di database
+        $path = resolvePrivateStorageFile(
+            dirname(__DIR__, 3),
+            (string) $item['file_path'],
+            ['uploads/sertifikat']
+        );
+
+        if ($path === null || !is_file($path)) {
             $this->notFound();
         }
+
+        // 5. Periksa MIME file
         $mime = (new finfo(FILEINFO_MIME_TYPE))->file($path);
-        if (!in_array($mime, ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'], true)) {
+
+        $allowedMime = [
+            'application/pdf',
+            'image/jpeg',
+            'image/png',
+            'image/webp'
+        ];
+
+        if (!in_array($mime, $allowedMime, true)) {
             http_response_code(415);
             exit('Format berkas tidak didukung.');
         }
+
+        // 6. Validasi isi file gambar
+        if (str_starts_with($mime, 'image/')) {
+            $imageInfo = getimagesize($path);
+
+            if ($imageInfo === false) {
+                http_response_code(415);
+                exit('File gambar tidak valid.');
+            }
+        }
+
+        // 7. Pastikan tidak ada output sebelumnya
+        if (headers_sent($sourceFile, $sourceLine)) {
+            error_log(
+                "Certificate file: headers already sent at {$sourceFile}:{$sourceLine}"
+            );
+
+            http_response_code(500);
+            exit('Terjadi kesalahan saat menampilkan berkas.');
+        }
+
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
+        // 8. Kirim file ke browser
+        $extension = match ($mime) {
+            'application/pdf' => 'pdf',
+            'image/jpeg'      => 'jpg',
+            'image/png'       => 'png',
+            'image/webp'      => 'webp',
+            default           => 'bin',
+        };
+
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . (string) filesize($path));
-        header('Content-Disposition: inline; filename="sertifikat-' . $id . '"');
+        header(
+            'Content-Disposition: inline; filename="sertifikat-' .
+                $id . '.' . $extension . '"'
+        );
         header('Cache-Control: private, no-store, max-age=0');
         header('X-Content-Type-Options: nosniff');
+
+        // 9. Tampilkan file
         readfile($path);
         exit;
     }
+
 
     private function certificateHistory(int $id): array
     {

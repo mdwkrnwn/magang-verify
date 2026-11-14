@@ -81,4 +81,59 @@ final class TendikUserController
         }
         require __DIR__ . '/../../../pages/dashboard/tendik/users/create.php';
     }
+
+
+    public function detail(array $params = []): void
+    {
+        $actorId = $this->actorId();
+
+        $id = (int) ($params['id'] ?? 0);
+
+        if ($id < 1) {
+            http_response_code(404);
+            exit('Pengguna tidak ditemukan.');
+        }
+
+        $user = $this->users->getManagementDetail($id);
+
+        if (!$user) {
+            http_response_code(404);
+            exit('Pengguna tidak ditemukan.');
+        }
+
+        $error = null;
+        $success = null;
+
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+            if (!verifyCsrfToken()) {
+                http_response_code(403);
+                exit('Permintaan tidak valid.');
+            }
+
+            try {
+                $this->users->updateManagementProfile($id, [
+                    'nim' => $_POST['nim'] ?? '',
+                    'program_studi' => $_POST['program_studi'] ?? '',
+                    'angkatan' => $_POST['angkatan'] ?? '',
+                    'nidn' => $_POST['nidn'] ?? '',
+                ]);
+
+                (new AktivitasPengguna())->log(
+                    $actorId,
+                    'Profil pengguna diperbarui',
+                    'Data profil user #' . $id . ' diperbarui oleh Tendik.',
+                    'users',
+                    'users',
+                    $id
+                );
+
+                $success = 'Informasi pengguna berhasil diperbarui.';
+                $user = $this->users->getManagementDetail($id);
+            } catch (Throwable $exception) {
+                $error = $exception->getMessage();
+            }
+        }
+
+        require __DIR__ . '/../../../pages/dashboard/tendik/users/detail.php';
+    }
 }

@@ -25,6 +25,7 @@ $controllerMap = [
     'MitraProfilController' => $controllerPath . '/MitraProfilController.php',
     'TentangController' => $controllerPath . '/TentangController.php',
     'LoginController' => $controllerPath . '/LoginController.php',
+    'ForgotPasswordController' => $controllerPath . '/ForgotPasswordController.php',
     'LogoutController' => $controllerPath . '/LogoutController.php',
 
     /*
@@ -116,6 +117,8 @@ $controllerMap = [
 
     'TendikVerifikasiDokumenController' =>
     $controllerPath . '/dashboard/tendik/VerifikasiDokumenController.php',
+    'TendikVerifikasiLaporanController' =>
+    $controllerPath . '/dashboard/tendik/TendikVerifikasiLaporanController.php',
 
     'TendikPenetapanDosenController' =>
     $controllerPath . '/dashboard/tendik/PenetapanDosenController.php',
@@ -137,6 +140,12 @@ $controllerMap = [
 
     'KoordinatorPenetapanDosenController' =>
     $controllerPath . '/dashboard/koordinatorMagang/PenetapanDosenController.php',
+
+    'KoordinatorMitraController' =>
+    $controllerPath . '/dashboard/koordinatorMagang/KoordinatorMitraController.php',
+
+    'KoordinatorLowonganController' =>
+    $controllerPath . '/dashboard/koordinatorMagang/KoordinatorLowonganController.php',
 
     /*
     |--------------------------------------------------------------------------

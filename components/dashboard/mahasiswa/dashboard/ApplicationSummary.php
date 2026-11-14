@@ -1,4 +1,5 @@
 <?php
+
 /** @var array $dashboard */
 $pengajuan = $dashboard['pengajuan'] ?? null;
 ?>
@@ -35,8 +36,25 @@ $pengajuan = $dashboard['pengajuan'] ?? null;
             </div>
         </div>
 
-        <a href="<?= e(url('/dashboard/mahasiswa/pengajuan/detail/' . $pengajuan['slug'])) ?>" class="inline-flex items-center justify-center w-full gap-2 px-4 py-3 mt-5 text-sm font-semibold text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50">
-            Lihat Detail Pengajuan <span aria-hidden="true">→</span>
+        <a
+            href="<?= e(url('/dashboard/mahasiswa/pengajuan/detail/' . $pengajuan['slug'])) ?>"
+            class="inline-flex items-center justify-center w-full gap-2 px-4 py-3 mt-5 text-sm font-semibold text-blue-600 border border-blue-100 rounded-xl hover:bg-blue-50 transition-colors">
+
+            Lihat Detail Pengajuan
+
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+            </svg>
         </a>
     <?php else: ?>
         <div class="p-6 text-center border border-dashed border-gray-200 rounded-xl">

@@ -26,13 +26,33 @@ $reviewStageLabels = [
 <!DOCTYPE html>
 <html lang="id">
 <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Head.php'; ?>
+
 <body class="bg-slate-50 font-[Poppins] text-gray-900 overflow-x-hidden">
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Sidebar.php'; ?>
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Header.php'; ?>
 
     <main class="lg:ml-64 pt-20 min-h-screen">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <a href="<?= url('/dashboard/mahasiswa/laporan?penempatan=' . (int) $laporan['penempatan_id']) ?>" class="text-sm text-blue-600 hover:underline">← Kembali ke laporan</a>
+        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <a
+                href="<?= e(url('/dashboard/mahasiswa/laporan?penempatan=' . (int) $laporan['penempatan_id'])) ?>"
+                class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="h-4 w-4 shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true">
+                    <path d="m12 19-7-7 7-7" />
+                    <path d="M19 12H5" />
+                </svg>
+
+                <span>Kembali ke Laporan</span>
+            </a>
 
             <?php if ($error): ?>
                 <div class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700" role="alert"><?= e($error) ?></div>
@@ -53,10 +73,22 @@ $reviewStageLabels = [
                 </div>
 
                 <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                    <div class="rounded-xl bg-gray-50 p-4"><p class="text-xs text-gray-500">Perusahaan</p><p class="mt-1 font-semibold"><?= e($laporan['nama_perusahaan'] ?? '-') ?></p></div>
-                    <div class="rounded-xl bg-gray-50 p-4"><p class="text-xs text-gray-500">Periode</p><p class="mt-1 font-semibold"><?= e($laporan['tanggal_mulai']) ?> — <?= e($laporan['tanggal_selesai']) ?></p></div>
-                    <div class="rounded-xl bg-gray-50 p-4"><p class="text-xs text-gray-500">Versi</p><p class="mt-1 font-semibold"><?= (int) $laporan['versi_terkini'] ?></p></div>
-                    <div class="rounded-xl bg-gray-50 p-4"><p class="text-xs text-gray-500">Ketepatan waktu</p><p class="mt-1 font-semibold"><?= e($laporan['status_ketepatan_waktu'] ?? 'Belum ditentukan') ?></p></div>
+                    <div class="rounded-xl bg-gray-50 p-4">
+                        <p class="text-xs text-gray-500">Perusahaan</p>
+                        <p class="mt-1 font-semibold"><?= e($laporan['nama_perusahaan'] ?? '-') ?></p>
+                    </div>
+                    <div class="rounded-xl bg-gray-50 p-4">
+                        <p class="text-xs text-gray-500">Periode</p>
+                        <p class="mt-1 font-semibold"><?= e($laporan['tanggal_mulai']) ?> — <?= e($laporan['tanggal_selesai']) ?></p>
+                    </div>
+                    <div class="rounded-xl bg-gray-50 p-4">
+                        <p class="text-xs text-gray-500">Versi</p>
+                        <p class="mt-1 font-semibold"><?= (int) $laporan['versi_terkini'] ?></p>
+                    </div>
+                    <div class="rounded-xl bg-gray-50 p-4">
+                        <p class="text-xs text-gray-500">Ketepatan waktu</p>
+                        <p class="mt-1 font-semibold"><?= e($laporan['status_ketepatan_waktu'] ?? 'Belum ditentukan') ?></p>
+                    </div>
                 </div>
 
                 <div class="mt-6 flex flex-wrap gap-3">
@@ -96,20 +128,22 @@ $reviewStageLabels = [
                     <div class="mt-4 space-y-3">
                         <?php if (!$pemeriksaan): ?>
                             <p class="text-sm text-gray-500">Belum ada catatan pemeriksaan untuk laporan ini.</p>
-                        <?php else: foreach ($pemeriksaan as $row): ?>
-                            <div class="rounded-xl bg-gray-50 p-4">
-                                <div class="flex flex-wrap items-center justify-between gap-2">
-                                    <span class="font-semibold text-gray-800"><?= e($reviewStageLabels[$row['tahap_pemeriksaan']] ?? ucfirst(str_replace('_', ' ', (string) $row['tahap_pemeriksaan']))) ?></span>
-                                    <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold <?= ($row['status'] ?? '') === 'disetujui' ? 'bg-emerald-50 text-emerald-700' : ((($row['status'] ?? '') === 'ditolak') ? 'bg-red-50 text-red-700' : ((($row['status'] ?? '') === 'perlu_revisi') ? 'bg-amber-50 text-amber-800' : 'bg-gray-100 text-gray-700')) ?>"><?= e($reviewStatusLabels[$row['status']] ?? ucfirst(str_replace('_', ' ', (string) $row['status']))) ?></span>
+                            <?php else: foreach ($pemeriksaan as $row): ?>
+                                <div class="rounded-xl bg-gray-50 p-4">
+                                    <div class="flex flex-wrap items-center justify-between gap-2">
+                                        <span class="font-semibold text-gray-800"><?= e($reviewStageLabels[$row['tahap_pemeriksaan']] ?? ucfirst(str_replace('_', ' ', (string) $row['tahap_pemeriksaan']))) ?></span>
+                                        <span class="inline-flex rounded-full px-2.5 py-1 text-xs font-semibold <?= ($row['status'] ?? '') === 'disetujui' ? 'bg-emerald-50 text-emerald-700' : ((($row['status'] ?? '') === 'ditolak') ? 'bg-red-50 text-red-700' : ((($row['status'] ?? '') === 'perlu_revisi') ? 'bg-amber-50 text-amber-800' : 'bg-gray-100 text-gray-700')) ?>"><?= e($reviewStatusLabels[$row['status']] ?? ucfirst(str_replace('_', ' ', (string) $row['status']))) ?></span>
+                                    </div>
+                                    <?php if (!empty($row['nama_pemeriksa'])): ?><p class="mt-2 text-xs text-gray-500">Pemeriksa: <?= e((string) $row['nama_pemeriksa']) ?></p><?php endif; ?>
+                                    <?php if (!empty($row['catatan'])): ?><p class="mt-2 text-sm text-gray-600"><?= e($row['catatan']) ?></p><?php endif; ?>
                                 </div>
-                                <?php if (!empty($row['nama_pemeriksa'])): ?><p class="mt-2 text-xs text-gray-500">Pemeriksa: <?= e((string) $row['nama_pemeriksa']) ?></p><?php endif; ?>
-                                <?php if (!empty($row['catatan'])): ?><p class="mt-2 text-sm text-gray-600"><?= e($row['catatan']) ?></p><?php endif; ?>
-                            </div>
-                        <?php endforeach; endif; ?>
+                        <?php endforeach;
+                        endif; ?>
                     </div>
                 </section>
             </div>
         </div>
     </main>
 </body>
+
 </html>

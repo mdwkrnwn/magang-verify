@@ -295,10 +295,9 @@ $error = $_GET['error'] ?? '';
 
 
         <a
-            href="#"
+            href="<?= e(url('/forgot-password')) ?>"
             id="forgotPassword"
-            class="text-blue-600 transition hover:text-blue-700"
-            onclick="return false;">
+            class="text-blue-600 transition hover:text-blue-700">
             Lupa password?
         </a>
 

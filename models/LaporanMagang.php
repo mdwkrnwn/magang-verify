@@ -351,4 +351,208 @@ class LaporanMagang
 
         throw new InvalidArgumentException('Jenis laporan tidak valid.');
     }
+
+
+    public function getQueueForTendik(int $userId): array
+    {
+        global $pdo;
+
+        $stmt = $pdo->prepare(
+            "SELECT
+            lm.id AS laporan_id,
+            lm.penempatan_id,
+            lm.jenis_laporan,
+            lm.judul AS judul_laporan,
+            lm.versi_terkini,
+            lm.status AS status_laporan,
+            lm.diajukan_pada,
+            lm.created_at,
+            lm.minggu_ke,
+            lm.file_path,
+            lm.tanggal_unggah,
+
+            pm.status AS status_penempatan,
+
+            prof.id AS mahasiswa_id,
+            prof.nim,
+            prof.program_studi,
+            u.name AS mahasiswa_nama,
+
+            f.judul AS judul_formasi,
+            m.nama_perusahaan,
+
+            pemeriksaan.id AS pemeriksaan_id,
+            pemeriksaan.pemeriksa_id,
+            pemeriksaan.status AS status_pemeriksaan,
+            pemeriksaan.catatan,
+            pemeriksaan.tanggal_pemeriksaan
+
+        FROM laporan_magang lm
+
+        INNER JOIN penempatan_magang pm
+            ON pm.id = lm.penempatan_id
+
+        INNER JOIN pendaftaran_magang p
+            ON p.id = pm.pendaftaran_id
+
+        INNER JOIN profil_mahasiswa prof
+            ON prof.id = p.mahasiswa_id
+
+        INNER JOIN users u
+            ON u.id = prof.user_id
+
+        INNER JOIN formasi_magang f
+            ON f.id = p.formasi_id
+
+        INNER JOIN mitra m
+            ON m.id = f.mitra_id
+
+        LEFT JOIN LATERAL (
+            SELECT
+                pl.id,
+                pl.pemeriksa_id,
+                pl.status,
+                pl.catatan,
+                pl.tanggal_pemeriksaan
+            FROM pemeriksaan_laporan pl
+            WHERE pl.laporan_id = lm.id
+              AND pl.tahap_pemeriksaan = 'tendik'
+            ORDER BY pl.id DESC
+            LIMIT 1
+        ) pemeriksaan ON TRUE
+
+        WHERE lm.status = 'diperiksa_dosen'
+
+        ORDER BY
+            lm.diajukan_pada ASC NULLS LAST,
+            lm.id ASC"
+        );
+
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    /**
+     * Mengambil detail laporan untuk pemeriksaan Tendik.
+     * Hanya laporan yang sudah diperiksa dosen.
+     */
+    public function getDetailForTendik(int $laporanId): ?array
+    {
+        global $pdo;
+
+        $stmt = $pdo->prepare(
+            "SELECT
+            lm.id AS laporan_id,
+            lm.penempatan_id,
+            lm.jenis_laporan,
+            lm.judul AS judul_laporan,
+            lm.versi_terkini,
+            lm.status AS status_laporan,
+            lm.diajukan_pada,
+            lm.created_at,
+            lm.minggu_ke,
+            lm.file_path,
+            lm.tanggal_unggah,
+
+            pm.status AS status_penempatan,
+            pm.tanggal_mulai,
+            pm.tanggal_selesai,
+
+            prof.id AS mahasiswa_id,
+            prof.nim,
+            prof.program_studi,
+            u.name AS mahasiswa_nama,
+
+            f.judul AS judul_formasi,
+            m.nama_perusahaan,
+
+            pemeriksaan.id AS pemeriksaan_id,
+            pemeriksaan.pemeriksa_id,
+            pemeriksaan.status AS status_pemeriksaan,
+            pemeriksaan.catatan,
+            pemeriksaan.tanggal_pemeriksaan
+
+        FROM laporan_magang lm
+
+        INNER JOIN penempatan_magang pm
+            ON pm.id = lm.penempatan_id
+
+        INNER JOIN pendaftaran_magang p
+            ON p.id = pm.pendaftaran_id
+
+        INNER JOIN profil_mahasiswa prof
+            ON prof.id = p.mahasiswa_id
+
+        INNER JOIN users u
+            ON u.id = prof.user_id
+
+        INNER JOIN formasi_magang f
+            ON f.id = p.formasi_id
+
+        INNER JOIN mitra m
+            ON m.id = f.mitra_id
+
+        LEFT JOIN LATERAL (
+            SELECT
+                pl.id,
+                pl.pemeriksa_id,
+                pl.status,
+                pl.catatan,
+                pl.tanggal_pemeriksaan
+            FROM pemeriksaan_laporan pl
+            WHERE pl.laporan_id = lm.id
+              AND pl.tahap_pemeriksaan = 'tendik'
+            ORDER BY pl.id DESC
+            LIMIT 1
+        ) pemeriksaan ON TRUE
+
+        WHERE lm.id = :laporan_id
+          AND lm.status = 'diperiksa_dosen'
+
+        LIMIT 1"
+        );
+
+        $stmt->execute([
+            'laporan_id' => $laporanId,
+        ]);
+
+        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+    }
+
+    /**
+     * Memperbarui status laporan setelah keputusan Tendik.
+     */
+    public function updateStatusByTendik(
+        int $laporanId,
+        string $status
+    ): bool {
+        global $pdo;
+
+        $allowedStatuses = [
+            self::VERIFIED,
+            self::NEEDS_REVISION,
+            self::REJECTED,
+        ];
+
+        if (!in_array($status, $allowedStatuses, true)) {
+            throw new InvalidArgumentException('Status laporan tidak valid.');
+        }
+
+        $stmt = $pdo->prepare(
+            "UPDATE laporan_magang
+         SET status = :status,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = :laporan_id
+           AND status = 'diperiksa_dosen'"
+        );
+
+        $stmt->execute([
+            'status' => $status,
+            'laporan_id' => $laporanId,
+        ]);
+
+        return $stmt->rowCount() === 1;
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /** @var array $dashboard */
 $percent = (int) ($dashboard['profil_progress'] ?? 0);
 ?>
@@ -21,8 +22,25 @@ $percent = (int) ($dashboard['profil_progress'] ?? 0);
     </p>
 
     <?php if ($percent < 100): ?>
-        <a href="<?= e(url('/dashboard/mahasiswa/profil')) ?>" class="inline-flex items-center gap-2 mt-5 text-sm font-semibold text-blue-600 hover:text-blue-700">
-            Lengkapi Profil <span aria-hidden="true">→</span>
+        <a
+            href="<?= e(url('/dashboard/mahasiswa/profil')) ?>"
+            class="inline-flex items-center gap-2 mt-5 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+
+            Lengkapi Profil
+
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4 shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+            </svg>
         </a>
     <?php endif; ?>
 </section>

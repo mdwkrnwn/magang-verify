@@ -80,6 +80,16 @@ $routes = [
         'method' => 'index',
     ],
 
+    '/forgot-password' => [
+        'controller' => ForgotPasswordController::class,
+        'method' => 'index',
+    ],
+
+    '/reset-password' => [
+        'controller' => ForgotPasswordController::class,
+        'method' => 'reset',
+    ],
+
     '/logout' => [
         'controller' => LogoutController::class,
         'method' => 'index',
@@ -277,8 +287,15 @@ $routes = [
         'method' => 'index',
     ],
 
+
     '/dashboard/tendik/users' => [
         'controller' => TendikUserController::class,
+        'method' => 'index',
+    ],
+
+    // Menu Verifikasi Laporan Magang
+    '/dashboard/tendik/verifikasi/laporan' => [
+        'controller' => TendikVerifikasiLaporanController::class,
         'method' => 'index',
     ],
 
@@ -329,6 +346,34 @@ $routes = [
         'controller' => KoordinatorPenetapanDosenController::class,
         'method' => 'index',
     ],
+
+    '/dashboard/koordinator-magang/mitra' => [
+        'controller' => KoordinatorMitraController::class,
+        'method' => 'index',
+    ],
+    '/dashboard/koordinator-magang/mitra/tambah' => [
+        'controller' => KoordinatorMitraController::class,
+        'method' => 'create',
+    ],
+    '/dashboard/koordinator-magang/mitra/nonaktifkan' => [
+        'controller' => KoordinatorMitraController::class,
+        'method' => 'deactivate',
+    ],
+    '/dashboard/koordinator-magang/lowongan' => [
+        'controller' => KoordinatorLowonganController::class,
+        'method' => 'index',
+    ],
+
+    '/dashboard/koordinator-magang/lowongan/tambah' => [
+        'controller' => KoordinatorLowonganController::class,
+        'method' => 'create',
+    ],
+
+    '/dashboard/koordinator-magang/lowongan/status' => [
+        'controller' => KoordinatorLowonganController::class,
+        'method' => 'updateStatus',
+    ],
+
 
     /*
     |---------------------
@@ -400,9 +445,13 @@ function route(string $uri): ?array
     |----------------------
     */
 
+    // Normalisasi path
     if ($path === '' || $path === false) {
         $path = '/';
     }
+
+    // Hilangkan garis miring ganda
+    $path = preg_replace('#/+#', '/', $path);
 
     if ($path !== '/') {
         $path = rtrim($path, '/');
@@ -1202,6 +1251,176 @@ function route(string $uri): ?array
     | Tidak ditemukan
     |----------------------
     */
+
+    // verifikasi laporann dosen
+    if (preg_match(
+        '#^/dashboard/dosen/verifikasi-laporan/detail/(\d+)$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => VerifikasiLaporanController::class,
+                'method' => 'detail',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+            ],
+        ];
+    }
+
+    // Pratinjau PDF laporan dosen
+    if (preg_match(
+        '#^/dashboard/dosen/verifikasi-laporan/berkas/(\d+)$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => VerifikasiLaporanController::class,
+                'method' => 'previewFile',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+            ],
+        ];
+    }
+
+
+    // Proses verifikasi laporan dosen
+    if (preg_match(
+        '#^/dashboard/dosen/verifikasi-laporan/detail/(\d+)/proses$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => VerifikasiLaporanController::class,
+                'method' => 'prosesVerifikasi',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+            ],
+        ];
+    }
+
+
+
+    // Detail laporan Tendik
+    if (preg_match(
+        '#^/dashboard/tendik/verifikasi/laporan/detail/(\d+)$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => TendikVerifikasiLaporanController::class,
+                'method' => 'detail',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+            ],
+        ];
+    }
+
+    // Pratinjau PDF laporan Tendik
+    if (preg_match(
+        '#^/dashboard/tendik/verifikasi/laporan/berkas/(\d+)$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => TendikVerifikasiLaporanController::class,
+                'method' => 'previewFile',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+            ],
+        ];
+    }
+
+    // Proses keputusan verifikasi Tendik
+    if (preg_match(
+        '#^/dashboard/tendik/verifikasi/laporan/detail/(\d+)/proses$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => TendikVerifikasiLaporanController::class,
+                'method' => 'prosesVerifikasi',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+            ],
+        ];
+    }
+
+
+    if (preg_match('#^/dashboard/tendik/users/(\d+)$#', $path, $matches)) {
+        return [
+            'route' => [
+                'controller' => TendikUserController::class,
+                'method' => 'detail',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+            ],
+        ];
+    }
+
+    if (preg_match(
+        '#^/dashboard/koordinator-magang/mitra/edit/(\d+)$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => KoordinatorMitraController::class,
+                'method' => 'edit',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+            ],
+        ];
+    }
+
+
+    // DETAIL LOWONGAN
+    if (preg_match(
+        '#^/dashboard/koordinator-magang/lowongan/detail/(\d+)$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => KoordinatorLowonganController::class,
+                'method' => 'detail',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+            ],
+        ];
+    }
+
+    // EDIT LOWONGAN
+    if (preg_match(
+        '#^/dashboard/koordinator-magang/lowongan/edit/(\d+)$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => KoordinatorLowonganController::class,
+                'method' => 'edit',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+            ],
+        ];
+    }
+
 
     return null;
 }

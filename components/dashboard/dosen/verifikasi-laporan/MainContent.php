@@ -294,7 +294,7 @@ foreach ($reports as $report) {
                                     <td class="px-6 py-4 text-center">
                                         <a
                                             href="<?= $base ?>/dashboard/dosen/verifikasi-laporan/detail/<?= (int) ($report['laporan_id'] ?? 0) ?>"
-                                            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold transition">
+                                            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition">
 
                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                 class="w-4 h-4"

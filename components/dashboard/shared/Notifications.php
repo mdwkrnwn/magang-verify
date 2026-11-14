@@ -24,7 +24,7 @@ $internalTarget = static function (string $path): ?string {
 ?>
 
 <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
-    <div class="max-w-5xl px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8">
+    <div class="max-w-8xl px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <p class="text-sm font-medium text-blue-600">Pusat informasi</p>

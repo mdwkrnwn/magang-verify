@@ -171,20 +171,22 @@ class DashboardDosen
             ON m.id = f.mitra_id
 
         LEFT JOIN LATERAL (
-            SELECT
-                pl.id,
-                pl.pemeriksa_id,
-                pl.tahap_pemeriksaan,
-                pl.status,
-                pl.catatan,
-                pl.tanggal_pemeriksaan
-            FROM pemeriksaan_laporan pl
-            WHERE pl.laporan_id = lm.id
-            ORDER BY pl.id DESC
-            LIMIT 1
+        SELECT
+            pl.id,
+            pl.pemeriksa_id,
+            pl.tahap_pemeriksaan,
+            pl.status,
+            pl.catatan,
+            pl.tanggal_pemeriksaan
+        FROM pemeriksaan_laporan pl
+        WHERE pl.laporan_id = lm.id
+        AND pl.tahap_pemeriksaan = 'dosen'
+        ORDER BY pl.id DESC
+        LIMIT 1
         ) pemeriksaan ON TRUE
 
         WHERE pd.user_id = :user_id
+        AND lm.status = 'diajukan'
 
         ORDER BY
             CASE
@@ -201,4 +203,142 @@ class DashboardDosen
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+
+
+    public function getDetailLaporanUntukVerifikasi(
+        int $userId,
+        int $laporanId
+    ): ?array {
+        global $pdo;
+
+        $stmt = $pdo->prepare(
+            "SELECT
+            lm.id AS laporan_id,
+            lm.penempatan_id,
+            lm.jenis_laporan,
+            lm.judul AS judul_laporan,
+            lm.versi_terkini,
+            lm.status AS status_laporan,
+            lm.diajukan_pada,
+            lm.created_at,
+            lm.minggu_ke,
+            lm.file_path,
+            lm.tanggal_unggah,
+
+            pm.status AS status_penempatan,
+            pm.tanggal_mulai,
+            pm.tanggal_selesai,
+
+            prof.id AS mahasiswa_id,
+            prof.nim,
+            prof.program_studi,
+            u.name AS mahasiswa_nama,
+
+            f.judul AS judul_formasi,
+            m.nama_perusahaan,
+            m.alamat AS lokasi_perusahaan,
+
+            pemeriksaan.id AS pemeriksaan_id,
+            pemeriksaan.pemeriksa_id,
+            pemeriksaan.status AS status_pemeriksaan,
+            pemeriksaan.catatan,
+            pemeriksaan.tanggal_pemeriksaan
+
+        FROM laporan_magang lm
+
+        INNER JOIN penempatan_magang pm
+            ON pm.id = lm.penempatan_id
+
+        INNER JOIN profil_dosen pd
+            ON pd.id = pm.dosen_pembimbing_id
+
+        INNER JOIN pendaftaran_magang p
+            ON p.id = pm.pendaftaran_id
+
+        INNER JOIN profil_mahasiswa prof
+            ON prof.id = p.mahasiswa_id
+
+        INNER JOIN users u
+            ON u.id = prof.user_id
+
+        INNER JOIN formasi_magang f
+            ON f.id = p.formasi_id
+
+        INNER JOIN mitra m
+            ON m.id = f.mitra_id
+
+        LEFT JOIN LATERAL (
+            SELECT
+                pl.id,
+                pl.pemeriksa_id,
+                pl.status,
+                pl.catatan,
+                pl.tanggal_pemeriksaan
+            FROM pemeriksaan_laporan pl
+            WHERE pl.laporan_id = lm.id
+              AND pl.tahap_pemeriksaan = 'dosen'
+            ORDER BY pl.id DESC
+            LIMIT 1
+        ) pemeriksaan ON TRUE
+
+        WHERE pd.user_id = :user_id
+          AND lm.id = :laporan_id
+
+        LIMIT 1"
+        );
+
+        $stmt->execute([
+            'user_id' => $userId,
+            'laporan_id' => $laporanId,
+        ]);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $result ?: null;
+    }
+
+    public function updateStatusLaporan(
+    int $userId,
+    int $laporanId,
+    string $status
+): bool {
+    global $pdo;
+
+    $allowedStatuses = [
+        LaporanMagang::REVIEWED_BY_LECTURER,
+        LaporanMagang::NEEDS_REVISION,
+        LaporanMagang::REJECTED,
+    ];
+
+    if (!in_array($status, $allowedStatuses, true)) {
+        throw new InvalidArgumentException('Status laporan tidak valid.');
+    }
+
+    $stmt = $pdo->prepare(
+        "UPDATE laporan_magang lm
+         SET status = :status,
+             updated_at = CURRENT_TIMESTAMP
+         WHERE lm.id = :laporan_id
+           AND lm.status = :status_awal
+           AND EXISTS (
+               SELECT 1
+               FROM penempatan_magang pm
+               INNER JOIN profil_dosen pd
+                   ON pd.id = pm.dosen_pembimbing_id
+               WHERE pm.id = lm.penempatan_id
+                 AND pd.user_id = :user_id
+           )"
+    );
+
+    $stmt->execute([
+        'status' => $status,
+        'laporan_id' => $laporanId,
+        'status_awal' => LaporanMagang::SUBMITTED,
+        'user_id' => $userId,
+    ]);
+
+    return $stmt->rowCount() === 1;
+}
+
 }

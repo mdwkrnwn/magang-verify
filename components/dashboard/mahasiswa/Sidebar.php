@@ -65,25 +65,25 @@ $menuItems = [
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
     ],
     [
-        'label' => 'Laporan Magang',
-        'url' => '/dashboard/mahasiswa/laporan',
-        'key' => 'laporan',
-        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/>',
-    ],
-    [
         'label' => 'Logbook',
         'url' => '/dashboard/mahasiswa/logbook',
         'key' => 'logbook',
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 5h14a2 2 0 012 2v12a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2z"/>',
     ],
+    [
+        'label' => 'Laporan Magang',
+        'url' => '/dashboard/mahasiswa/laporan',
+        'key' => 'laporan',
+        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2z"/>',
+    ],
+
 ];
 
 ?>
 
 <aside
     id="sidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-64 max-w-[85vw] -translate-x-full flex-col overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 ease-in-out lg:translate-x-0"
->
+    class="fixed inset-y-0 left-0 z-40 flex w-64 max-w-[85vw] -translate-x-full flex-col overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 ease-in-out lg:translate-x-0">
 
     <!-- Logo -->
     <div class="flex h-20 shrink-0 items-center border-b border-gray-100 px-6">
@@ -94,8 +94,7 @@ $menuItems = [
                 <img
                     src="<?= url('/assets/images/icon.png') ?>"
                     alt="VerifyMagang"
-                    class="h-12 w-12 object-contain"
-                >
+                    class="h-12 w-12 object-contain">
             </div>
 
             <div class="sidebar-logo-text min-w-0">
@@ -135,16 +134,14 @@ $menuItems = [
                         <?= $isActive
                             ? 'bg-blue-50 font-semibold text-blue-600'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>"
-                    <?= $isActive ? 'aria-current="page"' : '' ?>
-                >
+                    <?= $isActive ? 'aria-current="page"' : '' ?>>
 
                     <svg
                         class="h-5 w-5 shrink-0"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
-                        aria-hidden="true"
-                    >
+                        aria-hidden="true">
                         <?= $menu['icon'] ?>
                     </svg>
 
@@ -166,5 +163,4 @@ $menuItems = [
 <!-- Overlay -->
 <div
     id="sidebar-overlay"
-    class="fixed inset-0 z-[35] hidden bg-black/50 lg:hidden"
-></div>
+    class="fixed inset-0 z-[35] hidden bg-black/50 lg:hidden"></div>

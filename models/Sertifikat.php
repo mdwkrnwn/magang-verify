@@ -83,8 +83,24 @@ class Sertifikat
             $owner->execute(['id' => $id]);
             $ownerId = (int) $owner->fetchColumn();
             $notification = $pdo->prepare(
-                "INSERT INTO notifikasi (user_id, judul, pesan, jenis, referensi_tabel, referensi_id, tautan)
-                 VALUES (:user_id, :judul, :pesan, 'sertifikat', 'sertifikat', :id, :tautan)"
+                "INSERT INTO notifikasi (
+                user_id,
+                judul,
+                pesan,
+                jenis,
+                referensi_tabel,
+                referensi_id,
+                tautan
+                )
+                VALUES (
+                    :user_id,
+                    :judul,
+                    :pesan,
+                    'persetujuan',
+                    'sertifikat',
+                    :id,
+                    :tautan
+                )"
             );
             $notification->execute([
                 'user_id' => $ownerId,
@@ -157,8 +173,10 @@ class Sertifikat
 
         $status = trim((string) ($filters['status'] ?? ''));
         $allowedStatus = [
-            'belum_terverifikasi', 'dalam_peninjauan',
-            'terverifikasi', 'ditolak',
+            'belum_terverifikasi',
+            'dalam_peninjauan',
+            'terverifikasi',
+            'ditolak',
         ];
         if (in_array($status, $allowedStatus, true)) {
             $where[] = 'status_verifikasi = :status';

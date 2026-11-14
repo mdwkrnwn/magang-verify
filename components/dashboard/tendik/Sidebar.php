@@ -37,6 +37,12 @@ $menuItems = [
         'key'   => 'verifikasi-sertifikat',
         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6M7 3h10a2 2 0 012 2v14a2 2 0 01-2 2H7a2 2 0 01-2-2V5a2 2 0 012-2z" />',
     ],
+    [
+        'label' => 'Verifikasi Laporan',
+        'url'   => '/dashboard/tendik/verifikasi/laporan',
+        'key'   => 'verifikasi-laporan',
+        'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h7l5 5v11a2 2 0 01-2 2ZM14 3v5h5" />',
+    ],
 ];
 ?>
 

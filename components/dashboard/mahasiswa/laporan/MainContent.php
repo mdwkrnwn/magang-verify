@@ -7,7 +7,7 @@
             </div>
             <?php if ($placement): ?>
                 <a href="<?= url('/dashboard/mahasiswa/laporan/tambah?penempatan=' . (int) $placement['id']) ?>"
-                   class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
+                    class="inline-flex items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
                     + Buat Laporan
                 </a>
             <?php endif; ?>
@@ -43,10 +43,11 @@
                         <?php
                         $isWeekly = ($report['jenis_laporan'] ?? '') === 'laporan_mingguan';
                         $status = (string) ($report['status'] ?? 'draft');
+
                         $statusLabel = [
                             'draft' => 'Draft',
-                            'diajukan' => 'Diajukan',
-                            'diperiksa_dosen' => 'Diperiksa Dosen',
+                            'diajukan' => 'Menunggu Pemeriksaan Dosen',
+                            'diperiksa_dosen' => 'Menunggu Verifikasi Tendik',
                             'perlu_revisi' => 'Perlu Revisi',
                             'menunggu_verifikasi' => 'Menunggu Verifikasi',
                             'terverifikasi' => 'Terverifikasi',
@@ -54,7 +55,7 @@
                         ][$status] ?? $status;
                         ?>
                         <a href="<?= url('/dashboard/mahasiswa/laporan/detail/' . (int) $report['id']) ?>"
-                           class="block rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:border-blue-300 hover:shadow-md transition">
+                            class="block rounded-2xl border border-gray-200 bg-white p-5 shadow-sm hover:border-blue-300 hover:shadow-md transition">
                             <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
                                     <div class="flex flex-wrap items-center gap-2">

@@ -1,5 +1,5 @@
 <?php
-$base = url('/');
+$base = rtrim(url('/'), '/');
 $active = 'verifikasi-laporan';
 ?>
 

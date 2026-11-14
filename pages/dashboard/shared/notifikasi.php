@@ -19,9 +19,11 @@ foreach (['Head.php', 'Sidebar.php', 'Header.php'] as $layoutComponent) {
 <!DOCTYPE html>
 <html lang="id">
 <?php include $componentRoot . '/Head.php'; ?>
+
 <body class="bg-slate-50 font-[Poppins] text-gray-900 overflow-x-hidden">
     <?php include $componentRoot . '/Sidebar.php'; ?>
     <?php include $componentRoot . '/Header.php'; ?>
     <?php include $projectRoot . '/components/dashboard/shared/Notifications.php'; ?>
 </body>
+
 </html>
