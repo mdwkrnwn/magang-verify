@@ -7,7 +7,7 @@
         content="width=device-width, initial-scale=1.0">
 
     <title>
-        Dashboard - MagangVerify
+        Dashboard - VerifyMagang
     </title>
 
 

@@ -11,7 +11,7 @@
     <p class="mt-4 max-w-md text-sm leading-7 text-slate-500 sm:mt-5 sm:text-base">
         Jangan khawatir jika Anda lupa password.
         Kami membantu Anda mendapatkan kembali akses
-        ke akun MagangVerify dengan mudah dan aman.
+        ke akun VerifyMagang dengan mudah dan aman.
     </p>
 
     <?php

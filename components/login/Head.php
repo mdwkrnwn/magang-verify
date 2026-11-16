@@ -6,7 +6,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Masuk - MagangVerify</title>
+    <title>Masuk - VerifyMagang</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

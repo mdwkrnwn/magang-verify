@@ -34,7 +34,7 @@
 
                 <!-- Description -->
                 <p class="order-4 mt-0 lg:mt-5 max-w-lg text-sm sm:text-base leading-6 text-slate-500">
-                    MagangVerify adalah platform yang menghubungkan
+                    VerifyMagang adalah platform yang menghubungkan
                     mahasiswa, kampus, dan mitra industri dalam satu ekosistem
                     untuk pengelolaan portofolio dan proses magang.
                 </p>

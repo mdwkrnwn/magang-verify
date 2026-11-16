@@ -88,7 +88,7 @@ if (!empty($nameParts)) {
 
             <div class="ml-3 flex flex-col min-w-0">
                 <h2 class="font-bold text-lg leading-tight">
-                    MagangVerify
+                    VerifyMagang
                 </h2>
 
                 <!-- Tagline disembunyikan di HP supaya tidak sesak -->

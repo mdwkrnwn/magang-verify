@@ -13,7 +13,7 @@
             </h2>
 
             <p class="mt-4 text-sm sm:text-base text-slate-500 leading-6">
-                Berbagai fitur dalam MagangVerify membantu setiap pihak
+                Berbagai fitur dalam VerifyMagang membantu setiap pihak
                 mengelola informasi yang dibutuhkan dalam satu platform.
             </p>
 

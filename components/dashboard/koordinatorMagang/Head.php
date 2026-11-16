@@ -8,7 +8,7 @@
     >
 
     <title>
-        Dashboard - MagangVerify
+        Dashboard - VerifyMagang
     </title>
 
     <!-- Tailwind CSS -->

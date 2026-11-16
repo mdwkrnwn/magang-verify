@@ -9,7 +9,7 @@
 
     <!-- Deskripsi -->
     <p class="mt-4 max-w-md text-sm leading-7 text-slate-500 sm:mt-5 sm:text-base">
-        Masuk untuk mengakses semua fitur MagangVerify sesuai dengan peran Anda di kampus.
+        Masuk untuk mengakses semua fitur VerifyMagang sesuai dengan peran Anda di kampus.
     </p>
 
     <?php

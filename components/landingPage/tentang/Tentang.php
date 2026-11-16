@@ -19,7 +19,7 @@
             <div class="text-sm sm:text-base leading-7 text-slate-600 space-y-4">
 
                 <p>
-                    MagangVerify dirancang sebagai ruang digital yang
+                    VerifyMagang dirancang sebagai ruang digital yang
                     mempertemukan mahasiswa, kampus, dan mitra industri
                     dalam satu ekosistem.
                 </p>

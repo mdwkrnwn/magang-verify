@@ -5,12 +5,12 @@
         <div class="rounded-2xl bg-blue-600 px-6 py-10 sm:px-10 sm:py-12 text-center">
 
             <h2 class="text-2xl sm:text-3xl font-bold text-white">
-                Temukan bagian dari ekosistem MagangVerify
+                Temukan bagian dari ekosistem VerifyMagang
             </h2>
 
             <p class="mt-3 max-w-2xl mx-auto text-sm sm:text-base text-blue-100 leading-6">
                 Jelajahi profil mahasiswa dan mitra industri yang
-                tersedia di MagangVerify.
+                tersedia di VerifyMagang.
             </p>
 
             <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">

@@ -12,7 +12,7 @@
 
         <div class="min-w-0">
             <p class="truncate text-lg font-bold leading-tight text-slate-900 sm:text-xl">
-                MagangVerify
+                VerifyMagang
             </p>
 
             <p class="truncate text-[10px] leading-relaxed text-slate-600 sm:text-xs">

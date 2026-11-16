@@ -5,7 +5,7 @@
         <div class="text-center max-w-2xl mx-auto">
 
             <p class="text-sm font-medium text-blue-600">
-                Ekosistem MagangVerify
+                Ekosistem VerifyMagang
             </p>
 
             <h2 class="mt-2 text-2xl sm:text-3xl font-bold text-slate-900">
