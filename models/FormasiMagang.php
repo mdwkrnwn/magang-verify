@@ -167,7 +167,6 @@ class FormasiMagang
 
         $sql = $this->baseSelect() . "
             WHERE f.id = :id
-            AND m.status_verifikasi = 'terverifikasi'
             AND m.is_active = TRUE
         ";
 
@@ -210,7 +209,6 @@ class FormasiMagang
     ): array {
         $conditions = [
             "f.status = 'dibuka'",
-            "m.status_verifikasi = 'terverifikasi'",
             "m.is_active = TRUE",
             "f.jumlah_diterima < f.jumlah_kuota"
         ];
