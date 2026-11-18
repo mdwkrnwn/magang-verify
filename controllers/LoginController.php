@@ -152,7 +152,10 @@ class LoginController
 
         $user = $role === 'mitra'
             ? $this->userModel->findActiveMitraByCode($loginId)
-            : $this->userModel->findByLoginId($loginId);
+            : $this->userModel->findByIdentityAndRole(
+                $loginId,
+                $role
+            );
 
         if (function_exists('perfMark')) {
             perfMark(sprintf(

@@ -27,6 +27,98 @@ class User
         return $user;
     }
 
+    public function findByIdentityAndRole(
+        string $identity,
+        string $requestedRole
+    ): ?array {
+        $identity = trim($identity);
+
+        if ($identity === '') {
+            return null;
+        }
+
+        // Tentukan sumber identitas berdasarkan role.
+        if ($requestedRole === 'mahasiswa') {
+            $sql = "
+            SELECT
+                u.id,
+                u.login_id,
+                u.name,
+                u.password,
+                u.role,
+                u.is_active
+            FROM profil_mahasiswa p
+            INNER JOIN users u ON u.id = p.user_id
+            WHERE p.nim = :identity
+              AND u.is_active = TRUE
+              AND (
+                    u.role = :requested_role
+                    OR EXISTS (
+                        SELECT 1
+                        FROM user_roles ur
+                        WHERE ur.user_id = u.id
+                          AND ur.role = :assigned_role
+                    )
+              )
+            LIMIT 1
+        ";
+        } elseif (
+            in_array(
+                $requestedRole,
+                ['dosen', 'koordinator_magang'],
+                true
+            )
+        ) {
+            $sql = "
+            SELECT
+                u.id,
+                u.login_id,
+                u.name,
+                u.password,
+                u.role,
+                u.is_active
+            FROM profil_dosen p
+            INNER JOIN users u ON u.id = p.user_id
+            WHERE p.nidn = :identity
+              AND u.is_active = TRUE
+              AND (
+                    u.role = :requested_role
+                    OR EXISTS (
+                        SELECT 1
+                        FROM user_roles ur
+                        WHERE ur.user_id = u.id
+                          AND ur.role = :assigned_role
+                    )
+              )
+            LIMIT 1
+        ";
+        } else {
+            return null;
+        }
+
+        $stmt = $this->db->prepare($sql);
+
+        $stmt->execute([
+            'identity'       => $identity,
+            'requested_role' => $requestedRole,
+            'assigned_role'  => $requestedRole,
+        ]);
+
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$user) {
+            return null;
+        }
+
+        // Tetap gunakan mekanisme multi-role yang sudah ada.
+        $user['roles'] = $this->getRolesForUser(
+            (int) $user['id'],
+            (string) $user['role']
+        );
+
+        return $user;
+    }
+
     /**
      * Resolve a Mitra account using the official company code on its profile.
      */

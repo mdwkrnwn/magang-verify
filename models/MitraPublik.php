@@ -33,8 +33,7 @@ final class MitraPublik
     {
         $rows = $this->db->query(
             "SELECT id, nama_perusahaan, kategori, bidang_usaha, deskripsi,
-                    email, website, provinsi, kota, alamat,
-                    status_verifikasi, diverifikasi_pada
+                    email, website, provinsi, kota, alamat
              FROM mitra
              WHERE is_active = TRUE
              ORDER BY nama_perusahaan"
