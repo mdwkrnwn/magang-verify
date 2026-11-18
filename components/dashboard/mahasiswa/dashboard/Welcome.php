@@ -35,7 +35,7 @@ if (!empty($bagianNama)) {
             <div class="min-w-0">
                 <p class="text-sm font-medium text-blue-600">Dashboard Mahasiswa</p>
                 <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900 break-words sm:text-3xl">
-                    Selamat datang, <?= e($nama) ?> 👋
+                    Selamat datang, <?= e($nama) ?> 
                 </h1>
                 <p class="mt-1 text-sm text-gray-500 sm:text-base">
                     <?= e($prodi ?: 'Program studi belum diisi') ?>

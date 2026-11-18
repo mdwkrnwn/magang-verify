@@ -1,6 +1,6 @@
 
 <main class="min-h-screen bg-slate-50 pt-20 lg:ml-64">
-    <div class="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+    <div class="mx-auto max-w-8xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
         <?php $stats = $dashboard['statistics'] ?? []; ?>
 
