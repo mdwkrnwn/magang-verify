@@ -173,6 +173,9 @@ $controllerMap = [
     'MitraFormasiController' =>
     $controllerPath . '/dashboard/mitra/FormasiController.php',
 
+    'MitraPengaturanController' =>
+    $controllerPath . '/dashboard/mitra/PengaturanController.php',
+
     /*
     |--------------------------------------------------------------------------
     | SHARED CONTROLLERS

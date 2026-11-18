@@ -425,7 +425,10 @@ $routes = [
         'controller' => PenilaianController::class,
         'method' => 'index',
     ],
-
+    '/dashboard/mitra/pengaturan' => [
+        'controller' => MitraPengaturanController::class,
+        'method' => 'index',
+    ],
 ];
 
 /*
