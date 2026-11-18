@@ -1,8 +1,7 @@
-
 <?php
-$error = $_GET['error'] ?? '';
-$success = $_GET['success'] ?? '';
+$status = $_GET['status'] ?? '';
 ?>
+
 
 <section class="relative z-10 order-1 mx-auto w-full min-w-0 max-w-xl lg:order-2 lg:ml-auto">
 
@@ -35,31 +34,25 @@ $success = $_GET['success'] ?? '';
         </h2>
 
         <p class="mt-2 text-sm leading-6 text-slate-500">
-            Masukkan NIM atau NIP yang terdaftar pada akun MagangVerify.
+            Masukkan NIM atau NIDN yang terdaftar pada akun VerifyMagang.
             Kami akan mengirimkan tautan pemulihan ke email Anda.
         </p>
 
         <!-- Pesan error -->
-        <?php if ($error !== '') : ?>
+        <?php if ($status === 'error') : ?>
 
             <div
                 class="mt-5 w-full rounded-lg bg-red-50 px-4 py-3 text-sm leading-5 text-red-600"
                 role="alert">
 
-                <?php if ($error === 'invalid') : ?>
-                    Format identitas tidak valid. Periksa kembali NIM atau NIP Anda.
-                <?php elseif ($error === 'csrf') : ?>
-                    Sesi tidak valid. Silakan muat ulang halaman.
-                <?php else : ?>
-                    Terjadi kesalahan. Silakan coba kembali.
-                <?php endif; ?>
+                Terjadi kesalahan. Silakan coba kembali.
 
             </div>
 
         <?php endif; ?>
 
         <!-- Pesan berhasil -->
-        <?php if ($success === 'sent') : ?>
+        <?php if ($status === 'sent') : ?>
 
             <div
                 class="mt-5 w-full rounded-lg bg-green-50 px-4 py-3 text-sm leading-6 text-green-700"
@@ -118,7 +111,7 @@ $success = $_GET['success'] ?? '';
                     required
                     autocomplete="username"
                     maxlength="50"
-                    placeholder="Masukkan NIM atau NIP"
+                    placeholder="Masukkan NIM atau NIDN"
                     class="block w-full min-w-0 rounded-lg border border-slate-200 bg-white py-3.5 pl-12 pr-4 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100">
 
             </div>

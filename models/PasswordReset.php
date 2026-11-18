@@ -14,59 +14,85 @@ class PasswordReset
     /**
      * Mencari akun mahasiswa atau dosen berdasarkan NIM/NIP.
      */
+
     public function findAccountByIdentity(string $identity): ?array
     {
+        $identity = trim($identity);
+
+        if ($identity === '') {
+            return null;
+        }
+
         $sql = "
-            SELECT
-                u.id AS user_id,
-                u.login_id,
-                u.name,
-                u.role,
-                p.email,
-                p.nim AS identity
-            FROM profil_mahasiswa p
-            INNER JOIN users u ON u.id = p.user_id
-            WHERE p.nim = :nim
-                AND u.role = 'mahasiswa'
-                AND u.is_active = TRUE
-                AND p.email IS NOT NULL
-                AND TRIM(p.email) <> ''
+        -- Akun mahasiswa: identitas menggunakan NIM
+        SELECT
+            u.id AS user_id,
+            u.login_id,
+            u.name,
+            u.role,
+            p.email,
+            p.nim AS identity
+        FROM profil_mahasiswa p
+        INNER JOIN users u ON u.id = p.user_id
+        WHERE p.nim = :nim
+          AND u.is_active = TRUE
+          AND p.email IS NOT NULL
+          AND TRIM(p.email) <> ''
+          AND (
+                u.role = 'mahasiswa'
+                OR EXISTS (
+                    SELECT 1
+                    FROM user_roles ur
+                    WHERE ur.user_id = u.id
+                      AND ur.role = 'mahasiswa'
+                )
+          )
 
-            UNION ALL
+        UNION ALL
 
-            SELECT
-                u.id AS user_id,
-                u.login_id,
-                u.name,
-                u.role,
-                p.email,
-                p.nip AS identity
-            FROM profil_dosen p
-            INNER JOIN users u ON u.id = p.user_id
-            WHERE p.nip = :nip
-                AND u.role = 'dosen'
-                AND u.is_active = TRUE
-                AND p.email IS NOT NULL
-                AND TRIM(p.email) <> ''
-        ";
+        -- Akun dosen dan koordinator: identitas menggunakan NIDN
+        SELECT
+            u.id AS user_id,
+            u.login_id,
+            u.name,
+            u.role,
+            p.email,
+            p.nidn AS identity
+        FROM profil_dosen p
+        INNER JOIN users u ON u.id = p.user_id
+        WHERE p.nidn = :nidn
+          AND u.is_active = TRUE
+          AND p.email IS NOT NULL
+          AND TRIM(p.email) <> ''
+          AND (
+                u.role IN ('dosen', 'koordinator_magang')
+                OR EXISTS (
+                    SELECT 1
+                    FROM user_roles ur
+                    WHERE ur.user_id = u.id
+                      AND ur.role IN ('dosen', 'koordinator_magang')
+                )
+          )
+    ";
 
         $stmt = $this->pdo->prepare($sql);
 
         $stmt->execute([
-            ':nim' => $identity,
-            ':nip' => $identity,
+            'nim'  => $identity,
+            'nidn' => $identity,
         ]);
 
         $accounts = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Jangan memilih akun secara sembarangan
-        // apabila identitas ditemukan lebih dari satu kali.
+        // Jangan memproses jika identitas tidak ditemukan
+        // atau ternyata terhubung ke lebih dari satu akun.
         if (count($accounts) !== 1) {
             return null;
         }
 
         return $accounts[0];
     }
+
 
     /**
      * Membuat token reset password.
@@ -135,9 +161,22 @@ class PasswordReset
             FROM password_resets pr
             INNER JOIN users u ON u.id = pr.user_id
             WHERE pr.token_hash = :token_hash
-                AND pr.used_at IS NULL
-                AND pr.expires_at > CURRENT_TIMESTAMP
-                AND u.is_active = TRUE
+            AND pr.used_at IS NULL
+            AND pr.expires_at > CURRENT_TIMESTAMP
+            AND u.is_active = TRUE
+            AND (
+                    u.role IN ('mahasiswa', 'dosen', 'koordinator_magang')
+                    OR EXISTS (
+                        SELECT 1
+                        FROM user_roles ur
+                        WHERE ur.user_id = u.id
+                        AND ur.role IN (
+                            'mahasiswa',
+                            'dosen',
+                            'koordinator_magang'
+                        )
+                    )
+            )
             LIMIT 1
         ";
 

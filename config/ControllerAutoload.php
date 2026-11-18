@@ -28,6 +28,10 @@ $controllerMap = [
     'ForgotPasswordController' => $controllerPath . '/ForgotPasswordController.php',
     'LogoutController' => $controllerPath . '/LogoutController.php',
 
+
+    //
+    'ForgotPasswordController' => $controllerPath . '/ForgotPasswordController.php',
+    
     /*
     |--------------------------------------------------------------------------
     | DASHBOARD MAHASISWA
