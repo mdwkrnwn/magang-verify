@@ -15,9 +15,10 @@ $active = 'pembimbing';
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Sidebar.php'; ?>
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Header.php'; ?>
 
-    <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
+    <main
+        class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
+        <div class="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
-            <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-[1600px]">
 
             <!-- Header -->
             <div class="mb-8">
@@ -186,17 +187,33 @@ $active = 'pembimbing';
                     <?php else: ?>
 
                         <!-- Empty State -->
-                        <div class="px-4 py-14 text-center border border-dashed border-gray-200 rounded-2xl">
+                        <div class="px-4 py-12 text-center border border-dashed border-slate-200 rounded-2xl">
 
-                            <div class="flex items-center justify-center w-16 h-16 mx-auto mb-4 text-gray-400 bg-gray-100 rounded-2xl">
-                                <i class="fas fa-clipboard-list text-2xl"></i>
+                            <div class="flex items-center justify-center w-14 h-14 mx-auto text-slate-400 bg-slate-100 rounded-2xl">
+                                <svg
+                                    class="w-7 h-7"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true">
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M8 4h8a2 2 0 012 2v14H6V6a2 2 0 012-2z" />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M9 4V3h6v1M9 9h6M9 13h6M9 17h4" />
+                                </svg>
                             </div>
 
-                            <h3 class="text-base font-semibold text-gray-800">
+                            <h3 class="mt-4 text-sm font-semibold text-gray-800">
                                 Belum Ada Penempatan Magang
                             </h3>
 
-                            <p class="max-w-sm mx-auto mt-2 text-sm text-gray-500">
+                            <p class="max-w-sm mx-auto mt-1 text-sm leading-6 text-gray-500">
                                 Informasi dosen pembimbing akan ditampilkan setelah Anda memiliki penempatan magang.
                             </p>
 

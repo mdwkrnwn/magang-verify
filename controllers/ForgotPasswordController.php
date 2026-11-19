@@ -73,24 +73,19 @@ class ForgotPasswordController
 
     private function createResetRequest(array $account): void
     {
-        // Generate token acak.
         $token = bin2hex(random_bytes(32));
-
-        // Simpan hash token, bukan token aslinya.
         $tokenHash = hash('sha256', $token);
 
-        // Simpan token dengan masa berlaku 30 menit.
         $this->passwordResetModel->create(
             (int) $account['user_id'],
             $tokenHash,
             30
         );
 
-        // Buat URL reset password.
-        $resetUrl = url('/reset-password')
-            . '?token=' . urlencode($token);
+        $resetUrl = 'http://' . $_SERVER['HTTP_HOST']
+            . APP_URL
+            . '/reset-password?token=' . urlencode($token);
 
-        // Kirim email ke alamat yang terdaftar.
         $sent = sendResetPasswordEmail(
             $account['email'],
             $account['name'],
@@ -98,8 +93,10 @@ class ForgotPasswordController
         );
 
         if (!$sent) {
+            $this->passwordResetModel->deleteByTokenHash($tokenHash);
+
             error_log(
-                'Gagal mengirim email reset password. User ID: '
+                '[FORGOT PASSWORD] Email gagal dikirim. User ID: '
                     . $account['user_id']
             );
         }
@@ -116,6 +113,29 @@ class ForgotPasswordController
         }
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+
+            $token = $_GET['token'] ?? '';
+
+            if (
+                !is_string($token) ||
+                !preg_match('/^[a-f0-9]{64}$/i', $token)
+            ) {
+                $this->redirectReset('invalid');
+            }
+
+            try {
+                $reset = $this->passwordResetModel->findValidToken(
+                    hash('sha256', $token)
+                );
+
+                if (!$reset) {
+                    $this->redirectReset('invalid');
+                }
+            } catch (Throwable $exception) {
+                error_log('[PASSWORD RESET] ' . $exception->getMessage());
+                $this->redirectReset('invalid');
+            }
+
             require __DIR__ . '/../pages/login/reset-password.php';
             return;
         }

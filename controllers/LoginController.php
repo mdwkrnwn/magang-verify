@@ -1,14 +1,5 @@
-
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| LoginController - Performance Instrumentation
-|--------------------------------------------------------------------------
-| Mengukur waktu pemuatan dependensi dan proses login.
-| Fungsi perfMark() harus tersedia dari index.php.
-|--------------------------------------------------------------------------
-*/
 
 $loginPerfStart = microtime(true);
 
@@ -17,6 +8,17 @@ require_once __DIR__ . '/../config/database.php';
 if (function_exists('perfMark')) {
     perfMark(sprintf(
         'Login dependency: database.php (%.3f s)',
+        microtime(true) - $loginPerfStart
+    ));
+}
+
+$loginPerfStart = microtime(true);
+
+require_once __DIR__ . '/../models/MitraSessionManager.php';
+
+if (function_exists('perfMark')) {
+    perfMark(sprintf(
+        'Login dependency: MitraSessionManager.php (%.3f s)',
         microtime(true) - $loginPerfStart
     ));
 }
@@ -76,6 +78,8 @@ class LoginController
 
     public function index($params = [])
     {
+        global $pdo;
+
         $perfStart = microtime(true);
 
         // Mulai session sebelum menghasilkan output.
@@ -123,10 +127,13 @@ class LoginController
 
         // Ambil data dari form.
         $role = $_POST['role'] ?? '';
+
         $submittedLoginId = $_POST['login_id'] ?? '';
+
         $loginId = is_string($submittedLoginId)
             ? trim($submittedLoginId)
             : '';
+
         $password = $_POST['password'] ?? '';
 
         // Daftar role yang diperbolehkan.
@@ -206,17 +213,38 @@ class LoginController
             ));
         }
 
+        // Buat session berdasarkan role.
         $perfStart = microtime(true);
 
-        session_regenerate_id(true);
+        if ($role === 'mitra') {
+            // Login manual Mitra menggunakan session manager.
+            MitraSessionManager::createSession(
+                $pdo,
+                (int) $user['mitra_id'],
+                (string) $user['name'],
+                null
+            );
 
-        $_SESSION['user'] = [
-            'id'       => $user['id'],
-            'login_id' => $user['login_id'],
-            'name'     => $user['name'],
-            'role'     => $role,
-            'roles'    => LoginAuthenticator::normalizeRoles($user),
-        ];
+            // Tetap simpan data user untuk kompatibilitas sistem.
+            $_SESSION['user'] = [
+                'id'       => $user['id'],
+                'login_id' => $user['login_id'],
+                'name'     => $user['name'],
+                'role'     => $role,
+                'roles'    => LoginAuthenticator::normalizeRoles($user),
+            ];
+        } else {
+            // Role lain tetap menggunakan mekanisme session lama.
+            session_regenerate_id(true);
+
+            $_SESSION['user'] = [
+                'id'       => $user['id'],
+                'login_id' => $user['login_id'],
+                'name'     => $user['name'],
+                'role'     => $role,
+                'roles'    => LoginAuthenticator::normalizeRoles($user),
+            ];
+        }
 
         if (function_exists('perfMark')) {
             perfMark(sprintf(

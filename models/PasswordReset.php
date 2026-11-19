@@ -279,4 +279,17 @@ class PasswordReset
             throw $e;
         }
     }
+
+    public function deleteByTokenHash(string $tokenHash): void
+    {
+        $stmt = $this->pdo->prepare("
+        DELETE FROM password_resets
+        WHERE token_hash = :token_hash
+          AND used_at IS NULL
+    ");
+
+        $stmt->execute([
+            'token_hash' => $tokenHash
+        ]);
+    }
 }

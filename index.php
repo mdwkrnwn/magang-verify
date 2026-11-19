@@ -41,8 +41,11 @@ perfMark('index: ControllerAutoload.php');
 require_once __DIR__ . '/routes/web.php';
 perfMark('index: routes/web.php loaded');
 
+require_once __DIR__ . '/controllers/MitraAccessController.php';
+
 // require_once __DIR__ . '/middleware/AuthMiddleware.php';
 // perfMark('index: AuthMiddleware.php');
+
 $matchedRoute = route($_SERVER['REQUEST_URI']);
 perfMark('index: route matching');
 
@@ -50,20 +53,72 @@ if (!$matchedRoute) {
     require __DIR__ . '/pages/errors/404.php';
     exit;
 }
+
 perfMark('index: before session');
+
 $route = $matchedRoute['route'];
 $params = $matchedRoute['params'];
 
 /*
 |--------------------------------------------------------------------------
-| Middleware Authorization
+| Session Configuration
+|--------------------------------------------------------------------------
+| Session Mitra menggunakan persistent cookie.
+| Session internal tetap menggunakan konfigurasi default sebelumnya.
 |--------------------------------------------------------------------------
 */
 
+// Deteksi request Mitra sebelum session dimulai
+$requestPath = parse_url(
+    $_SERVER['REQUEST_URI'],
+    PHP_URL_PATH
+) ?: '/';
+
+$basePath = rtrim(APP_URL, '/');
+
+if (
+    $basePath !== '' &&
+    ($requestPath === $basePath ||
+        str_starts_with($requestPath, $basePath . '/'))
+) {
+    $requestPath = substr($requestPath, strlen($basePath));
+}
+
+
+$isManualMitraLogin =
+    $requestPath === '/login' &&
+    ($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST' &&
+    ($_POST['role'] ?? '') === 'mitra';
+
+$isMitraRequest =
+    $requestPath === '/mitra' ||
+    str_starts_with($requestPath, '/mitra/') ||
+    $requestPath === '/dashboard/mitra' ||
+    str_starts_with($requestPath, '/dashboard/mitra/') ||
+    $isManualMitraLogin;
+
 if (session_status() !== PHP_SESSION_ACTIVE) {
+
+    // Session Mitra: persistent cookie
+    if ($isMitraRequest) {
+
+        $cookieParams = session_get_cookie_params();
+
+        session_set_cookie_params([
+            'lifetime' => 315360000, // 10 tahun
+            'path' => $cookieParams['path'],
+            'domain' => $cookieParams['domain'],
+            'secure' => $cookieParams['secure'],
+            'httponly' => $cookieParams['httponly'],
+            'samesite' => $cookieParams['samesite'] ?? 'Lax',
+        ]);
+    }
+
     session_start();
 }
+
 perfMark('index: after session');
+
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $basePath = rtrim(APP_URL, '/');
 
@@ -80,18 +135,47 @@ if (!$path) {
 
 $path = $path === '/' ? '/' : rtrim($path, '/');
 
+/*
+|--------------------------------------------------------------------------
+| Middleware Autentikasi Mitra
+|--------------------------------------------------------------------------
+*/
+
+$mitraDashboardPrefix = '/dashboard/mitra';
+
+if (
+    $path === $mitraDashboardPrefix ||
+    str_starts_with($path, $mitraDashboardPrefix . '/')
+) {
+    require_once __DIR__ . '/middleware/MitraAuthMiddleware.php';
+
+    perfMark('index: MitraAuthMiddleware.php loaded');
+
+    perfMark('index: before MitraAuthMiddleware');
+
+    MitraAuthMiddleware::check();
+
+    perfMark('index: after MitraAuthMiddleware');
+}
+
+/*
+|--------------------------------------------------------------------------
+| Middleware Authorization Internal
+|--------------------------------------------------------------------------
+*/
+
 $protectedRoutes = [
     '/dashboard/mahasiswa' => 'mahasiswa',
     '/dashboard/dosen' => 'dosen',
     '/dashboard/koordinator-magang' => 'koordinator_magang',
     '/dashboard/tendik' => 'tendik',
-    '/dashboard/mitra' => 'mitra',
 ];
 
 foreach ($protectedRoutes as $prefix => $requiredRole) {
+
     if ($path === $prefix || str_starts_with($path, $prefix . '/')) {
 
-        // Middleware hanya dimuat untuk halaman yang dilindungi.
+        // Middleware hanya dimuat untuk halaman yang dilindungi
         require_once __DIR__ . '/middleware/AuthMiddleware.php';
         perfMark('index: AuthMiddleware.php loaded');
 
@@ -132,10 +216,10 @@ if (
     // TEST LAZY LOADING
     error_log(
         '[AUTOLOAD TEST] Declared controller classes: ' .
-        json_encode(array_values(array_filter(
-            get_declared_classes(),
-            fn($class) => str_contains($class, 'Controller')
-        )))
+            json_encode(array_values(array_filter(
+                get_declared_classes(),
+                fn($class) => str_contains($class, 'Controller')
+            )))
     );
 
     $controller = new $controllerClass();

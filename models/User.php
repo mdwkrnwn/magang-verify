@@ -125,34 +125,54 @@ class User
     public function findActiveMitraByCode(string $companyCode): ?array
     {
         $sql = "
-            SELECT u.id, u.login_id, u.name, u.role, u.is_active,
-                   m.is_active AS mitra_is_active
-            FROM mitra m
-            INNER JOIN users u ON u.id = m.user_id
-            WHERE m.kode_perusahaan = :kode_perusahaan
-              AND u.is_active = TRUE
-              AND m.is_active = TRUE
-              AND (
-                    u.role = 'mitra'
-                    OR EXISTS (
-                        SELECT 1 FROM user_roles ur
-                        WHERE ur.user_id = u.id AND ur.role = 'mitra'
-                    )
-                  )
-            LIMIT 1
-        ";
+        SELECT
+            u.id,
+            m.id AS mitra_id,
+            u.login_id,
+            u.name,
+            u.password,
+            u.role,
+            u.is_active,
+            m.is_active AS mitra_is_active
+        FROM mitra m
+        INNER JOIN users u
+            ON u.id = m.user_id
+        WHERE m.kode_perusahaan = :kode_perusahaan
+          AND u.is_active = TRUE
+          AND m.is_active = TRUE
+          AND (
+                u.role = 'mitra'
+                OR EXISTS (
+                    SELECT 1
+                    FROM user_roles ur
+                    WHERE ur.user_id = u.id
+                      AND ur.role = 'mitra'
+                )
+          )
+        LIMIT 1
+    ";
 
         $stmt = $this->db->prepare($sql);
-        $stmt->execute(['kode_perusahaan' => $companyCode]);
+
+        $stmt->execute([
+            'kode_perusahaan' => trim($companyCode),
+        ]);
 
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
         if (!$user) {
             return null;
         }
-        $user['roles'] = $this->getRolesForUser((int) $user['id'], (string) $user['role']);
+
+        $user['roles'] = $this->getRolesForUser(
+            (int) $user['id'],
+            (string) $user['role']
+        );
+
         if (!in_array('mitra', $user['roles'], true)) {
             return null;
         }
+
         return $user;
     }
 

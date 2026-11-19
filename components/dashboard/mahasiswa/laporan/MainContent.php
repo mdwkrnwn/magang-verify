@@ -15,8 +15,34 @@
 
         <?php if (!$placement): ?>
             <div class="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
-                <h2 class="font-semibold text-gray-900">Belum ada penempatan magang</h2>
-                <p class="mt-2 text-sm text-gray-500">Laporan magang akan tersedia setelah kamu memiliki penempatan magang.</p>
+
+                <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
+                    <svg
+                        class="h-7 w-7"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M3 7.5A2.5 2.5 0 015.5 5h3l2 2h8A2.5 2.5 0 0121 9.5v8a2.5 2.5 0 01-2.5 2.5h-13A2.5 2.5 0 013 17.5v-10z" />
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="1.8"
+                            d="M8 13h8m-4-4v8" />
+                    </svg>
+                </div>
+
+                <h2 class="mt-4 font-semibold text-gray-900">
+                    Belum ada penempatan magang
+                </h2>
+
+                <p class="mt-2 text-sm text-gray-500">
+                    Laporan magang akan tersedia setelah kamu memiliki penempatan magang.
+                </p>
             </div>
         <?php else: ?>
             <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm mb-6">

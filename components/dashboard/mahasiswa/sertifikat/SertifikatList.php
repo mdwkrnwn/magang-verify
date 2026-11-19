@@ -2,31 +2,28 @@
 
     <?php if (empty($tampil)): ?>
 
-        <div class="xl:col-span-2 bg-white border border-slate-200 rounded-xl p-8 text-center">
+        <div class="xl:col-span-2 rounded-xl border border-slate-200 bg-white px-6 py-12 text-center">
 
-            <div class="mx-auto flex items-center justify-center w-12 h-12 rounded-full bg-slate-100">
-
+            <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
                 <svg
-                    class="w-6 h-6 text-slate-400"
+                    class="h-7 w-7"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24">
-
+                    viewBox="0 0 24 24"
+                    aria-hidden="true">
                     <path
                         stroke-linecap="round"
                         stroke-linejoin="round"
-                        stroke-width="2"
+                        stroke-width="1.8"
                         d="M12 14v.01M12 10v2m0 9a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" />
-
                 </svg>
-
             </div>
 
-            <p class="mt-4 text-sm font-medium text-gray-700">
+            <p class="mt-4 text-sm font-semibold text-gray-800">
                 Sertifikat tidak ditemukan.
             </p>
 
-            <p class="mt-1 text-xs text-gray-500">
+            <p class="mx-auto mt-1 max-w-md text-sm leading-6 text-gray-500">
                 Coba ubah kata pencarian atau filter yang digunakan.
             </p>
 

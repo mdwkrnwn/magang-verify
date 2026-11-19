@@ -31,7 +31,7 @@ $controllerMap = [
 
     //
     'ForgotPasswordController' => $controllerPath . '/ForgotPasswordController.php',
-    
+
     /*
     |--------------------------------------------------------------------------
     | DASHBOARD MAHASISWA
@@ -180,6 +180,8 @@ $controllerMap = [
     'MitraPengaturanController' =>
     $controllerPath . '/dashboard/mitra/PengaturanController.php',
 
+    'GenerateLoginMitraController' =>
+    $controllerPath . '/dashboard/koordinatorMagang/GenerateLoginMitraController.php',
     /*
     |--------------------------------------------------------------------------
     | SHARED CONTROLLERS

@@ -396,39 +396,43 @@ $routes = [
         'controller' => KoordinatorLowonganController::class,
         'method' => 'updateStatus',
     ],
-
-
-    /*
-    |---------------------
-    | Dashboard Mitra
-    |---------------------
-    */
-
-    // Menu Dashboard
-
-    '/dashboard/mitra' => [
-        'controller' => MitraDashboardController::class,
+    '/dashboard/koordinator-magang/generate-login' => [
+        'controller' => GenerateLoginMitraController::class,
         'method' => 'index',
     ],
 
-    '/dashboard/mitra/formasi' => [
-        'controller' => MitraFormasiController::class,
-        'method' => 'index',
-    ],
 
-    '/dashboard/mitra/pengajuan' => [
-        'controller' => MitraPengajuanController::class,
-        'method' => 'index',
-    ],
+        /*
+        |---------------------
+        | Dashboard Mitra
+        |---------------------
+        */
 
-    '/dashboard/mitra/penilaian' => [
-        'controller' => PenilaianController::class,
-        'method' => 'index',
-    ],
-    '/dashboard/mitra/pengaturan' => [
-        'controller' => MitraPengaturanController::class,
-        'method' => 'index',
-    ],
+        // Menu Dashboard
+
+        '/dashboard/mitra' => [
+            'controller' => MitraDashboardController::class,
+            'method' => 'index',
+        ],
+
+        '/dashboard/mitra/formasi' => [
+            'controller' => MitraFormasiController::class,
+            'method' => 'index',
+        ],
+
+        '/dashboard/mitra/pengajuan' => [
+            'controller' => MitraPengajuanController::class,
+            'method' => 'index',
+        ],
+
+        '/dashboard/mitra/penilaian' => [
+            'controller' => PenilaianController::class,
+            'method' => 'index',
+        ],
+        '/dashboard/mitra/pengaturan' => [
+            'controller' => MitraPengaturanController::class,
+            'method' => 'index',
+        ],
 ];
 
 /*
@@ -1446,6 +1450,23 @@ function route(string $uri): ?array
             ],
         ];
     }
+
+    // --------------------------------------------------
+    // Akses Login Mitra melalui Token Permanen
+    // Contoh: /mitra/akses/xxxxxxxxxxxxxxxxxxxxxxxx
+    // --------------------------------------------------
+
+    if (preg_match('#^/mitra/akses/([a-f0-9]{64})$#', $path, $matches)) {
+    return [
+        'route' => [
+            'controller' => MitraAccessController::class,
+            'method' => 'access',
+        ],
+        'params' => [
+            'token' => $matches[1],
+        ],
+    ];
+}
 
 
     return null;

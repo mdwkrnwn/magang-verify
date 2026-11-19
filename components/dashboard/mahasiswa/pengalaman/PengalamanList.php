@@ -29,14 +29,7 @@
                     : 'Tambahkan pengalaman organisasi, pekerjaan, freelance, atau proyek yang pernah kamu jalani.' ?>
             </p>
 
-            <?php if ($q === '' && $jenis === '' && $sumber === '' && $tahun === ''): ?>
-                <a
-                    href="<?= e(url('/dashboard/mahasiswa/pengalaman/tambah')) ?>"
-                    class="mt-5 inline-flex items-center rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
-                >
-                    Tambah Pengalaman
-                </a>
-            <?php endif; ?>
+            
         </div>
     <?php else: ?>
         <?php foreach ($tampil as $item): ?>
