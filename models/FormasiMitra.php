@@ -209,8 +209,10 @@ class FormasiMitra
     private function assertCompanyCanManage(int $userId): array
     {
         $company = $this->getCompany($userId);
-        if (!$company || $company['status_verifikasi'] !== 'terverifikasi'
-            || !in_array($company['is_active'], [true, 1, '1', 't', 'true'], true)) {
+        if (
+            !$company || $company['status_verifikasi'] !== 'terverifikasi'
+            || !in_array($company['is_active'], [true, 1, '1', 't', 'true'], true)
+        ) {
             throw new RuntimeException('Akun mitra belum terverifikasi atau tidak aktif.');
         }
         return $company;

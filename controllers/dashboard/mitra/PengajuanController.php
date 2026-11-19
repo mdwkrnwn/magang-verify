@@ -3,18 +3,37 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../../function/Helpers.php';
-require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../models/PengajuanMitra.php';
 
 class MitraPengajuanController
 {
     public function index($params = []): void
     {
-        AuthMiddleware::handle('mitra');
-        $userId = (int) ($_SESSION['user']['id'] ?? 0);
+        global $pdo;
+
+        $mitraId = (int) ($_SESSION['mitra']['id'] ?? 0);
+
+        if ($mitraId < 1) {
+            http_response_code(401);
+            exit('Sesi Mitra tidak valid.');
+        }
+
+        $stmt = $pdo->prepare("
+        SELECT user_id
+        FROM mitra
+        WHERE id = :mitra_id
+        LIMIT 1
+        ");
+
+        $stmt->execute([
+            'mitra_id' => $mitraId
+        ]);
+
+        $userId = (int) $stmt->fetchColumn();
+
         if ($userId < 1) {
             http_response_code(401);
-            exit('Sesi pengguna tidak valid.');
+            exit('Data akun Mitra tidak ditemukan.');
         }
 
         $model = new PengajuanMitra();

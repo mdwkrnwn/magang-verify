@@ -27,7 +27,6 @@ abstract class PengaturanBaseController
 
     abstract protected function getRedirectUrl(): string;
 
-
     /**
      * Session
      */
@@ -38,7 +37,6 @@ abstract class PengaturanBaseController
         }
     }
 
-
     /**
      * Mendapatkan ID pengguna yang login
      */
@@ -46,6 +44,43 @@ abstract class PengaturanBaseController
     {
         $this->startSession();
 
+        // =========================================
+        // AUTENTIKASI MITRA VIA ACCESS LINK
+        // =========================================
+        if ($this->getRole() === 'mitra') {
+            global $pdo;
+
+            $mitraId = (int) ($_SESSION['mitra']['id'] ?? 0);
+
+            if ($mitraId < 1) {
+                http_response_code(401);
+                exit('Sesi Mitra tidak valid. Silakan login kembali.');
+            }
+
+            $stmt = $pdo->prepare("
+                SELECT user_id
+                FROM mitra
+                WHERE id = :mitra_id
+                LIMIT 1
+            ");
+
+            $stmt->execute([
+                'mitra_id' => $mitraId
+            ]);
+
+            $userId = (int) $stmt->fetchColumn();
+
+            if ($userId < 1) {
+                http_response_code(401);
+                exit('Data akun Mitra tidak ditemukan.');
+            }
+
+            return $userId;
+        }
+
+        // =========================================
+        // AUTENTIKASI ROLE LAIN
+        // =========================================
         AuthMiddleware::handle($this->getRole());
 
         $userId = $_SESSION['user']['id'] ?? null;
@@ -57,7 +92,6 @@ abstract class PengaturanBaseController
 
         return (int) $userId;
     }
-
 
     /**
      * Validasi request POST dan CSRF
@@ -75,7 +109,6 @@ abstract class PengaturanBaseController
             exit('403 - Token CSRF tidak valid.');
         }
     }
-
 
     /**
      * Memproses pergantian password
@@ -96,13 +129,11 @@ abstract class PengaturanBaseController
             $_POST['new_password_confirmation'] ?? ''
         );
 
-
         // Validasi password saat ini
         if ($currentPassword === '') {
             $errors['current_password'] =
                 'Kata sandi saat ini wajib diisi.';
         }
-
 
         // Validasi password baru
         if ($newPassword === '') {
@@ -113,7 +144,6 @@ abstract class PengaturanBaseController
                 'Kata sandi baru minimal 8 karakter.';
         }
 
-
         // Validasi konfirmasi password
         if ($newPasswordConfirmation === '') {
             $errors['new_password_confirmation'] =
@@ -123,12 +153,10 @@ abstract class PengaturanBaseController
                 'Konfirmasi kata sandi tidak sama.';
         }
 
-
         // Hentikan jika validasi awal gagal
         if (!empty($errors)) {
             return $errors;
         }
-
 
         // Ambil data pengguna
         $user = $this->userModel->findById($userId);
@@ -137,7 +165,6 @@ abstract class PengaturanBaseController
             http_response_code(404);
             exit('Pengguna tidak ditemukan.');
         }
-
 
         // Verifikasi password lama
         if (
@@ -153,7 +180,6 @@ abstract class PengaturanBaseController
             return $errors;
         }
 
-
         // Password baru tidak boleh sama dengan password lama
         if (password_verify($newPassword, $user['password'])) {
             $errors['new_password'] =
@@ -161,7 +187,6 @@ abstract class PengaturanBaseController
 
             return $errors;
         }
-
 
         // Generate password hash
         $passwordHash = password_hash(
@@ -175,7 +200,6 @@ abstract class PengaturanBaseController
             );
         }
 
-
         // Simpan password baru
         $updated = $this->userModel->updatePassword(
             $userId,
@@ -187,7 +211,6 @@ abstract class PengaturanBaseController
                 'Kata sandi gagal diperbarui.'
             );
         }
-
 
         // Catat aktivitas pengguna
         $this->aktivitasModel->log(
@@ -202,7 +225,6 @@ abstract class PengaturanBaseController
         return [];
     }
 
-
     /**
      * Halaman pengaturan
      */
@@ -213,14 +235,12 @@ abstract class PengaturanBaseController
         $errors = [];
         $success = null;
 
-
         // Ambil pesan sukses
         if (!empty($_SESSION['pengaturan_success'])) {
             $success = $_SESSION['pengaturan_success'];
 
             unset($_SESSION['pengaturan_success']);
         }
-
 
         // Proses POST
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
@@ -243,7 +263,6 @@ abstract class PengaturanBaseController
                 exit;
             }
         }
-
 
         // Tampilkan halaman sesuai role
         require $this->getViewPath();

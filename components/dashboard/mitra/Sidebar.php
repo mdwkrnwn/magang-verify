@@ -1,6 +1,9 @@
-
 <?php
-$role = $_SESSION['user']['role'] ?? '';
+$isMitra = !empty($_SESSION['mitra']['id']);
+
+$role = $isMitra
+    ? 'mitra'
+    : ($_SESSION['user']['role'] ?? '');
 
 $roleLabels = [
     'mahasiswa' => 'Mahasiswa',
@@ -48,8 +51,7 @@ $menuItems = [
 
 <aside
     id="sidebar"
-    class="fixed inset-y-0 left-0 z-40 flex w-64 max-w-[85vw] -translate-x-full flex-col overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 ease-in-out lg:translate-x-0"
->
+    class="fixed inset-y-0 left-0 z-40 flex w-64 max-w-[85vw] -translate-x-full flex-col overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 ease-in-out lg:translate-x-0">
     <!-- Logo -->
     <div class="flex h-20 shrink-0 items-center border-b border-gray-100 px-6">
 
@@ -59,8 +61,7 @@ $menuItems = [
                 <img
                     src="<?= e(url('/assets/images/icon.png')) ?>"
                     alt="VerifyMagang"
-                    class="h-14 w-14 object-contain"
-                >
+                    class="h-14 w-14 object-contain">
             </div>
 
             <div class="sidebar-logo-text min-w-0">
@@ -97,8 +98,7 @@ $menuItems = [
                         <?= $isActive
                             ? 'bg-blue-50 font-semibold text-blue-600'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' ?>"
-                    <?= $isActive ? 'aria-current="page"' : '' ?>
-                >
+                    <?= $isActive ? 'aria-current="page"' : '' ?>>
 
                     <!-- Icon -->
                     <svg
@@ -106,14 +106,12 @@ $menuItems = [
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
-                        aria-hidden="true"
-                    >
+                        aria-hidden="true">
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="1.8"
-                            d="<?= e($item['icon']) ?>"
-                        />
+                            d="<?= e($item['icon']) ?>" />
                     </svg>
 
                     <!-- Label -->
@@ -133,5 +131,4 @@ $menuItems = [
 <!-- Overlay (Mobile / Tablet) -->
 <div
     id="sidebar-overlay"
-    class="fixed inset-0 z-[35] hidden bg-black/50 lg:hidden"
-></div>
+    class="fixed inset-0 z-[35] hidden bg-black/50 lg:hidden"></div>

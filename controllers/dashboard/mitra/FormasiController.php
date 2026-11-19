@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../../function/Helpers.php';
-require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
 require_once __DIR__ . '/../../../models/FormasiMitra.php';
 
 class MitraFormasiController
@@ -75,9 +74,17 @@ class MitraFormasiController
         $mode = $formasi ? 'edit' : 'create';
         $error = null;
         $values = $formasi ?? [
-            'judul' => '', 'deskripsi' => '', 'bidang' => '', 'jumlah_kuota' => 1,
-            'persyaratan' => '', 'lokasi_magang' => '', 'sistem_kerja' => 'onsite',
-            'tanggal_mulai' => '', 'tanggal_selesai' => '', 'tahun_akademik' => '', 'status' => 'draft',
+            'judul' => '',
+            'deskripsi' => '',
+            'bidang' => '',
+            'jumlah_kuota' => 1,
+            'persyaratan' => '',
+            'lokasi_magang' => '',
+            'sistem_kerja' => 'onsite',
+            'tanggal_mulai' => '',
+            'tanggal_selesai' => '',
+            'tahun_akademik' => '',
+            'status' => 'draft',
         ];
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
@@ -104,14 +111,34 @@ class MitraFormasiController
 
     private function userId(): int
     {
-        AuthMiddleware::handle('mitra');
-        $id = (int) ($_SESSION['user']['id'] ?? 0);
-        if ($id < 1) {
+        global $pdo;
+
+        $mitraId = (int) ($_SESSION['mitra']['id'] ?? 0);
+
+        if ($mitraId < 1) {
             http_response_code(401);
-            exit('Sesi pengguna tidak valid.');
+            exit('Sesi Mitra tidak valid.');
         }
 
-        return $id;
+        $stmt = $pdo->prepare("
+        SELECT user_id
+        FROM mitra
+        WHERE id = :mitra_id
+        LIMIT 1
+    ");
+
+        $stmt->execute([
+            'mitra_id' => $mitraId
+        ]);
+
+        $userId = (int) $stmt->fetchColumn();
+
+        if ($userId < 1) {
+            http_response_code(401);
+            exit('Data akun Mitra tidak ditemukan.');
+        }
+
+        return $userId;
     }
 
     private function validatePost(): void

@@ -5,14 +5,19 @@ $active = 'penilaian';
 <!DOCTYPE html>
 <html lang="id">
 <?php include __DIR__ . '/../../../../components/dashboard/mitra/Head.php'; ?>
+
 <body class="bg-slate-50 font-[Poppins] text-gray-900 overflow-x-hidden">
-<?php include __DIR__ . '/../../../../components/dashboard/mitra/Sidebar.php'; ?>
-<?php include __DIR__ . '/../../../../components/dashboard/mitra/Header.php'; ?>
-<main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
-      <div class="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
-        <div class="mb-6"><h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Penilaian Magang</h1><p class="mt-2 text-sm text-gray-500">Nilai mahasiswa pada penempatan perusahaan Anda.</p></div>
-        <?php include __DIR__ . '/../../../../components/dashboard/penilaian/MainContent.php'; ?>
-    </div>
-</main>
+    <?php include __DIR__ . '/../../../../components/dashboard/mitra/Sidebar.php'; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/mitra/Header.php'; ?>
+    <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
+        <div class="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+            <div class="mb-6">
+                <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">Penilaian Magang</h1>
+                <p class="mt-2 text-sm text-gray-500">Nilai mahasiswa pada penempatan perusahaan Anda.</p>
+            </div>
+            <?php include __DIR__ . '/../../../../components/dashboard/penilaian/MainContent.php'; ?>
+        </div>
+    </main>
 </body>
+
 </html>
