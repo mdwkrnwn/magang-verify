@@ -13,11 +13,7 @@ $namaPengguna = trim(
 $role = $_SESSION['user']['role'] ?? 'mahasiswa';
 
 $roleLabels = [
-    'mahasiswa' => 'Mahasiswa',
-    'dosen' => 'Dosen',
     'tendik' => 'Tendik',
-    'koordinator_magang' => 'Koordinator Magang',
-    'mitra' => 'Mitra',
 ];
 
 /*

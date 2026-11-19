@@ -128,10 +128,10 @@ class LoginController
         // Ambil data dari form.
         $role = $_POST['role'] ?? '';
 
-        $submittedLoginId = $_POST['login_id'] ?? '';
+        $submittedIdentity = $_POST['login_id'] ?? '';
 
-        $loginId = is_string($submittedLoginId)
-            ? trim($submittedLoginId)
+        $identity = is_string($submittedIdentity)
+            ? trim($submittedIdentity)
             : '';
 
         $password = $_POST['password'] ?? '';
@@ -149,7 +149,7 @@ class LoginController
         if (
             !is_string($role) ||
             !in_array($role, $allowedRoles, true) ||
-            $loginId === ''
+            $identity === ''
         ) {
             $this->redirectToLogin();
         }
@@ -160,7 +160,7 @@ class LoginController
         $user = $role === 'mitra'
             ? $this->userModel->findActiveMitraByCode($loginId)
             : $this->userModel->findByIdentityAndRole(
-                $loginId,
+                $identity,
                 $role
             );
 

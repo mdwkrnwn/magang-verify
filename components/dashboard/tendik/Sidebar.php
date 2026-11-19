@@ -3,11 +3,7 @@ $active = $active ?? '';
 $role = $_SESSION['user']['role'] ?? '';
 
 $roleLabels = [
-    'mahasiswa'         => 'Mahasiswa',
-    'dosen'             => 'Dosen',
     'tendik'            => 'Tendik',
-    'koordinator_magang' => 'Koordinator Magang',
-    'mitra'             => 'Mitra',
 ];
 
 $roleLabel = $roleLabels[$role] ?? 'Pengguna';

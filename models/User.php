@@ -92,6 +92,31 @@ class User
               )
             LIMIT 1
         ";
+        } elseif ($requestedRole === 'tendik') {
+            $sql = "
+        SELECT
+            u.id,
+            u.login_id,
+            u.name,
+            u.password,
+            u.role,
+            u.is_active,
+            pt.nip
+        FROM profil_tendik pt
+        INNER JOIN users u ON u.id = pt.user_id
+        WHERE pt.nip = :identity
+          AND u.is_active = TRUE
+          AND (
+                u.role = :requested_role
+                OR EXISTS (
+                    SELECT 1
+                    FROM user_roles ur
+                    WHERE ur.user_id = u.id
+                      AND ur.role = :assigned_role
+                )
+          )
+        LIMIT 1
+    ";
         } else {
             return null;
         }
