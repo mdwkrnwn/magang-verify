@@ -158,7 +158,7 @@ class LoginController
         $perfStart = microtime(true);
 
         $user = $role === 'mitra'
-            ? $this->userModel->findActiveMitraByCode($loginId)
+            ? $this->userModel->findActiveMitraByCode($identity)
             : $this->userModel->findByIdentityAndRole(
                 $identity,
                 $role
@@ -170,7 +170,6 @@ class LoginController
                 microtime(true) - $perfStart
             ));
         }
-
         // Validasi role dan password.
         $perfStart = microtime(true);
 
