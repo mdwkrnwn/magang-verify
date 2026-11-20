@@ -1,0 +1,711 @@
+/*
+|--------------------------------------------------------------------------
+| Legal Page (Privasi / Syarat dan Ketentuan)
+|--------------------------------------------------------------------------
+|
+| Nilai warna, ukuran, dan jarak diambil dari mockup Figma langsung
+| (sampling piksel pada kanvas 1440px), bukan perkiraan.
+|
+*/
+
+.legal {
+    --legal-brand: #0669d8;
+    --legal-ink: #071b3a;
+    --legal-strong: #3f5b7c;
+    --legal-muted: #576f8c;
+    --legal-tint: #f3f9ff;
+    --legal-tint-strong: #e7f3ff;
+    --legal-line: #d7e3f0;
+    --legal-card: #ffffff;
+}
+
+/*
+ * Head.php memasang overflow-x:hidden pada html/body. Itu membuat body
+ * menjadi scroll container, sehingga position:sticky pada daftar isi mati.
+ * overflow-x:clip memotong luapan tanpa membuat scroll container, jadi
+ * sticky kembali berfungsi. Baris "hidden" tetap ada sebagai fallback
+ * untuk peramban lama yang belum mengenal clip.
+ */
+html,
+body {
+    overflow-x: hidden;
+    overflow-x: clip;
+}
+
+/* ----------------------------------
+   Hero
+---------------------------------- */
+
+.legal-hero {
+    background-color: var(--legal-tint);
+    border-bottom: 1px solid var(--legal-line);
+}
+
+.legal-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--legal-muted);
+}
+
+.legal-breadcrumb a {
+    color: var(--legal-muted);
+    transition: color 0.15s ease;
+}
+
+.legal-breadcrumb a:hover {
+    color: var(--legal-brand);
+}
+
+.legal-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--legal-brand);
+}
+
+.legal-title {
+    margin-top: 0.75rem;
+    font-size: 2.125rem;
+    line-height: 1.15;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--legal-ink);
+}
+
+@media (min-width: 768px) {
+    .legal-title {
+        font-size: 2.875rem;
+    }
+}
+
+.legal-lead {
+    margin-top: 1rem;
+    max-width: 46rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--legal-strong);
+}
+
+.legal-draft {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+    padding: 0.3125rem 0.875rem;
+    border-radius: 9999px;
+    background-color: #fff7e6;
+    border: 1px solid #d9bf94;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #a67528;
+}
+
+.legal-draft::before {
+    content: "";
+    width: 0.375rem;
+    height: 0.375rem;
+    border-radius: 9999px;
+    background-color: #a67528;
+}
+
+/* ----------------------------------
+   "Intinya" band
+---------------------------------- */
+
+.legal-summary {
+    border-bottom: 1px solid var(--legal-line);
+}
+
+.legal-summary-title {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--legal-ink);
+}
+
+.legal-summary-title svg {
+    color: var(--legal-brand);
+}
+
+.legal-summary-grid {
+    display: grid;
+    gap: 1.75rem;
+    margin-top: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .legal-summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 2.5rem;
+    }
+}
+
+.legal-summary-item h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--legal-ink);
+}
+
+.legal-summary-item p {
+    margin-top: 0.375rem;
+    font-size: 0.8125rem;
+    line-height: 1.65;
+    color: var(--legal-muted);
+}
+
+/* ----------------------------------
+   Reminder cards (Syarat dan Ketentuan)
+---------------------------------- */
+
+.legal-reminders-title {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--legal-ink);
+}
+
+.legal-reminders-title svg {
+    color: var(--legal-brand);
+}
+
+.legal-reminders-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+    .legal-reminders-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+.legal-reminder {
+    border: 1px solid var(--legal-line);
+    border-radius: 0.75rem;
+    background-color: var(--legal-card);
+    padding: 1.125rem 1.25rem;
+}
+
+.legal-reminder h3 {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--legal-ink);
+}
+
+.legal-reminder h3 svg {
+    flex-shrink: 0;
+    margin-top: 0.05rem;
+    color: var(--legal-brand);
+}
+
+.legal-reminder p {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    line-height: 1.65;
+    color: var(--legal-muted);
+}
+
+/* ----------------------------------
+   Layout: TOC + content
+---------------------------------- */
+
+.legal-body {
+    display: grid;
+    gap: 2.5rem;
+}
+
+/*
+ * Selebar mockup: 1272px, bukan max-w-7xl (1280px dikurangi padding 24px
+ * sisi jadi hanya 1232px). Padding tetap ada untuk layar kecil.
+ */
+.legal-shell {
+    width: 100%;
+    max-width: 1272px;
+    margin-inline: auto;
+    padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+    .legal-shell {
+        padding-inline: 1.5rem;
+    }
+}
+
+@media (min-width: 1352px) {
+    .legal-shell {
+        padding-inline: 0;
+    }
+}
+
+@media (min-width: 1024px) {
+    .legal-body {
+        grid-template-columns: 344px minmax(0, 1fr);
+        gap: 0;
+    }
+}
+
+.legal-toc {
+    align-self: start;
+}
+
+@media (min-width: 1024px) {
+    .legal-toc {
+        position: sticky;
+        top: 6.5rem;
+        padding-right: 4rem;
+    }
+}
+
+.legal-toc-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--legal-brand);
+}
+
+.legal-toc-list {
+    margin-top: 1.125rem;
+}
+
+/*
+ * Daftar isi: pitch baris mockup 45px. Tinggi teks kecil, jadi jaraknya
+ * dari padding, bukan line-height.
+ */
+.legal-toc-list a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    padding: 0.75rem 0;
+    font-size: 0.9375rem;
+    line-height: 1.35;
+    color: var(--legal-strong);
+    transition: color 0.15s ease;
+}
+
+.legal-toc-list a:hover,
+.legal-toc-list a.is-active {
+    color: var(--legal-brand);
+}
+
+.legal-toc-list .num {
+    font-size: 0.8125rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--legal-brand);
+    opacity: 0.75;
+}
+
+.legal-toc-list a.is-active .num {
+    opacity: 1;
+}
+
+/* ----------------------------------
+   Sidebar: "Perlu penjelasan?" + Baca juga
+---------------------------------- */
+
+.legal-toc-aside {
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--legal-line);
+}
+
+.legal-toc-aside h3 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--legal-ink);
+}
+
+.legal-toc-aside p {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    color: var(--legal-strong);
+}
+
+.legal-toc-aside .legal-toc-more {
+    position: static;
+    margin-top: 1rem;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    background: none;
+    border: 0;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--legal-brand);
+}
+
+.legal-toc-aside .legal-toc-more:hover {
+    text-decoration: underline;
+}
+
+.legal-toc-more-label {
+    margin-top: 1.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--legal-muted);
+}
+
+.legal-toc-aside ul {
+    margin-top: 0.75rem;
+}
+
+.legal-toc-aside ul li + li {
+    margin-top: 0.375rem;
+}
+
+.legal-toc-aside ul a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0;
+    font-size: 0.8125rem;
+    color: var(--legal-strong);
+    transition: color 0.15s ease;
+}
+
+.legal-toc-aside ul a:hover {
+    color: var(--legal-brand);
+}
+
+/* ----------------------------------
+   Content
+---------------------------------- */
+
+.legal-content {
+    min-width: 0;
+}
+
+.legal-section + .legal-section {
+    margin-top: 2.75rem;
+}
+
+.legal-section h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.45;
+    color: var(--legal-ink);
+}
+
+.legal-section h2 .num {
+    flex-shrink: 0;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--legal-brand);
+}
+
+.legal-section p {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.85;
+    color: var(--legal-strong);
+}
+
+/* Numbered steps */
+
+.legal-step {
+    margin-top: 1.25rem;
+}
+
+.legal-step h3 {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--legal-ink);
+}
+
+.legal-step h3 .num {
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--legal-brand);
+}
+
+.legal-step p {
+    margin-top: 0.375rem;
+}
+
+/*
+ * Callout: strip header bertint + badan putih, bukan seluruh kotak bertint.
+ * Diukur dari mockup: header #e7f3ff setinggi ~45px (y1176-1221), lalu
+ * badan putih sampai garis penutup. Border 1px #d7e3f0, radius 8px.
+ */
+.legal-callout {
+    margin-top: 1.5rem;
+    border: 1px solid var(--legal-line);
+    border-radius: 0.5rem;
+    background-color: #ffffff;
+    overflow: hidden;
+}
+
+.legal-callout-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6875rem 1.25rem;
+    background-color: var(--legal-tint-strong);
+    border-bottom: 1px solid var(--legal-line);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1.5;
+    color: var(--legal-ink);
+}
+
+.legal-callout-title svg {
+    flex-shrink: 0;
+    color: var(--legal-brand);
+}
+
+.legal-callout p:not(.legal-callout-title) {
+    padding-inline: 1.25rem;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    color: var(--legal-strong);
+}
+
+.legal-callout p:not(.legal-callout-title):first-of-type {
+    padding-top: 0.875rem;
+}
+
+.legal-callout p:not(.legal-callout-title):last-child {
+    padding-bottom: 0.875rem;
+}
+
+.legal-callout p + p:not(.legal-callout-title) {
+    margin-top: 0.625rem;
+}
+
+/* Tables */
+
+.legal-table-wrap {
+    margin-top: 1.25rem;
+    border: 1px solid var(--legal-line);
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    background-color: var(--legal-card);
+}
+
+.legal-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.legal-table th {
+    background-color: #ffffff;
+    padding: 0.75rem 1rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--legal-strong);
+    vertical-align: bottom;
+    border-bottom: 1px solid var(--legal-line);
+}
+
+/* Tabel di halaman Syarat dan Ketentuan memakai header bertint */
+.legal-table.is-tinted th {
+    background-color: var(--legal-tint-strong);
+    border-bottom: none;
+}
+
+.legal-table td {
+    padding: 0.875rem 1rem;
+    font-size: 0.8125rem;
+    line-height: 1.65;
+    color: var(--legal-strong);
+    border-top: 1px solid var(--legal-line);
+    vertical-align: top;
+}
+
+.legal-table td:first-child {
+    font-weight: 600;
+    color: var(--legal-ink);
+}
+
+/* Banned activities grid */
+
+/*
+ * Banned activities: banner header #e7f3ff di atas grid "#f3f9ff".
+ * Tidak ada tint merah/amber di mockup.
+ */
+.legal-banned {
+    margin-top: 1.25rem;
+    border: 1px solid var(--legal-line);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.legal-banned-head {
+    padding: 0.6875rem 1.25rem;
+    background-color: var(--legal-tint-strong);
+    border-bottom: 1px solid var(--legal-line);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--legal-ink);
+}
+
+.legal-banned-body {
+    padding: 1.25rem 1.375rem;
+    background-color: var(--legal-tint);
+    display: grid;
+    gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .legal-banned-body {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.5rem 2rem;
+    }
+}
+
+.legal-banned-item h3 {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--legal-ink);
+}
+
+.legal-banned-item h3 svg {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    color: var(--legal-brand);
+}
+
+.legal-banned-item p {
+    margin-top: 0.375rem;
+    font-size: 0.8125rem;
+    line-height: 1.65;
+    color: var(--legal-strong);
+}
+
+/* ----------------------------------
+   Contact card
+---------------------------------- */
+
+.legal-contact {
+    margin-top: 2.75rem;
+    padding: 1.5rem;
+    border: 1px solid var(--legal-line);
+    border-radius: 0.75rem;
+    background-color: var(--legal-tint);
+}
+
+@media (min-width: 768px) {
+    .legal-contact {
+        padding: 2rem 2.25rem;
+    }
+}
+
+.legal-contact h3 {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--legal-ink);
+}
+
+.legal-contact > p {
+    margin-top: 0.625rem;
+    font-size: 0.875rem;
+    line-height: 1.75;
+    color: var(--legal-strong);
+    max-width: 40rem;
+}
+
+.legal-contact-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.25rem;
+    padding: 0.6875rem 1.125rem;
+    border-radius: 0.5rem;
+    background-color: var(--legal-brand);
+    color: #ffffff;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    transition: background-color 0.15s ease;
+}
+
+.legal-contact-btn:hover {
+    background-color: #0557b5;
+}
+
+.legal-contact-note {
+    margin-top: 0.875rem;
+    font-size: 0.75rem;
+    line-height: 1.7;
+    color: var(--legal-muted);
+}
+
+/* ----------------------------------
+   Meta footer row under contact card
+---------------------------------- */
+
+.legal-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--legal-line);
+    font-size: 0.75rem;
+    color: var(--legal-muted);
+}
+
+.legal-meta a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-weight: 500;
+    color: var(--legal-brand);
+}
+
+.legal-meta a:hover {
+    text-decoration: underline;
+}
+
+/* ----------------------------------
+   Print
+---------------------------------- */
+
+@media print {
+    .legal-toc,
+    .legal-draft,
+    .legal-contact-btn {
+        display: none !important;
+    }
+
+    .legal-hero {
+        background: none;
+    }
+
+    .legal-body {
+        display: block;
+    }
+}
