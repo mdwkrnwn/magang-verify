@@ -222,6 +222,7 @@ if (
     );
 
     $controller = new $controllerClass();
+    
 
     perfMark('index: before controller method');
 

@@ -34,7 +34,12 @@ class ForgotPasswordController
 
         if (!verifyCsrfToken()) {
             http_response_code(403);
-            exit('Permintaan tidak valid. Silakan muat ulang halaman.');
+
+            $errorTitle = 'Permintaan tidak dapat diproses';
+            $errorMessage = 'Sesi formulir sudah tidak valid atau permintaan tidak sesuai. Silakan kembali ke halaman sebelumnya dan coba kirim formulir lagi.';
+
+            require dirname(__DIR__) . '/pages/errors/403.php';
+            exit;
         }
 
         $identity = $_POST['identity'] ?? '';
@@ -114,6 +119,13 @@ class ForgotPasswordController
 
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
 
+            $status = $_GET['status'] ?? '';
+
+            if ($status === 'invalid') {
+                require __DIR__ . '/../pages/login/reset-password.php';
+                return;
+            }
+
             $token = $_GET['token'] ?? '';
 
             if (
@@ -133,7 +145,15 @@ class ForgotPasswordController
                 }
             } catch (Throwable $exception) {
                 error_log('[PASSWORD RESET] ' . $exception->getMessage());
-                $this->redirectReset('invalid');
+
+                http_response_code(500);
+
+                $errorTitle = 'Reset password tidak dapat diproses';
+                $errorMessage = 'Kami sedang mengalami kendala saat memeriksa link reset password kamu. Silakan coba kembali beberapa saat lagi.';
+                $errorInfo = 'Terjadi gangguan pada proses reset password';
+
+                require dirname(__DIR__) . '/pages/errors/500.php';
+                exit;
             }
 
             require __DIR__ . '/../pages/login/reset-password.php';
@@ -142,9 +162,13 @@ class ForgotPasswordController
 
         if (!verifyCsrfToken()) {
             http_response_code(403);
-            exit('Permintaan tidak valid. Silakan muat ulang halaman.');
-        }
 
+            $errorTitle = 'Permintaan reset password tidak valid';
+            $errorMessage = 'Sesi formulir reset password kamu sudah tidak valid. Silakan buka kembali link reset password dan coba lakukan proses penggantian password.';
+
+            require dirname(__DIR__) . '/pages/errors/403.php';
+            exit;
+        }
         $token = $_POST['token'] ?? '';
         $password = $_POST['password'] ?? '';
         $passwordConfirmation = $_POST['password_confirmation'] ?? '';
@@ -201,7 +225,14 @@ class ForgotPasswordController
                 '[PASSWORD RESET] ' . $exception->getMessage()
             );
 
-            $this->redirectReset('error');
+            http_response_code(500);
+
+            $errorTitle = 'Password gagal diperbarui';
+            $errorMessage = 'Terjadi kendala saat memperbarui password kamu. Silakan coba kembali beberapa saat lagi.';
+            $errorInfo = 'Terjadi gangguan pada proses reset password';
+
+            require dirname(__DIR__) . '/pages/errors/500.php';
+            exit;
         }
     }
 

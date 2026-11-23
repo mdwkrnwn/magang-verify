@@ -11,7 +11,36 @@
 | Tidak perlu require_once controller di file ini.
 |
 */
+
+
 $routes = [
+
+
+    '/test-403' => [
+        'controller' => ErrorTestController::class,
+        'method' => 'test403',
+    ],
+
+    '/test-404' => [
+        'controller' => ErrorTestController::class,
+        'method' => 'test404',
+    ],
+
+    '/test-500' => [
+        'controller' => ErrorTestController::class,
+        'method' => 'test500',
+    ],
+
+    '/test-mitra-invalid' => [
+        'controller' => ErrorTestController::class,
+        'method' => 'testMitraInvalid',
+    ],
+
+    '/test-session-expired' => [
+        'controller' => ErrorTestController::class,
+        'method' => 'testSessionExpired',
+    ],
+
 
     '/dashboard/notifikasi' => [
         'controller' => NotifikasiController::class,
@@ -423,37 +452,37 @@ $routes = [
     ],
 
 
-        /*
+    /*
         |---------------------
         | Dashboard Mitra
         |---------------------
         */
 
-        // Menu Dashboard
+    // Menu Dashboard
 
-        '/dashboard/mitra' => [
-            'controller' => MitraDashboardController::class,
-            'method' => 'index',
-        ],
+    '/dashboard/mitra' => [
+        'controller' => MitraDashboardController::class,
+        'method' => 'index',
+    ],
 
-        '/dashboard/mitra/formasi' => [
-            'controller' => MitraFormasiController::class,
-            'method' => 'index',
-        ],
+    '/dashboard/mitra/formasi' => [
+        'controller' => MitraFormasiController::class,
+        'method' => 'index',
+    ],
 
-        '/dashboard/mitra/pengajuan' => [
-            'controller' => MitraPengajuanController::class,
-            'method' => 'index',
-        ],
+    '/dashboard/mitra/pengajuan' => [
+        'controller' => MitraPengajuanController::class,
+        'method' => 'index',
+    ],
 
-        '/dashboard/mitra/penilaian' => [
-            'controller' => PenilaianController::class,
-            'method' => 'index',
-        ],
-        '/dashboard/mitra/pengaturan' => [
-            'controller' => MitraPengaturanController::class,
-            'method' => 'index',
-        ],
+    '/dashboard/mitra/penilaian' => [
+        'controller' => PenilaianController::class,
+        'method' => 'index',
+    ],
+    '/dashboard/mitra/pengaturan' => [
+        'controller' => MitraPengaturanController::class,
+        'method' => 'index',
+    ],
 ];
 
 /*
@@ -1494,16 +1523,16 @@ function route(string $uri): ?array
     // --------------------------------------------------
 
     if (preg_match('#^/mitra/akses/([a-f0-9]{64})$#', $path, $matches)) {
-    return [
-        'route' => [
-            'controller' => MitraAccessController::class,
-            'method' => 'access',
-        ],
-        'params' => [
-            'token' => $matches[1],
-        ],
-    ];
-}
+        return [
+            'route' => [
+                'controller' => MitraAccessController::class,
+                'method' => 'access',
+            ],
+            'params' => [
+                'token' => $matches[1],
+            ],
+        ];
+    }
 
 
     return null;

@@ -23,7 +23,12 @@ class AuthMiddleware
         $requiredRoles = array_values(array_filter($requiredRoles, 'is_string'));
         if ($requiredRoles === []) {
             http_response_code(403);
-            exit('403 - Role yang dibutuhkan tidak valid.');
+
+            $errorTitle = 'Akses tidak diizinkan';
+            $errorMessage = 'Konfigurasi hak akses halaman tidak valid. Silakan hubungi administrator jika masalah ini terus terjadi.';
+
+            require dirname(__DIR__) . '/pages/errors/403.php';
+            exit;
         }
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
@@ -95,7 +100,12 @@ class AuthMiddleware
         }
         if ($matchedRole === null) {
             http_response_code(403);
-            exit('403 - Anda tidak memiliki akses ke halaman ini.');
+
+            $errorTitle = 'Akses ditolak';
+            $errorMessage = 'Kamu tidak memiliki izin untuk mengakses halaman ini. Silakan gunakan halaman yang sesuai dengan role atau hak akses akunmu.';
+
+            require dirname(__DIR__) . '/pages/errors/403.php';
+            exit;
         }
         if (!is_string($_SESSION['user']['role'] ?? null) || !in_array($_SESSION['user']['role'], $roles, true)) {
             $_SESSION['user']['role'] = $user['role'];

@@ -90,7 +90,13 @@ class MitraAuthMiddleware
             );
 
             http_response_code(500);
-            exit('Terjadi kesalahan saat memvalidasi sesi Mitra.');
+
+            $errorTitle = 'Autentikasi Mitra gagal';
+            $errorMessage = 'Kami mengalami kendala saat memverifikasi akses Mitra kamu. Silakan coba kembali beberapa saat lagi.';
+            $errorInfo = 'Terjadi gangguan pada proses autentikasi Mitra';
+
+            require dirname(__DIR__) . '/pages/errors/500.php';
+            exit;
         }
 
         // Session tidak ditemukan, expired, atau dicabut.
@@ -151,10 +157,14 @@ class MitraAuthMiddleware
             $GLOBALS['mitra_auth_context']['mitra_id'] ?? null,
             FILTER_VALIDATE_INT
         );
-
         if ($mitraId === false || $mitraId < 1) {
             http_response_code(401);
-            exit('Sesi Mitra tidak valid. Silakan login kembali.');
+
+            $errorTitle = 'Sesi Mitra tidak valid';
+            $errorMessage = 'Sesi akses Mitra kamu sudah tidak valid atau telah berakhir. Silakan login kembali untuk melanjutkan aktivitas.';
+
+            require dirname(__DIR__) . '/pages/errors/session-expired.php';
+            exit;
         }
 
         return $mitraId;
@@ -165,15 +175,40 @@ class MitraAuthMiddleware
         $mitraId = self::currentMitraId();
         global $pdo;
 
-        $stmt = $pdo->prepare("
-            SELECT user_id
-            FROM mitra
-            WHERE id = :mitra_id
-              AND is_active = TRUE
-            LIMIT 1
-        ");
-        $stmt->execute([':mitra_id' => $mitraId]);
-        $userId = filter_var($stmt->fetchColumn(), FILTER_VALIDATE_INT);
+        try {
+            $stmt = $pdo->prepare("
+        SELECT user_id
+        FROM mitra
+        WHERE id = :mitra_id
+          AND is_active = TRUE
+        LIMIT 1
+    ");
+
+            $stmt->execute([':mitra_id' => $mitraId]);
+
+            $userId = filter_var(
+                $stmt->fetchColumn(),
+                FILTER_VALIDATE_INT
+            );
+
+            return $userId !== false && $userId > 0
+                ? $userId
+                : null;
+        } catch (PDOException $e) {
+            error_log(
+                'MitraAuthMiddleware currentUserId error: '
+                    . $e->getMessage()
+            );
+
+            http_response_code(500);
+
+            $errorTitle = 'Data pengguna Mitra tidak dapat dimuat';
+            $errorMessage = 'Kami mengalami kendala saat mengambil data pengguna Mitra. Silakan coba kembali beberapa saat lagi.';
+            $errorInfo = 'Terjadi gangguan saat memuat data pengguna Mitra';
+
+            require dirname(__DIR__) . '/pages/errors/500.php';
+            exit;
+        }
 
         return $userId !== false && $userId > 0 ? $userId : null;
     }

@@ -30,7 +30,7 @@ $controllerMap = [
     'ForgotPasswordController' => $controllerPath . '/ForgotPasswordController.php',
     'LogoutController' => $controllerPath . '/LogoutController.php',
 
-
+'ErrorTestController' => $controllerPath . '/ErrorTestController.php',
     //
     'ForgotPasswordController' => $controllerPath . '/ForgotPasswordController.php',
 
