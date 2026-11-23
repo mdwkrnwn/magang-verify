@@ -48,8 +48,8 @@ assertContains($files['studentModel'], 'pm.dosen_pembimbing_id', 'student reques
 assertContains($files['studentModel'], "(int) \$placement['dosen_pembimbing_id']", 'student request stores assigned advisor only');
 assertNotContains($files['studentController'], "\$_POST['dosen_id']", 'student controller never accepts advisor selection');
 assertNotContains($files['studentPage'], 'name="dosen_id"', 'student UI never exposes advisor selection');
-assertContains($files['studentPage'], "\$placement['dosen_pembimbing_id'] !== null", 'student request form requires an assigned advisor');
-assertContains($files['studentPage'], 'name="alasan_pengajuan"', 'student can submit request reason');
+assertContains($files['studentModel'], 'Penempatan ini belum memiliki dosen pembimbing yang ditetapkan pengelola.', 'student request is blocked until an authorized coordinator assignment exists');
+assertContains($files['studentModel'], "if (\$reason === '' || mb_strlen(\$reason) > 5000)", 'advisor request reason remains validated');
 assertContains($files['lecturerModel'], 'public function getHistoryForDosen(', 'lecturer history exists');
 assertContains($files['lecturerModel'], 'WHERE dosen.id = :user_id', 'lecturer history is owner-scoped');
 assertContains($files['lecturerPage'], 'Riwayat Permintaan', 'lecturer history is rendered');
@@ -60,11 +60,11 @@ assertContains($files['assignmentController'], 'PenugasanPembimbing', 'dedicated
 assertContains($files['assignmentController'], "url('/dashboard/koordinator-magang/penetapan-dosen?success=1')", 'assignment success remains on the dedicated page');
 assertContains($files['assignmentPage'], 'name="proses_magang_id"', 'dedicated page posts the process identifier');
 assertContains($files['assignmentPage'], 'name="dosen_id"', 'dedicated page posts only the coordinator-selected advisor');
-assertContains($files['assignmentPage'], 'Satu mahasiswa hanya dapat memiliki satu proses magang aktif', 'dedicated assignment page uses process eligibility');
+assertContains($files['assignmentPage'], 'pengajuan diterima Mitra dan belum memiliki dosen pembimbing', 'dedicated assignment page limits assignment to accepted applicants');
 assertContains($files['coordinatorSidebar'], 'Penetapan Dosen Pembimbing', 'coordinator sidebar exposes dedicated assignment');
 assertContains($files['coordinatorSidebar'], "'/dashboard/koordinator-magang/penetapan-dosen'", 'sidebar links to the dedicated assignment route');
 assertNotContains($files['coordinatorPage'], 'name="dosen_id"', 'placement page no longer mixes placement creation with advisor selection');
-assertContains($files['applicationModel'], "'menunggu', 'menunggu', 'menunggu_persetujuan_dosen'", 'application creation starts at the documented lecturer-review status');
+assertContains($files['applicationModel'], "'menunggu', 'menunggu', 'menunggu_respons_mitra'", 'new application enters the partner queue without lecturer approval');
 assertContains($files['studentApplicationPage'], 'StatusPengajuan.php', 'student application status continues to use the application timeline');
 assertContains($files['routes'], "'/dashboard/koordinator-magang/penempatan' =>", 'coordinator placement route remains registered');
 

@@ -1,4 +1,3 @@
-
 <?php
 
 class MitraSessionManager
@@ -19,6 +18,9 @@ class MitraSessionManager
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
+
+        self::revokeCurrentSession($pdo);
+        unset($_SESSION['user']);
 
         // Generate token sesi baru
         $sessionToken = bin2hex(random_bytes(32));
@@ -63,5 +65,32 @@ class MitraSessionManager
             error_log('MitraSessionManager: ' . $e->getMessage());
             throw $e;
         }
+    }
+
+    public static function revokeCurrentSession(PDO $pdo): void
+    {
+        if (session_status() !== PHP_SESSION_ACTIVE) {
+            session_start();
+        }
+
+        $sessionToken = $_SESSION['mitra_session_token'] ?? null;
+        if (is_string($sessionToken) && $sessionToken !== '') {
+            $stmt = $pdo->prepare("
+                UPDATE mitra_sessions
+                SET revoked_at = CURRENT_TIMESTAMP
+                WHERE session_hash = :session_hash
+                  AND revoked_at IS NULL
+            ");
+            $stmt->execute([
+                ':session_hash' => hash('sha256', $sessionToken),
+            ]);
+        }
+
+        unset(
+            $_SESSION['mitra'],
+            $_SESSION['mitra_session_token'],
+            $_SESSION['mitra_last_usage_updated_at']
+        );
+        unset($GLOBALS['mitra_auth_context']);
     }
 }

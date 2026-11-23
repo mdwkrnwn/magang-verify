@@ -3,6 +3,7 @@
 require_once __DIR__ . '/../../../models/Sertifikat.php';
 require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
 require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../../../function/PrivateStorage.php';
 
 class SertifikatController
 {

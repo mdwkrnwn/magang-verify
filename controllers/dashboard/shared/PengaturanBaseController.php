@@ -4,6 +4,7 @@
 require_once __DIR__ . '/../../../models/User.php';
 require_once __DIR__ . '/../../../models/AktivitasPengguna.php';
 require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../../../middleware/MitraAuthMiddleware.php';
 
 abstract class PengaturanBaseController
 {
@@ -48,31 +49,11 @@ abstract class PengaturanBaseController
         // AUTENTIKASI MITRA VIA ACCESS LINK
         // =========================================
         if ($this->getRole() === 'mitra') {
-            global $pdo;
+            $userId = MitraAuthMiddleware::currentUserId();
 
-            $mitraId = (int) ($_SESSION['mitra']['id'] ?? 0);
-
-            if ($mitraId < 1) {
-                http_response_code(401);
-                exit('Sesi Mitra tidak valid. Silakan login kembali.');
-            }
-
-            $stmt = $pdo->prepare("
-                SELECT user_id
-                FROM mitra
-                WHERE id = :mitra_id
-                LIMIT 1
-            ");
-
-            $stmt->execute([
-                'mitra_id' => $mitraId
-            ]);
-
-            $userId = (int) $stmt->fetchColumn();
-
-            if ($userId < 1) {
-                http_response_code(401);
-                exit('Data akun Mitra tidak ditemukan.');
+            if ($userId === null) {
+                http_response_code(403);
+                exit('Pengaturan kata sandi memerlukan akun pengguna Mitra. Silakan hubungi koordinator untuk menghubungkan akun.');
             }
 
             return $userId;

@@ -1,0 +1,18 @@
+BEGIN;
+
+CREATE TABLE IF NOT EXISTS profil_tendik (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE
+        REFERENCES users(id) ON DELETE CASCADE,
+    nip VARCHAR(30) NOT NULL UNIQUE,
+    email VARCHAR(255),
+    no_telepon VARCHAR(30),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO public.schema_migrations (migration)
+VALUES ('034_create_profil_tendik.sql')
+ON CONFLICT (migration) DO NOTHING;
+
+COMMIT;

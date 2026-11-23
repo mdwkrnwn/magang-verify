@@ -65,12 +65,12 @@ class PasswordReset
           AND p.email IS NOT NULL
           AND TRIM(p.email) <> ''
           AND (
-                u.role IN ('dosen', 'koordinator_magang')
+                u.role = 'dosen'
                 OR EXISTS (
                     SELECT 1
                     FROM user_roles ur
                     WHERE ur.user_id = u.id
-                      AND ur.role IN ('dosen', 'koordinator_magang')
+                      AND ur.role = 'dosen'
                 )
           )
     ";
@@ -165,16 +165,13 @@ class PasswordReset
             AND pr.expires_at > CURRENT_TIMESTAMP
             AND u.is_active = TRUE
             AND (
-                    u.role IN ('mahasiswa', 'dosen', 'koordinator_magang')
+                    u.role = 'mahasiswa'
+                    OR u.role = 'dosen'
                     OR EXISTS (
                         SELECT 1
                         FROM user_roles ur
                         WHERE ur.user_id = u.id
-                        AND ur.role IN (
-                            'mahasiswa',
-                            'dosen',
-                            'koordinator_magang'
-                        )
+                          AND ur.role IN ('mahasiswa', 'dosen')
                     )
             )
             LIMIT 1

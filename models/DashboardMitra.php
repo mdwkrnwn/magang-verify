@@ -6,7 +6,7 @@ require_once __DIR__ . '/../config/database.php';
 
 class DashboardMitra
 {
-    public function getData(int $userId): array
+    public function getData(int $mitraId): array
     {
         global $pdo;
 
@@ -14,8 +14,7 @@ class DashboardMitra
             "WITH mitra_ctx AS (
                 SELECT m.id, m.nama_perusahaan
                 FROM mitra m
-                INNER JOIN users u ON u.id = m.user_id
-                WHERE u.id = :user_id AND u.role = 'mitra' AND u.is_active = TRUE
+               WHERE m.id = :mitra_id AND m.is_active = TRUE
                 LIMIT 1
              )
              SELECT mc.id, mc.nama_perusahaan,
@@ -65,7 +64,7 @@ class DashboardMitra
                      ) s) AS students_json
              FROM mitra_ctx mc"
         );
-        $stmt->execute(['user_id' => $userId]);
+        $stmt->execute(['mitra_id' => $mitraId]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$row) {

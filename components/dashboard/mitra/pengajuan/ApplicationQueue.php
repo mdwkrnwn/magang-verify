@@ -60,7 +60,7 @@ $formValues = is_array($formValues ?? null) ? $formValues : [];
                 Daftar Pengajuan
             </h2>
             <p class="mt-1 text-sm text-gray-500">
-                Pengajuan yang telah disetujui dosen dan memerlukan keputusan perusahaan.
+                Pengajuan yang menunggu keputusan perusahaan setelah mahasiswa mengirimkan pendaftaran.
             </p>
         </div>
 

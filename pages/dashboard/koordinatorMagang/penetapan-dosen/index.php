@@ -119,7 +119,7 @@ foreach ($assignments as $assignment) {
                     <div>
                         <h2 class="font-semibold text-slate-900">Buat Proses Magang</h2>
                         <p class="mt-1 text-sm leading-5 text-slate-500">
-                            Tambahkan mahasiswa ke dalam proses magang aktif.
+                            Siapkan proses magang mahasiswa yang pengajuannya telah diterima Mitra.
                         </p>
                     </div>
                 </div>
@@ -150,10 +150,10 @@ foreach ($assignments as $assignment) {
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01"/>
                                 </svg>
-                                Tidak ada mahasiswa yang tersedia untuk dibuatkan proses magang.
+                                Tidak ada pengajuan yang telah diterima Mitra dan menunggu penetapan dosen.
                             </p>
                         <?php else: ?>
-                            <p class="mt-2 text-xs text-slate-400">Hanya mahasiswa yang belum memiliki proses magang aktif yang ditampilkan.</p>
+                            <p class="mt-2 text-xs text-slate-400">Hanya mahasiswa dengan pengajuan diterima Mitra dan belum memiliki dosen pembimbing yang ditampilkan.</p>
                         <?php endif; ?>
                     </div>
 

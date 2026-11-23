@@ -31,12 +31,6 @@ try {
             'password' => password_hash('TendikTest123!', PASSWORD_DEFAULT),
             'role' => 'tendik',
         ],
-        [
-            'login_id' => 'mitra_test',
-            'name' => 'Mitra Pengujian',
-            'password' => password_hash('MitraTest123!', PASSWORD_DEFAULT),
-            'role' => 'mitra',
-        ],
     ];
 
     $insertUser = $pdo->prepare(
@@ -56,15 +50,6 @@ try {
     $insertDosen = $pdo->prepare(
         'INSERT INTO profil_dosen (user_id, nidn, email)
          VALUES (:user_id, :nidn, :email)'
-    );
-
-    $insertMitra = $pdo->prepare(
-        'INSERT INTO mitra
-            (user_id, nama_perusahaan, kode_perusahaan, kategori,
-             bidang_usaha, email, kota, status_verifikasi)
-         VALUES
-            (:user_id, :nama_perusahaan, :kode_perusahaan, :kategori,
-             :bidang_usaha, :email, :kota, :status_verifikasi)'
     );
 
     foreach ($users as $user) {
@@ -88,25 +73,39 @@ try {
         } elseif ($user['role'] === 'dosen') {
             $insertDosen->execute([
                 'user_id' => $userId,
-                'nidn' => 'TEST000001',
+                'nidn' => $user['login_id'] === 'koord_test' ? 'TEST000002' : 'TEST000001',
                 'email' => 'dosen.test@example.com',
             ]);
-        } elseif ($user['role'] === 'mitra') {
-            $insertMitra->execute([
-                'user_id' => $userId,
-                'nama_perusahaan' => 'Perusahaan Pengujian',
-                'kode_perusahaan' => 'MITRA-TEST-001',
-                'kategori' => 'Perusahaan Swasta',
-                'bidang_usaha' => 'Teknologi Informasi',
-                'email' => 'mitra.test@example.com',
-                'kota' => 'Malang',
-                'status_verifikasi' => 'terverifikasi',
-            ]);
+            if ($user['login_id'] === 'koord_test') {
+                $pdo->prepare(
+                    "INSERT INTO user_roles (user_id, role)
+                     VALUES (:user_id, 'koordinator_magang')
+                     ON CONFLICT (user_id, role) DO NOTHING"
+                )->execute(['user_id' => $userId]);
+            }
         }
 
         echo 'Berhasil menyiapkan role: '
             . $user['role'] . PHP_EOL;
     }
+
+    $insertMitra = $pdo->prepare(
+        'INSERT INTO mitra
+            (nama_perusahaan, kode_perusahaan, kategori,
+             bidang_usaha, email, kota)
+         VALUES
+            (:nama_perusahaan, :kode_perusahaan, :kategori,
+             :bidang_usaha, :email, :kota)
+         ON CONFLICT (kode_perusahaan) DO NOTHING'
+    );
+    $insertMitra->execute([
+        'nama_perusahaan' => 'Perusahaan Pengujian',
+        'kode_perusahaan' => 'MITRA-TEST-001',
+        'kategori' => 'Perusahaan Swasta',
+        'bidang_usaha' => 'Teknologi Informasi',
+        'email' => 'mitra.test@example.com',
+        'kota' => 'Malang',
+    ]);
 
     $pdo->commit();
 

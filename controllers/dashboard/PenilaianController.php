@@ -4,6 +4,7 @@
 
 require_once __DIR__ . '/../../function/Helpers.php';
 require_once __DIR__ . '/../../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../../middleware/MitraAuthMiddleware.php';
 require_once __DIR__ . '/../../models/PenilaianMagang.php';
 
 class PenilaianController
@@ -19,7 +20,8 @@ class PenilaianController
          */
 
         $role = '';
-        $userId = 0;
+        $identityId = 0;
+        $actorUserId = null;
 
         // =========================================================
         // DOSEN: Tetap menggunakan autentikasi normal
@@ -30,7 +32,8 @@ class PenilaianController
 
             AuthMiddleware::handle('dosen');
 
-            $userId = (int) ($_SESSION['user']['id'] ?? 0);
+            $identityId = (int) ($_SESSION['user']['id'] ?? 0);
+            $actorUserId = $identityId;
 
             // =========================================================
             // MITRA: Menggunakan session login melalui access link
@@ -38,27 +41,8 @@ class PenilaianController
         } elseif (isset($_SESSION['mitra']['id'])) {
 
             $role = 'mitra';
-
-            $mitraId = (int) ($_SESSION['mitra']['id'] ?? 0);
-
-            if ($mitraId < 1) {
-                http_response_code(401);
-                exit('Sesi Mitra tidak valid.');
-            }
-
-            // Ambil user_id berdasarkan mitra.id
-            $stmt = $pdo->prepare("
-                SELECT user_id
-                FROM mitra
-                WHERE id = :mitra_id
-                LIMIT 1
-            ");
-
-            $stmt->execute([
-                'mitra_id' => $mitraId
-            ]);
-
-            $userId = (int) $stmt->fetchColumn();
+            $identityId = MitraAuthMiddleware::currentMitraId();
+            $actorUserId = MitraAuthMiddleware::currentUserId();
         } else {
 
             http_response_code(403);
@@ -68,7 +52,7 @@ class PenilaianController
         // =========================================================
         // VALIDASI USER ID
         // =========================================================
-        if ($userId < 1) {
+        if ($identityId < 1) {
             http_response_code(401);
             exit('Sesi pengguna tidak valid.');
         }
@@ -80,7 +64,7 @@ class PenilaianController
          */
 
         $model = new PenilaianMagang();
-        $items = $model->getAssignments($userId, $role);
+        $items = $model->getAssignments($identityId, $role, $actorUserId);
 
         $error = null;
         $success = ($_GET['success'] ?? '') === '1';
@@ -115,11 +99,12 @@ class PenilaianController
                 try {
 
                     $model->save(
-                        $userId,
+                        $identityId,
                         $role,
                         $placementId,
                         $_POST,
-                        $action === 'submit'
+                        $action === 'submit',
+                        $actorUserId
                     );
 
                     header(
@@ -146,7 +131,7 @@ class PenilaianController
                     $error = $e->getMessage();
                 }
 
-                $items = $model->getAssignments($userId, $role);
+                $items = $model->getAssignments($identityId, $role, $actorUserId);
             }
         }
 

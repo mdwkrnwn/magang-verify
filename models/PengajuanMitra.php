@@ -8,7 +8,7 @@ require_once __DIR__ . '/PdoParameterBinder.php';
 
 class PengajuanMitra
 {
-    public function getApplications(int $mitraUserId): array
+    public function getApplications(int $mitraId): array
     {
         global $pdo;
         $stmt = $pdo->prepare(
@@ -29,13 +29,18 @@ class PengajuanMitra
                  FROM dokumen_pendaftaran_magang d
                  WHERE d.pendaftaran_id = p.id
              ) docs ON TRUE
-             WHERE m.user_id = :mitra_user_id
-               AND p.status_persetujuan_dosen = 'disetujui'
-               AND p.dosen_pembimbing_snapshot_id IS NOT NULL
+             WHERE m.id = :mitra_id
                AND p.status_pendaftaran IN ('menunggu_respons_mitra', 'seleksi')
+               AND (
+                    (p.status_persetujuan_dosen = 'menunggu'
+                     AND p.dosen_pembimbing_snapshot_id IS NULL)
+                    OR
+                    (p.status_persetujuan_dosen = 'disetujui'
+                     AND p.dosen_pembimbing_snapshot_id IS NOT NULL)
+               )
              ORDER BY p.tanggal_pengajuan ASC, p.id ASC"
         );
-        $stmt->execute(['mitra_user_id' => $mitraUserId]);
+        $stmt->execute(['mitra_id' => $mitraId]);
 
         $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($items as &$item) {
@@ -48,7 +53,13 @@ class PengajuanMitra
         return $items;
     }
 
-    public function respond(int $mitraUserId, int $applicationId, string $decision, ?string $note): void
+    public function respond(
+        int $mitraId,
+        int $applicationId,
+        string $decision,
+        ?string $note,
+        ?int $actorUserId = null
+    ): void
     {
         global $pdo;
         if (!in_array($decision, ['diterima', 'ditolak', 'seleksi'], true)) {
@@ -63,22 +74,27 @@ class PengajuanMitra
         try {
             $applicationStmt = $pdo->prepare(
                 "SELECT p.id, p.formasi_id, p.mahasiswa_id, p.status_pendaftaran,
-                        p.status_persetujuan_dosen, m.id AS mitra_id
+                        p.status_persetujuan_dosen, p.dosen_pembimbing_snapshot_id,
+                        m.id AS mitra_id
                  FROM pendaftaran_magang p
                  INNER JOIN formasi_magang f ON f.id = p.formasi_id
                  INNER JOIN mitra m ON m.id = f.mitra_id
-                 WHERE p.id = :application_id AND m.user_id = :mitra_user_id
+                 WHERE p.id = :application_id AND m.id = :mitra_id
                  FOR UPDATE OF p"
             );
             $applicationStmt->execute([
                 'application_id' => $applicationId,
-                'mitra_user_id' => $mitraUserId,
+                'mitra_id' => $mitraId,
             ]);
             $application = $applicationStmt->fetch(PDO::FETCH_ASSOC);
             if (!$application) {
                 throw new RuntimeException('Pengajuan tidak ditemukan atau bukan milik perusahaan Anda.');
             }
-            if ($application['status_persetujuan_dosen'] !== 'disetujui'
+            $legacyApprovedApplication = $application['status_persetujuan_dosen'] === 'disetujui'
+                && $application['dosen_pembimbing_snapshot_id'] !== null;
+            $newApplicationWithoutAdvisor = $application['status_persetujuan_dosen'] === 'menunggu'
+                && $application['dosen_pembimbing_snapshot_id'] === null;
+            if ((!$legacyApprovedApplication && !$newApplicationWithoutAdvisor)
                 || !in_array($application['status_pendaftaran'], ['menunggu_respons_mitra', 'seleksi'], true)) {
                 throw new RuntimeException('Pengajuan belum berada pada tahap respons mitra.');
             }
@@ -119,7 +135,13 @@ class PengajuanMitra
                      tanggal_selesai_proses = CASE WHEN :terminal THEN CURRENT_TIMESTAMP ELSE NULL END,
                      updated_at = CURRENT_TIMESTAMP
                  WHERE id = :id
-                   AND status_persetujuan_dosen = 'disetujui'
+                   AND (
+                        (status_persetujuan_dosen = 'menunggu'
+                         AND dosen_pembimbing_snapshot_id IS NULL)
+                        OR
+                        (status_persetujuan_dosen = 'disetujui'
+                         AND dosen_pembimbing_snapshot_id IS NOT NULL)
+                   )
                    AND status_pendaftaran IN ('menunggu_respons_mitra', 'seleksi')"
             );
             PdoParameterBinder::execute($update, [
@@ -143,7 +165,7 @@ class PengajuanMitra
                 'previous' => (string) $application['status_pendaftaran'],
                 'next' => $nextStatus,
                 'note' => $note,
-                'actor' => $mitraUserId,
+                'actor' => $actorUserId,
             ]);
 
             $studentStmt = $pdo->prepare(
@@ -167,14 +189,16 @@ class PengajuanMitra
             ]);
             $pdo->commit();
 
-            (new AktivitasPengguna())->log(
-                $mitraUserId,
-                'Respons pengajuan magang diperbarui',
-                'Pengajuan #' . $applicationId . ' direspons mitra dengan keputusan ' . $decision . '.',
-                'pendaftaran',
-                'pendaftaran_magang',
-                $applicationId
-            );
+            if ($actorUserId !== null && $actorUserId > 0) {
+                (new AktivitasPengguna())->log(
+                    $actorUserId,
+                    'Respons pengajuan magang diperbarui',
+                    'Pengajuan #' . $applicationId . ' direspons mitra dengan keputusan ' . $decision . '.',
+                    'pendaftaran',
+                    'pendaftaran_magang',
+                    $applicationId
+                );
+            }
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
                 $pdo->rollBack();

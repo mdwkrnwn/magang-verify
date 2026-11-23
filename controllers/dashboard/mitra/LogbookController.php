@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../../config/app.php';
 require_once __DIR__ . '/../../../function/Helpers.php';
+require_once __DIR__ . '/../../../middleware/MitraAuthMiddleware.php';
 require_once __DIR__ . '/../../../models/Logbook.php';
 
 class MitraLogbookController
@@ -13,38 +14,6 @@ class MitraLogbookController
     public function __construct()
     {
         $this->model = new Logbook();
-    }
-
-    private function userId(): int
-    {
-        global $pdo;
-
-        $mitraId = (int) ($_SESSION['mitra']['id'] ?? 0);
-
-        if ($mitraId < 1) {
-            http_response_code(401);
-            exit('Sesi Mitra tidak valid.');
-        }
-
-        $stmt = $pdo->prepare("
-        SELECT user_id
-        FROM mitra
-        WHERE id = :mitra_id
-        LIMIT 1
-        ");
-
-        $stmt->execute([
-            'mitra_id' => $mitraId
-        ]);
-
-        $userId = (int) $stmt->fetchColumn();
-
-        if ($userId < 1) {
-            http_response_code(401);
-            exit('Data akun Mitra tidak ditemukan.');
-        }
-
-        return $userId;
     }
 
     private function validatePost(): void
@@ -57,15 +26,15 @@ class MitraLogbookController
 
     public function index(): void
     {
-        $userId = $this->userId();
-        $items = $this->model->getReviewQueue($userId, 'mitra');
+        $mitraId = MitraAuthMiddleware::currentMitraId();
+        $items = $this->model->getReviewQueue($mitraId, 'mitra');
         require __DIR__ . '/../../../pages/dashboard/mitra/logbook/index.php';
     }
 
     public function detail($params = []): void
     {
-        $userId = $this->userId();
-        $week = $this->model->getWeekForRole((int) ($params['id'] ?? 0), $userId, 'mitra');
+        $mitraId = MitraAuthMiddleware::currentMitraId();
+        $week = $this->model->getWeekForRole((int) ($params['id'] ?? 0), $mitraId, 'mitra');
         if (!$week) {
             http_response_code(404);
             exit('Logbook tidak ditemukan atau bukan mahasiswa di perusahaan Anda.');
@@ -75,10 +44,17 @@ class MitraLogbookController
 
     public function sign($params = []): void
     {
-        $userId = $this->userId();
+        $mitraId = MitraAuthMiddleware::currentMitraId();
+        $actorUserId = MitraAuthMiddleware::currentUserId();
         $this->validatePost();
         try {
-            $this->model->signWeek((int) ($params['id'] ?? 0), $userId, 'mitra', trim((string) ($_POST['signature_data'] ?? '')));
+            $this->model->signWeek(
+                (int) ($params['id'] ?? 0),
+                $mitraId,
+                'mitra',
+                trim((string) ($_POST['signature_data'] ?? '')),
+                $actorUserId
+            );
             header('Location: ' . url('/dashboard/mitra/logbook/detail/' . (int) $params['id']));
             exit;
         } catch (Throwable $e) {

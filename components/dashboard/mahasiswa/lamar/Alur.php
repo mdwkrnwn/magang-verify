@@ -1,16 +1,12 @@
 <?php
 $tahapanPengajuan = [
     [
-        'judul' => 'Pengajuan dikirim',
-        'deskripsi' => 'Pengajuan dimulai dengan status menunggu persetujuan Dosen.',
+        'judul' => 'Seleksi Mitra',
+        'deskripsi' => 'Mitra memeriksa dokumen dan dapat memproses seleksi, menerima, atau menolak pengajuan.',
     ],
     [
-        'judul' => 'Persetujuan Dosen',
-        'deskripsi' => 'Dosen memeriksa pengajuan dan dokumen wajib.',
-    ],
-    [
-        'judul' => 'Respons Mitra',
-        'deskripsi' => 'Setelah disetujui Dosen, Mitra dapat memproses seleksi, menerima, atau menolak.',
+        'judul' => 'Penetapan Dosen Pembimbing',
+        'deskripsi' => 'Setelah Anda diterima Mitra, Koordinator menetapkan dosen pembimbing.',
     ],
     [
         'judul' => 'Penempatan Magang',

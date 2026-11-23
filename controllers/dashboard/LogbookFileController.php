@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../config/app.php';
 require_once __DIR__ . '/../../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../../middleware/MitraAuthMiddleware.php';
 require_once __DIR__ . '/../../function/Helpers.php';
 require_once __DIR__ . '/../../models/Logbook.php';
 
@@ -29,21 +30,30 @@ class LogbookFileController
         if (session_status() !== PHP_SESSION_ACTIVE) {
             session_start();
         }
-        $role = (string) ($_SESSION['user']['role'] ?? '');
+        $isMitraSession = isset($_SESSION['mitra']['id']);
+        $role = $isMitraSession
+            ? 'mitra'
+            : (string) ($_SESSION['user']['role'] ?? '');
         if (!in_array($role, ['mahasiswa', 'mitra', 'dosen', 'tendik', 'koordinator_magang'], true)) {
             http_response_code(403);
             exit('Akses ditolak.');
         }
-        AuthMiddleware::handle($role);
 
-        $userId = (int) ($_SESSION['user']['id'] ?? 0);
+        if ($isMitraSession) {
+            MitraAuthMiddleware::check();
+            $identityId = MitraAuthMiddleware::currentMitraId();
+        } else {
+            AuthMiddleware::handle($role);
+            $identityId = (int) ($_SESSION['user']['id'] ?? 0);
+        }
+
         $model = new Logbook();
 
         if ($type === 'signature') {
-            $row = $model->getSignatureForUser($id, $userId, $role);
+            $row = $model->getSignatureForUser($id, $identityId, $role);
             $path = ($row && !empty($row['signature_path'])) ? $model->getSignatureAbsolutePath((string) $row['signature_path']) : null;
         } else {
-            $row = $model->getEvidenceForUser($id, $userId, $role);
+            $row = $model->getEvidenceForUser($id, $identityId, $role);
             $path = ($row && !empty($row['bukti_path'])) ? $model->getEvidenceAbsolutePath((string) $row['bukti_path']) : null;
         }
 

@@ -95,7 +95,7 @@ class LamarController
                 } catch (Throwable $e) {
                     foreach ($stored as $doc) if (!empty($doc['absolute_path']) && is_file($doc['absolute_path'])) @unlink($doc['absolute_path']);
                     if ($e instanceof DomainException) $errors['umum'] = $e->getMessage();
-                    else { error_log('Gagal menyimpan pengajuan magang: ' . $e->getMessage()); $errors['umum'] = 'Pengajuan gagal disimpan. Pastikan migration dokumen sudah diterapkan, lalu coba lagi.'; }
+                    else { error_log('Gagal menyimpan pengajuan magang: ' . $e->getMessage()); $errors['umum'] = 'Pengajuan gagal disimpan. Silakan coba lagi atau hubungi administrator.'; }
                 }
             }
         }

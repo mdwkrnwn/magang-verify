@@ -76,7 +76,8 @@ class User
                 u.name,
                 u.password,
                 u.role,
-                u.is_active
+                u.is_active,
+                p.id AS dosen_profile_id
             FROM profil_dosen p
             INNER JOIN users u ON u.id = p.user_id
             WHERE p.nidn = :identity
@@ -141,60 +142,21 @@ class User
             (string) $user['role']
         );
 
-        return $user;
-    }
-
-    /**
-     * Resolve a Mitra account using the official company code on its profile.
-     */
-    public function findActiveMitraByCode(string $companyCode): ?array
-    {
-        $sql = "
-        SELECT
-            u.id,
-            m.id AS mitra_id,
-            u.login_id,
-            u.name,
-            u.password,
-            u.role,
-            u.is_active,
-            m.is_active AS mitra_is_active
-        FROM mitra m
-        INNER JOIN users u
-            ON u.id = m.user_id
-        WHERE m.kode_perusahaan = :kode_perusahaan
-          AND u.is_active = TRUE
-          AND m.is_active = TRUE
-          AND (
-                u.role = 'mitra'
-                OR EXISTS (
-                    SELECT 1
-                    FROM user_roles ur
-                    WHERE ur.user_id = u.id
-                      AND ur.role = 'mitra'
-                )
-          )
-        LIMIT 1
-    ";
-
-        $stmt = $this->db->prepare($sql);
-
-        $stmt->execute([
-            'kode_perusahaan' => trim($companyCode),
-        ]);
-
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if (!$user) {
-            return null;
+        if ($requestedRole === 'koordinator_magang') {
+            $user['has_dosen_profile'] = (int) ($user['dosen_profile_id'] ?? 0) > 0;
+            if (
+                $user['has_dosen_profile']
+                && $user['role'] === 'koordinator_magang'
+                && !in_array('dosen', $user['roles'], true)
+            ) {
+                $user['roles'][] = 'dosen';
+            }
         }
 
-        $user['roles'] = $this->getRolesForUser(
-            (int) $user['id'],
-            (string) $user['role']
-        );
-
-        if (!in_array('mitra', $user['roles'], true)) {
+        if (
+            $requestedRole === 'koordinator_magang'
+            && !in_array('dosen', $user['roles'], true)
+        ) {
             return null;
         }
 
@@ -516,17 +478,43 @@ class User
         );
 
         $stmt->execute($params);
-
-        $items = [];
-
-        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $item) {
-            $item['roles'] = $this->getRolesForUser(
-                (int) $item['id'],
-                (string) $item['primary_role']
-            );
-
-            $items[] = $item;
+        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($items === []) {
+            return [];
         }
+
+        $userIds = array_map(static fn(array $item): int => (int) $item['id'], $items);
+
+        $rolesByUser = [];
+        $allowedRoles = self::allowedRoles();
+        try {
+            $rolesStmt = $this->db->prepare(
+                'SELECT user_id, role
+                 FROM user_roles
+                 WHERE user_id = ANY(CAST(:user_ids AS BIGINT[]))'
+            );
+            $rolesStmt->execute(['user_ids' => '{' . implode(',', $userIds) . '}']);
+            foreach ($rolesStmt->fetchAll(PDO::FETCH_ASSOC) as $roleRow) {
+                $userId = (int) $roleRow['user_id'];
+                $role = (string) $roleRow['role'];
+                if (in_array($role, $allowedRoles, true)) {
+                    $rolesByUser[$userId][] = $role;
+                }
+            }
+        } catch (PDOException $exception) {
+            if (!self::isMissingUserRolesTable($exception)) {
+                throw $exception;
+            }
+        }
+
+        foreach ($items as &$item) {
+            $userId = (int) $item['id'];
+            $item['roles'] = array_values(array_unique(array_merge(
+                [(string) $item['primary_role']],
+                $rolesByUser[$userId] ?? []
+            )));
+        }
+        unset($item);
 
         return $items;
     }
@@ -534,13 +522,26 @@ class User
 
     public function createManaged(array $data, int $actorId): int
     {
-        $loginId = trim((string) ($data['login_id'] ?? ''));
         $name = trim((string) ($data['name'] ?? ''));
         $nim = trim((string) ($data['nim'] ?? ''));
+        $nidn = trim((string) ($data['nidn'] ?? ''));
+        $nip = trim((string) ($data['nip'] ?? ''));
         $password = (string) ($data['password'] ?? '');
-        $roles = array_values(array_unique(array_intersect(self::allowedRoles(), (array) ($data['roles'] ?? []))));
-        if (!preg_match('/^[A-Za-z0-9._-]{3,50}$/', $loginId)) {
-            throw new InvalidArgumentException('ID login 3–50 karakter dan hanya boleh berisi huruf, angka, titik, garis bawah, atau tanda hubung.');
+        $submittedRoles = $data['roles'] ?? [];
+        if (!is_array($submittedRoles)) {
+            throw new InvalidArgumentException('Pilihan role tidak valid.');
+        }
+        foreach ($submittedRoles as $role) {
+            if (!is_string($role) || !in_array($role, self::managedCreationRoles(), true)) {
+                throw new InvalidArgumentException('Role yang dipilih tidak didukung untuk pembuatan user.');
+            }
+        }
+        $roles = array_values(array_intersect(
+            self::managedCreationRoles(),
+            array_unique($submittedRoles)
+        ));
+        if (!self::isSupportedManagedRoleSelection($roles)) {
+            throw new InvalidArgumentException('Pilih mahasiswa, dosen, tendik, atau dosen bersama Koordinator Magang. Role lain atau kombinasi tersebut tidak didukung.');
         }
         if ($name === '' || mb_strlen($name) > 150) {
             throw new InvalidArgumentException('Nama wajib diisi dan maksimal 150 karakter.');
@@ -551,10 +552,24 @@ class User
         if ($roles === []) {
             throw new InvalidArgumentException('Pilih minimal satu role.');
         }
-        if (in_array('mahasiswa', $roles, true) && !preg_match('/^[A-Za-z0-9.-]{1,30}$/', $nim)) {
-            throw new InvalidArgumentException('NIM wajib diisi dan maksimal 30 karakter alfanumerik.');
+        if (in_array('mahasiswa', $roles, true) && !preg_match('/^[A-Za-z0-9.-]{3,30}$/', $nim)) {
+            throw new InvalidArgumentException('NIM wajib diisi, 3–30 karakter, dan hanya boleh berisi huruf, angka, titik, atau tanda hubung.');
         }
-        $primaryRole = $roles[0];
+        if (in_array('dosen', $roles, true) && !preg_match('/^[A-Za-z0-9.-]{3,30}$/', $nidn)) {
+            throw new InvalidArgumentException('NIDN wajib diisi, 3–30 karakter, dan hanya boleh berisi huruf, angka, titik, atau tanda hubung.');
+        }
+        if (in_array('tendik', $roles, true) && ($nip === '' || mb_strlen($nip) > 30)) {
+            throw new InvalidArgumentException('NIP wajib diisi dan maksimal 30 karakter.');
+        }
+        // The profile identity is also the required legacy login_id. Never create
+        // a synthetic login identifier: current login and reset flows resolve the
+        // role identity from its profile while retaining users.login_id.
+        $loginId = in_array('mahasiswa', $roles, true)
+            ? $nim
+            : (in_array('dosen', $roles, true) ? $nidn : $nip);
+        $primaryRole = in_array('koordinator_magang', $roles, true)
+            ? 'koordinator_magang'
+            : $roles[0];
         $this->db->beginTransaction();
         try {
             $insert = $this->db->prepare(
@@ -599,6 +614,20 @@ class User
                 );
                 $profile->execute(['user_id' => $userId, 'nim' => $nim]);
             }
+            if (in_array('dosen', $roles, true)) {
+                $profile = $this->db->prepare(
+                    'INSERT INTO profil_dosen (user_id, nidn)
+                     VALUES (:user_id, :nidn)'
+                );
+                $profile->execute(['user_id' => $userId, 'nidn' => $nidn]);
+            }
+            if (in_array('tendik', $roles, true)) {
+                $profile = $this->db->prepare(
+                    'INSERT INTO profil_tendik (user_id, nip)
+                     VALUES (:user_id, :nip)'
+                );
+                $profile->execute(['user_id' => $userId, 'nip' => $nip]);
+            }
             $this->db->commit();
             return $userId;
         } catch (Throwable $exception) {
@@ -615,18 +644,40 @@ class User
         if (!$current) {
             throw new InvalidArgumentException('User tidak ditemukan.');
         }
-        $loginId = trim((string) ($data['login_id'] ?? ''));
         $name = trim((string) ($data['name'] ?? ''));
         $nim = trim((string) ($data['nim'] ?? ''));
+        $nidn = trim((string) ($data['nidn'] ?? ''));
+        $nip = trim((string) ($data['nip'] ?? ''));
         $password = (string) ($data['password'] ?? '');
-        $roles = array_values(array_unique(array_intersect(self::allowedRoles(), (array) ($data['roles'] ?? []))));
+        $submittedRoles = $data['roles'] ?? [];
+        if (!is_array($submittedRoles)) {
+            throw new InvalidArgumentException('Pilihan role tidak valid.');
+        }
+        foreach ($submittedRoles as $role) {
+            if (!is_string($role) || !in_array($role, self::managedCreationRoles(), true)) {
+                throw new InvalidArgumentException('Role yang dipilih tidak didukung untuk manajemen user.');
+            }
+        }
+        $roles = array_values(array_intersect(
+            self::managedCreationRoles(),
+            array_unique($submittedRoles)
+        ));
         $isActive = filter_var($data['is_active'] ?? false, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
         $isActive = $isActive ?? false;
-        if (!preg_match('/^[A-Za-z0-9._-]{3,50}$/', $loginId) || $name === '' || mb_strlen($name) > 150 || $roles === []) {
+        if (!self::isSupportedManagedRoleSelection($roles)) {
+            throw new InvalidArgumentException('Pilih mahasiswa, dosen, tendik, atau dosen bersama Koordinator Magang.');
+        }
+        if ($name === '' || mb_strlen($name) > 150) {
             throw new InvalidArgumentException('Data user tidak valid.');
         }
         if (in_array('mahasiswa', $roles, true) && !preg_match('/^[A-Za-z0-9.-]{1,30}$/', $nim)) {
             throw new InvalidArgumentException('NIM wajib diisi dan maksimal 30 karakter alfanumerik.');
+        }
+        if (in_array('dosen', $roles, true) && !preg_match('/^[A-Za-z0-9.-]{3,30}$/', $nidn)) {
+            throw new InvalidArgumentException('NIDN wajib diisi, 3–30 karakter, dan hanya boleh berisi huruf, angka, titik, atau tanda hubung.');
+        }
+        if (in_array('tendik', $roles, true) && ($nip === '' || mb_strlen($nip) > 30)) {
+            throw new InvalidArgumentException('NIP wajib diisi dan maksimal 30 karakter.');
         }
         if ($password !== '' && mb_strlen($password) < 8) {
             throw new InvalidArgumentException('Password minimal 8 karakter jika diubah.');
@@ -634,6 +685,15 @@ class User
         if ($id === $actorId && !$isActive) {
             throw new InvalidArgumentException('Anda tidak dapat menonaktifkan akun sendiri.');
         }
+
+        if (in_array('mahasiswa', $roles, true)) {
+            $identity = $nim;
+        } elseif (in_array('dosen', $roles, true)) {
+            $identity = $nidn;
+        } else {
+            $identity = $nip;
+        }
+
         $this->db->beginTransaction();
         try {
             $sql = 'UPDATE users SET login_id = :login_id, name = :name, role = :role, is_active = :is_active';
@@ -641,22 +701,24 @@ class User
                 $sql .= ', password = :password';
             }
             $sql .= ', updated_at = CURRENT_TIMESTAMP WHERE id = :id';
-            $params = ['login_id' => $loginId, 'name' => $name, 'role' => $roles[0], 'is_active' => $isActive, 'id' => $id];
+            $primaryRole = in_array('koordinator_magang', $roles, true)
+                ? 'koordinator_magang'
+                : $roles[0];
+            $params = ['login_id' => $identity, 'name' => $name, 'role' => $primaryRole, 'is_active' => $isActive, 'id' => $id];
             if ($password !== '') {
                 $params['password'] = password_hash($password, PASSWORD_DEFAULT);
             }
             $this->db->prepare($sql)->execute($params);
             $this->replaceRoles($id, $roles, $actorId);
+
             if (in_array('mahasiswa', $roles, true)) {
-                $profile = $this->db->prepare('SELECT id FROM profil_mahasiswa WHERE user_id = :user_id LIMIT 1');
-                $profile->execute(['user_id' => $id]);
-                if ($profile->fetchColumn() === false) {
-                    $this->db->prepare('INSERT INTO profil_mahasiswa (user_id, nim) VALUES (:user_id, :nim)')
-                        ->execute(['user_id' => $id, 'nim' => $nim]);
-                } elseif ($nim !== '') {
-                    $this->db->prepare('UPDATE profil_mahasiswa SET nim = :nim, updated_at = CURRENT_TIMESTAMP WHERE user_id = :user_id')
-                        ->execute(['nim' => $nim, 'user_id' => $id]);
-                }
+                $this->upsertManagedProfileIdentity('profil_mahasiswa', 'nim', $id, $nim);
+            }
+            if (in_array('dosen', $roles, true)) {
+                $this->upsertManagedProfileIdentity('profil_dosen', 'nidn', $id, $nidn);
+            }
+            if (in_array('tendik', $roles, true)) {
+                $this->upsertManagedProfileIdentity('profil_tendik', 'nip', $id, $nip);
             }
             $this->db->commit();
         } catch (Throwable $exception) {
@@ -681,6 +743,9 @@ class User
 
     private function replaceRoles(int $userId, array $roles, int $actorId): void
     {
+        if (!self::isSupportedManagedRoleSelection($roles)) {
+            throw new InvalidArgumentException('Kombinasi role pengguna tidak valid.');
+        }
         if (!$this->hasUserRolesTable()) {
             if (count($roles) > 1) {
                 throw new RuntimeException('Skema multi-role belum tersedia. Terapkan migration 030 sebelum mengubah role.');
@@ -694,6 +759,40 @@ class User
         }
     }
 
+    private function upsertManagedProfileIdentity(
+        string $table,
+        string $identityColumn,
+        int $userId,
+        string $identity
+    ): void {
+        $allowedProfiles = [
+            'profil_mahasiswa' => 'nim',
+            'profil_dosen' => 'nidn',
+            'profil_tendik' => 'nip',
+        ];
+        if (($allowedProfiles[$table] ?? null) !== $identityColumn) {
+            throw new LogicException('Profil identitas tidak valid.');
+        }
+
+        $statement = $this->db->prepare(
+            "SELECT id FROM {$table} WHERE user_id = :user_id LIMIT 1"
+        );
+        $statement->execute(['user_id' => $userId]);
+
+        if ($statement->fetchColumn() === false) {
+            $this->db->prepare(
+                "INSERT INTO {$table} (user_id, {$identityColumn}) VALUES (:user_id, :identity)"
+            )->execute(['user_id' => $userId, 'identity' => $identity]);
+            return;
+        }
+
+        $this->db->prepare(
+            "UPDATE {$table}
+             SET {$identityColumn} = :identity, updated_at = CURRENT_TIMESTAMP
+             WHERE user_id = :user_id"
+        )->execute(['identity' => $identity, 'user_id' => $userId]);
+    }
+
     private function hasUserRolesTable(): bool
     {
         $statement = $this->db->prepare("SELECT to_regclass('public.user_roles')");
@@ -705,5 +804,31 @@ class User
     public static function allowedRoles(): array
     {
         return ['mahasiswa', 'dosen', 'koordinator_magang', 'tendik', 'mitra'];
+    }
+
+    /**
+     * Roles with verified profile identity columns and persistence.
+     */
+    public static function managedCreationRoles(): array
+    {
+        return ['mahasiswa', 'dosen', 'koordinator_magang', 'tendik'];
+    }
+
+    public static function isSupportedManagedRoleSelection(array $roles): bool
+    {
+        foreach ($roles as $role) {
+            if (!is_string($role) || !in_array($role, self::managedCreationRoles(), true)) {
+                return false;
+            }
+        }
+        $roles = array_values(array_unique($roles));
+        $roles = array_values(array_intersect(self::managedCreationRoles(), $roles));
+
+        return in_array($roles, [
+            ['mahasiswa'],
+            ['dosen'],
+            ['tendik'],
+            ['dosen', 'koordinator_magang'],
+        ], true);
     }
 }

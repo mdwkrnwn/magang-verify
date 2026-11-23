@@ -46,7 +46,7 @@
             </div>
         <?php else: ?>
             <div class="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm mb-6">
-                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                <div class="flex flex-col gap-2 sm:flex-row sm:it       ms-center sm:justify-between">
                     <div>
                         <p class="text-xs uppercase tracking-wide text-gray-400">Penempatan</p>
                         <h2 class="mt-1 font-semibold text-gray-900"><?= e($placement['judul'] ?? '-') ?></h2>

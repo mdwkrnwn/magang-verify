@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../config/app.php';
 require_once __DIR__ . '/../function/Helpers.php';
-require_once __DIR__ . '/../models/AktivitasPengguna.php';
+require_once __DIR__ . '/../middleware/MitraAuthMiddleware.php';
 
 class LogoutController
 {
@@ -25,9 +25,14 @@ class LogoutController
             exit('Permintaan tidak valid. Silakan muat ulang halaman.');
         }
 
+        if (isset($_SESSION['mitra']['id']) || isset($_SESSION['mitra_session_token'])) {
+            MitraAuthMiddleware::logout();
+        }
+
         // Catat logout sebelum session dihancurkan.
         $userId = (int) ($_SESSION['user']['id'] ?? 0);
         if ($userId > 0) {
+            require_once __DIR__ . '/../models/AktivitasPengguna.php';
             (new AktivitasPengguna())->log(
                 $userId,
                 'Logout',

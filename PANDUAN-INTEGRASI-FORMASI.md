@@ -2,7 +2,7 @@
 
 ## Yang sudah disambungkan
 - Daftar formasi membaca `formasi_magang` dan `mitra` dari PostgreSQL/Supabase.
-- Formasi yang tampil harus berstatus `dibuka`, mitra `terverifikasi` dan aktif, serta kuota belum penuh.
+- Formasi yang tampil harus berstatus `dibuka`, mitra aktif, serta kuota belum penuh.
 - Pencarian, lokasi, sistem kerja, dan tahun akademik menggunakan kolom yang tersedia pada skema.
 - Detail formasi mengambil data berdasarkan ID database. Bidang, sistem kerja, periode, kuota, dan informasi mitra ditampilkan dari database.
 - Form Lamar membaca identitas mahasiswa dari `users` + `profil_mahasiswa`; nama, NIM, dan program studi tidak dipercaya dari input browser.
@@ -10,8 +10,8 @@
 - Halaman Pengajuan Saya dan detailnya mengambil data milik mahasiswa yang sedang login.
 - Database tetap menjadi otoritas untuk memeriksa status formasi, kuota, dan pengajuan aktif saat submit.
 
-## Migration tambahan yang wajib diterapkan
-Jalankan isi `database/migrations/014_create_dokumen_pendaftaran_magang.sql` pada SQL Editor Supabase. Migration ini menambahkan tabel metadata dokumen karena skema `pendaftaran_magang` yang ada tidak memiliki kolom dokumen. Migration lama tidak diubah.
+## Migration dokumen
+`014_create_dokumen_pendaftaran_magang.sql` menambahkan tabel metadata dokumen; migration final `017_add_cv_to_profil_mahasiswa.sql` menetapkan jenis dokumen opsional `bpjs_asuransi` dan `proposal_magang`. Migration tidak dijalankan otomatis oleh aplikasi.
 
 ## Penyimpanan file
 File PDF disimpan di `storage/pendaftaran` dengan nama acak; database hanya menyimpan path relatif dan metadata. `.htaccess` disertakan untuk server Apache. Jika deployment memakai Nginx, tambahkan aturan server agar request ke `/storage/` dan `/uploads/cv/` ditolak secara static; dokumen pengajuan hanya dapat diakses melalui endpoint terotorisasi, sedangkan CV publik tetap disajikan lewat route profil mahasiswa. Jangan membuat folder penyimpanan privat menjadi publik.

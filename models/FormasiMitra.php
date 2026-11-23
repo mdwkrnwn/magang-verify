@@ -10,18 +10,18 @@ class FormasiMitra
     private const SYSTEMS = ['onsite', 'hybrid', 'remote'];
     private const STATUSES = ['draft', 'dibuka', 'ditutup', 'selesai', 'dibatalkan'];
 
-    public function getCompany(int $userId): ?array
+    public function getCompany(int $mitraId): ?array
     {
         global $pdo;
         $stmt = $pdo->prepare(
-            "SELECT id, nama_perusahaan, status_verifikasi, is_active
-             FROM mitra WHERE user_id = :user_id LIMIT 1"
+            "SELECT id, nama_perusahaan, is_active
+             FROM mitra WHERE id = :mitra_id LIMIT 1"
         );
-        $stmt->execute(['user_id' => $userId]);
+        $stmt->execute(['mitra_id' => $mitraId]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
-    public function getForCompany(int $userId): array
+    public function getForCompany(int $mitraId): array
     {
         global $pdo;
         $stmt = $pdo->prepare(
@@ -30,30 +30,30 @@ class FormasiMitra
              FROM formasi_magang f
              INNER JOIN mitra m ON m.id = f.mitra_id
              LEFT JOIN pendaftaran_magang p ON p.formasi_id = f.id
-             WHERE m.user_id = :user_id
+             WHERE m.id = :mitra_id
              GROUP BY f.id
              ORDER BY f.created_at DESC, f.id DESC"
         );
-        $stmt->execute(['user_id' => $userId]);
+        $stmt->execute(['mitra_id' => $mitraId]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getOne(int $userId, int $formasiId): ?array
+    public function getOne(int $mitraId, int $formasiId): ?array
     {
         global $pdo;
         $stmt = $pdo->prepare(
             'SELECT f.* FROM formasi_magang f
              INNER JOIN mitra m ON m.id = f.mitra_id
-             WHERE f.id = :id AND m.user_id = :user_id LIMIT 1'
+             WHERE f.id = :id AND m.id = :mitra_id LIMIT 1'
         );
-        $stmt->execute(['id' => $formasiId, 'user_id' => $userId]);
+        $stmt->execute(['id' => $formasiId, 'mitra_id' => $mitraId]);
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
-    public function create(int $userId, array $input): int
+    public function create(int $mitraId, array $input, ?int $actorUserId = null): int
     {
         global $pdo;
-        $company = $this->assertCompanyCanManage($userId);
+        $company = $this->assertCompanyCanManage($mitraId);
         $data = $this->validate($input);
         if (!in_array($data['status'], ['draft', 'dibuka'], true)) {
             throw new InvalidArgumentException('Formasi baru hanya dapat dibuat sebagai draft atau dibuka.');
@@ -68,26 +68,26 @@ class FormasiMitra
                      :tahun, :status, :user_id)
              RETURNING id'
         );
-        $stmt->execute($data + ['mitra_id' => (int) $company['id'], 'user_id' => $userId]);
+        $stmt->execute($data + ['mitra_id' => (int) $company['id'], 'user_id' => $actorUserId]);
         $id = (int) $stmt->fetchColumn();
-        (new AktivitasPengguna())->log($userId, 'Formasi magang dibuat', 'Formasi ' . $data['judul'] . ' berhasil dibuat.', 'formasi', 'formasi_magang', $id);
+        $this->logActivity($actorUserId, 'Formasi magang dibuat', 'Formasi ' . $data['judul'] . ' berhasil dibuat.', 'formasi_magang', $id);
         return $id;
     }
 
-    public function update(int $userId, int $formasiId, array $input): bool
+    public function update(int $mitraId, int $formasiId, array $input, ?int $actorUserId = null): bool
     {
         global $pdo;
-        $this->assertCompanyCanManage($userId);
+        $this->assertCompanyCanManage($mitraId);
         $pdo->beginTransaction();
         try {
             $lock = $pdo->prepare(
                 'SELECT f.id, f.jumlah_diterima, f.status
                  FROM formasi_magang f
                  INNER JOIN mitra m ON m.id = f.mitra_id
-                 WHERE f.id = :id AND m.user_id = :user_id
+                 WHERE f.id = :id AND m.id = :mitra_id
                  FOR UPDATE OF f'
             );
-            $lock->execute(['id' => $formasiId, 'user_id' => $userId]);
+            $lock->execute(['id' => $formasiId, 'mitra_id' => $mitraId]);
             $formasi = $lock->fetch(PDO::FETCH_ASSOC);
             if (!$formasi) {
                 throw new RuntimeException('Formasi tidak ditemukan atau bukan milik perusahaan Anda.');
@@ -111,7 +111,7 @@ class FormasiMitra
             );
             $stmt->execute($data + ['id' => $formasiId]);
             $pdo->commit();
-            (new AktivitasPengguna())->log($userId, 'Formasi magang diperbarui', 'Formasi #' . $formasiId . ' berhasil diperbarui.', 'formasi', 'formasi_magang', $formasiId);
+            $this->logActivity($actorUserId, 'Formasi magang diperbarui', 'Formasi #' . $formasiId . ' berhasil diperbarui.', 'formasi_magang', $formasiId);
             return $stmt->rowCount() === 1;
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
@@ -121,14 +121,14 @@ class FormasiMitra
         }
     }
 
-    public function changeStatus(int $userId, int $formasiId, string $status): bool
+    public function changeStatus(int $mitraId, int $formasiId, string $status, ?int $actorUserId = null): bool
     {
         global $pdo;
         if (!in_array($status, ['dibuka', 'ditutup'], true)) {
             throw new InvalidArgumentException('Aksi status formasi tidak valid.');
         }
         if ($status === 'dibuka') {
-            $this->assertCompanyCanManage($userId);
+            $this->assertCompanyCanManage($mitraId);
         }
 
         $pdo->beginTransaction();
@@ -137,10 +137,10 @@ class FormasiMitra
                 'SELECT f.id, f.status, f.jumlah_diterima, f.jumlah_kuota
                  FROM formasi_magang f
                  INNER JOIN mitra m ON m.id = f.mitra_id
-                 WHERE f.id = :id AND m.user_id = :user_id
+                 WHERE f.id = :id AND m.id = :mitra_id
                  FOR UPDATE OF f'
             );
-            $lock->execute(['id' => $formasiId, 'user_id' => $userId]);
+            $lock->execute(['id' => $formasiId, 'mitra_id' => $mitraId]);
             $formasi = $lock->fetch(PDO::FETCH_ASSOC);
             if (!$formasi) {
                 throw new RuntimeException('Formasi tidak ditemukan atau bukan milik perusahaan Anda.');
@@ -158,7 +158,7 @@ class FormasiMitra
             $update = $pdo->prepare('UPDATE formasi_magang SET status = :status, updated_at = CURRENT_TIMESTAMP WHERE id = :id');
             $update->execute(['status' => $status, 'id' => $formasiId]);
             $pdo->commit();
-            (new AktivitasPengguna())->log($userId, 'Status formasi diperbarui', 'Status formasi #' . $formasiId . ' diubah menjadi ' . $status . '.', 'formasi', 'formasi_magang', $formasiId);
+            $this->logActivity($actorUserId, 'Status formasi diperbarui', 'Status formasi #' . $formasiId . ' diubah menjadi ' . $status . '.', 'formasi_magang', $formasiId);
             return $update->rowCount() === 1;
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
@@ -168,7 +168,7 @@ class FormasiMitra
         }
     }
 
-    public function delete(int $userId, int $formasiId): bool
+    public function delete(int $mitraId, int $formasiId, ?int $actorUserId = null): bool
     {
         global $pdo;
         $pdo->beginTransaction();
@@ -177,10 +177,10 @@ class FormasiMitra
                 'SELECT f.id, f.jumlah_diterima, f.status
                  FROM formasi_magang f
                  INNER JOIN mitra m ON m.id = f.mitra_id
-                 WHERE f.id = :id AND m.user_id = :user_id
+                 WHERE f.id = :id AND m.id = :mitra_id
                  FOR UPDATE OF f'
             );
-            $lock->execute(['id' => $formasiId, 'user_id' => $userId]);
+            $lock->execute(['id' => $formasiId, 'mitra_id' => $mitraId]);
             $formasi = $lock->fetch(PDO::FETCH_ASSOC);
             if (!$formasi) {
                 throw new RuntimeException('Formasi tidak ditemukan atau bukan milik perusahaan Anda.');
@@ -196,7 +196,7 @@ class FormasiMitra
                 throw new RuntimeException('Formasi tidak dapat dihapus.');
             }
             $pdo->commit();
-            (new AktivitasPengguna())->log($userId, 'Formasi magang dihapus', 'Formasi #' . $formasiId . ' tanpa pengajuan dihapus.', 'formasi', 'formasi_magang', $formasiId);
+            $this->logActivity($actorUserId, 'Formasi magang dihapus', 'Formasi #' . $formasiId . ' tanpa pengajuan dihapus.', 'formasi_magang', $formasiId);
             return true;
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) {
@@ -206,16 +206,31 @@ class FormasiMitra
         }
     }
 
-    private function assertCompanyCanManage(int $userId): array
+    private function assertCompanyCanManage(int $mitraId): array
     {
-        $company = $this->getCompany($userId);
+        $company = $this->getCompany($mitraId);
         if (
-            !$company || $company['status_verifikasi'] !== 'terverifikasi'
-            || !in_array($company['is_active'], [true, 1, '1', 't', 'true'], true)
+            !$company || !in_array($company['is_active'], [true, 1, '1', 't', 'true'], true)
         ) {
-            throw new RuntimeException('Akun mitra belum terverifikasi atau tidak aktif.');
+            throw new RuntimeException('Akun mitra tidak aktif atau tidak ditemukan.');
         }
         return $company;
+    }
+
+    private function logActivity(?int $actorUserId, string $action, string $description, string $referenceTable, int $referenceId): void
+    {
+        if ($actorUserId === null || $actorUserId < 1) {
+            return;
+        }
+
+        (new AktivitasPengguna())->log(
+            $actorUserId,
+            $action,
+            $description,
+            'formasi',
+            $referenceTable,
+            $referenceId
+        );
     }
 
     private function validate(array $input, ?string $statusOverride = null): array

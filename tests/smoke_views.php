@@ -233,8 +233,9 @@ expectContains($uploadPanelHtml, 'aria-busy', 'report upload panel exposes loadi
 expectContains($uploadPanelHtml, 'application/pdf,.pdf', 'report upload panel communicates allowed file type');
 
 $applicationFlowHtml = renderComponent(__DIR__ . '/../components/dashboard/mahasiswa/lamar/Alur.php');
-expectContains($applicationFlowHtml, 'Persetujuan Dosen', 'application form explains the documented lecturer review stage');
-expectContains($applicationFlowHtml, 'Respons Mitra', 'application form explains the partner response stage');
+expectContains($applicationFlowHtml, 'Seleksi Mitra', 'application form explains that the partner reviews the application first');
+expectContains($applicationFlowHtml, 'Penetapan Dosen Pembimbing', 'application form explains that advisor assignment follows partner acceptance');
+expectNotContains($applicationFlowHtml, 'Persetujuan Dosen', 'new application flow does not require lecturer approval before partner review');
 expectContains($applicationFlowHtml, 'Penempatan Magang', 'application form explains placement after acceptance');
 expectNotContains($applicationFlowHtml, 'Persetujuan KPS', 'application form excludes obsolete undocumented approval stages');
 $applicationActionHtml = renderComponent(

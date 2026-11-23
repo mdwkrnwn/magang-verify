@@ -46,8 +46,8 @@ final class TendikUserController
     public function create(): void
     {
         $actorId = $this->actorId();
-        $roles = User::allowedRoles();
-        $form = ['login_id' => '', 'name' => '', 'nim' => '', 'roles' => []];
+        $roles = User::managedCreationRoles();
+        $form = ['name' => '', 'nim' => '', 'nidn' => '', 'nip' => '', 'roles' => []];
         $error = null;
         $success = null;
         if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
@@ -56,25 +56,32 @@ final class TendikUserController
                 exit('Permintaan tidak valid.');
             }
             $form = [
-                'login_id' => trim((string) ($_POST['login_id'] ?? '')),
                 'name' => trim((string) ($_POST['name'] ?? '')),
                 'nim' => trim((string) ($_POST['nim'] ?? '')),
+                'nidn' => trim((string) ($_POST['nidn'] ?? '')),
+                'nip' => trim((string) ($_POST['nip'] ?? '')),
                 'roles' => is_array($_POST['roles'] ?? null) ? $_POST['roles'] : [],
             ];
             try {
                 $id = $this->users->createManaged([
-                    'login_id' => $form['login_id'],
                     'name' => $form['name'],
                     'nim' => $form['nim'],
+                    'nidn' => $form['nidn'],
+                    'nip' => $form['nip'],
                     'password' => (string) ($_POST['password'] ?? ''),
                     'roles' => $form['roles'],
                 ], $actorId);
                 (new AktivitasPengguna())->log($actorId, 'User dibuat', 'User #' . $id . ' dibuat oleh Tendik.', 'users', 'users', $id);
                 $success = 'User berhasil dibuat.';
-                $form = ['login_id' => '', 'name' => '', 'nim' => '', 'roles' => []];
+                $form = ['name' => '', 'nim' => '', 'nidn' => '', 'nip' => '', 'roles' => []];
             } catch (PDOException $exception) {
                 error_log('Gagal membuat user: ' . $exception->getMessage());
-                $error = 'User gagal dibuat. Pastikan ID login belum digunakan.';
+                $sqlState = (string) ($exception->errorInfo[0] ?? $exception->getCode());
+                if ($sqlState === '23505') {
+                    $error = 'NIM/NIDN/NIP atau akun dengan identitas tersebut sudah terdaftar. Periksa kembali identitas yang dimasukkan.';
+                } else {
+                    $error = 'User gagal dibuat karena terjadi kesalahan penyimpanan.';
+                }
             } catch (Throwable $exception) {
                 $error = $exception->getMessage();
             }

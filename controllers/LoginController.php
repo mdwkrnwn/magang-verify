@@ -25,40 +25,19 @@ if (function_exists('perfMark')) {
 
 $loginPerfStart = microtime(true);
 
-require_once __DIR__ . '/../models/User.php';
+require_once __DIR__ . '/../models/MitraAuthentication.php';
 
 if (function_exists('perfMark')) {
     perfMark(sprintf(
-        'Login dependency: User.php (%.3f s)',
-        microtime(true) - $loginPerfStart
-    ));
-}
-
-$loginPerfStart = microtime(true);
-
-require_once __DIR__ . '/../models/LoginAuthenticator.php';
-
-if (function_exists('perfMark')) {
-    perfMark(sprintf(
-        'Login dependency: LoginAuthenticator.php (%.3f s)',
-        microtime(true) - $loginPerfStart
-    ));
-}
-
-$loginPerfStart = microtime(true);
-
-require_once __DIR__ . '/../models/AktivitasPengguna.php';
-
-if (function_exists('perfMark')) {
-    perfMark(sprintf(
-        'Login dependency: AktivitasPengguna.php (%.3f s)',
+        'Login dependency: MitraAuthentication.php (%.3f s)',
         microtime(true) - $loginPerfStart
     ));
 }
 
 class LoginController
 {
-    private User $userModel;
+    private ?User $userModel = null;
+    private MitraAuthentication $mitraAuthentication;
 
     public function __construct()
     {
@@ -66,7 +45,7 @@ class LoginController
 
         global $pdo;
 
-        $this->userModel = new User($pdo);
+        $this->mitraAuthentication = new MitraAuthentication($pdo);
 
         if (function_exists('perfMark')) {
             perfMark(sprintf(
@@ -134,8 +113,6 @@ class LoginController
             ? trim($submittedIdentity)
             : '';
 
-        $password = $_POST['password'] ?? '';
-
         // Daftar role yang diperbolehkan.
         $allowedRoles = [
             'mahasiswa',
@@ -154,15 +131,40 @@ class LoginController
             $this->redirectToLogin();
         }
 
+        if ($role === 'mitra') {
+            $mitra = $this->mitraAuthentication->findActiveByCode($identity);
+            if (!$mitra) {
+                $this->redirectToLogin();
+            }
+
+            MitraSessionManager::createSession(
+                $pdo,
+                (int) $mitra['id'],
+                (string) $mitra['nama_perusahaan'],
+                null
+            );
+            header('Location: ' . APP_URL . '/dashboard/mitra', true, 302);
+            exit;
+        }
+
+        $password = $_POST['password'] ?? '';
+
+        $loginPerfStart = microtime(true);
+        require_once __DIR__ . '/../models/User.php';
+        require_once __DIR__ . '/../models/LoginAuthenticator.php';
+        require_once __DIR__ . '/../models/AktivitasPengguna.php';
+        $this->userModel = new User($pdo);
+        if (function_exists('perfMark')) {
+            perfMark(sprintf(
+                'Login dependency: User.php (%.3f s)',
+                microtime(true) - $loginPerfStart
+            ));
+        }
+
         // Cari pengguna.
         $perfStart = microtime(true);
 
-        $user = $role === 'mitra'
-            ? $this->userModel->findActiveMitraByCode($identity)
-            : $this->userModel->findByIdentityAndRole(
-                $identity,
-                $role
-            );
+        $user = $this->userModel->findByIdentityAndRole($identity, $role);
 
         if (function_exists('perfMark')) {
             perfMark(sprintf(
@@ -212,38 +214,19 @@ class LoginController
             ));
         }
 
-        // Buat session berdasarkan role.
+        // Buat session pengguna internal.
         $perfStart = microtime(true);
 
-        if ($role === 'mitra') {
-            // Login manual Mitra menggunakan session manager.
-            MitraSessionManager::createSession(
-                $pdo,
-                (int) $user['mitra_id'],
-                (string) $user['name'],
-                null
-            );
+        MitraSessionManager::revokeCurrentSession($pdo);
+        session_regenerate_id(true);
 
-            // Tetap simpan data user untuk kompatibilitas sistem.
-            $_SESSION['user'] = [
-                'id'       => $user['id'],
-                'login_id' => $user['login_id'],
-                'name'     => $user['name'],
-                'role'     => $role,
-                'roles'    => LoginAuthenticator::normalizeRoles($user),
-            ];
-        } else {
-            // Role lain tetap menggunakan mekanisme session lama.
-            session_regenerate_id(true);
-
-            $_SESSION['user'] = [
-                'id'       => $user['id'],
-                'login_id' => $user['login_id'],
-                'name'     => $user['name'],
-                'role'     => $role,
-                'roles'    => LoginAuthenticator::normalizeRoles($user),
-            ];
-        }
+        $_SESSION['user'] = [
+            'id'       => $user['id'],
+            'login_id' => $user['login_id'],
+            'name'     => $user['name'],
+            'role'     => $role,
+            'roles'    => LoginAuthenticator::normalizeRoles($user),
+        ];
 
         if (function_exists('perfMark')) {
             perfMark(sprintf(
@@ -277,7 +260,6 @@ class LoginController
             'dosen'              => '/dashboard/dosen',
             'koordinator_magang' => '/dashboard/koordinator-magang',
             'tendik'             => '/dashboard/tendik',
-            'mitra'              => '/dashboard/mitra',
         ];
 
         // Redirect ke dashboard.

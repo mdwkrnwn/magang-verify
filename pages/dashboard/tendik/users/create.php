@@ -83,31 +83,11 @@ $active = 'users';
                                 Informasi Akun
                             </h2>
                             <p class="mt-1 text-xs text-gray-500">
-                                Masukkan identitas dan informasi login pengguna.
+                                Identitas NIM, NIDN, atau NIP menjadi identitas login akun; password tetap digunakan saat masuk.
                             </p>
                         </div>
 
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
-
-                            <!-- Login ID -->
-                            <div>
-                                <label for="login_id" class="mb-2 block text-sm font-medium text-gray-700">
-                                    ID Login <span class="text-red-500">*</span>
-                                </label>
-                                <input
-                                    id="login_id"
-                                    name="login_id"
-                                    type="text"
-                                    value="<?= e($form['login_id'] ?? '') ?>"
-                                    required
-                                    minlength="3"
-                                    maxlength="50"
-                                    placeholder="Masukkan ID login"
-                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
-                                <p class="mt-1.5 text-xs text-gray-400">
-                                    Minimal 3 karakter.
-                                </p>
-                            </div>
 
                             <!-- Name -->
                             <div>
@@ -125,21 +105,59 @@ $active = 'users';
                                     class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
                             </div>
 
-                            <!-- NIM -->
-                            <div>
+                            <!-- Student Identity -->
+                            <div id="nim-field" hidden>
                                 <label for="nim" class="mb-2 block text-sm font-medium text-gray-700">
-                                    NIM
+                                    NIM <span class="text-red-500">*</span>
                                 </label>
                                 <input
                                     id="nim"
                                     name="nim"
                                     type="text"
                                     value="<?= e($form['nim'] ?? '') ?>"
+                                    minlength="3"
                                     maxlength="30"
-                                    placeholder="Masukkan NIM jika diperlukan"
+                                    placeholder="Masukkan NIM"
                                     class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
                                 <p class="mt-1.5 text-xs text-gray-400">
-                                    Diisi jika akun memiliki role mahasiswa.
+                                    NIM disimpan pada profil mahasiswa dan digunakan sebagai identitas login.
+                                </p>
+                            </div>
+
+                            <!-- Lecturer Identity -->
+                            <div id="nidn-field" hidden>
+                                <label for="nidn" class="mb-2 block text-sm font-medium text-gray-700">
+                                    NIDN <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    id="nidn"
+                                    name="nidn"
+                                    type="text"
+                                    value="<?= e($form['nidn'] ?? '') ?>"
+                                    minlength="3"
+                                    maxlength="30"
+                                    placeholder="Masukkan NIDN"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                                <p class="mt-1.5 text-xs text-gray-400">
+                                    NIDN digunakan bersama untuk role Dosen dan Koordinator Magang.
+                                </p>
+                            </div>
+
+                            <!-- Staff Identity -->
+                            <div id="nip-field" hidden>
+                                <label for="nip" class="mb-2 block text-sm font-medium text-gray-700">
+                                    NIP <span class="text-red-500">*</span>
+                                </label>
+                                <input
+                                    id="nip"
+                                    name="nip"
+                                    type="text"
+                                    value="<?= e($form['nip'] ?? '') ?>"
+                                    maxlength="30"
+                                    placeholder="Masukkan NIP"
+                                    class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                                <p class="mt-1.5 text-xs text-gray-400">
+                                    NIP disimpan pada profil tendik dan digunakan sebagai identitas login.
                                 </p>
                             </div>
 
@@ -172,7 +190,7 @@ $active = 'users';
                                 Hak Akses Pengguna
                             </h2>
                             <p class="mt-1 text-xs text-gray-500">
-                                Pilih satu atau beberapa role sesuai kebutuhan akun.
+                                Pilih Mahasiswa, Dosen, Tendik, atau Dosen bersama Koordinator Magang.
                             </p>
                         </div>
 
@@ -181,11 +199,12 @@ $active = 'users';
 
                             <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
                                 <?php foreach ($roles as $roleOption): ?>
-                                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-4 py-3.5 transition hover:border-blue-300 hover:bg-blue-50/40">
+                                    <label class="flex cursor-pointer items-center gap-3 rounded-xl border border-slate-200 px-4 py-3.5 transition hover:border-blue-300 hover:bg-blue-50/40" data-role-label="<?= e($roleOption) ?>">
                                         <input
                                             type="checkbox"
                                             name="roles[]"
                                             value="<?= e($roleOption) ?>"
+                                            data-role-option="<?= e($roleOption) ?>"
                                             <?= in_array($roleOption, (array) ($form['roles'] ?? []), true) ? 'checked' : '' ?>
                                             class="h-4 w-4 shrink-0 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
 
@@ -195,6 +214,9 @@ $active = 'users';
                                     </label>
                                 <?php endforeach; ?>
                             </div>
+                            <p id="role-selection-error" class="mt-3 text-sm text-red-600" role="alert" hidden>
+                                Pilih Mahasiswa, Dosen, Tendik, atau Dosen bersama Koordinator Magang.
+                            </p>
                         </fieldset>
                     </div>
 
@@ -230,6 +252,87 @@ $active = 'users';
 
         </div>
     </main>
+
+    <script>
+        (() => {
+            const form = document.querySelector('form[action*="/dashboard/tendik/users/create"]');
+            if (!form) return;
+
+            const roleInputs = Array.from(form.querySelectorAll('[data-role-option]'));
+            const nimField = document.getElementById('nim-field');
+            const nidnField = document.getElementById('nidn-field');
+            const nipField = document.getElementById('nip-field');
+            const nimInput = document.getElementById('nim');
+            const nidnInput = document.getElementById('nidn');
+            const nipInput = document.getElementById('nip');
+            const roleError = document.getElementById('role-selection-error');
+            const byRole = (role) => roleInputs.find((input) => input.value === role);
+
+            const updateRoles = (changedRole) => {
+                const mahasiswa = byRole('mahasiswa');
+                const dosen = byRole('dosen');
+                const koordinator = byRole('koordinator_magang');
+                const tendik = byRole('tendik');
+
+                if (changedRole === 'koordinator_magang' && koordinator.checked) {
+                    dosen.checked = true;
+                }
+                if (changedRole === 'dosen' && !dosen.checked) {
+                    koordinator.checked = false;
+                }
+                if (changedRole === 'tendik' && tendik.checked) {
+                    mahasiswa.checked = false;
+                    dosen.checked = false;
+                    koordinator.checked = false;
+                } else if (changedRole === 'mahasiswa' && mahasiswa.checked) {
+                    dosen.checked = false;
+                    koordinator.checked = false;
+                    tendik.checked = false;
+                } else if ((changedRole === 'dosen' && dosen.checked) || (changedRole === 'koordinator_magang' && koordinator.checked)) {
+                    mahasiswa.checked = false;
+                    tendik.checked = false;
+                } else if (mahasiswa.checked) {
+                    dosen.checked = false;
+                    koordinator.checked = false;
+                    tendik.checked = false;
+                } else if (tendik.checked) {
+                    mahasiswa.checked = false;
+                    dosen.checked = false;
+                    koordinator.checked = false;
+                }
+
+                dosen.disabled = mahasiswa.checked;
+                koordinator.disabled = mahasiswa.checked || tendik.checked;
+                tendik.disabled = false;
+                nimField.hidden = !mahasiswa.checked;
+                nidnField.hidden = !dosen.checked;
+                nipField.hidden = !tendik.checked;
+                nimInput.required = mahasiswa.checked;
+                nidnInput.required = dosen.checked;
+                nipInput.required = tendik.checked;
+                nimInput.disabled = !mahasiswa.checked;
+                nidnInput.disabled = !dosen.checked;
+                nipInput.disabled = !tendik.checked;
+            };
+
+            roleInputs.forEach((input) => input.addEventListener('change', () => updateRoles(input.value)));
+            updateRoles('');
+
+            form.addEventListener('submit', (event) => {
+                const selected = roleInputs.filter((input) => input.checked).map((input) => input.value);
+                const supported = selected.length === 1
+                    && ['mahasiswa', 'dosen', 'tendik'].includes(selected[0])
+                    || selected.length === 2
+                    && selected.includes('dosen')
+                    && selected.includes('koordinator_magang');
+
+                roleError.hidden = supported;
+                if (!supported) {
+                    event.preventDefault();
+                }
+            });
+        })();
+    </script>
 
 </body>
 

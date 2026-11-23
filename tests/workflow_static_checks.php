@@ -35,12 +35,18 @@ $notificationRoute = file_get_contents(__DIR__ . '/../routes/web.php');
 $loginController = file_get_contents(__DIR__ . '/../controllers/LoginController.php');
 $logoutController = file_get_contents(__DIR__ . '/../controllers/LogoutController.php');
 $userModel = file_get_contents(__DIR__ . '/../models/User.php');
+$mitraAuthentication = file_get_contents(__DIR__ . '/../models/MitraAuthentication.php');
+$mitraSessionManager = file_get_contents(__DIR__ . '/../models/MitraSessionManager.php');
+$mitraAuthMiddleware = file_get_contents(__DIR__ . '/../middleware/MitraAuthMiddleware.php');
+$mitraAccessController = file_get_contents(__DIR__ . '/../controllers/MitraAccessController.php');
+$mitraAccessTokenModel = file_get_contents(__DIR__ . '/../models/GenerateLoginMitra.php');
 $loginAuthenticator = file_get_contents(__DIR__ . '/../models/LoginAuthenticator.php');
 $authMiddleware = file_get_contents(__DIR__ . '/../middleware/AuthMiddleware.php');
 $tendikUserController = file_get_contents(__DIR__ . '/../controllers/dashboard/tendik/UserController.php');
 $tendikUserPage = file_get_contents(__DIR__ . '/../pages/dashboard/tendik/users/index.php');
 $tendikUserForm = file_get_contents(__DIR__ . '/../pages/dashboard/tendik/users/create.php');
 $userRolesMigration = file_get_contents(__DIR__ . '/../database/migrations/030_create_user_roles.sql');
+$tendikProfileMigration = file_get_contents(__DIR__ . '/../database/migrations/034_create_profil_tendik.sql');
 $loginScript = file_get_contents(__DIR__ . '/../components/login/Script.php');
 $testAccountSeeder = file_get_contents(__DIR__ . '/../database/seeders/SeedTestUsers.php');
 $lecturerMonitoringController = file_get_contents(__DIR__ . '/../controllers/dashboard/dosen/DosenMonitoringController.php');
@@ -61,6 +67,7 @@ $studentCertificateController = file_get_contents(__DIR__ . '/../controllers/das
 $studentCertificateCard = file_get_contents(__DIR__ . '/../components/dashboard/mahasiswa/sertifikat/SertifikatCard.php');
 $studentCertificatePreview = file_get_contents(__DIR__ . '/../components/dashboard/mahasiswa/sertifikat/detail/Preview.php');
 $studentSettingsController = file_get_contents(__DIR__ . '/../controllers/dashboard/mahasiswa/PengaturanController.php');
+$settingsBaseController = file_get_contents(__DIR__ . '/../controllers/dashboard/shared/PengaturanBaseController.php');
 $studentFormasiModel = file_get_contents(__DIR__ . '/../models/FormasiMagang.php');
 $studentFormasiHeader = file_get_contents(__DIR__ . '/../components/dashboard/mahasiswa/formasi-magang/detail/Header.php');
 $applicationAction = file_get_contents(__DIR__ . '/../components/dashboard/mahasiswa/lamar/Action.php');
@@ -78,7 +85,7 @@ require_once __DIR__ . '/../function/PrivateStorage.php';
 require_once $environmentHelper;
 require_once $documentTypeHelper;
 
-if ($model === false || $fileController === false || $router === false || $apacheStorageRules === false || $reportController === false || $studentLogbookController === false || $coordinatorLogbookController === false || $studentDailyLogbookForm === false || $reportDetailPage === false || $weeklyReportForm === false || $weeklyActivitiesComponent === false || $logbookDetailPage === false || $dailyValidationStatus === false || $reportUploadPanel === false || $reportRevisionModel === false || $applicationController === false || $applicationModel === false || $approvalModel === false || $mitraApplicationModel === false || $mitraApplicationController === false || $mitraApplicationView === false || $lecturerApplicationController === false || $lecturerApplicationView === false || $lecturerMonitoringController === false || $lecturerDashboardModel === false || $assessmentController === false || $studentPortfolioController === false || $studentProfileController === false || $studentCertificateController === false || $studentCertificateCard === false || $studentCertificatePreview === false || $studentSettingsController === false || $studentFormasiModel === false || $studentFormasiHeader === false || $applicationAction === false || $applicationMainContent === false || $loginController === false || $logoutController === false || $userModel === false || $authMiddleware === false || $loginScript === false || $testAccountSeeder === false || $publicProfileController === false || $publicProfileModel === false || $privateStorageHelper === false || $environmentConfig === false || $notificationModel === false || $notificationController === false || $notificationRoute === false || $cvApacheRules === false || $schemaSnapshot === false || $finalDocumentMigration === false || $migration016 === false || $migration017 === false || $migration025 === false) {
+if ($model === false || $fileController === false || $router === false || $apacheStorageRules === false || $reportController === false || $studentLogbookController === false || $coordinatorLogbookController === false || $studentDailyLogbookForm === false || $reportDetailPage === false || $weeklyReportForm === false || $weeklyActivitiesComponent === false || $logbookDetailPage === false || $dailyValidationStatus === false || $reportUploadPanel === false || $reportRevisionModel === false || $applicationController === false || $applicationModel === false || $approvalModel === false || $mitraApplicationModel === false || $mitraApplicationController === false || $mitraApplicationView === false || $lecturerApplicationController === false || $lecturerApplicationView === false || $lecturerMonitoringController === false || $lecturerDashboardModel === false || $assessmentController === false || $studentPortfolioController === false || $studentProfileController === false || $studentCertificateController === false || $studentCertificateCard === false || $studentCertificatePreview === false || $studentSettingsController === false || $settingsBaseController === false || $studentFormasiModel === false || $studentFormasiHeader === false || $applicationAction === false || $applicationMainContent === false || $loginController === false || $logoutController === false || $userModel === false || $mitraAuthentication === false || $mitraSessionManager === false || $mitraAuthMiddleware === false || $mitraAccessController === false || $mitraAccessTokenModel === false || $authMiddleware === false || $loginScript === false || $testAccountSeeder === false || $tendikProfileMigration === false || $publicProfileController === false || $publicProfileModel === false || $privateStorageHelper === false || $environmentConfig === false || $notificationModel === false || $notificationController === false || $notificationRoute === false || $cvApacheRules === false || $schemaSnapshot === false || $finalDocumentMigration === false || $migration016 === false || $migration017 === false || $migration025 === false) {
     throw new RuntimeException('Unable to read source files for static workflow checks.');
 }
 
@@ -120,6 +127,7 @@ $signatureMethod = substr(
 );
 assertSourceContains($signatureMethod, "'tendik', 'koordinator_magang' => false", 'validators cannot download unrelated signatures');
 assertSourceContains($signatureMethod, "\$row['tahap'] !== 'dosen'", 'partner cannot download lecturer signature');
+assertSourceContains($signatureMethod, "'mitra' => (int) \$row['mitra_id'] === \$identityId", 'Mitra signature download is owned by the authenticated Mitra id');
 
 $evidenceMethod = substr(
     $model,
@@ -128,7 +136,9 @@ $evidenceMethod = substr(
 );
 assertSourceContains($evidenceMethod, "'tendik', 'koordinator_magang' =>", 'validator evidence access is explicitly scoped');
 assertSourceContains($evidenceMethod, "\$row['status_validasi'] === 'menunggu'", 'validators can access evidence only while pending');
-assertSourceContains($fileController, 'getEvidenceForUser($id, $userId, $role)', 'file endpoint delegates evidence authorization');
+assertSourceContains($evidenceMethod, "'mitra' => (int) \$row['mitra_id'] === \$identityId", 'Mitra evidence download is owned by the authenticated Mitra id');
+assertSourceContains($fileController, 'getEvidenceForUser($id, $identityId, $role)', 'file endpoint delegates evidence authorization');
+assertSourceContains($fileController, 'MitraAuthMiddleware::currentMitraId()', 'Mitra file endpoint derives ownership from the authenticated session');
 assertSourceContains($fileController, 'AuthMiddleware::handle($role)', 'private logbook file endpoint refreshes active role authorization');
 assertSourceContains($fileController, "'Cache-Control: private, no-store", 'private file response disables caching');
 assertSourceContains($router, 'isPrivateStorageRequestPath((string) $path)', 'router checks canonical private storage path');
@@ -150,7 +160,8 @@ $reviewQueueMethod = substr(
     strpos($model, 'public function getLecturerStatistics(') - strpos($model, 'public function getReviewQueue(')
 );
 assertSourceContains($reviewQueueMethod, '$params = [];', 'review queue starts with only parameters required by selected role');
-assertSourceContains($reviewQueueMethod, '$params = [\'user_id\' => $userId];', 'partner/lecturer review queue scopes parameter to their owner predicate');
+assertSourceContains($reviewQueueMethod, '$params = [\'identity_id\' => $identityId];', 'Mitra review queue scopes by the authenticated Mitra identity');
+assertSourceContains($reviewQueueMethod, '$params = [\'user_id\' => $identityId];', 'Dosen review queue scopes by the authenticated Dosen identity');
 assertSourceContains($reviewQueueMethod, '$stmt->execute($params);', 'review queue executes with role-specific bound parameters');
 assertSourceNotContains($reviewQueueMethod, '$stmt->execute([\'user_id\' => $userId]);', 'validator queue does not bind a placeholder absent from its SQL condition');
 assertSourceContains($reviewQueueMethod, 'in_array($role, self::VALIDATORS, true)', 'validator queue branch remains role-gated');
@@ -196,6 +207,9 @@ assertSourceContains($schemaSnapshot, "CHECK (jenis_dokumen IN ('pakta_integrita
 assertSourceContains($finalDocumentMigration, "'bpjs_asuransi',", 'final document migration uses BPJS database kind');
 assertSourceContains($finalDocumentMigration, "'proposal_magang',", 'final document migration uses proposal database kind');
 assertSourceContains($applicationController, 'applicationDocumentKind($field)', 'application maps upload fields through tested database-kind helper');
+assertSourceNotContains($applicationController, 'Pastikan migration dokumen', 'application save error does not incorrectly blame document migrations');
+assertSourceNotContains($applicationModel, 'm.status_verifikasi', 'application creation does not query the obsolete partner verification column');
+assertSourceContains($applicationModel, "m.is_active=TRUE", 'application creation requires an active partner');
 assertSourceContains($applicationController, '$existingApplication = $hasActiveApplication || !$formasiTersedia', 'unavailable formations disable application submission');
 assertSourceContains($applicationController, 'Formasi ini sudah tidak menerima pendaftaran.', 'stale application link gives clear unavailable-form feedback');
 assertSourceContains($applicationMainContent, "include __DIR__ . '/Alur.php'", 'application page includes the documented workflow timeline');
@@ -236,7 +250,9 @@ if (
 assertSourceContains($privateStorageHelper, "'..'", 'private file resolver rejects traversal segments');
 assertSourceContains($privateStorageHelper, 'str_starts_with($file, $allowedRoot . DIRECTORY_SEPARATOR)', 'private file resolver checks canonical containment');
 assertSourceContains($environmentConfig, 'loadEnvironmentFileIfRequired(', 'environment loader supports isolated process injection');
-assertSourceContains($environmentConfig, "['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD']", 'all database connection parameters are required');
+foreach (['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD', 'MAIL_HOST', 'MAIL_PORT', 'MAIL_USERNAME', 'MAIL_PASSWORD', 'MAIL_FROM_ADDRESS', 'MAIL_FROM_NAME'] as $requiredEnvironmentKey) {
+    assertSourceContains($environmentConfig, "'" . $requiredEnvironmentKey . "'", 'environment configuration requires ' . $requiredEnvironmentKey);
+}
 
 assertSourceContains($notificationRoute, "'/dashboard/notifikasi' =>", 'notification inbox route is registered');
 assertSourceContains($notificationController, 'AuthMiddleware::handle($role)', 'notification page authenticates its active role');
@@ -260,6 +276,13 @@ assertSourceContains($mitraApplicationController, '$formValues[(int) $id] = $not
 assertSourceContains($mitraApplicationView, 'name="_csrf_token"', 'mitra application form includes CSRF');
 assertSourceContains($mitraApplicationView, 'application_id', 'mitra application form sends application identifier');
 assertSourceContains($mitraApplicationView, 'name="decision"', 'mitra form submits selected documented decision');
+assertSourceContains($lecturerApplicationController, 'MitraAuthMiddleware::currentMitraId()', 'Mitra document requests use the authenticated Mitra identity');
+$pendingMitraDocumentMethod = substr(
+    $lecturerApplicationModel,
+    strpos($lecturerApplicationModel, 'public function getPendingDocumentForMitra('),
+    strpos($lecturerApplicationModel, 'private function findPendingDocument(') - strpos($lecturerApplicationModel, 'public function getPendingDocumentForMitra(')
+);
+assertSourceContains($pendingMitraDocumentMethod, 'm.id = :mitra_id', 'Mitra application document ownership is checked against the owning Mitra');
 assertSourceContains($lecturerApplicationController, 'verifyCsrfToken()', 'lecturer decisions require CSRF');
 assertSourceContains($lecturerApplicationController, '$formValues[(int) $id] = $note', 'lecturer decision note is retained on errors');
 assertSourceContains($lecturerApplicationView, 'name="_csrf_token"', 'lecturer application form includes CSRF');
@@ -283,7 +306,8 @@ assertSourceContains($studentCertificateController, 'Cache-Control: private, no-
 assertSourceContains($studentCertificateController, 'resolvePrivateStorageFile(dirname(__DIR__, 3), $relativePath, [$this->uploadRelativePath])', 'certificate preview resolves the stored path through the private storage resolver');
 assertSourceContains($studentCertificateCard, '/dashboard/mahasiswa/sertifikat/pratinjau/', 'certificate card uses the authorized preview route');
 assertSourceContains($studentCertificatePreview, '/dashboard/mahasiswa/sertifikat/pratinjau/', 'certificate detail preview uses the authorized preview route');
-assertSourceContains($studentSettingsController, "AuthMiddleware::handle('mahasiswa')", 'student settings controller restricts password changes to student role');
+assertSourceContains($studentSettingsController, "return 'mahasiswa';", 'student settings controller declares its required role');
+assertSourceContains($settingsBaseController, 'AuthMiddleware::handle($this->getRole())', 'shared settings controller checks the declared role before password changes');
 assertSourceContains($studentFormasiModel, '$statusFormasi === \'dibuka\'', 'available student formasi must also be open');
 assertSourceContains($studentFormasiModel, "\$formasi['status_formasi'] === 'draft'", 'student formasi details do not disclose unpublished drafts');
 assertSourceContains($studentFormasiHeader, "'ditutup' => 'Pendaftaran Ditutup'", 'closed formasi receives an accurate status label');
@@ -293,38 +317,52 @@ assertSourceContains($applicationController, 'http_response_code(409);', 'unavai
 assertSourceContains($applicationAction, "<?= \$existingApplication ? 'disabled' : '' ?>", 'server-detected application blockers disable form submission');
 assertSourceContains($notificationRoute, "'/login' => [", 'login has a route');
 assertSourceContains($notificationRoute, "'/logout' => [", 'logout has a route');
-$mitraSeederHashVerified = false;
-if (preg_match_all("/\\[\\s*'login_id'\\s*=>[\\s\\S]*?\\n\\s*\\],/", $testAccountSeeder, $accountBlocks)) {
-    foreach ($accountBlocks[0] as $accountBlock) {
-        if (str_contains($accountBlock, "'role' => 'mitra'")) {
-            $mitraSeederHashVerified = str_contains($accountBlock, "'password' => password_hash(");
-            break;
-        }
-    }
-}
-if (!$mitraSeederHashVerified) {
-    throw new RuntimeException('Synthetic Mitra account seeding must store a password hash.');
-}
+assertSourceContains($testAccountSeeder, 'INSERT INTO mitra', 'test Mitra seed is created in the Mitra table');
+assertSourceNotContains($testAccountSeeder, "'role' => 'mitra'", 'test Mitra seed does not create an internal user account');
+assertSourceContains($testAccountSeeder, "'role' => 'dosen'", 'test coordinator seed uses the Dosen identity');
+assertSourceContains($testAccountSeeder, "VALUES (:user_id, 'koordinator_magang')", 'test coordinator seed assigns the additional role');
 assertSourceContains($loginAuthenticator, 'password_verify($password, $hash)', 'non-Mitra roles still verify password hashes');
 assertSourceContains($loginController, 'session_regenerate_id(true)', 'successful login regenerates session id');
-assertSourceContains($loginController, "'mitra'              => '/dashboard/mitra'", 'mitra login redirects to mitra dashboard');
+assertSourceContains($loginController, "APP_URL . '/dashboard/mitra'", 'manual Mitra login redirects to the Mitra dashboard');
 assertSourceContains($loginController, 'verifyCsrfToken()', 'login POST requires CSRF');
 assertSourceContains($userModel, 'FROM users', 'authentication reads identity from users table');
 assertSourceContains($userModel, 'WHERE login_id = :login_id', 'authentication looks up account by login id');
 assertSourceContains($userModel, 'SELECT role FROM user_roles WHERE user_id', 'authentication resolves secondary roles from the relation');
 assertSourceContains($loginController, "\$role === 'mitra'", 'login explicitly branches into Mitra authentication');
-assertSourceContains($loginController, 'findActiveMitraByCode($loginId)', 'Mitra login resolves the company code');
-assertSourceContains($loginController, 'findByLoginId($loginId)', 'other roles retain the users.login_id lookup');
-assertSourceContains($loginAuthenticator, "if (\$requestedRole === 'mitra')", 'Mitra authentication is distinct from password authentication');
-assertSourceContains($loginAuthenticator, 'password_verify($password, $hash)', 'non-Mitra roles still verify password hashes');
-assertSourceContains($userModel, 'm.kode_perusahaan = :kode_perusahaan', 'official Mitra company code maps to its profile');
-assertSourceContains($userModel, 'INNER JOIN users u ON u.id = m.user_id', 'Mitra code resolves only through its linked user');
-assertSourceContains($userModel, "u.role = 'mitra'", 'Mitra code lookup cannot resolve a different user role');
-assertSourceContains($userModel, 'u.is_active = TRUE', 'Mitra lookup requires active user account');
-assertSourceContains($userModel, 'm.is_active = TRUE', 'Mitra lookup requires active company profile');
+assertSourceContains($loginController, '$this->mitraAuthentication->findActiveByCode($identity)', 'manual Mitra login resolves the code directly from its profile');
+assertSourceContains($loginController, '$this->userModel->findByIdentityAndRole($identity, $role)', 'internal login resolves identities through internal profiles');
+$mitraLoginStart = strpos($loginController, "if (\$role === 'mitra')");
+$mitraLoginEnd = strpos($loginController, "\$password = \$_POST['password'] ?? ''", $mitraLoginStart);
+$mitraLoginBranch = $mitraLoginStart !== false && $mitraLoginEnd !== false
+    ? substr($loginController, $mitraLoginStart, $mitraLoginEnd - $mitraLoginStart)
+    : '';
+assertSourceContains($mitraLoginBranch, 'MitraSessionManager::createSession(', 'manual Mitra login creates an independent session');
+assertSourceNotContains($mitraLoginBranch, '$_SESSION[\'user\']', 'manual Mitra login does not create an internal user session');
+assertSourceNotContains($mitraLoginBranch, 'password', 'manual Mitra login does not inspect an internal password');
+assertSourceContains($mitraAuthentication, 'FROM mitra', 'Mitra authentication queries the Mitra table directly');
+assertSourceContains($mitraAuthentication, 'WHERE kode_perusahaan = :kode_perusahaan', 'Mitra authentication checks the official company code');
+assertSourceContains($mitraAuthentication, 'AND is_active = TRUE', 'Mitra authentication rejects inactive profiles');
+foreach (['users', 'user_roles', 'profil_mahasiswa', 'profil_dosen', 'profil_tendik'] as $internalAuthTable) {
+    assertSourceNotContains(strtolower($mitraAuthentication), $internalAuthTable, 'Mitra auth query has no dependency on ' . $internalAuthTable);
+}
+assertSourceContains($mitraSessionManager, '$_SESSION[\'mitra\']', 'Mitra session stores Mitra identity');
+assertSourceContains($mitraSessionManager, 'unset($_SESSION[\'user\'])', 'Mitra session clears internal user identity');
+assertSourceContains($mitraAuthMiddleware, 'WHERE ms.session_hash = :session_hash', 'Mitra authorization validates its own persisted session');
+assertSourceContains($mitraAuthMiddleware, 'AND ms.mitra_id = :mitra_id', 'Mitra authorization binds session to authenticated Mitra identity');
+assertSourceNotContains($mitraAuthMiddleware, 'JOIN users', 'Mitra authorization does not join internal users');
+assertSourceNotContains($mitraAuthMiddleware, 'user_roles', 'Mitra authorization does not use internal roles');
+assertSourceContains($mitraAccessTokenModel, 'FROM mitra_access_tokens t', 'generated-link login validates Mitra access tokens');
+assertSourceContains($mitraAccessTokenModel, 'INNER JOIN mitra m ON m.id = t.mitra_id', 'generated-link login remains scoped to the Mitra profile');
+assertSourceContains($mitraAccessController, '(int) $mitra[\'access_id\']', 'generated-link login preserves token session association');
+assertSourceContains($mitraAuthMiddleware, 'UPDATE mitra_sessions', 'Mitra logout revokes its persisted session');
+assertSourceContains($logoutController, 'MitraAuthMiddleware::logout()', 'shared logout delegates Mitra cleanup to its own middleware');
+assertSourceNotContains($userModel, 'findActiveMitraByCode', 'internal User model no longer authenticates Mitra codes');
+assertSourceContains($loginAuthenticator, "\$requestedRole === 'mitra'", 'internal password policy explicitly rejects Mitra authentication');
 assertSourceContains($logoutController, 'session_destroy()', 'logout destroys server session');
 assertSourceContains($logoutController, 'verifyCsrfToken()', 'logout requires CSRF');
 assertSourceContains($authMiddleware, 'handleAny(', 'dashboard middleware supports approved multi-role access');
+assertSourceContains($authMiddleware, '$role === \'koordinator_magang\'', 'coordinator authorization applies the lecturer-only rule');
+assertSourceContains($authMiddleware, 'has_dosen_profile', 'coordinator authorization requires the lecturer profile');
 assertSourceContains($tendikUserController, "AuthMiddleware::handle('tendik')", 'user management requires Tendik role');
 assertSourceContains($tendikUserController, 'verifyCsrfToken()', 'user creation requires CSRF');
 assertSourceContains($tendikUserController, 'createManaged(', 'user controller delegates validated creation to the model');
@@ -332,7 +370,8 @@ assertSourceContains($userModel, 'password_hash($password, PASSWORD_DEFAULT)', '
 assertSourceContains($userModel, "'SELECT role FROM user_roles WHERE user_id = :user_id'", 'login resolves many roles when the migration is present');
 assertSourceContains($userModel, 'getRolesForUser(', 'login resolves roles through the role relation helper');
 assertSourceContains($userModel, 'Preserve legacy single-role login when migration 030 has not been installed.', 'legacy login lookup remains available before migration');
-assertSourceContains($userModel, 'array_intersect(self::allowedRoles()', 'submitted roles are allowlisted before persistence');
+assertSourceContains($userModel, 'array_intersect(', 'submitted roles are normalized through an allowlist');
+assertSourceContains($userModel, 'self::managedCreationRoles()', 'managed user roles are restricted to supported profile identities');
 assertSourceContains($userRolesMigration, 'CREATE TABLE user_roles', 'multi-role migration creates the relation table');
 assertSourceContains($userRolesMigration, 'ON CONFLICT (user_id, role) DO NOTHING', 'multi-role migration preserves existing role data idempotently');
 assertSourceContains($notificationRoute, "'/dashboard/tendik/users' =>", 'Tendik user list route is registered');
@@ -340,6 +379,12 @@ assertSourceContains($notificationRoute, "'/dashboard/tendik/users/create' =>", 
 assertSourceContains($tendikUserPage, 'name="search"', 'user management page has search input');
 assertSourceContains($tendikUserPage, 'name="role"', 'user management page has role filter');
 assertSourceContains($tendikUserForm, 'name="roles[]"', 'user creation form supports multiple roles');
+assertSourceContains($tendikUserForm, 'koordinator.disabled = mahasiswa.checked || tendik.checked;', 'coordinator checkbox is selectable and auto-enables the Dosen role');
+assertSourceContains($userModel, 'if (!self::isSupportedManagedRoleSelection($roles))', 'user updates validate the same role combinations as creation');
+assertSourceContains($tendikProfileMigration, 'user_id BIGINT NOT NULL UNIQUE', 'Tendik profile migration requires a unique user id');
+assertSourceContains($tendikProfileMigration, 'REFERENCES users(id)', 'Tendik profile migration references its internal owner');
+assertSourceContains($tendikProfileMigration, 'nip VARCHAR(30) NOT NULL UNIQUE', 'Tendik profile migration requires a unique bounded NIP');
+assertSourceContains($schemaSnapshot, 'CREATE TABLE profil_tendik', 'schema snapshot includes the Tendik profile');
 assertSourceContains($loginScript, 'passwordSection.hidden = isMitra', 'role selection hides password only for Mitra');
 assertSourceContains($loginScript, 'passwordInput.required = !isMitra', 'password requirement follows the selected role');
 assertSourceContains($loginScript, 'passwordInput.disabled = isMitra', 'hidden Mitra password is excluded from submission');
@@ -515,17 +560,21 @@ try {
     file_put_contents($outsideFile, 'fixture');
     file_put_contents($profileDirectory . '/photo.jpg', 'fixture');
     file_put_contents($cvDirectory . '/resume.pdf', 'fixture');
-    if (!symlink($outsideFile, $fileSymlink) || !symlink($outsideDirectory, $directorySymlink)) {
-        throw new RuntimeException('Symlink creation is unavailable in the test scratch directory.');
-    }
     if (resolvePrivateStorageFile($temporaryRoot, 'storage/laporan/safe.pdf', ['storage/laporan']) === null) {
         throw new RuntimeException('Resolver rejected a file inside the allowed canonical directory.');
     }
-    if (resolvePrivateStorageFile($temporaryRoot, 'storage/laporan/escape.pdf', ['storage/laporan']) !== null) {
-        throw new RuntimeException('Resolver accepted a file symlink escaping the allowed directory.');
-    }
-    if (resolvePrivateStorageFile($temporaryRoot, 'storage/laporan-link/outside.pdf', ['storage/laporan-link']) !== null) {
-        throw new RuntimeException('Resolver accepted an allowed-directory symlink escaping the project root.');
+
+    $fileSymlinkCreated = @symlink($outsideFile, $fileSymlink);
+    $directorySymlinkCreated = @symlink($outsideDirectory, $directorySymlink);
+    if ($fileSymlinkCreated && $directorySymlinkCreated) {
+        if (resolvePrivateStorageFile($temporaryRoot, 'storage/laporan/escape.pdf', ['storage/laporan']) !== null) {
+            throw new RuntimeException('Resolver accepted a file symlink escaping the allowed directory.');
+        }
+        if (resolvePrivateStorageFile($temporaryRoot, 'storage/laporan-link/outside.pdf', ['storage/laporan-link']) !== null) {
+            throw new RuntimeException('Resolver accepted an allowed-directory symlink escaping the project root.');
+        }
+    } else {
+        fwrite(STDERR, "SKIP: symlink escape checks require symlink creation permission.\n");
     }
     if (resolvePrivateStorageFile($temporaryRoot, 'uploads/profil/photo.jpg', ['uploads/profil']) === null
         || resolvePrivateStorageFile($temporaryRoot, 'uploads/cv/resume.pdf', ['uploads/cv']) === null) {

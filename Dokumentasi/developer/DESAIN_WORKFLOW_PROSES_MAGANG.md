@@ -5,11 +5,12 @@ Status: rancangan implementasi, migration belum dijalankan.
 ## Keputusan bisnis
 
 - Satu `proses_magang` aktif maksimal untuk satu `profil_mahasiswa`.
-- Proses magang dibuat sebelum pengajuan ke mitra.
+- Mahasiswa mengajukan formasi yang tersedia tanpa proses atau pembimbing aktif.
+- Proses magang dan penugasan pembimbing disiapkan setelah Mitra menerima pengajuan.
 - Penugasan pembimbing berlaku pada proses, bukan pada `profil_mahasiswa` dan bukan pertama kali pada `penempatan_magang`.
 - Tendik dan Koordinator Magang dapat menetapkan serta mengganti pembimbing.
 - Pergantian harus memiliki alasan dan menghasilkan riwayat.
-- Pengajuan menyimpan snapshot pembimbing yang berlaku ketika pengajuan dibuat.
+- Snapshot pembimbing pada pengajuan diisi saat Koordinator menetapkan atau mengonfirmasi pembimbing setelah penerimaan Mitra.
 
 ## Rancangan schema
 
@@ -42,7 +43,7 @@ Migration menambahkan:
 - `dosen_pembimbing_snapshot_id` sebagai referensi profil dosen.
 - `dosen_pembimbing_snapshot_nama` dan `dosen_pembimbing_snapshot_nidn` sebagai snapshot tampilan.
 
-Snapshot diisi dalam transaksi saat pengajuan dibuat. Keputusan Dosen memakai `penugasan_pembimbing_id`/snapshot, bukan `penempatan_magang`.
+Pengajuan baru tidak mengisi relasi proses atau snapshot pembimbing. Setelah Mitra menerima pengajuan, Koordinator membuat atau menghubungkan proses magang, lalu menetapkan pembimbing dalam transaksi. Penugasan dan snapshot pengajuan diperbarui bersama. Pengajuan lama yang memakai persetujuan Dosen tetap dapat diproses sesuai snapshot historisnya.
 
 `penempatan_magang.dosen_pembimbing_id` dipertahankan untuk kompatibilitas logbook/laporan dan diisi dari snapshot ketika penempatan dibuat. Penempatan tidak lagi menjadi sumber assignment administratif.
 
@@ -65,7 +66,8 @@ Migration dibuat sebagai berkas saja dan tidak dijalankan.
 - Penugasan: `aktif`, `diganti`, `dibatalkan`.
 - Review Dosen: `menunggu`, `disetujui`, `ditolak`, `perlu_revisi`.
 - Respons Mitra: `menunggu`, `diterima`, `ditolak`, `seleksi`.
-- Pengajuan: status yang sudah ada, termasuk `menunggu_persetujuan_dosen`.
+- Pengajuan baru: `menunggu_respons_mitra` → `seleksi` → `diterima`/`ditolak_mitra`.
+- Pengajuan legacy: status yang sudah ada, termasuk `menunggu_persetujuan_dosen`.
 - Penempatan: status yang sudah ada, termasuk `persiapan` dan `berlangsung`.
 
 ## Otorisasi
@@ -74,7 +76,7 @@ Migration dibuat sebagai berkas saja dan tidak dijalankan.
 - Mutation model memvalidasi actor melalui role aktif dari session/middleware dan mencatat actor.
 - Mahasiswa tidak mengirim atau memilih ID dosen.
 - Dosen hanya dapat memutuskan pengajuan yang snapshot/penugasannya menunjuk profil Dosen tersebut.
-- Penggantian setelah pengajuan dibuat tidak mengubah snapshot pengajuan lama.
+- Penugasan dan penggantian dibatasi pada proses yang terkait dengan pengajuan diterima Mitra; perubahan dicatat dalam riwayat penugasan.
 
 ## Batas implementasi batch
 

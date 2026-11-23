@@ -3,45 +3,22 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../../function/Helpers.php';
+require_once __DIR__ . '/../../../middleware/MitraAuthMiddleware.php';
 require_once __DIR__ . '/../../../models/PengajuanMitra.php';
 
 class MitraPengajuanController
 {
     public function index($params = []): void
     {
-        global $pdo;
-
-        $mitraId = (int) ($_SESSION['mitra']['id'] ?? 0);
-
-        if ($mitraId < 1) {
-            http_response_code(401);
-            exit('Sesi Mitra tidak valid.');
-        }
-
-        $stmt = $pdo->prepare("
-        SELECT user_id
-        FROM mitra
-        WHERE id = :mitra_id
-        LIMIT 1
-        ");
-
-        $stmt->execute([
-            'mitra_id' => $mitraId
-        ]);
-
-        $userId = (int) $stmt->fetchColumn();
-
-        if ($userId < 1) {
-            http_response_code(401);
-            exit('Data akun Mitra tidak ditemukan.');
-        }
+        $mitraId = MitraAuthMiddleware::currentMitraId();
+        $actorUserId = MitraAuthMiddleware::currentUserId();
 
         $model = new PengajuanMitra();
         $error = null;
         $formValues = [];
         $success = ($_GET['success'] ?? '') === '1';
         try {
-            $items = $model->getApplications($userId);
+            $items = $model->getApplications($mitraId);
         } catch (PDOException $e) {
             error_log('Gagal memuat antrean pengajuan Mitra: ' . $e->getMessage());
             http_response_code(500);
@@ -66,7 +43,7 @@ class MitraPengajuanController
                 $error = 'Catatan respons maksimal 5.000 karakter.';
             } else {
                 try {
-                    $model->respond($userId, $id, $decision, $note);
+                    $model->respond($mitraId, $id, $decision, $note, $actorUserId);
                     header('Location: ' . url('/dashboard/mitra/pengajuan?success=1'));
                     exit;
                 } catch (PDOException $e) {
@@ -77,7 +54,7 @@ class MitraPengajuanController
                 }
             }
             try {
-                $items = $model->getApplications($userId);
+                $items = $model->getApplications($mitraId);
             } catch (PDOException $e) {
                 error_log('Gagal memuat ulang antrean pengajuan Mitra: ' . $e->getMessage());
                 $items = [];

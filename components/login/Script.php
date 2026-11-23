@@ -37,14 +37,14 @@
             },
 
             dosen: {
-                label: 'NIP',
-                placeholder: 'Masukkan NIP',
+                label: 'NIDN',
+                placeholder: 'Masukkan NIDN',
                 inputmode: 'numeric'
             },
 
             koordinator_magang: {
-                label: 'NIP',
-                placeholder: 'Masukkan NIP',
+                label: 'NIDN',
+                placeholder: 'Masukkan NIDN',
                 inputmode: 'numeric'
             },
 

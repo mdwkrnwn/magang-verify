@@ -1,4 +1,3 @@
-
 <?php
 
 /*
@@ -1167,8 +1166,16 @@ function route(string $uri): ?array
     }
 
     if (preg_match('#^/dashboard/dosen/pengajuan/dokumen/(\d+)$#', $path, $matches)) {
-        (new PengajuanMagangController())->document(['id' => (int) $matches[1]]);
-        exit;
+        return [
+            'route' => [
+                'controller' => PengajuanMagangController::class,
+                'method' => 'document',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+                'role' => 'dosen',
+            ],
+        ];
     }
 
     if ($path === '/dashboard/mitra/formasi/tambah') {
@@ -1208,8 +1215,16 @@ function route(string $uri): ?array
     }
 
     if (preg_match('#^/dashboard/mitra/pengajuan/dokumen/(\d+)$#', $path, $matches)) {
-        (new PengajuanMagangController())->document(['id' => (int) $matches[1]]);
-        exit;
+        return [
+            'route' => [
+                'controller' => PengajuanMagangController::class,
+                'method' => 'document',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
+                'role' => 'mitra',
+            ],
+        ];
     }
 
     /*

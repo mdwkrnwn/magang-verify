@@ -49,6 +49,7 @@ const elements = {
     password: passwordInput,
     togglePassword,
 };
+const loginForm = element();
 let ready;
 const document = {
     addEventListener(name, callback) {
@@ -56,6 +57,9 @@ const document = {
     },
     querySelectorAll(selector) {
         return selector === '[data-role]' ? roleButtons : [];
+    },
+    querySelector(selector) {
+        return selector === 'form' ? loginForm : null;
     },
     getElementById(id) {
         return elements[id] ?? null;
@@ -78,7 +82,7 @@ const mitraButton = roleButtons.find((button) => button.dataset.role === 'mitra'
 mitraButton.listeners.click();
 assert.equal(roleInput.value, 'mitra');
 assert.equal(identityLabel.textContent, 'Kode Mitra');
-assert.equal(identityInput.placeholder, 'Kode Mitra');
+assert.equal(identityInput.placeholder, 'Masukkan kode mitra');
 assert.equal(identityInput.inputMode, 'text');
 assert.equal(identityInput.value, '', 'switching role clears prior account identifier');
 assert.equal(passwordSection.hidden, true, 'Mitra does not see the password field');
@@ -91,6 +95,10 @@ for (const role of ['mahasiswa', 'dosen', 'koordinator_magang', 'tendik']) {
     const button = roleButtons.find((candidate) => candidate.dataset.role === role);
     button.listeners.click();
     assert.equal(roleInput.value, role);
+    if (role === 'dosen' || role === 'koordinator_magang') {
+        assert.equal(identityLabel.textContent, 'NIDN');
+        assert.equal(identityInput.placeholder, 'Masukkan NIDN');
+    }
     assert.equal(passwordSection.hidden, false, `${role} sees the password field`);
     assert.equal(passwordInput.required, true, `${role} still requires the password`);
     assert.equal(passwordInput.disabled, false, `${role} submits the password field`);

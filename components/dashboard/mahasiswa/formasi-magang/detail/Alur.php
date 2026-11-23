@@ -45,9 +45,9 @@
     $alur = [
         ['nomor' => 1, 'judul' => 'Pilih Formasi', 'deskripsi' => 'Pilih formasi yang sedang dibuka, berasal dari mitra terverifikasi, dan masih memiliki kuota.'],
         ['nomor' => 2, 'judul' => 'Kirim Pengajuan', 'deskripsi' => 'Lengkapi dokumen yang diminta dan kirim pendaftaran melalui sistem.'],
-        ['nomor' => 3, 'judul' => 'Persetujuan Dosen', 'deskripsi' => 'Pengajuan menunggu pemeriksaan dan keputusan dosen. Dosen dapat menyetujui, menolak, atau meminta revisi.'],
-        ['nomor' => 4, 'judul' => 'Respons Mitra', 'deskripsi' => 'Jika disetujui dosen, pengajuan menunggu respons mitra. Mitra dapat menerima, menolak, atau mengundang mahasiswa ke tahap seleksi.'],
-        ['nomor' => 5, 'judul' => 'Hasil dan Tindak Lanjut', 'deskripsi' => 'Status akhir pengajuan ditampilkan pada menu Pengajuan Saya. Tahap administrasi berikutnya mengikuti prosedur magang kampus.'],
+        ['nomor' => 3, 'judul' => 'Seleksi Mitra', 'deskripsi' => 'Mitra memeriksa pengajuan dan dapat menerima, menolak, atau mengundang mahasiswa ke tahap seleksi.'],
+        ['nomor' => 4, 'judul' => 'Penetapan Dosen Pembimbing', 'deskripsi' => 'Jika diterima Mitra, Koordinator menetapkan dosen pembimbing untuk proses magang.'],
+        ['nomor' => 5, 'judul' => 'Hasil dan Tindak Lanjut', 'deskripsi' => 'Status pengajuan ditampilkan pada menu Pengajuan Saya. Tahap administrasi berikutnya mengikuti prosedur magang kampus.'],
     ];
 
     ?>

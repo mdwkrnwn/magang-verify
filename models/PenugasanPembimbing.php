@@ -17,9 +17,20 @@ final class PenugasanPembimbing
         global $pdo;
         $stmt = $pdo->query(
             "SELECT prof.id AS mahasiswa_id, prof.nim, u.name AS mahasiswa_nama
-             FROM profil_mahasiswa prof INNER JOIN users u ON u.id = prof.user_id
-             WHERE u.is_active = TRUE
-               AND NOT EXISTS (SELECT 1 FROM proses_magang pr WHERE pr.mahasiswa_id = prof.id AND pr.status = 'aktif')
+             FROM pendaftaran_magang p
+             INNER JOIN profil_mahasiswa prof ON prof.id = p.mahasiswa_id
+             INNER JOIN users u ON u.id = prof.user_id
+             LEFT JOIN proses_magang pr
+                ON pr.mahasiswa_id = prof.id AND pr.status = 'aktif'
+             LEFT JOIN penugasan_pembimbing pp
+                ON pp.proses_magang_id = pr.id AND pp.status = 'aktif'
+             WHERE p.status_pendaftaran = 'diterima'
+               AND p.dosen_pembimbing_snapshot_id IS NULL
+               AND u.is_active = TRUE
+               AND (
+                    p.proses_magang_id IS NULL
+                    OR (p.proses_magang_id = pr.id AND pp.id IS NULL)
+               )
              ORDER BY u.name, prof.id"
         );
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -38,6 +49,8 @@ final class PenugasanPembimbing
              FROM proses_magang pr
              INNER JOIN profil_mahasiswa prof ON prof.id = pr.mahasiswa_id
              INNER JOIN users u ON u.id = prof.user_id
+             INNER JOIN pendaftaran_magang p
+                ON p.proses_magang_id = pr.id AND p.status_pendaftaran = 'diterima'
              LEFT JOIN LATERAL (
                  SELECT pp.* FROM penugasan_pembimbing pp
                  WHERE pp.proses_magang_id = pr.id AND pp.status = 'aktif'
@@ -54,7 +67,7 @@ final class PenugasanPembimbing
     public function getDosenOptions(): array
     {
         global $pdo;
-        $stmt = $pdo->query("SELECT pd.id, u.name, pd.nidn FROM profil_dosen pd INNER JOIN users u ON u.id = pd.user_id WHERE u.role = 'dosen' AND u.is_active = TRUE ORDER BY u.name, pd.id");
+        $stmt = $pdo->query("SELECT pd.id, u.name, pd.nidn FROM profil_dosen pd INNER JOIN users u ON u.id = pd.user_id WHERE u.role IN ('dosen', 'koordinator_magang') AND u.is_active = TRUE ORDER BY u.name, pd.id");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -72,14 +85,80 @@ final class PenugasanPembimbing
         if ($studentId < 1 || $actorId < 1) throw new InvalidArgumentException('Mahasiswa dan actor tidak valid.');
         $pdo->beginTransaction();
         try {
-            $check = $pdo->prepare("SELECT id FROM proses_magang WHERE mahasiswa_id = :student_id AND status = 'aktif' FOR UPDATE");
-            $check->execute(['student_id' => $studentId]);
-            if ($check->fetchColumn() !== false) throw new RuntimeException('Mahasiswa sudah memiliki proses magang aktif.');
-            $insert = $pdo->prepare("INSERT INTO proses_magang (mahasiswa_id, status, dibuat_oleh) VALUES (:student_id, 'aktif', :actor_id) RETURNING id");
-            $insert->execute(['student_id' => $studentId, 'actor_id' => $actorId]);
-            $id = (int) $insert->fetchColumn();
+            $application = $pdo->prepare(
+                "SELECT id, proses_magang_id
+                 FROM pendaftaran_magang
+                 WHERE mahasiswa_id = :student_id AND status_pendaftaran = 'diterima'
+                 ORDER BY tanggal_pengajuan DESC, id DESC
+                 LIMIT 1
+                 FOR UPDATE"
+            );
+            $application->execute(['student_id' => $studentId]);
+            $acceptedApplication = $application->fetch(PDO::FETCH_ASSOC);
+            if (!$acceptedApplication) {
+                throw new RuntimeException('Hanya pengajuan yang telah diterima Mitra dapat diproses untuk penetapan dosen.');
+            }
+
+            if ($acceptedApplication['proses_magang_id'] !== null) {
+                $processId = (int) $acceptedApplication['proses_magang_id'];
+                $process = $pdo->prepare(
+                    "SELECT id FROM proses_magang
+                     WHERE id = :process_id AND mahasiswa_id = :student_id AND status = 'aktif'
+                     FOR UPDATE"
+                );
+                $process->execute(['process_id' => $processId, 'student_id' => $studentId]);
+                if ($process->fetchColumn() === false) {
+                    throw new RuntimeException('Proses magang terkait pengajuan tidak aktif.');
+                }
+            } else {
+                $existingProcess = $pdo->prepare(
+                    "SELECT id FROM proses_magang
+                     WHERE mahasiswa_id = :student_id AND status = 'aktif'
+                     FOR UPDATE"
+                );
+                $existingProcess->execute(['student_id' => $studentId]);
+                $processId = (int) $existingProcess->fetchColumn();
+                if ($processId < 1) {
+                    $insert = $pdo->prepare("INSERT INTO proses_magang (mahasiswa_id, status, dibuat_oleh) VALUES (:student_id, 'aktif', :actor_id) RETURNING id");
+                    $insert->execute(['student_id' => $studentId, 'actor_id' => $actorId]);
+                    $processId = (int) $insert->fetchColumn();
+                }
+            }
+
+            $assignment = $pdo->prepare(
+                "SELECT pp.id AS assignment_id, pp.dosen_pembimbing_id,
+                        u.name AS advisor_name, pd.nidn
+                 FROM penugasan_pembimbing pp
+                 INNER JOIN profil_dosen pd ON pd.id = pp.dosen_pembimbing_id
+                 INNER JOIN users u ON u.id = pd.user_id
+                 WHERE pp.proses_magang_id = :process_id AND pp.status = 'aktif'
+                 FOR UPDATE OF pp"
+            );
+            $assignment->execute(['process_id' => $processId]);
+            $currentAssignment = $assignment->fetch(PDO::FETCH_ASSOC) ?: null;
+            $link = $pdo->prepare(
+                "UPDATE pendaftaran_magang
+                 SET proses_magang_id = :process_id,
+                     penugasan_pembimbing_id = :assignment_id,
+                     dosen_pembimbing_snapshot_id = :advisor_id,
+                     dosen_pembimbing_snapshot_nama = :advisor_name,
+                     dosen_pembimbing_snapshot_nidn = :advisor_nidn,
+                     updated_at = CURRENT_TIMESTAMP
+                 WHERE id = :application_id AND status_pendaftaran = 'diterima'"
+            );
+            $link->execute([
+                'process_id' => $processId,
+                'assignment_id' => $currentAssignment['assignment_id'] ?? null,
+                'advisor_id' => $currentAssignment['dosen_pembimbing_id'] ?? null,
+                'advisor_name' => $currentAssignment['advisor_name'] ?? null,
+                'advisor_nidn' => $currentAssignment['nidn'] ?? null,
+                'application_id' => (int) $acceptedApplication['id'],
+            ]);
+            if ($link->rowCount() !== 1) {
+                throw new RuntimeException('Pengajuan berubah saat proses magang disiapkan.');
+            }
             $pdo->commit();
-            return $id;
+            return $processId;
         } catch (Throwable $e) {
             if ($pdo->inTransaction()) $pdo->rollBack();
             throw $e;
@@ -103,12 +182,23 @@ final class PenugasanPembimbing
         if ($processId < 1 || $advisorId < 1 || $actorId < 1 || $reason === '' || mb_strlen($reason) > 5000) throw new InvalidArgumentException('Proses, dosen, actor, dan alasan wajib valid.');
         $pdo->beginTransaction();
         try {
-            $advisor = $pdo->prepare("SELECT pd.id FROM profil_dosen pd INNER JOIN users u ON u.id = pd.user_id WHERE pd.id = :advisor_id AND u.role = 'dosen' AND u.is_active = TRUE");
+            $advisor = $pdo->prepare("SELECT pd.id, pd.nidn, u.name FROM profil_dosen pd INNER JOIN users u ON u.id = pd.user_id WHERE pd.id = :advisor_id AND u.role = 'dosen' AND u.is_active = TRUE");
             $advisor->execute(['advisor_id' => $advisorId]);
-            if ($advisor->fetchColumn() === false) throw new InvalidArgumentException('Dosen pembimbing tidak tersedia.');
+            $advisorData = $advisor->fetch(PDO::FETCH_ASSOC);
+            if (!$advisorData) throw new InvalidArgumentException('Dosen pembimbing tidak tersedia.');
             $process = $pdo->prepare("SELECT id FROM proses_magang WHERE id = :process_id AND status = 'aktif' FOR UPDATE");
             $process->execute(['process_id' => $processId]);
             if ($process->fetchColumn() === false) throw new RuntimeException('Proses magang tidak aktif.');
+            $application = $pdo->prepare(
+                "SELECT id FROM pendaftaran_magang
+                 WHERE proses_magang_id = :process_id AND status_pendaftaran = 'diterima'
+                 FOR UPDATE"
+            );
+            $application->execute(['process_id' => $processId]);
+            $applicationId = $application->fetchColumn();
+            if ($applicationId === false) {
+                throw new RuntimeException('Dosen hanya dapat ditetapkan setelah pengajuan diterima Mitra.');
+            }
             $current = $pdo->prepare("SELECT id FROM penugasan_pembimbing WHERE proses_magang_id = :process_id AND status = 'aktif' FOR UPDATE");
             $current->execute(['process_id' => $processId]);
             $currentId = $current->fetchColumn();
@@ -121,6 +211,29 @@ final class PenugasanPembimbing
             }
             $insert = $pdo->prepare("INSERT INTO penugasan_pembimbing (proses_magang_id, dosen_pembimbing_id, ditetapkan_oleh, alasan, status) VALUES (:process_id, :advisor_id, :actor_id, :reason, 'aktif')");
             $insert->execute(['process_id' => $processId, 'advisor_id' => $advisorId, 'actor_id' => $actorId, 'reason' => $reason]);
+            $snapshot = $pdo->prepare(
+                "UPDATE pendaftaran_magang
+                 SET penugasan_pembimbing_id = (
+                         SELECT id FROM penugasan_pembimbing
+                         WHERE proses_magang_id = :process_id AND status = 'aktif'
+                         ORDER BY ditetapkan_pada DESC, id DESC LIMIT 1
+                     ),
+                     dosen_pembimbing_snapshot_id = :advisor_id,
+                     dosen_pembimbing_snapshot_nama = :advisor_name,
+                     dosen_pembimbing_snapshot_nidn = :advisor_nidn,
+                     updated_at = CURRENT_TIMESTAMP
+                 WHERE id = :application_id AND status_pendaftaran = 'diterima'"
+            );
+            $snapshot->execute([
+                'process_id' => $processId,
+                'advisor_id' => $advisorId,
+                'advisor_name' => (string) $advisorData['name'],
+                'advisor_nidn' => $advisorData['nidn'] !== null ? (string) $advisorData['nidn'] : null,
+                'application_id' => (int) $applicationId,
+            ]);
+            if ($snapshot->rowCount() !== 1) {
+                throw new RuntimeException('Snapshot dosen pengajuan gagal diperbarui.');
+            }
             $pdo->commit();
             (new AktivitasPengguna())->log($actorId, $replacement ? 'Dosen pembimbing diganti' : 'Dosen pembimbing ditetapkan', 'Penugasan pembimbing untuk proses #' . $processId . ' diperbarui.', 'penugasan', 'proses_magang', $processId);
         } catch (Throwable $e) {

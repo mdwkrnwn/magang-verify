@@ -149,7 +149,7 @@ class Logbook
         return $week;
     }
 
-    public function getWeekForRole(int $weekId, int $userId, string $role): ?array
+    public function getWeekForRole(int $weekId, int $identityId, string $role): ?array
     {
         global $pdo;
 
@@ -157,7 +157,7 @@ class Logbook
             'SELECT lm.id, lm.penempatan_id, lm.minggu_ke, lm.tanggal_mulai, lm.tanggal_selesai,
                     lm.versi_terkini, lm.status,
                     pm.status AS penempatan_status, pm.dosen_pembimbing_id,
-                    f.judul, m.id AS mitra_id, m.nama_perusahaan, m.user_id AS mitra_user_id,
+                    f.judul, m.id AS mitra_id, m.nama_perusahaan,
                     pd.user_id AS dosen_user_id,
                     u.id AS mahasiswa_user_id, u.name AS mahasiswa_nama,
                     prof.id AS mahasiswa_id, prof.nim, prof.program_studi,
@@ -176,13 +176,13 @@ class Logbook
         $params = ['week_id' => $weekId];
 
         if ($role === self::PARTNER) {
-            $sql .= " AND m.user_id = :user_id
+            $sql .= " AND m.id = :identity_id
                       AND lm.status IN ('menunggu_mitra', 'menunggu_dosen', 'disetujui')";
-            $params['user_id'] = $userId;
+            $params['identity_id'] = $identityId;
         } elseif ($role === self::LECTURER) {
             $sql .= " AND pd.user_id = :user_id
                       AND lm.status IN ('menunggu_dosen', 'disetujui')";
-            $params['user_id'] = $userId;
+            $params['user_id'] = $identityId;
             // } elseif (in_array($role, self::VALIDATORS, true)) {
             //     $sql .= " AND EXISTS (
             //                   SELECT 1 FROM logbook_harian pending_day
@@ -198,7 +198,7 @@ class Logbook
               )";
         } elseif ($role === self::STUDENT) {
             $sql .= ' AND prof.user_id = :user_id';
-            $params['user_id'] = $userId;
+            $params['user_id'] = $identityId;
         } else {
             throw new RuntimeException('Peran akses logbook tidak didukung.');
         }
@@ -545,7 +545,13 @@ class Logbook
         }
     }
 
-    public function signWeek(int $weekId, int $userId, string $role, string $signatureData): bool
+    public function signWeek(
+        int $weekId,
+        int $identityId,
+        string $role,
+        string $signatureData,
+        ?int $actorUserId = null
+    ): bool
     {
         global $pdo;
 
@@ -554,8 +560,8 @@ class Logbook
         }
 
         $week = $role === self::STUDENT
-            ? $this->getWeek($weekId, $userId)
-            : $this->getWeekForRole($weekId, $userId, $role);
+            ? $this->getWeek($weekId, $identityId)
+            : $this->getWeekForRole($weekId, $identityId, $role);
 
         if (!$week) {
             throw new RuntimeException('Minggu logbook tidak ditemukan atau Anda tidak berhak mengaksesnya.');
@@ -564,7 +570,12 @@ class Logbook
         $this->assertSignatureData($signatureData);
         $this->assertSignatureWorkflow($week, $role);
 
-        $signaturePath = $this->storeSignature($signatureData, $userId, $weekId, $role);
+        $signerUserId = $role === self::PARTNER ? $actorUserId : $identityId;
+        if ($signerUserId === null || $signerUserId < 1) {
+            throw new RuntimeException('Akun Mitra belum terhubung ke akun pengguna untuk menandatangani logbook.');
+        }
+
+        $signaturePath = $this->storeSignature($signatureData, $signerUserId, $weekId, $role);
         $signatureHash = hash_file('sha256', $this->privateAbsolutePath($signaturePath));
         $snapshotHash = (string) ($week['snapshot_hash'] ?? '');
 
@@ -619,7 +630,7 @@ class Logbook
             $stmt->execute([
                 'revisi_id' => (int) $revisionId,
                 'tahap' => $role,
-                'user_id' => $userId,
+                'user_id' => $signerUserId,
                 'signature_path' => $signaturePath,
                 'signature_hash' => $signatureHash,
                 'snapshot_hash' => $snapshotHash,
@@ -650,7 +661,7 @@ class Logbook
                 self::LECTURER => 'dosen pembimbing',
             };
             (new AktivitasPengguna())->log(
-                $userId,
+                $signerUserId,
                 'Logbook ditandatangani',
                 'Minggu ke-' . $week['minggu_ke'] . ' ditandatangani oleh ' . $label . '.',
                 'logbook',
@@ -749,7 +760,7 @@ class Logbook
         return true;
     }
 
-    public function getReviewQueue(int $userId, string $role): array
+    public function getReviewQueue(int $identityId, string $role): array
     {
         global $pdo;
 
@@ -771,9 +782,9 @@ class Logbook
             // Mitra hanya perlu minggu yang menunggu tanda tangannya.
             $sql = $baseSelect . ', 0 AS validasi_menunggu'
                 . $baseJoins
-                . " WHERE m.user_id = :user_id AND lm.status = 'menunggu_mitra'"
+                . " WHERE m.id = :identity_id AND lm.status = 'menunggu_mitra'"
                 . $order;
-            $params = ['user_id' => $userId];
+            $params = ['identity_id' => $identityId];
         } elseif ($role === self::LECTURER) {
             // Dosen hanya perlu minggu yang menunggu tanda tangannya.
             $sql = $baseSelect . ', 0 AS validasi_menunggu'
@@ -781,7 +792,7 @@ class Logbook
                 . ' INNER JOIN profil_dosen pd ON pd.id = pm.dosen_pembimbing_id'
                 . " WHERE pd.user_id = :user_id AND lm.status = 'menunggu_dosen'"
                 . $order;
-            $params = ['user_id' => $userId];
+            $params = ['user_id' => $identityId];
         } elseif (in_array($role, self::VALIDATORS, true)) {
             // Tendik/Koordinator membutuhkan jumlah hari yang menunggu validasi
             // per minggu, tanpa join+GROUP BY seluruh tabel.
@@ -871,12 +882,12 @@ class Logbook
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }
 
-    public function getSignatureForUser(int $signatureId, int $userId, string $role): ?array
+    public function getSignatureForUser(int $signatureId, int $identityId, string $role): ?array
     {
         global $pdo;
         $stmt = $pdo->prepare(
             'SELECT ltt.*, lm.id AS logbook_id, lm.penempatan_id, lm.status AS week_status,
-                    m.user_id AS mitra_user_id, pd.user_id AS dosen_user_id,
+                    m.id AS mitra_id, pd.user_id AS dosen_user_id,
                     prof.user_id AS mahasiswa_user_id
              FROM logbook_tanda_tangan ltt
              INNER JOIN logbook_revisi lr ON lr.id = ltt.revisi_id
@@ -897,11 +908,11 @@ class Logbook
         }
 
         $allowed = match ($role) {
-            'mahasiswa' => (int) $row['mahasiswa_user_id'] === $userId,
-            'mitra' => (int) $row['mitra_user_id'] === $userId
+            'mahasiswa' => (int) $row['mahasiswa_user_id'] === $identityId,
+            'mitra' => (int) $row['mitra_id'] === $identityId
                 && $row['tahap'] !== 'dosen'
                 && in_array($row['week_status'], ['menunggu_mitra', 'menunggu_dosen', 'disetujui'], true),
-            'dosen' => (int) ($row['dosen_user_id'] ?? 0) === $userId
+            'dosen' => (int) ($row['dosen_user_id'] ?? 0) === $identityId
                 && in_array($row['week_status'], ['menunggu_dosen', 'disetujui'], true),
             'tendik', 'koordinator_magang' => false,
             default => false,
@@ -910,13 +921,13 @@ class Logbook
         return $allowed ? $row : null;
     }
 
-    public function getEvidenceForUser(int $dailyId, int $userId, string $role): ?array
+    public function getEvidenceForUser(int $dailyId, int $identityId, string $role): ?array
     {
         global $pdo;
         $stmt = $pdo->prepare(
             'SELECT lh.id, lh.bukti_path, lh.status_kehadiran, lh.status_validasi,
                     lm.status AS week_status,
-                    m.user_id AS mitra_user_id, pd.user_id AS dosen_user_id,
+                    m.id AS mitra_id, pd.user_id AS dosen_user_id,
                     prof.user_id AS mahasiswa_user_id
              FROM logbook_harian lh
              INNER JOIN logbook_mingguan lm ON lm.id = lh.logbook_id
@@ -936,10 +947,10 @@ class Logbook
         }
 
         $allowed = match ($role) {
-            'mahasiswa' => (int) $row['mahasiswa_user_id'] === $userId,
-            'mitra' => (int) $row['mitra_user_id'] === $userId
+            'mahasiswa' => (int) $row['mahasiswa_user_id'] === $identityId,
+            'mitra' => (int) $row['mitra_id'] === $identityId
                 && in_array($row['week_status'], ['menunggu_mitra', 'menunggu_dosen', 'disetujui'], true),
-            'dosen' => (int) ($row['dosen_user_id'] ?? 0) === $userId
+            'dosen' => (int) ($row['dosen_user_id'] ?? 0) === $identityId
                 && in_array($row['week_status'], ['menunggu_dosen', 'disetujui'], true),
             'tendik', 'koordinator_magang' =>
             $row['status_kehadiran'] === 'tidak_hadir'

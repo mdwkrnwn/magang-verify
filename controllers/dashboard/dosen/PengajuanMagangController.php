@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../../function/Helpers.php';
 require_once __DIR__ . '/../../../middleware/AuthMiddleware.php';
+require_once __DIR__ . '/../../../middleware/MitraAuthMiddleware.php';
 require_once __DIR__ . '/../../../models/PersetujuanPengajuan.php';
 require_once __DIR__ . '/../../../models/PengajuanDecision.php';
 
@@ -73,15 +74,26 @@ class PengajuanMagangController
 
     public function document($params = []): never
     {
-        $role = (string) ($_SESSION['user']['role'] ?? '');
-        if (!in_array($role, ['dosen', 'mitra'], true)) {
+        $id = (int) ($params['id'] ?? 0);
+        $role = (string) ($params['role'] ?? '');
+        $model = new PersetujuanPengajuan();
+
+        if ($role === 'dosen') {
+            AuthMiddleware::handle('dosen');
+            $dosenUserId = (int) ($_SESSION['user']['id'] ?? 0);
+            $document = $id > 0
+                ? $model->getPendingDocumentForDosen($id, $dosenUserId)
+                : null;
+        } elseif ($role === 'mitra') {
+            $mitraId = MitraAuthMiddleware::currentMitraId();
+            $document = $id > 0
+                ? $model->getPendingDocumentForMitra($id, $mitraId)
+                : null;
+        } else {
             http_response_code(403);
             exit('Anda tidak memiliki akses ke dokumen ini.');
         }
-        AuthMiddleware::handle($role);
-        $userId = (int) ($_SESSION['user']['id'] ?? 0);
-        $id = (int) ($params['id'] ?? 0);
-        $document = $id > 0 ? (new PersetujuanPengajuan())->getPendingDocument($id, $userId, $role) : null;
+
         if (!$document) {
             http_response_code(404);
             exit('Dokumen tidak ditemukan atau pengajuan bukan pada antrean persetujuan.');

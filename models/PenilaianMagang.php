@@ -16,11 +16,11 @@ class PenilaianMagang
         'nilai_keterampilan',
     ];
 
-    public function getAssignments(int $userId, string $role): array
+    public function getAssignments(int $identityId, string $role, ?int $actorUserId = null): array
     {
         global $pdo;
         $this->assertRole($role);
-        $ownership = $role === 'dosen' ? 'pd.user_id = :user_id' : 'm.user_id = :user_id';
+        $ownership = $role === 'dosen' ? 'pd.user_id = :identity_id' : 'm.id = :identity_id';
         $stmt = $pdo->prepare(
             "SELECT pm.id AS penempatan_id, pm.status AS status_penempatan,
                     pm.tanggal_mulai, pm.tanggal_selesai,
@@ -43,14 +43,30 @@ class PenilaianMagang
                AND pm.status IN ('menunggu_penilaian', 'selesai')
              ORDER BY pm.tanggal_selesai DESC, pm.id DESC"
         );
-        $stmt->execute(['user_id' => $userId, 'assessment_user_id' => $userId, 'role' => $role]);
+        $stmt->execute([
+            'identity_id' => $identityId,
+            'assessment_user_id' => $role === 'dosen' ? $identityId : $actorUserId,
+            'role' => $role,
+        ]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function save(int $userId, string $role, int $placementId, array $input, bool $submit): void
+    public function save(
+        int $identityId,
+        string $role,
+        int $placementId,
+        array $input,
+        bool $submit,
+        ?int $actorUserId = null
+    ): void
     {
         global $pdo;
         $this->assertRole($role);
+        $penilaiId = $role === 'dosen' ? $identityId : $actorUserId;
+        if ($penilaiId === null || $penilaiId < 1) {
+            throw new RuntimeException('Akun Mitra belum terhubung ke akun pengguna untuk menyimpan penilaian.');
+        }
+
         $scores = [];
         foreach (self::FIELDS as $field) {
             $raw = trim((string) ($input[$field] ?? ''));
@@ -73,7 +89,7 @@ class PenilaianMagang
             throw new InvalidArgumentException('Catatan maksimal 5.000 karakter.');
         }
 
-        $ownership = $role === 'dosen' ? 'pd.user_id = :user_id' : 'm.user_id = :user_id';
+        $ownership = $role === 'dosen' ? 'pd.user_id = :identity_id' : 'm.id = :identity_id';
         $pdo->beginTransaction();
         try {
             $placementStmt = $pdo->prepare(
@@ -86,7 +102,7 @@ class PenilaianMagang
                  WHERE pm.id = :placement_id AND {$ownership}
                  FOR UPDATE OF pm"
             );
-            $placementStmt->execute(['placement_id' => $placementId, 'user_id' => $userId]);
+            $placementStmt->execute(['placement_id' => $placementId, 'identity_id' => $identityId]);
             $placement = $placementStmt->fetch(PDO::FETCH_ASSOC);
             if (!$placement) {
                 throw new RuntimeException('Penempatan tidak ditemukan atau bukan dalam kewenangan Anda.');
@@ -100,7 +116,7 @@ class PenilaianMagang
                  WHERE penempatan_id = :placement_id AND penilai_id = :user_id AND peran_penilai = :role
                  FOR UPDATE'
             );
-            $existingStmt->execute(['placement_id' => $placementId, 'user_id' => $userId, 'role' => $role]);
+            $existingStmt->execute(['placement_id' => $placementId, 'user_id' => $penilaiId, 'role' => $role]);
             $existing = $existingStmt->fetch(PDO::FETCH_ASSOC);
             if ($existing && !in_array($existing['status'], ['draft', 'perlu_revisi'], true)) {
                 throw new RuntimeException('Penilaian yang telah diajukan tidak dapat diubah.');
@@ -139,7 +155,7 @@ class PenilaianMagang
                      RETURNING id'
                 );
                 $params = $this->scoreParams($scores, $finalScore, $note, $status, $submit);
-                $params += ['placement_id' => $placementId, 'user_id' => $userId, 'role' => $role];
+                $params += ['placement_id' => $placementId, 'user_id' => $penilaiId, 'role' => $role];
                 PdoParameterBinder::execute($stmt, $params);
                 $assessmentId = (int) $stmt->fetchColumn();
             }
@@ -170,7 +186,7 @@ class PenilaianMagang
             $pdo->commit();
 
             (new AktivitasPengguna())->log(
-                $userId,
+                $penilaiId,
                 $submit ? 'Penilaian magang diajukan' : 'Draft penilaian magang disimpan',
                 'Penilaian ' . $role . ' untuk penempatan #' . $placementId . ' berhasil disimpan.',
                 'penilaian',

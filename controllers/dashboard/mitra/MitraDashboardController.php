@@ -11,7 +11,7 @@ class MitraDashboardController
         // Session Mitra telah divalidasi oleh
         // MitraAuthMiddleware di index.php.
 
-        $mitraId = (int) ($_SESSION['mitra']['id'] ?? 0);
+        $mitraId = MitraAuthMiddleware::currentMitraId();
 
         $dashboard = (new DashboardMitra())->getData($mitraId);
 

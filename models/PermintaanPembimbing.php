@@ -11,34 +11,42 @@ class PermintaanPembimbing
     {
         global $pdo;
         $stmt = $pdo->prepare(
-            "SELECT pm.id AS penempatan_id, pm.status AS status_penempatan,
-                    pm.tanggal_mulai, pm.tanggal_selesai, pm.dosen_pembimbing_id,
-                    p.status_pendaftaran,
-                    f.judul, m.nama_perusahaan,
-                    latest.id AS permintaan_id,
-                    latest.status_permintaan,
-                    latest.alasan_pengajuan,
-                    latest.catatan_dosen,
-                    latest.tanggal_pengajuan,
-                    latest.tanggal_respons,
+            "SELECT pm.id AS penempatan_id,
+                    COALESCE(pm.status, pr.status) AS status_penempatan,
+                    pm.tanggal_mulai, pm.tanggal_selesai,
+                    COALESCE(assignment.dosen_pembimbing_id, pm.dosen_pembimbing_id)
+                        AS dosen_pembimbing_id,
+                    p.status_pendaftaran, f.judul, m.nama_perusahaan,
                     assigned_u.name AS dosen_nama,
                     assigned_pd.nidn AS dosen_nidn
-             FROM penempatan_magang pm
-             INNER JOIN pendaftaran_magang p ON p.id = pm.pendaftaran_id
-             INNER JOIN profil_mahasiswa prof ON prof.id = p.mahasiswa_id
+             FROM profil_mahasiswa prof
+             INNER JOIN pendaftaran_magang p ON p.mahasiswa_id = prof.id
              INNER JOIN formasi_magang f ON f.id = p.formasi_id
              INNER JOIN mitra m ON m.id = f.mitra_id
-             LEFT JOIN LATERAL (
-                 SELECT pp.*
-                 FROM permintaan_pembimbing pp
-                 WHERE pp.penempatan_id = pm.id
-                 ORDER BY pp.tanggal_pengajuan DESC, pp.id DESC
-                 LIMIT 1
-             ) latest ON TRUE
-             LEFT JOIN profil_dosen assigned_pd ON assigned_pd.id = pm.dosen_pembimbing_id
+             LEFT JOIN penempatan_magang pm ON pm.pendaftaran_id = p.id
+             LEFT JOIN proses_magang pr
+                ON pr.id = p.proses_magang_id
+               AND pr.mahasiswa_id = prof.id
+               AND pr.status = 'aktif'
+             LEFT JOIN penugasan_pembimbing assignment
+                ON assignment.proses_magang_id = pr.id
+               AND assignment.status = 'aktif'
+             LEFT JOIN profil_dosen assigned_pd
+                ON assigned_pd.id = COALESCE(
+                    assignment.dosen_pembimbing_id,
+                    pm.dosen_pembimbing_id
+                )
              LEFT JOIN users assigned_u ON assigned_u.id = assigned_pd.user_id
              WHERE prof.user_id = :user_id
-             ORDER BY pm.tanggal_mulai DESC, pm.id DESC"
+               AND (
+                    pm.id IS NOT NULL
+                    OR (
+                        p.status_pendaftaran = 'diterima'
+                        AND assignment.id IS NOT NULL
+                    )
+               )
+             ORDER BY COALESCE(pm.tanggal_mulai, f.tanggal_mulai) DESC,
+                      p.id DESC"
         );
         $stmt->execute(['user_id' => $userId]);
 

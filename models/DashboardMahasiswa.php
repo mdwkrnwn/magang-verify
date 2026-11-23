@@ -120,6 +120,7 @@ class DashboardMahasiswa
                 SELECT pd.status_pendaftaran,
                        pd.status_persetujuan_dosen,
                        pd.status_respons_mitra,
+                       pd.dosen_pembimbing_snapshot_id AS advisor_id,
                        pm.status AS status_penempatan
                 FROM pendaftaran_magang pd
                 LEFT JOIN penempatan_magang pm ON pm.pendaftaran_id = pd.id
@@ -244,8 +245,8 @@ class DashboardMahasiswa
     {
         $steps = [
             ['key' => 'pengajuan', 'label' => 'Pengajuan'],
-            ['key' => 'dosen', 'label' => 'Persetujuan Dosen'],
-            ['key' => 'mitra', 'label' => 'Respons Mitra'],
+            ['key' => 'mitra', 'label' => 'Seleksi Mitra'],
+            ['key' => 'dosen', 'label' => 'Penetapan Dosen'],
             ['key' => 'penempatan', 'label' => 'Penempatan'],
             ['key' => 'magang', 'label' => 'Pelaksanaan'],
             ['key' => 'selesai', 'label' => 'Selesai'],
@@ -265,17 +266,22 @@ class DashboardMahasiswa
         }
 
         $status = (string) $row['progress_status_pendaftaran'];
-        $dosen = (string) ($row['progress_status_dosen'] ?? '');
+        $legacyLecturerReview = $status === 'menunggu_persetujuan_dosen';
+        $hasAdvisor = !empty($row['progress_advisor_id']);
         $mitra = (string) ($row['progress_status_mitra'] ?? '');
         $penempatan = (string) ($row['progress_status_penempatan'] ?? '');
+        if ($legacyLecturerReview) {
+            $steps[1]['label'] = 'Persetujuan Dosen';
+        }
 
         $completed = match (true) {
             $status === 'selesai' => 6,
             $penempatan === 'selesai' => 6,
             $penempatan === 'berlangsung' || $penempatan === 'menunggu_penilaian' => 5,
-            $penempatan === 'persiapan' || $status === 'diterima' => 4,
-            $mitra === 'diterima' || $mitra === 'seleksi' || $status === 'menunggu_respons_mitra' || $status === 'seleksi' => 3,
-            $dosen === 'disetujui' || $status === 'menunggu_respons_mitra' => 2,
+            $penempatan === 'persiapan' => 4,
+            $status === 'diterima' => $hasAdvisor ? 4 : 3,
+            $legacyLecturerReview => 2,
+            $mitra === 'diterima' || $mitra === 'seleksi' || $status === 'menunggu_respons_mitra' || $status === 'seleksi' => 2,
             default => 1,
         };
 

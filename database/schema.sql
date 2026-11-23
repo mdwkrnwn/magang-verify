@@ -89,6 +89,17 @@ CREATE TABLE profil_dosen (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE profil_tendik (
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id BIGINT NOT NULL UNIQUE
+        REFERENCES users(id) ON DELETE CASCADE,
+    nip VARCHAR(30) NOT NULL UNIQUE,
+    email VARCHAR(255),
+    no_telepon VARCHAR(30),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ============================================
 -- DATA PERUSAHAAN / MITRA
 -- ============================================

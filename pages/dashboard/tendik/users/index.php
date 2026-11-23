@@ -155,9 +155,9 @@ $active = 'users';
                     <table class="w-full min-w-[720px] text-sm">
                         <thead class="bg-gray-50/80">
                             <tr class="text-left">
-                                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <!-- <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
                                     ID Login
-                                </th>
+                                </th> -->
                                 <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
                                     Nama Pengguna
                                 </th>
@@ -188,11 +188,11 @@ $active = 'users';
 
                                     <tr class="transition-colors hover:bg-gray-50/70">
                                         <!-- Login ID -->
-                                        <td class="px-6 py-4">
+                                        <!-- <td class="px-6 py-4">
                                             <span class="font-medium text-gray-800">
                                                 <?= e((string) ($item['login_id'] ?? '-')) ?>
                                             </span>
-                                        </td>
+                                        </td> -->
 
 
                                         <!-- Name -->

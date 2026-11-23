@@ -3,14 +3,15 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../../../function/Helpers.php';
+require_once __DIR__ . '/../../../middleware/MitraAuthMiddleware.php';
 require_once __DIR__ . '/../../../models/FormasiMitra.php';
 
 class MitraFormasiController
 {
     public function index($params = []): void
     {
-        $userId = $this->userId();
-        $items = (new FormasiMitra())->getForCompany($userId);
+        $mitraId = MitraAuthMiddleware::currentMitraId();
+        $items = (new FormasiMitra())->getForCompany($mitraId);
         require __DIR__ . '/../../../pages/dashboard/mitra/formasi/index.php';
     }
 
@@ -26,11 +27,12 @@ class MitraFormasiController
 
     public function changeStatus(array $params = []): never
     {
-        $userId = $this->userId();
+        $mitraId = MitraAuthMiddleware::currentMitraId();
+        $actorUserId = MitraAuthMiddleware::currentUserId();
         $this->validatePost();
         $id = (int) ($params['id'] ?? 0);
         try {
-            (new FormasiMitra())->changeStatus($userId, $id, (string) ($_POST['status'] ?? ''));
+            (new FormasiMitra())->changeStatus($mitraId, $id, (string) ($_POST['status'] ?? ''), $actorUserId);
             header('Location: ' . url('/dashboard/mitra/formasi?success=1'));
             exit;
         } catch (PDOException $e) {
@@ -45,10 +47,11 @@ class MitraFormasiController
 
     public function delete(array $params = []): never
     {
-        $userId = $this->userId();
+        $mitraId = MitraAuthMiddleware::currentMitraId();
+        $actorUserId = MitraAuthMiddleware::currentUserId();
         $this->validatePost();
         try {
-            (new FormasiMitra())->delete($userId, (int) ($params['id'] ?? 0));
+            (new FormasiMitra())->delete($mitraId, (int) ($params['id'] ?? 0), $actorUserId);
             header('Location: ' . url('/dashboard/mitra/formasi?success=1'));
             exit;
         } catch (PDOException $e) {
@@ -63,9 +66,10 @@ class MitraFormasiController
 
     private function form(?int $formasiId): void
     {
-        $userId = $this->userId();
+        $mitraId = MitraAuthMiddleware::currentMitraId();
+        $actorUserId = MitraAuthMiddleware::currentUserId();
         $model = new FormasiMitra();
-        $formasi = $formasiId ? $model->getOne($userId, $formasiId) : null;
+        $formasi = $formasiId ? $model->getOne($mitraId, $formasiId) : null;
         if ($formasiId && !$formasi) {
             http_response_code(404);
             exit('Formasi tidak ditemukan.');
@@ -92,9 +96,9 @@ class MitraFormasiController
             $values = array_merge($values, $_POST);
             try {
                 if ($mode === 'create') {
-                    $model->create($userId, $_POST);
+                    $model->create($mitraId, $_POST, $actorUserId);
                 } else {
-                    $model->update($userId, (int) $formasi['id'], $_POST);
+                    $model->update($mitraId, (int) $formasi['id'], $_POST, $actorUserId);
                 }
                 header('Location: ' . url('/dashboard/mitra/formasi?success=1'));
                 exit;
@@ -107,38 +111,6 @@ class MitraFormasiController
         }
 
         require __DIR__ . '/../../../pages/dashboard/mitra/formasi/form.php';
-    }
-
-    private function userId(): int
-    {
-        global $pdo;
-
-        $mitraId = (int) ($_SESSION['mitra']['id'] ?? 0);
-
-        if ($mitraId < 1) {
-            http_response_code(401);
-            exit('Sesi Mitra tidak valid.');
-        }
-
-        $stmt = $pdo->prepare("
-        SELECT user_id
-        FROM mitra
-        WHERE id = :mitra_id
-        LIMIT 1
-    ");
-
-        $stmt->execute([
-            'mitra_id' => $mitraId
-        ]);
-
-        $userId = (int) $stmt->fetchColumn();
-
-        if ($userId < 1) {
-            http_response_code(401);
-            exit('Data akun Mitra tidak ditemukan.');
-        }
-
-        return $userId;
     }
 
     private function validatePost(): void

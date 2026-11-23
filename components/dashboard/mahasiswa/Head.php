@@ -12,8 +12,9 @@
 
 
     <!-- Tailwind CSS -->
-
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+        rel="stylesheet"
+        href="<?= e(url('/assets/css/tailwind.generated.css')) ?>">
 
 
     <!-- Poppins -->

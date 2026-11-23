@@ -153,7 +153,7 @@ $active = 'penetapan-dosen';
                         </select>
 
                         <p class="mt-2 text-xs text-gray-400">
-                            Hanya mahasiswa yang belum memiliki proses magang aktif yang dapat dipilih.
+                            Hanya mahasiswa dengan pengajuan diterima Mitra dan belum memiliki dosen pembimbing yang dapat dipilih.
                         </p>
 
                     </div>

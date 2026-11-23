@@ -1,5 +1,6 @@
 .env
 .git
+/node_modules/
 # Database backups - jangan commit ke Git
 /backups/
 /magang_verify_backup.dump

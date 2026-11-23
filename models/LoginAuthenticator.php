@@ -31,12 +31,21 @@ final class LoginAuthenticator
 
     public static function accepts(string $requestedRole, array $user, string $password): bool
     {
-        if (!in_array($requestedRole, self::normalizeRoles($user), true) || !self::isActive($user['is_active'] ?? null)) {
+        $roles = self::normalizeRoles($user);
+        if (
+            $requestedRole === 'mitra'
+            || !in_array($requestedRole, $roles, true)
+            || !self::isActive($user['is_active'] ?? null)
+            || (
+                $requestedRole === 'koordinator_magang'
+                && !in_array('dosen', $roles, true)
+                && !(
+                    ($user['role'] ?? null) === 'koordinator_magang'
+                    && self::isActive($user['has_dosen_profile'] ?? null)
+                )
+            )
+        ) {
             return false;
-        }
-
-        if ($requestedRole === 'mitra') {
-            return self::isActive($user['mitra_is_active'] ?? null);
         }
 
         $hash = $user['password'] ?? null;

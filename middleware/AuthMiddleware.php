@@ -77,10 +77,21 @@ class AuthMiddleware
         $_SESSION['user']['roles'] = $roles;
         $matchedRole = null;
         foreach ($requiredRoles as $role) {
-            if (in_array($role, $roles, true)) {
-                $matchedRole = $role;
-                break;
+            if (!in_array($role, $roles, true)) {
+                continue;
             }
+            if ($role === 'koordinator_magang') {
+                $hasDosenProfile = in_array(
+                    $user['has_dosen_profile'] ?? null,
+                    [true, 1, '1', 't', 'true'],
+                    true
+                );
+                if (!in_array('dosen', $roles, true) || !$hasDosenProfile) {
+                    continue;
+                }
+            }
+            $matchedRole = $role;
+            break;
         }
         if ($matchedRole === null) {
             http_response_code(403);
@@ -118,6 +129,10 @@ class AuthMiddleware
             $stmt = $pdo->prepare(
                 'SELECT u.name, u.role, u.is_active,
                         COALESCE(string_agg(DISTINCT ur.role, \',\'), \'\') AS roles,
+                        EXISTS (
+                            SELECT 1 FROM profil_dosen pd
+                            WHERE pd.user_id = u.id
+                        ) AS has_dosen_profile,
                         (SELECT COUNT(*) FROM notifikasi n
                          WHERE n.user_id = u.id AND n.sudah_dibaca = FALSE) AS unread_notifications
                  FROM users u
@@ -135,9 +150,13 @@ class AuthMiddleware
 
             // Legacy: tabel user_roles belum tersedia.
             $stmt = $pdo->prepare(
-                'SELECT name, role, is_active
-                 FROM users
-                 WHERE id = :id
+                'SELECT u.name, u.role, u.is_active,
+                        EXISTS (
+                            SELECT 1 FROM profil_dosen pd
+                            WHERE pd.user_id = u.id
+                        ) AS has_dosen_profile
+                 FROM users u
+                 WHERE u.id = :id
                  LIMIT 1'
             );
             $stmt->execute(['id' => $userId]);
@@ -162,6 +181,13 @@ class AuthMiddleware
             if ($role !== '' && !in_array($role, $roles, true)) {
                 $roles[] = $role;
             }
+        }
+        if (
+            $primaryRole === 'koordinator_magang'
+            && in_array($row['has_dosen_profile'] ?? null, [true, 1, '1', 't', 'true'], true)
+            && !in_array('dosen', $roles, true)
+        ) {
+            $roles[] = 'dosen';
         }
         if ($roles === [] && $primaryRole !== '') {
             $roles = [$primaryRole];

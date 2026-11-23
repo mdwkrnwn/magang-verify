@@ -206,7 +206,35 @@ class PersetujuanPengajuan
         }
     }
 
-    public function getPendingDocument(int $documentId, int $actorId, string $role): ?array
+    public function getPendingDocumentForDosen(int $documentId, int $dosenUserId): ?array
+    {
+        return $this->findPendingDocument(
+            $documentId,
+            "assigned_u.id = :dosen_user_id
+             AND p.status_pendaftaran = 'menunggu_persetujuan_dosen'
+             AND p.status_persetujuan_dosen = 'menunggu'",
+            ['dosen_user_id' => $dosenUserId]
+        );
+    }
+
+    public function getPendingDocumentForMitra(int $documentId, int $mitraId): ?array
+    {
+        return $this->findPendingDocument(
+            $documentId,
+            "m.id = :mitra_id
+             AND p.status_pendaftaran IN ('menunggu_respons_mitra', 'seleksi')
+             AND (
+                  (p.status_persetujuan_dosen = 'menunggu'
+                   AND p.dosen_pembimbing_snapshot_id IS NULL)
+                  OR
+                  (p.status_persetujuan_dosen = 'disetujui'
+                   AND p.dosen_pembimbing_snapshot_id IS NOT NULL)
+             )",
+            ['mitra_id' => $mitraId]
+        );
+    }
+
+    private function findPendingDocument(int $documentId, string $ownership, array $parameters): ?array
     {
         global $pdo;
         $stmt = $pdo->prepare(
@@ -218,26 +246,10 @@ class PersetujuanPengajuan
              INNER JOIN mitra m ON m.id = f.mitra_id
              LEFT JOIN profil_dosen assigned_pd ON assigned_pd.id = p.dosen_pembimbing_snapshot_id
              LEFT JOIN users assigned_u ON assigned_u.id = assigned_pd.user_id
-             WHERE d.id = :id
-               AND (
-                    (:role_dosen = 'dosen'
-                     AND assigned_u.id = :actor_id
-                     AND p.status_pendaftaran = 'menunggu_persetujuan_dosen'
-                     AND p.status_persetujuan_dosen = 'menunggu')
-                    OR
-                    (:role_mitra = 'mitra'
-                     AND m.user_id = :actor_id
-                     AND p.status_pendaftaran IN ('menunggu_respons_mitra', 'seleksi')
-                     AND p.status_persetujuan_dosen = 'disetujui')
-               )
+             WHERE d.id = :id AND {$ownership}
              LIMIT 1"
         );
-        $stmt->execute([
-            'id' => $documentId,
-            'role_dosen' => $role,
-            'role_mitra' => $role,
-            'actor_id' => $actorId,
-        ]);
+        $stmt->execute(['id' => $documentId] + $parameters);
 
         return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
     }

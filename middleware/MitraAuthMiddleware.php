@@ -108,23 +108,31 @@ class MitraAuthMiddleware
             self::logout();
         }
 
-        // Update waktu penggunaan session.
-        try {
-            $update = $pdo->prepare("
-                UPDATE mitra_sessions
-                SET last_used_at = CURRENT_TIMESTAMP
-                WHERE id = :id
-            ");
+        // Batasi pembaruan last_used_at agar tetap akurat tanpa satu UPDATE
+        // database pada setiap navigasi. Validasi sesi tetap dijalankan penuh.
+        $usageUpdateInterval = 300;
+        $usageUpdatedAt = (int) ($_SESSION['mitra_last_usage_updated_at'] ?? 0);
+        $now = time();
 
-            $update->execute([
-                ':id' => (int) $auth['id'],
-            ]);
-        } catch (PDOException $e) {
-            // Gagal update last_used tidak membatalkan autentikasi.
-            error_log(
-                'MitraAuthMiddleware update error: '
-                    . $e->getMessage()
-            );
+        if ($usageUpdatedAt < $now - $usageUpdateInterval) {
+            try {
+                $update = $pdo->prepare("
+                    UPDATE mitra_sessions
+                    SET last_used_at = CURRENT_TIMESTAMP
+                    WHERE id = :id
+                ");
+
+                $update->execute([
+                    ':id' => (int) $auth['id'],
+                ]);
+                $_SESSION['mitra_last_usage_updated_at'] = $now;
+            } catch (PDOException $e) {
+                // Gagal update last_used tidak membatalkan autentikasi.
+                error_log(
+                    'MitraAuthMiddleware update error: '
+                        . $e->getMessage()
+                );
+            }
         }
 
         // Context autentikasi Mitra.
@@ -135,6 +143,39 @@ class MitraAuthMiddleware
                 ? (int) $auth['access_token_id']
                 : null,
         ];
+    }
+
+    public static function currentMitraId(): int
+    {
+        $mitraId = filter_var(
+            $GLOBALS['mitra_auth_context']['mitra_id'] ?? null,
+            FILTER_VALIDATE_INT
+        );
+
+        if ($mitraId === false || $mitraId < 1) {
+            http_response_code(401);
+            exit('Sesi Mitra tidak valid. Silakan login kembali.');
+        }
+
+        return $mitraId;
+    }
+
+    public static function currentUserId(): ?int
+    {
+        $mitraId = self::currentMitraId();
+        global $pdo;
+
+        $stmt = $pdo->prepare("
+            SELECT user_id
+            FROM mitra
+            WHERE id = :mitra_id
+              AND is_active = TRUE
+            LIMIT 1
+        ");
+        $stmt->execute([':mitra_id' => $mitraId]);
+        $userId = filter_var($stmt->fetchColumn(), FILTER_VALIDATE_INT);
+
+        return $userId !== false && $userId > 0 ? $userId : null;
     }
 
     /**
