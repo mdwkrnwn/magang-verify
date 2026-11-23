@@ -134,13 +134,13 @@
 
             <span class="flex items-center justify-center gap-5">
                 <a
-                    href="#"
+                    href="<?= url('/privasi') ?>"
                     class="hover:text-blue-600">
                     Privasi
                 </a>
 
                 <a
-                    href="#"
+                    href="<?= url('/syarat-ketentuan') ?>"
                     class="hover:text-blue-600">
                     Syarat dan Ketentuan
                 </a>

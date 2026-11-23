@@ -70,6 +70,28 @@ $routes = [
 
     /*
     |---------------------
+    | Privasi
+    |---------------------
+    */
+
+    '/privasi' => [
+        'controller' => PrivasiController::class,
+        'method' => 'index',
+    ],
+
+    /*
+    |---------------------
+    | Syarat dan Ketentuan
+    |---------------------
+    */
+
+    '/syarat-ketentuan' => [
+        'controller' => SyaratKetentuanController::class,
+        'method' => 'index',
+    ],
+
+    /*
+    |---------------------
     | Authenticator
     |---------------------
     */
