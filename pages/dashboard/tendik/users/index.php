@@ -13,14 +13,15 @@ $active = 'users';
 <body class="overflow-x-hidden bg-slate-50 font-[Poppins] text-gray-900">
 
     <?php include __DIR__ . '/../../../../components/dashboard/tendik/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/tendik/Header.php'; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
-    <main class="min-h-screen bg-slate-50 pt-20 lg:ml-64">
+
+    <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
 
         <div class="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
 
             <!-- Page Header -->
-            <div class="mb-8 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex flex-col gap-5 mb-8 sm:flex-row sm:items-center sm:justify-between">
 
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
@@ -34,9 +35,9 @@ $active = 'users';
 
                 <a
                     href="<?= e(url('/dashboard/tendik/users/create')) ?>"
-                    class="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700">
+                    class="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-white transition bg-blue-600 shadow-sm rounded-xl hover:bg-blue-700">
 
-                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 5v14m-7-7h14" />
                     </svg>
@@ -48,7 +49,7 @@ $active = 'users';
 
 
             <!-- Search & Filter -->
-            <section class="mb-6 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
+            <section class="p-5 mb-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
 
                 <div class="mb-4">
                     <h2 class="text-sm font-semibold text-gray-900">
@@ -84,14 +85,14 @@ $active = 'users';
                             name="search"
                             value="<?= e($filters['search'] ?? '') ?>"
                             placeholder="Cari ID login atau nama..."
-                            class="w-full rounded-xl border border-gray-200 bg-white py-3 pl-10 pr-4 text-sm outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                            class="w-full py-3 pl-10 pr-4 text-sm transition bg-white border border-gray-200 outline-none rounded-xl placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
 
                     </div>
 
                     <!-- Role Filter -->
                     <select
                         name="role"
-                        class="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+                        class="w-full px-4 py-3 text-sm text-gray-700 transition bg-white border border-gray-200 outline-none rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
 
                         <option value="">Semua Role</option>
 
@@ -112,9 +113,9 @@ $active = 'users';
                     <!-- Submit -->
                     <button
                         type="submit"
-                        class="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-50 px-5 py-3 text-sm font-semibold text-gray-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700">
+                        class="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold text-gray-700 transition border border-gray-200 rounded-xl bg-gray-50 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700">
 
-                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6h16M7 12h10m-7 6h4" />
                         </svg>
@@ -126,7 +127,7 @@ $active = 'users';
 
             <!-- Error Message -->
             <?php if (!empty($error)): ?>
-                <div class="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4">
+                <div class="flex items-start gap-3 p-4 mb-6 border border-red-200 rounded-xl bg-red-50">
                     <svg class="mt-0.5 h-5 w-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 9v4m0 4h.01M10.3 3.86 1.82 18a2 2 0 001.7 3h16.96a2 2 0 001.7-3L13.7 3.86a2 2 0 00-3.4 0z" />
@@ -139,9 +140,9 @@ $active = 'users';
 
 
             <!-- User Table -->
-            <section class="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm">
+            <section class="overflow-hidden bg-white border border-gray-100 shadow-sm rounded-2xl">
                 <!-- Table Header -->
-                <div class="flex flex-col gap-1 border-b border-gray-100 px-5 py-5 sm:px-7">
+                <div class="flex flex-col gap-1 px-5 py-5 border-b border-gray-100 sm:px-7">
                     <h2 class="text-base font-semibold text-gray-900">
                         Daftar Pengguna
                     </h2>
@@ -155,19 +156,19 @@ $active = 'users';
                     <table class="w-full min-w-[720px] text-sm">
                         <thead class="bg-gray-50/80">
                             <tr class="text-left">
-                                <!-- <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <!-- <th class="px-6 py-4 text-xs font-semibold tracking-wider text-gray-500 uppercase">
                                     ID Login
                                 </th> -->
-                                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th class="px-6 py-4 text-xs font-semibold tracking-wider text-gray-500 uppercase">
                                     Nama Pengguna
                                 </th>
-                                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th class="px-6 py-4 text-xs font-semibold tracking-wider text-gray-500 uppercase">
                                     Role / Hak Akses
                                 </th>
-                                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th class="px-6 py-4 text-xs font-semibold tracking-wider text-gray-500 uppercase">
                                     Status Akun
                                 </th>
-                                <th class="px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                                <th class="px-6 py-4 text-xs font-semibold tracking-wider text-gray-500 uppercase">
                                     Aksi
                                 </th>
                             </tr>
@@ -198,7 +199,7 @@ $active = 'users';
                                         <!-- Name -->
                                         <td class="px-6 py-4">
                                             <div class="flex items-center gap-3">
-                                                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-semibold text-blue-600">
+                                                <div class="flex items-center justify-center text-sm font-semibold text-blue-600 rounded-full h-9 w-9 shrink-0 bg-blue-50">
                                                     <?= e(strtoupper(substr(
                                                         (string) ($item['name'] ?? 'U'),
                                                         0,
@@ -256,10 +257,10 @@ $active = 'users';
                                         <td class="px-6 py-4">
                                             <a
                                                 href="<?= e(url('/dashboard/tendik/users/' . (int) $item['id'])) ?>"
-                                                class="inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs font-semibold text-blue-700 transition hover:bg-blue-100">
+                                                class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-blue-700 transition border border-blue-200 rounded-lg bg-blue-50 hover:bg-blue-100">
 
                                                 <svg
-                                                    class="h-4 w-4"
+                                                    class="w-4 h-4"
                                                     fill="none"
                                                     stroke="currentColor"
                                                     viewBox="0 0 24 24">
@@ -285,7 +286,7 @@ $active = 'users';
                                 <tr>
                                     <td colspan="4" class="px-6 py-16 text-center">
 
-                                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
+                                        <div class="flex items-center justify-center mx-auto text-gray-400 bg-gray-100 h-14 w-14 rounded-2xl">
 
                                             <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
@@ -305,7 +306,7 @@ $active = 'users';
                     </table>
                 </div>
                 <?php if (!empty($items)): ?>
-                    <div class="border-t border-gray-100 px-6 py-4">
+                    <div class="px-6 py-4 border-t border-gray-100">
                         <p class="text-xs text-gray-400">
                             Menampilkan <?= count($items) ?> pengguna
                         </p>

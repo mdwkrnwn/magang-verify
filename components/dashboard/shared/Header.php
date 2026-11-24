@@ -38,7 +38,6 @@ if ($isMitra) {
     );
 
     $role = $sessionUser['role'] ?? 'mahasiswa';
-
     $userId = (int) ($sessionUser['id'] ?? 0);
 }
 
