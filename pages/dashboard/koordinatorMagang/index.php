@@ -15,7 +15,8 @@ $active = 'dashboard';
 
     <?php include __DIR__ . "/../../../components/dashboard/koordinatorMagang/Sidebar.php"; ?>
 
-    <?php include __DIR__ . "/../../../components/dashboard/koordinatorMagang/Header.php"; ?>
+    <?php include __DIR__ . "/../../../components/dashboard/shared/Header.php"; ?>
+
 
     <?php include __DIR__ . "/../../../components/dashboard/koordinatorMagang/dashboard/MainContent.php"; ?>
 

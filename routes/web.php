@@ -97,6 +97,10 @@ $routes = [
         'method' => 'index',
     ],
 
+
+    '/pelajari-sistem' => [
+        'view' => 'pages/landingPage/pelajari-sistem/index.php'
+    ],
     /*
     |---------------------
     | Privasi

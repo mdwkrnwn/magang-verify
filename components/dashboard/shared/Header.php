@@ -2,41 +2,77 @@
 
 /*
 |--------------------------------------------------------------------------
-| Data pengguna dari session
+| DATA PENGGUNA
 |--------------------------------------------------------------------------
 */
 
-$namaPengguna = trim(
-    (string) ($_SESSION['user']['name'] ?? 'Pengguna')
-);
+$sessionUser  = $_SESSION['user'] ?? [];
+$sessionMitra = $_SESSION['mitra'] ?? [];
 
-$role = $_SESSION['user']['role'] ?? 'mahasiswa';
+$isMitra = !empty($sessionMitra['id'])
+    || (($sessionUser['role'] ?? '') === 'mitra');
+
+if ($isMitra) {
+
+    $namaPengguna = trim(
+        (string) (
+            $sessionMitra['nama_perusahaan']
+            ?? $sessionUser['nama_perusahaan']
+            ?? $sessionUser['name']
+            ?? 'Mitra'
+        )
+    );
+
+    $role = 'mitra';
+
+    $userId = (int) (
+        $sessionMitra['id']
+        ?? $sessionUser['id']
+        ?? 0
+    );
+
+} else {
+
+    $namaPengguna = trim(
+        (string) ($sessionUser['name'] ?? 'Pengguna')
+    );
+
+    $role = $sessionUser['role'] ?? 'mahasiswa';
+
+    $userId = (int) ($sessionUser['id'] ?? 0);
+}
 
 $roleLabels = [
-    'mahasiswa' => 'Mahasiswa',
-    'dosen' => 'Dosen',
-    'tendik' => 'Tendik',
+    'mahasiswa'          => 'Mahasiswa',
+    'dosen'             => 'Dosen',
+    'tendik'            => 'Tendik',
     'koordinator_magang' => 'Koordinator Magang',
-    'mitra' => 'Mitra',
+    'mitra'             => 'Mitra',
 ];
 
-/*
-|--------------------------------------------------------------------------
-| Foto profil
-|--------------------------------------------------------------------------
-*/
 
 $fotoProfil = '';
 
-$dashboardProfil = (isset($dashboard) && is_array($dashboard))
+$dashboardProfil = (
+    isset($dashboard) && is_array($dashboard)
+)
     ? ($dashboard['profil'] ?? null)
     : null;
 
-if (is_array($dashboardProfil) && array_key_exists('foto_path', $dashboardProfil)) {
-    // Dashboard sudah menyediakan foto profil, tidak perlu query tambahan.
-    $fotoProfil = trim((string) ($dashboardProfil['foto_path'] ?? ''));
+if (
+    is_array($dashboardProfil)
+    && array_key_exists('foto_path', $dashboardProfil)
+) {
+    // Data foto sudah tersedia dari dashboard.
+    // Tidak perlu query tambahan.
+    $fotoProfil = trim(
+        (string) ($dashboardProfil['foto_path'] ?? '')
+    );
 } elseif ($role === 'mahasiswa') {
-    // Halaman mahasiswa non-dashboard: ambil satu kolom saja.
+
+    // Fallback untuk halaman mahasiswa
+    // yang belum menyediakan data profil dari dashboard.
+
     try {
         global $pdo;
 
@@ -46,12 +82,18 @@ if (is_array($dashboardProfil) && array_key_exists('foto_path', $dashboardProfil
              WHERE user_id = :user_id
              LIMIT 1'
         );
+
         $stmt->execute([
-            'user_id' => (int) ($_SESSION['user']['id'] ?? 0),
+            'user_id' => (int) (
+                $_SESSION['user']['id'] ?? 0
+            ),
         ]);
 
-        $fotoProfil = trim((string) ($stmt->fetchColumn() ?: ''));
+        $fotoProfil = trim(
+            (string) ($stmt->fetchColumn() ?: '')
+        );
     } catch (Throwable $e) {
+
         error_log(
             'Gagal mengambil foto profil header: '
                 . $e->getMessage()
@@ -59,11 +101,25 @@ if (is_array($dashboardProfil) && array_key_exists('foto_path', $dashboardProfil
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Inisial nama
-|--------------------------------------------------------------------------
-*/
+
+$fotoProfilUrl = '';
+
+if ($fotoProfil !== '') {
+
+    if ($role === 'mahasiswa') {
+
+        $fotoProfilUrl = url(
+            '/mahasiswa/profil/foto/'
+                . rawurlencode(basename($fotoProfil))
+        );
+    } else {
+
+        $fotoProfilUrl = url(
+            '/' . ltrim($fotoProfil, '/')
+        );
+    }
+}
+
 
 $bagianNama = preg_split(
     '/\s+/',
@@ -91,6 +147,18 @@ if (!empty($bagianNama)) {
         );
     }
 }
+
+
+
+$settingsRoutes = [
+    'mahasiswa' => '/dashboard/mahasiswa/pengaturan',
+    'dosen' => '/dashboard/dosen/pengaturan',
+    'tendik' => '/dashboard/tendik/pengaturan',
+    'koordinator_magang' => '/dashboard/koordinator-magang/pengaturan',
+    'mitra' => '/dashboard/mitra/pengaturan',
+];
+
+$settingsRoute = $settingsRoutes[$role] ?? null;
 
 ?>
 
@@ -130,17 +198,15 @@ if (!empty($bagianNama)) {
                     d="M4 6h16M4 12h16M4 18h16" />
 
             </svg>
-
         </button>
 
-
-        <!-- Right -->
+        <!-- Right Section -->
         <div
             class="flex items-center gap-3
                    ml-auto sm:gap-6">
 
-            <?php include __DIR__ . '/../shared/NotificationBell.php'; ?>
-
+            <!-- Notification -->
+            <?php include __DIR__ . '/NotificationBell.php'; ?>
 
             <!-- Profile -->
             <div
@@ -167,21 +233,31 @@ if (!empty($bagianNama)) {
                                w-11 h-11
                                shrink-0 overflow-hidden">
 
-                        <?php if ($fotoProfil !== ''): ?>
+                        <?php if ($fotoProfilUrl !== ''): ?>
 
                             <img
-                                src="<?= e(url('/' . ltrim($fotoProfil, '/'))) ?>"
+                                src="<?= e($fotoProfilUrl) ?>"
                                 alt="Foto profil <?= e($namaPengguna) ?>"
                                 class="w-full h-full object-cover"
                                 onerror="
+                                    this.onerror = null;
                                     this.remove();
-                                    this.nextElementSibling?.classList.remove('hidden');
-                                    this.nextElementSibling?.classList.add('flex');
+
+                                    const fallback =
+                                        this.parentElement.querySelector(
+                                            '[data-profile-fallback]'
+                                        );
+
+                                    if (fallback) {
+                                        fallback.classList.remove('hidden');
+                                        fallback.classList.add('flex');
+                                    }
                                 ">
 
                             <span
                                 class="hidden w-full h-full
-                                       items-center justify-center">
+                                       items-center justify-center"
+                                data-profile-fallback>
                                 <?= e($inisial) ?>
                             </span>
 
@@ -197,7 +273,6 @@ if (!empty($bagianNama)) {
 
                     </div>
 
-
                     <!-- User Information -->
                     <div class="hidden sm:block text-left">
 
@@ -210,7 +285,6 @@ if (!empty($bagianNama)) {
                         </p>
 
                     </div>
-
 
                     <!-- Arrow -->
                     <svg
@@ -233,7 +307,6 @@ if (!empty($bagianNama)) {
 
                 </button>
 
-
                 <!-- Dropdown -->
                 <div
                     id="profile-dropdown"
@@ -252,16 +325,19 @@ if (!empty($bagianNama)) {
                         <p
                             class="text-sm font-semibold
                                    text-gray-900 truncate">
+
                             <?= e($namaPengguna) ?>
+
                         </p>
 
                         <p
                             class="text-xs text-gray-500 mt-0.5">
+
                             <?= e($roleLabels[$role] ?? 'Pengguna') ?>
+
                         </p>
 
                     </div>
-
 
                     <!-- Menu -->
                     <div class="p-1.5">
@@ -295,50 +371,50 @@ if (!empty($bagianNama)) {
 
                         </a>
 
-
                         <!-- Pengaturan -->
-                        <?php if ($role === 'dosen'): ?>
-                        <a
-                            href="<?= e(url('/dashboard/dosen/pengaturan')) ?>"
-                            class="flex items-center gap-3
-                                   px-3 py-2.5
-                                   rounded-lg
-                                   text-sm text-gray-700
-                                   hover:bg-blue-50
-                                   hover:text-blue-600
-                                   transition">
+                        <?php if ($settingsRoute !== null): ?>
 
-                            <svg
-                                class="w-5 h-5 shrink-0"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24">
+                            <a
+                                href="<?= e(url($settingsRoute)) ?>"
+                                class="flex items-center gap-3
+                                       px-3 py-2.5
+                                       rounded-lg
+                                       text-sm text-gray-700
+                                       hover:bg-blue-50
+                                       hover:text-blue-600
+                                       transition">
 
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.8"
-                                    d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
+                                <svg
+                                    class="w-5 h-5 shrink-0"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24">
 
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="1.8"
-                                    d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.8 1.8-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.04 1.56V20H11v-.1a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.8-1.8.06-.06A1.7 1.7 0 0 0 6.62 15a1.7 1.7 0 0 0-1.56-1.04H5V11h.06A1.7 1.7 0 0 0 6.62 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.8-1.8.06.06A1.7 1.7 0 0 0 9.1 6.46 1.7 1.7 0 0 0 11 5.1V5h3v.1a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.8 1.8-.06.06A1.7 1.7 0 0 0 18.38 10a1.7 1.7 0 0 0 1.56 1.04H20v3h-.06A1.7 1.7 0 0 0 19.4 15Z" />
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" />
 
-                            </svg>
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="1.8"
+                                        d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-1.8 1.8-.06-.06a1.7 1.7 0 0 0-1.88-.34 1.7 1.7 0 0 0-1.04 1.56V20H11v-.1a1.7 1.7 0 0 0-1.04-1.56 1.7 1.7 0 0 0-1.88.34l-.06.06-1.8-1.8.06-.06A1.7 1.7 0 0 0 6.62 15a1.7 1.7 0 0 0-1.56-1.04H5V11h.06A1.7 1.7 0 0 0 6.62 10a1.7 1.7 0 0 0-.34-1.88l-.06-.06 1.8-1.8.06.06A1.7 1.7 0 0 0 9.1 6.46 1.7 1.7 0 0 0 11 5.1V5h3v.1a1.7 1.7 0 0 0 1.04 1.56 1.7 1.7 0 0 0 1.88-.34l.06-.06 1.8 1.8-.06.06A1.7 1.7 0 0 0 18.38 10a1.7 1.7 0 0 0 1.56 1.04H20v3h-.06A1.7 1.7 0 0 0 19.4 15Z" />
 
-                            <span>Pengaturan</span>
+                                </svg>
 
-                        </a>
+                                <span>Pengaturan</span>
+
+                            </a>
+
                         <?php endif; ?>
-
 
                         <!-- Separator -->
                         <div
                             class="my-1.5
-                                   border-t border-gray-100"></div>
-
+                                   border-t border-gray-100">
+                        </div>
 
                         <!-- Logout -->
                         <form
@@ -391,7 +467,6 @@ if (!empty($bagianNama)) {
 
 </header>
 
-
 <script>
     const profileDropdownButton =
         document.getElementById('profile-dropdown-button');
@@ -401,7 +476,6 @@ if (!empty($bagianNama)) {
 
     const profileDropdownIcon =
         document.getElementById('profile-dropdown-icon');
-
 
     if (profileDropdownButton && profileDropdown) {
 
@@ -429,12 +503,9 @@ if (!empty($bagianNama)) {
                         'rotate-180',
                         !isOpen
                     );
-
                 }
-
             }
         );
-
 
         document.addEventListener(
             'click',
@@ -448,16 +519,12 @@ if (!empty($bagianNama)) {
                 );
 
                 if (profileDropdownIcon) {
-
                     profileDropdownIcon.classList.remove(
                         'rotate-180'
                     );
-
                 }
-
             }
         );
-
 
         document.addEventListener(
             'keydown',
@@ -465,9 +532,7 @@ if (!empty($bagianNama)) {
 
                 if (event.key === 'Escape') {
 
-                    profileDropdown.classList.add(
-                        'hidden'
-                    );
+                    profileDropdown.classList.add('hidden');
 
                     profileDropdownButton.setAttribute(
                         'aria-expanded',
@@ -475,17 +540,12 @@ if (!empty($bagianNama)) {
                     );
 
                     if (profileDropdownIcon) {
-
                         profileDropdownIcon.classList.remove(
                             'rotate-180'
                         );
-
                     }
-
                 }
-
             }
         );
-
     }
 </script>

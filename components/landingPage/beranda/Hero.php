@@ -64,11 +64,11 @@
                     </a>
 
                     <a
-                        href="#"
-                        class="inline-flex items-center justify-center px-5 py-4 border border-blue-500 text-blue-600 text-sm font-medium rounded-md hover:bg-blue-50 transition">
+                        href="<?= url('/pelajari-sistem') ?>"
+                        class="inline-flex items-center justify-center gap-2 px-5 py-4 border border-blue-500 text-blue-600 text-sm font-medium rounded-md hover:bg-blue-50 transition">
+
                         Pelajari Sistem
                     </a>
-
                 </div>
 
             </div>
