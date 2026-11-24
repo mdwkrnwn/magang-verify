@@ -154,8 +154,10 @@ $settingsRoutes = [
     'dosen' => '/dashboard/dosen/pengaturan',
     'tendik' => '/dashboard/tendik/pengaturan',
     'koordinator_magang' => '/dashboard/koordinator-magang/pengaturan',
-    'mitra' => '/dashboard/mitra/pengaturan',
+    
 ];
+
+// 'mitra' => '/dashboard/mitra/pengaturan',
 
 $settingsRoute = $settingsRoutes[$role] ?? null;
 
