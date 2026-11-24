@@ -22,16 +22,12 @@ include __DIR__
     ?>
 
 
-    <?php
-    include __DIR__
-        . '/../../../../components/dashboard/mahasiswa/Header.php';
-    ?>
+       <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
+
 
 
     <main
-        class="min-h-screen
-               pt-20
-               lg:ml-64">
+        class="min-h-screen pt-20 lg:ml-64">
 
         <?php
         include __DIR__

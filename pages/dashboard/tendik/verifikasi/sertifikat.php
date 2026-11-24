@@ -58,7 +58,7 @@ $canVerify = in_array(
 <body class="min-h-screen bg-slate-50 font-[Poppins] text-slate-800">
 
     <?php include __DIR__ . '/../../../../components/dashboard/tendik/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/tendik/Header.php'; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
     <main class="min-h-screen pt-20 lg:ml-64">
 

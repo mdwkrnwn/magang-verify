@@ -14,7 +14,7 @@ $active = 'logbook';
 <?php include __DIR__ . '/../../../../components/dashboard/dosen/Header.php'; ?>
 
 <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
-    <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-6xl">
+    <div class="max-w-6xl px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8">
 
         <h1 class="text-2xl font-bold text-gray-900 sm:text-3xl">
             Logbook Mahasiswa Bimbingan
@@ -77,7 +77,7 @@ $active = 'logbook';
 
             <?php else: ?>
 
-                <div class="p-10 text-center text-sm text-gray-400">
+                <div class="p-10 text-sm text-center text-gray-400">
                     Belum ada logbook yang menunggu tanda tangan Anda.
                 </div>
 
@@ -105,7 +105,7 @@ $active = 'logbook';
 
     <?php include __DIR__ . "/../../../../components/dashboard/dosen/Sidebar.php"; ?>
 
-    <?php include __DIR__ . "/../../../../components/dashboard/dosen/Header.php"; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
     <?php include __DIR__ . "/../../../../components/dashboard/dosen/logbook/MainContent.php"; ?>
 

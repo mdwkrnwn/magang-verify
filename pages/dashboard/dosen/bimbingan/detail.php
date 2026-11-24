@@ -36,7 +36,7 @@ $initials = function_exists('initials')
 <body class="overflow-x-hidden font-[Poppins] text-gray-900 bg-slate-50">
 
     <?php include __DIR__ . '/../../../../components/dashboard/dosen/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/dosen/Header.php'; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
     <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
 
@@ -45,7 +45,7 @@ $initials = function_exists('initials')
             <!-- Breadcrumb -->
             <div class="mb-6">
                 <a href="<?= e(url('/dashboard/dosen/bimbingan')) ?>"
-                    class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-blue-700">
+                    class="inline-flex items-center gap-2 text-sm font-medium transition text-slate-500 hover:text-blue-700">
 
                     <svg xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -71,7 +71,7 @@ $initials = function_exists('initials')
 
                     <div class="flex flex-col gap-4 sm:flex-row sm:items-end">
 
-                        <div class="flex items-center justify-center flex-shrink-0 w-20 h-20 -mt-10 text-2xl font-bold text-blue-700 bg-blue-50 border-4 border-white rounded-2xl shadow-sm">
+                        <div class="flex items-center justify-center flex-shrink-0 w-20 h-20 -mt-10 text-2xl font-bold text-blue-700 border-4 border-white shadow-sm bg-blue-50 rounded-2xl">
                             <?= e($initials) ?>
                         </div>
 
@@ -323,7 +323,7 @@ $initials = function_exists('initials')
                                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                     stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-                                    class="shrink-0 text-blue-500">
+                                    class="text-blue-500 shrink-0">
                                     <circle cx="12" cy="12" r="10" />
                                     <path d="M12 16v-4M12 8h.01" />
                                 </svg>

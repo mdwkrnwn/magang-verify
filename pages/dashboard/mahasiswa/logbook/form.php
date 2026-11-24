@@ -9,12 +9,12 @@ $plan = $nextWeek ?? null;
 
 <body class="bg-slate-50 font-[Poppins] text-gray-900 overflow-x-hidden">
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Header.php'; ?>
-    <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
+     <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
         <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-8xl">
             <div class="mb-6">
                 <a href="<?= e(url('/dashboard/mahasiswa/logbook')) ?>"
-                    class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                    class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700">
                     <svg xmlns="http://www.w3.org/2000/svg"
                         width="18"
                         height="18"
@@ -34,7 +34,7 @@ $plan = $nextWeek ?? null;
             </div>
 
             <?php if (!empty($error)): ?>
-                <div class="p-4 mb-5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl"><?= e($error) ?></div>
+                <div class="p-4 mb-5 text-sm text-red-700 border border-red-200 bg-red-50 rounded-xl"><?= e($error) ?></div>
             <?php endif; ?>
 
             <?php if ($plan): ?>
@@ -50,7 +50,7 @@ $plan = $nextWeek ?? null;
                     </div>
 
                     <?php if (!empty($plan['terlambat'])): ?>
-                        <div class="p-4 mt-5 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl">
+                        <div class="p-4 mt-5 text-sm border text-amber-800 bg-amber-50 border-amber-200 rounded-xl">
                             Minggu ini dibuat terlambat. Sistem tetap mengizinkannya karena periodenya sudah berjalan/terlewat.
                         </div>
                     <?php endif; ?>

@@ -25,7 +25,8 @@ foreach ($assignments as $assignment) {
 <body class="overflow-x-hidden bg-slate-50 font-[Poppins] text-slate-900 antialiased">
 
     <?php include __DIR__ . '/../../../../components/dashboard/koordinatorMagang/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/koordinatorMagang/Header.php'; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
+
 
     <main class="min-h-screen bg-slate-50 pt-20 lg:ml-64">
         <div class="mx-auto max-w-[1500px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
@@ -51,7 +52,7 @@ foreach ($assignments as $assignment) {
             <?php if ($success): ?>
                 <div role="status" class="mb-6 flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3.5 text-sm text-emerald-800 shadow-sm">
                     <svg class="mt-0.5 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 13 4 4L19 7"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 13 4 4L19 7" />
                     </svg>
                     <span>Penugasan dosen berhasil disimpan.</span>
                 </div>
@@ -60,7 +61,7 @@ foreach ($assignments as $assignment) {
             <?php if ($error): ?>
                 <div role="alert" class="mb-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3.5 text-sm text-red-800 shadow-sm">
                     <svg class="mt-0.5 h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.3 3.8 1.9 18.2A2 2 0 0 0 3.6 21h16.8a2 2 0 0 0 1.7-2.8L13.7 3.8a2 2 0 0 0-3.4 0Z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.3 3.8 1.9 18.2A2 2 0 0 0 3.6 21h16.8a2 2 0 0 0 1.7-2.8L13.7 3.8a2 2 0 0 0-3.4 0Z" />
                     </svg>
                     <span><?= e($error) ?></span>
                 </div>
@@ -73,7 +74,7 @@ foreach ($assignments as $assignment) {
                         <p class="text-sm font-medium text-slate-500">Total Peserta</p>
                         <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m16 0v-2a4 4 0 0 0-3-3.87M14 3.13a4 4 0 0 1 0 7.75M10 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m16 0v-2a4 4 0 0 0-3-3.87M14 3.13a4 4 0 0 1 0 7.75M10 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
                             </svg>
                         </span>
                     </div>
@@ -86,7 +87,7 @@ foreach ($assignments as $assignment) {
                         <p class="text-sm font-medium text-slate-500">Sudah Ditugaskan</p>
                         <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m5 12 4 4L19 6"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m5 12 4 4L19 6" />
                             </svg>
                         </span>
                     </div>
@@ -99,7 +100,7 @@ foreach ($assignments as $assignment) {
                         <p class="text-sm font-medium text-slate-500">Belum Ditugaskan</p>
                         <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
                             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4m0 4h.01M10.3 3.8 1.9 18.2A2 2 0 0 0 3.6 21h16.8a2 2 0 0 0 1.7-2.8L13.7 3.8a2 2 0 0 0-3.4 0Z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4m0 4h.01M10.3 3.8 1.9 18.2A2 2 0 0 0 3.6 21h16.8a2 2 0 0 0 1.7-2.8L13.7 3.8a2 2 0 0 0-3.4 0Z" />
                             </svg>
                         </span>
                     </div>
@@ -113,7 +114,7 @@ foreach ($assignments as $assignment) {
                 <div class="flex items-start gap-3 border-b border-slate-100 px-5 py-5 sm:px-6">
                     <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm shadow-blue-200">
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 5v14m-7-7h14"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 5v14m-7-7h14" />
                         </svg>
                     </div>
                     <div>
@@ -148,7 +149,7 @@ foreach ($assignments as $assignment) {
                         <?php if (empty($eligibleStudents)): ?>
                             <p class="mt-2 flex items-center gap-1.5 text-xs text-amber-700">
                                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01" />
                                 </svg>
                                 Tidak ada pengajuan yang telah diterima Mitra dan menunggu penetapan dosen.
                             </p>
@@ -161,7 +162,7 @@ foreach ($assignments as $assignment) {
                         <?= empty($eligibleStudents) ? 'disabled' : '' ?>
                         class="inline-flex min-h-[46px] items-center justify-center mb-6 gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none">
                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14m-7-7h14"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14m-7-7h14" />
                         </svg>
                         Buat Proses Magang
                     </button>
@@ -183,8 +184,8 @@ foreach ($assignments as $assignment) {
                             <div class="flex w-full flex-col gap-2 sm:flex-row lg:w-auto">
                                 <div class="relative flex-1 lg:w-72">
                                     <svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <circle cx="11" cy="11" r="7" stroke-width="1.8"/>
-                                        <path stroke-linecap="round" stroke-width="1.8" d="m16 16 4 4"/>
+                                        <circle cx="11" cy="11" r="7" stroke-width="1.8" />
+                                        <path stroke-linecap="round" stroke-width="1.8" d="m16 16 4 4" />
                                     </svg>
                                     <input id="searchParticipant" type="search" placeholder="Cari nama atau NIM..."
                                         class="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-10 pr-3 text-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10">
@@ -204,11 +205,11 @@ foreach ($assignments as $assignment) {
                     <div id="participantList" class="divide-y divide-slate-100">
                         <?php foreach ($assignments as $item): ?>
                             <?php
-                                $hasSupervisor = !empty($item['penugasan_id']);
-                                $studentName = (string) $item['mahasiswa_nama'];
-                                $studentInitial = function_exists('mb_substr')
-                                    ? mb_strtoupper(mb_substr($studentName, 0, 1, 'UTF-8'), 'UTF-8')
-                                    : strtoupper(substr($studentName, 0, 1));
+                            $hasSupervisor = !empty($item['penugasan_id']);
+                            $studentName = (string) $item['mahasiswa_nama'];
+                            $studentInitial = function_exists('mb_substr')
+                                ? mb_strtoupper(mb_substr($studentName, 0, 1, 'UTF-8'), 'UTF-8')
+                                : strtoupper(substr($studentName, 0, 1));
                             ?>
 
                             <article
@@ -256,7 +257,7 @@ foreach ($assignments as $assignment) {
                                             <div class="flex items-start gap-3 rounded-xl border border-emerald-100 bg-emerald-50/60 px-4 py-3">
                                                 <div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white text-emerald-600">
                                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m16 0v-2a4 4 0 0 0-3-3.87M14 3.13a4 4 0 0 1 0 7.75M10 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2m16 0v-2a4 4 0 0 0-3-3.87M14 3.13a4 4 0 0 1 0 7.75M10 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" />
                                                     </svg>
                                                 </div>
                                                 <div class="min-w-0">
@@ -270,7 +271,7 @@ foreach ($assignments as $assignment) {
                                         <?php else: ?>
                                             <div class="flex items-center gap-2 rounded-xl border border-amber-100 bg-amber-50/60 px-4 py-3 text-sm text-amber-800">
                                                 <svg class="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4m0 4h.01M10.3 3.8 1.9 18.2A2 2 0 0 0 3.6 21h16.8a2 2 0 0 0 1.7-2.8L13.7 3.8a2 2 0 0 0-3.4 0Z"/>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8v4m0 4h.01M10.3 3.8 1.9 18.2A2 2 0 0 0 3.6 21h16.8a2 2 0 0 0 1.7-2.8L13.7 3.8a2 2 0 0 0-3.4 0Z" />
                                                 </svg>
                                                 Belum ada dosen pembimbing.
                                             </div>
@@ -283,12 +284,12 @@ foreach ($assignments as $assignment) {
                                     <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 [&::-webkit-details-marker]:hidden">
                                         <span class="flex items-center gap-2">
                                             <svg class="h-4 w-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 5v14m-7-7h14"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 5v14m-7-7h14" />
                                             </svg>
                                             <?= $hasSupervisor ? 'Ubah dosen pembimbing' : 'Tetapkan dosen pembimbing' ?>
                                         </span>
                                         <svg class="details-chevron h-4 w-4 shrink-0 text-slate-400 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6 9 6 6 6-6" />
                                         </svg>
                                     </summary>
 
@@ -340,7 +341,7 @@ foreach ($assignments as $assignment) {
                                                 <button type="submit"
                                                     class="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-200 transition hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-500/20">
                                                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 13 4 4L19 7"/>
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m5 13 4 4L19 7" />
                                                     </svg>
                                                     <?= $hasSupervisor ? 'Simpan Perubahan' : 'Tetapkan Pembimbing' ?>
                                                 </button>
@@ -355,8 +356,8 @@ foreach ($assignments as $assignment) {
                     <div id="noSearchResult" class="hidden px-5 py-12 text-center">
                         <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
                             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <circle cx="11" cy="11" r="7" stroke-width="1.8"/>
-                                <path stroke-linecap="round" stroke-width="1.8" d="m16 16 4 4"/>
+                                <circle cx="11" cy="11" r="7" stroke-width="1.8" />
+                                <path stroke-linecap="round" stroke-width="1.8" d="m16 16 4 4" />
                             </svg>
                         </div>
                         <h3 class="mt-3 text-sm font-semibold text-slate-800">Data tidak ditemukan</h3>
@@ -367,7 +368,7 @@ foreach ($assignments as $assignment) {
                     <div class="px-5 py-16 text-center sm:py-20">
                         <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-400">
                             <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M17 20h5v-2a4 4 0 0 0-5.5-3.7M9 20H2v-2a4 4 0 0 1 7.5-1.7M16 3.5a4 4 0 0 1 0 7.8M8 3.5a4 4 0 0 1 0 7.8m8 8.7v-2a4 4 0 0 0-8 0v2"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.7" d="M17 20h5v-2a4 4 0 0 0-5.5-3.7M9 20H2v-2a4 4 0 0 1 7.5-1.7M16 3.5a4 4 0 0 1 0 7.8M8 3.5a4 4 0 0 1 0 7.8m8 8.7v-2a4 4 0 0 0-8 0v2" />
                             </svg>
                         </div>
                         <h3 class="mt-4 text-base font-semibold text-slate-800">Belum Ada Proses Magang</h3>
@@ -384,6 +385,7 @@ foreach ($assignments as $assignment) {
         .assignment-details[open] .details-chevron {
             transform: rotate(180deg);
         }
+
         .assignment-details summary:focus-visible {
             outline: 2px solid #3b82f6;
             outline-offset: -2px;
@@ -425,4 +427,5 @@ foreach ($assignments as $assignment) {
     </script>
 
 </body>
+
 </html>

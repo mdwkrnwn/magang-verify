@@ -60,18 +60,17 @@ $demo = $_POST['demo']
 
     <?php include __DIR__ . "/../../../../components/dashboard/mahasiswa/Sidebar.php"; ?>
 
-    <?php include __DIR__ . "/../../../../components/dashboard/mahasiswa/Header.php"; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
+    <main class="min-h-screen pt-20 ml-0 lg:ml-64">
 
-    <main class="ml-0 lg:ml-64 pt-20 min-h-screen">
-
-        <div class="p-4 sm:p-6 lg:p-8 max-w-8xl mx-auto">
+        <div class="p-4 mx-auto sm:p-6 lg:p-8 max-w-8xl">
 
             <div class="mb-6">
 
                 <a
                     href="<?= e(url('/dashboard/mahasiswa/portofolio')) ?>"
-                    class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 transition">
+                    class="inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-blue-600">
                     <span>&lt;</span>
                     Kembali ke Portofolio
                 </a>
@@ -91,7 +90,7 @@ $demo = $_POST['demo']
                 method="POST"
                 enctype="multipart/form-data"
                 action="<?= e($formAction) ?>"
-                class="bg-white border border-slate-200 rounded-xl p-4 sm:p-6">
+                class="p-4 bg-white border border-slate-200 rounded-xl sm:p-6">
                 <input
                     type="hidden"
                     name="_csrf_token"
@@ -103,7 +102,7 @@ $demo = $_POST['demo']
 
                         <label
                             for="judul"
-                            class="block text-sm font-medium text-gray-700 mb-2">
+                            class="block mb-2 text-sm font-medium text-gray-700">
                             Judul Portofolio
                         </label>
 
@@ -132,7 +131,7 @@ $demo = $_POST['demo']
 
                         <label
                             for="deskripsi"
-                            class="block text-sm font-medium text-gray-700 mb-2">
+                            class="block mb-2 text-sm font-medium text-gray-700">
                             Deskripsi
                         </label>
 
@@ -160,7 +159,7 @@ $demo = $_POST['demo']
 
                         <label
                             for="teknologi"
-                            class="block text-sm font-medium text-gray-700 mb-2">
+                            class="block mb-2 text-sm font-medium text-gray-700">
                             Teknologi
                         </label>
 
@@ -189,13 +188,13 @@ $demo = $_POST['demo']
                     </div>
 
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
 
                         <div>
 
                             <label
                                 for="peran"
-                                class="block text-sm font-medium text-gray-700 mb-2">
+                                class="block mb-2 text-sm font-medium text-gray-700">
                                 Peran
                             </label>
 
@@ -224,7 +223,7 @@ $demo = $_POST['demo']
 
                             <label
                                 for="tahun"
-                                class="block text-sm font-medium text-gray-700 mb-2">
+                                class="block mb-2 text-sm font-medium text-gray-700">
                                 Tahun
                             </label>
 
@@ -256,7 +255,7 @@ $demo = $_POST['demo']
                     <div>
                         <label
                             for="gambar"
-                            class="block text-sm font-medium text-gray-700 mb-2">
+                            class="block mb-2 text-sm font-medium text-gray-700">
                             Gambar Portofolio
                         </label>
 
@@ -266,7 +265,7 @@ $demo = $_POST['demo']
                                 <img
                                     src="<?= e(url('/' . ltrim($portofolioEdit['gambar'], '/'))) ?>"
                                     alt="Gambar portofolio saat ini"
-                                    class="w-full max-w-xs rounded-lg border border-slate-200 object-cover">
+                                    class="object-cover w-full max-w-xs border rounded-lg border-slate-200">
                             </div>
                         <?php endif; ?>
 
@@ -299,7 +298,7 @@ $demo = $_POST['demo']
 
                         <label
                             for="github"
-                            class="block text-sm font-medium text-gray-700 mb-2">
+                            class="block mb-2 text-sm font-medium text-gray-700">
                             GitHub
                         </label>
 
@@ -320,7 +319,7 @@ $demo = $_POST['demo']
 
                         <label
                             for="demo"
-                            class="block text-sm font-medium text-gray-700 mb-2">
+                            class="block mb-2 text-sm font-medium text-gray-700">
                             Link Demo
                         </label>
 
@@ -337,7 +336,7 @@ $demo = $_POST['demo']
                     </div>
 
 
-                    <div class="pt-4 border-t border-slate-100 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+                    <div class="flex flex-col-reverse gap-3 pt-4 border-t border-slate-100 sm:flex-row sm:justify-end">
 
                         <a
                             href="<?= e(url('/dashboard/mahasiswa/portofolio')) ?>"

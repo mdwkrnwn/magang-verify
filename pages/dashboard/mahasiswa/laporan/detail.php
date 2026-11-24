@@ -29,8 +29,7 @@ $reviewStageLabels = [
 
 <body class="bg-slate-50 font-[Poppins] text-gray-900 overflow-x-hidden">
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Header.php'; ?>
-
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
     <main class="lg:ml-64 pt-20 min-h-screen">
         <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <a

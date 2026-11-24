@@ -12,7 +12,7 @@ $active = 'verifikasi-laporan';
 
     <?php include __DIR__ . "/../../../../components/dashboard/dosen/Sidebar.php"; ?>
 
-    <?php include __DIR__ . "/../../../../components/dashboard/dosen/Header.php"; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
     <?php include __DIR__ . "/../../../../components/dashboard/dosen/verifikasi-laporan/MainContent.php"; ?>
 

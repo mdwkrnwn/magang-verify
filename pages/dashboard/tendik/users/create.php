@@ -11,7 +11,8 @@ $active = 'users';
 <body class="bg-slate-50 font-[Poppins] text-gray-900 overflow-x-hidden">
 
     <?php include __DIR__ . '/../../../../components/dashboard/tendik/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/tendik/Header.php'; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
+
 
     <main class="min-h-screen bg-slate-50 pt-20 lg:ml-64">
         <div class="mx-auto max-w-[1600px] px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -320,11 +321,11 @@ $active = 'users';
 
             form.addEventListener('submit', (event) => {
                 const selected = roleInputs.filter((input) => input.checked).map((input) => input.value);
-                const supported = selected.length === 1
-                    && ['mahasiswa', 'dosen', 'tendik'].includes(selected[0])
-                    || selected.length === 2
-                    && selected.includes('dosen')
-                    && selected.includes('koordinator_magang');
+                const supported = selected.length === 1 &&
+                    ['mahasiswa', 'dosen', 'tendik'].includes(selected[0]) ||
+                    selected.length === 2 &&
+                    selected.includes('dosen') &&
+                    selected.includes('koordinator_magang');
 
                 roleError.hidden = supported;
                 if (!supported) {

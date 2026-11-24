@@ -31,15 +31,14 @@ foreach ($templates as $template) {
 
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Sidebar.php'; ?>
 
-    <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Header.php'; ?>
-
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
     <!-- =========================================================
          MAIN CONTENT
     ========================================================== -->
-    <main class="lg:ml-64 pt-20 min-h-screen">
+    <main class="min-h-screen pt-20 lg:ml-64">
 
-        <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="px-4 py-8 mx-auto max-w-8xl sm:px-6 lg:px-8">
 
 
             <!-- =================================================
@@ -74,7 +73,7 @@ foreach ($templates as $template) {
             <!-- =================================================
                  CARD
             ================================================== -->
-            <div class="mt-5 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+            <div class="p-6 mt-5 bg-white border border-gray-200 shadow-sm rounded-2xl sm:p-8">
 
 
                 <!-- =================================================
@@ -98,7 +97,7 @@ foreach ($templates as $template) {
                 ================================================== -->
                 <?php if (!empty($error)): ?>
 
-                    <div class="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                    <div class="p-4 mb-6 text-sm text-red-700 border border-red-200 rounded-xl bg-red-50">
                         <?= e($error) ?>
                     </div>
 
@@ -130,14 +129,14 @@ foreach ($templates as $template) {
 
                         <label
                             for="jenis-laporan"
-                            class="mb-2 block text-sm font-semibold text-gray-700">
+                            class="block mb-2 text-sm font-semibold text-gray-700">
                             Jenis Laporan
                         </label>
 
                         <select
                             name="jenis_laporan"
                             id="jenis-laporan"
-                            class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                            class="w-full px-4 py-3 text-sm text-gray-900 transition bg-white border border-gray-300 outline-none rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                             required>
 
                             <option
@@ -171,7 +170,7 @@ foreach ($templates as $template) {
 
                         <label
                             for="minggu-ke"
-                            class="mb-2 block text-sm font-semibold text-gray-700">
+                            class="block mb-2 text-sm font-semibold text-gray-700">
                             Minggu Ke-
                         </label>
 
@@ -181,7 +180,7 @@ foreach ($templates as $template) {
                             <select
                                 id="minggu-ke"
                                 name="minggu_ke"
-                                class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                class="w-full px-4 py-3 text-sm text-gray-900 transition bg-white border border-gray-300 outline-none rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                                 required>
 
                                 <?php foreach ($logbookWeeks as $week): ?>
@@ -211,7 +210,7 @@ foreach ($templates as $template) {
 
                         <?php else: ?>
 
-                            <div class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+                            <div class="p-4 text-sm border rounded-xl border-amber-200 bg-amber-50 text-amber-700">
                                 Belum ada Logbook mingguan untuk penempatan ini.
                             </div>
 
@@ -237,7 +236,7 @@ foreach ($templates as $template) {
 
                         <label
                             for="judul"
-                            class="mb-2 block text-sm font-semibold text-gray-700">
+                            class="block mb-2 text-sm font-semibold text-gray-700">
                             Judul Laporan
                         </label>
 
@@ -248,7 +247,7 @@ foreach ($templates as $template) {
                             maxlength="200"
                             value="<?= e($form['judul']) ?>"
                             placeholder="Masukkan judul laporan"
-                            class="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                            class="w-full px-4 py-3 text-sm text-gray-900 transition bg-white border border-gray-300 outline-none rounded-xl placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                             required>
 
                     </div>
@@ -257,7 +256,7 @@ foreach ($templates as $template) {
                     <!-- =================================================
                          TEMPLATE INFORMATION
                     ================================================== -->
-                    <div class="rounded-xl border border-gray-200 bg-gray-50 p-4">
+                    <div class="p-4 border border-gray-200 rounded-xl bg-gray-50">
 
                         <div class="flex items-start gap-3">
 
@@ -267,7 +266,7 @@ foreach ($templates as $template) {
 
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
-                                    class="h-5 w-5"
+                                    class="w-5 h-5"
                                     fill="none"
                                     viewBox="0 0 24 24"
                                     stroke="currentColor"
@@ -339,7 +338,7 @@ foreach ($templates as $template) {
 
                         <button
                             type="submit"
-                            class="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            class="inline-flex items-center justify-center w-full px-4 py-3 text-sm font-semibold text-white transition bg-blue-600 shadow-sm rounded-xl hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
                             Buat Draft Laporan
                         </button>
 

@@ -13,7 +13,7 @@ $active = 'verifikasi-laporan';
 
     <?php include __DIR__ . '/../../../../components/dashboard/tendik/Sidebar.php'; ?>
 
-    <?php include __DIR__ . '/../../../../components/dashboard/tendik/Header.php'; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
     <?php include __DIR__ . '/../../../../components/dashboard/tendik/verifikasi-laporan/DetailContent.php'; ?>
 

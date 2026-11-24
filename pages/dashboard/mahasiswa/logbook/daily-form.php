@@ -11,17 +11,17 @@ $mode = $mode ?? 'create';
 
 <body class="bg-slate-50 font-[Poppins] text-gray-900 overflow-x-hidden">
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Header.php'; ?>
-    <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
+     <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
         <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-8xl">
             <div class="mb-6">
                 <a
                     href="<?= e(url('/dashboard/mahasiswa/logbook/detail/' . (int) $week['id'])) ?>"
-                    class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                    class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700">
 
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4 shrink-0"
+                        class="w-4 h-4 shrink-0"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -40,7 +40,7 @@ $mode = $mode ?? 'create';
             </div>
 
             <?php if (!empty($error)): ?>
-                <div class="p-4 mb-5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl"><?= e($error) ?></div>
+                <div class="p-4 mb-5 text-sm text-red-700 border border-red-200 bg-red-50 rounded-xl"><?= e($error) ?></div>
             <?php endif; ?>
 
             <form method="POST" enctype="multipart/form-data" class="p-5 space-y-5 bg-white border border-gray-100 shadow-sm rounded-2xl sm:p-7" onsubmit="const button=this.querySelector('button[type=submit]');if(!button||button.disabled)return false;button.disabled=true;button.setAttribute('aria-busy','true');button.textContent='Menyimpan...';this.setAttribute('aria-busy','true');">
@@ -91,7 +91,7 @@ $mode = $mode ?? 'create';
                     <textarea name="kegiatan" rows="7" maxlength="10000" class="w-full px-4 py-3 mt-2 text-sm border border-gray-200 rounded-xl focus:border-blue-500 focus:ring-blue-500" placeholder="Tuliskan aktivitas pada tanggal ini. Contoh: Implementasi endpoint API, testing fitur, koordinasi dengan pembimbing, atau tuliskan Sakit/Izin jika tidak hadir." required><?= e((string) ($item['kegiatan'] ?? '')) ?></textarea>
                 </div>
 
-                <div class="p-4 text-xs leading-5 text-amber-800 bg-amber-50 border border-amber-200 rounded-xl">
+                <div class="p-4 text-xs leading-5 border text-amber-800 bg-amber-50 border-amber-200 rounded-xl">
                     <strong>Catatan tanda tangan:</strong> jika minggu ini sebelumnya sudah ditandatangani mahasiswa tetapi belum ditandatangani mitra, perubahan data akan membuat tanda tangan mahasiswa sebelumnya tidak berlaku dan mahasiswa harus menandatangani ulang.
                 </div>
 

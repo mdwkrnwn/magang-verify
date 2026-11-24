@@ -2,21 +2,17 @@
 $active = 'logbook'; ?>
 <!DOCTYPE html>
 <html lang="id">
-    
-<?php 
 
-include __DIR__ . '/../../../../components/dashboard/koordinatorMagang/Head.php'; 
- 
+<?php
+
+include __DIR__ . '/../../../../components/dashboard/koordinatorMagang/Head.php';
+
 ?>
 
 <body class="bg-slate-50 font-[Poppins] text-gray-900 overflow-x-hidden"><?php include __DIR__ . '/../../../../components/dashboard/koordinatorMagang/Sidebar.php'; ?>
-<?php 
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
-include __DIR__ . '/../../../../components/dashboard/koordinatorMagang/Header.php'; 
-
-?>
-
-<main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
+    <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
         <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-6xl"><a href="<?= e(url('/dashboard/koordinator-magang/logbook')) ?>" class="text-sm text-blue-600">← Kembali</a>
             <h1 class="mt-3 text-2xl font-bold text-gray-900">Validasi Minggu <?= e($week['minggu_ke']) ?> · <?= e($week['mahasiswa_nama']) ?></h1>
             <p class="mt-1 text-sm text-gray-500"><?= e($week['nim']) ?> · <?= e($week['nama_perusahaan']) ?></p>

@@ -14,7 +14,7 @@ $active = 'mitra';
 <body class="overflow-x-hidden bg-slate-50 font-[Poppins] text-slate-900 antialiased">
 
     <?php include __DIR__ . '/../../../../components/dashboard/koordinatorMagang/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/koordinatorMagang/Header.php'; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
     <main class="min-h-screen bg-slate-50 pt-20 lg:ml-64">
         <div class="mx-auto max-w-8xl px-4 py-6 sm:px-6 lg:px-8 lg:py-8">

@@ -20,7 +20,8 @@ $base = url('/');
         <!-- CONTENT WRAPPER -->
         <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-            <?php include __DIR__ . '/../../../../components/dashboard/koordinatorMagang/Header.php'; ?>
+            <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
+
 
             <div class="space-y-6">
 

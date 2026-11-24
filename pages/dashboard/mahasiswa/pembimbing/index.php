@@ -13,7 +13,7 @@ $active = 'pembimbing';
 <body class="bg-slate-50 font-[Poppins] text-gray-900 overflow-x-hidden">
 
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Header.php'; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
     <main
         class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
@@ -45,8 +45,8 @@ $active = 'pembimbing';
                         </p>
                     </div>
 
-                    <div class="flex items-center justify-center w-11 h-11 text-blue-600 bg-blue-50 rounded-xl">
-                        <i class="fas fa-user-graduate text-lg"></i>
+                    <div class="flex items-center justify-center text-blue-600 w-11 h-11 bg-blue-50 rounded-xl">
+                        <i class="text-lg fas fa-user-graduate"></i>
                     </div>
                 </div>
 
@@ -130,7 +130,7 @@ $active = 'pembimbing';
 
                                         <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
 
-                                            <div class="flex items-center justify-center flex-shrink-0 w-14 h-14 text-blue-600 bg-blue-100 rounded-2xl">
+                                            <div class="flex items-center justify-center flex-shrink-0 text-blue-600 bg-blue-100 w-14 h-14 rounded-2xl">
                                                 <svg
                                                     class="w-7 h-7"
                                                     fill="none"
@@ -147,7 +147,7 @@ $active = 'pembimbing';
                                                 </svg>
                                             </div>
 
-                                            <div class="min-w-0 flex-1">
+                                            <div class="flex-1 min-w-0">
 
                                                 <h4 class="text-base font-bold text-gray-900">
                                                     <?= e((string) $dosenNama) ?>
@@ -174,7 +174,7 @@ $active = 'pembimbing';
                                         <div class="flex items-center gap-4">
 
                                             <div class="flex items-center justify-center flex-shrink-0 w-14 h-14 text-amber-600 bg-amber-100 rounded-2xl">
-                                                <i class="fas fa-user-clock text-2xl"></i>
+                                                <i class="text-2xl fas fa-user-clock"></i>
                                             </div>
 
                                             <div>
@@ -202,7 +202,7 @@ $active = 'pembimbing';
                         <!-- Empty State -->
                         <div class="px-4 py-12 text-center border border-dashed border-slate-200 rounded-2xl">
 
-                            <div class="flex items-center justify-center w-14 h-14 mx-auto text-slate-400 bg-slate-100 rounded-2xl">
+                            <div class="flex items-center justify-center mx-auto w-14 h-14 text-slate-400 bg-slate-100 rounded-2xl">
                                 <svg
                                     class="w-7 h-7"
                                     fill="none"

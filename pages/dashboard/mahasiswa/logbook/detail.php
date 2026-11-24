@@ -12,18 +12,18 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
 
 <body class="bg-slate-50 font-[Poppins] text-gray-900 overflow-x-hidden">
     <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/mahasiswa/Header.php'; ?>
-    <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
+     <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
         <div class="px-4 py-6 mx-auto sm:px-6 sm:py-8 lg:px-8 max-w-8xl">
             <div class="flex flex-col gap-4 mb-6 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <a
                         href="<?= e(url('/dashboard/mahasiswa/logbook')) ?>"
-                        class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
+                        class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 transition-colors hover:text-blue-700">
 
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            class="h-4 w-4 shrink-0"
+                            class="w-4 h-4 shrink-0"
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -68,25 +68,25 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
             </div>
 
             <?php if ($locked): ?>
-                <div class="p-4 mb-5 text-sm text-blue-800 bg-blue-50 border border-blue-200 rounded-xl">Mitra sudah menandatangani minggu ini. Data dikunci untuk menjaga keutuhan dokumen yang telah disahkan.</div>
+                <div class="p-4 mb-5 text-sm text-blue-800 border border-blue-200 bg-blue-50 rounded-xl">Mitra sudah menandatangani minggu ini. Data dikunci untuk menjaga keutuhan dokumen yang telah disahkan.</div>
             <?php elseif (!empty($week['had_previous_signature']) && ($week['status'] ?? '') === 'draft'): ?>
-                <div class="p-4 mb-5 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl">Isi minggu berubah setelah tanda tangan mahasiswa sebelumnya. Tanda tangan tersebut tidak lagi berlaku untuk versi terbaru. Silakan tanda tangan ulang.</div>
+                <div class="p-4 mb-5 text-sm border text-amber-800 bg-amber-50 border-amber-200 rounded-xl">Isi minggu berubah setelah tanda tangan mahasiswa sebelumnya. Tanda tangan tersebut tidak lagi berlaku untuk versi terbaru. Silakan tanda tangan ulang.</div>
             <?php endif; ?>
 
             <?php if (!empty($completeness['missing'])): ?>
-                <div class="p-4 mb-5 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl">
+                <div class="p-4 mb-5 text-sm border text-amber-800 bg-amber-50 border-amber-200 rounded-xl">
                     <strong>Belum lengkap.</strong> Tanggal yang belum memiliki logbook: <?= e(implode(', ', array_map(fn($d) => date('d M Y', strtotime($d)), $completeness['missing']))) ?>.
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($completeness['pending_validation'])): ?>
-                <div class="p-4 mb-5 text-sm text-amber-800 bg-amber-50 border border-amber-200 rounded-xl" role="status">
+                <div class="p-4 mb-5 text-sm border text-amber-800 bg-amber-50 border-amber-200 rounded-xl" role="status">
                     <strong>Menunggu validasi.</strong> <?= e((string) $completeness['pending_validation']) ?> catatan ketidakhadiran masih menunggu validasi. Tanda tangan minggu belum tersedia sampai validasi selesai.
                 </div>
             <?php endif; ?>
 
             <?php if (!empty($completeness['rejected_validation'])): ?>
-                <div class="p-4 mb-5 text-sm text-red-800 bg-red-50 border border-red-200 rounded-xl" role="alert">
+                <div class="p-4 mb-5 text-sm text-red-800 border border-red-200 bg-red-50 rounded-xl" role="alert">
                     <strong>Ada validasi ketidakhadiran yang ditolak.</strong> Periksa catatan validator pada baris aktivitas terkait. Anda dapat memperbaiki data sebelum Mitra menandatangani minggu; perubahan akan meminta validasi ulang bila status tetap tidak hadir.
                 </div>
             <?php endif; ?>
@@ -99,11 +99,11 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
                     <table class="w-full min-w-[760px] text-sm">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500">Hari, Tanggal</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500">Jam Masuk</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500">Jam Pulang</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500">Kegiatan</th>
-                                <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500">Status</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-left text-gray-500">Hari, Tanggal</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-left text-gray-500">Jam Masuk</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-left text-gray-500">Jam Pulang</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-left text-gray-500">Kegiatan</th>
+                                <th class="px-4 py-3 text-xs font-semibold text-left text-gray-500">Status</th>
                                 <th class="px-4 py-3"></th>
                             </tr>
                         </thead>
@@ -122,14 +122,14 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
                                 </tr>
                             <?php endforeach; ?>
                             <?php if (!$week['daily']): ?><tr>
-                                    <td colspan="6" class="px-4 py-10 text-center text-sm text-gray-400">Belum ada aktivitas harian.</td>
+                                    <td colspan="6" class="px-4 py-10 text-sm text-center text-gray-400">Belum ada aktivitas harian.</td>
                                 </tr><?php endif; ?>
                         </tbody>
                     </table>
                 </div>
             </section>
 
-            <section class="mt-5 p-5 bg-white border border-gray-100 shadow-sm rounded-2xl">
+            <section class="p-5 mt-5 bg-white border border-gray-100 shadow-sm rounded-2xl">
                 <h2 class="text-base font-semibold text-gray-900">Tanda Tangan</h2>
                 <div class="grid grid-cols-1 gap-4 mt-4 md:grid-cols-3">
                     <?php foreach ([['mahasiswa', 'Mahasiswa'], ['mitra', 'Mitra'], ['dosen', 'Dosen Pembimbing']] as [$stage, $label]): ?>
@@ -138,10 +138,10 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
                             <?php if (!empty($signatures[$stage])): ?>
                                 <img src="<?= e(url('/dashboard/logbook/file/signature/' . (int) $signatures[$stage]['id'])) ?>" alt="Tanda tangan <?= e($label) ?>" class="object-contain w-full h-24 p-2 mt-3 bg-white border border-gray-200 rounded-lg" onerror="this.classList.add('hidden'); this.nextElementSibling?.classList.remove('hidden');">
                                 <p class="mt-2 text-xs font-medium text-gray-700"><?= e($signatures[$stage]['penanda_tangan_nama']) ?></p>
-                                <div class="hidden items-center justify-center h-24 mt-3 text-xs text-red-500 bg-red-50 border border-red-100 rounded-lg">Tanda tangan tidak dapat ditampilkan.</div>
+                                <div class="items-center justify-center hidden h-24 mt-3 text-xs text-red-500 border border-red-100 rounded-lg bg-red-50">Tanda tangan tidak dapat ditampilkan.</div>
                                 <p class="mt-1 text-[10px] text-gray-400"><?= e(date('d M Y H:i', strtotime($signatures[$stage]['ditandatangani_pada']))) ?></p>
                             <?php else: ?>
-                                <div class="flex items-center justify-center h-20 mt-3 text-xs text-gray-400 bg-white border border-dashed border-gray-200 rounded-lg">Belum ditandatangani</div>
+                                <div class="flex items-center justify-center h-20 mt-3 text-xs text-gray-400 bg-white border border-gray-200 border-dashed rounded-lg">Belum ditandatangani</div>
                             <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
@@ -158,7 +158,7 @@ $locked = in_array($week['status'] ?? '', ['menunggu_dosen', 'disetujui'], true)
                     ?>
                 </div>
             <?php elseif (($week['status'] ?? '') === 'draft'): ?>
-                <div class="p-4 mt-5 text-sm text-gray-600 bg-gray-50 border border-gray-200 rounded-xl">Tanda tangan mahasiswa akan tersedia setelah periode minggu berakhir dan seluruh tanggal sudah terisi serta tidak ada validasi ketidakhadiran yang masih menunggu.</div>
+                <div class="p-4 mt-5 text-sm text-gray-600 border border-gray-200 bg-gray-50 rounded-xl">Tanda tangan mahasiswa akan tersedia setelah periode minggu berakhir dan seluruh tanggal sudah terisi serta tidak ada validasi ketidakhadiran yang masih menunggu.</div>
             <?php endif; ?>
         </div>
     </main>

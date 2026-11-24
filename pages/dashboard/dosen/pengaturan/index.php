@@ -20,10 +20,8 @@ include __DIR__
         . '/../../../../components/dashboard/dosen/Sidebar.php';
     ?>
 
-    <?php
-    include __DIR__
-        . '/../../../../components/dashboard/dosen/Header.php';
-    ?>
+      <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
+
 
     <main class="min-h-screen pt-20 lg:ml-64">
 

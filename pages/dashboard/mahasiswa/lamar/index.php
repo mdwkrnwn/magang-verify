@@ -15,7 +15,7 @@ $active = 'formasi-magang';
 
     <?php include __DIR__ . "/../../../../components/dashboard/mahasiswa/Sidebar.php"; ?>
 
-    <?php include __DIR__ . "/../../../../components/dashboard/mahasiswa/Header.php"; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
 
     <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
@@ -24,8 +24,7 @@ $active = 'formasi-magang';
             class="w-full max-w-[1600px]
                    px-4 py-5 mx-auto
                    sm:px-6 sm:py-6
-                   lg:px-8 lg:py-8"
-        >
+                   lg:px-8 lg:py-8">
 
             <?php include __DIR__ . "/../../../../components/dashboard/mahasiswa/lamar/MainContent.php"; ?>
 

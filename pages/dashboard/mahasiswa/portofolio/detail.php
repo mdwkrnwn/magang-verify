@@ -15,8 +15,7 @@ $active = 'portofolio';
 
     <?php include __DIR__ . "/../../../../components/dashboard/mahasiswa/Sidebar.php"; ?>
 
-    <?php include __DIR__ . "/../../../../components/dashboard/mahasiswa/Header.php"; ?>
-
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
     <main class="min-h-screen pt-20 bg-slate-50 lg:ml-64">
 

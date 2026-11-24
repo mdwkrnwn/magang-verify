@@ -22,10 +22,7 @@ include __DIR__
     ?>
 
 
-    <?php
-    include __DIR__
-        . '/../../../../components/dashboard/mitra/Header.php';
-    ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
 
     <main

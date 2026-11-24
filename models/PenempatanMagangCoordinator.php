@@ -172,8 +172,10 @@ class PenempatanMagangCoordinator
             );
             $application->execute(['id' => $applicationId]);
             $row = $application->fetch(PDO::FETCH_ASSOC);
-            if (!$row || $row['status_pendaftaran'] !== 'diterima'
-                || $row['dosen_pembimbing_snapshot_id'] === null) {
+            if (
+                !$row || $row['status_pendaftaran'] !== 'diterima'
+                || $row['dosen_pembimbing_snapshot_id'] === null
+            ) {
                 throw new RuntimeException('Hanya pengajuan yang diterima mitra dapat dibuatkan penempatan.');
             }
 
@@ -185,11 +187,11 @@ class PenempatanMagangCoordinator
 
             $insert = $pdo->prepare(
                 "INSERT INTO penempatan_magang
-                    (pendaftaran_id, dosen_pembimbing_id, tanggal_mulai, tanggal_selesai,
-                     status, ditetapkan_oleh, tanggal_penetapan)
-                 VALUES (:application_id, :advisor_id, :start_date, :end_date,
-                         'persiapan', :actor_id, CURRENT_TIMESTAMP)
-                 RETURNING id"
+            (pendaftaran_id, dosen_pembimbing_id, tanggal_mulai, tanggal_selesai,
+            status, ditetapkan_oleh, tanggal_penetapan)
+            VALUES (:application_id, :advisor_id, :start_date, :end_date,
+                'berlangsung', :actor_id, CURRENT_TIMESTAMP)
+            RETURNING id"
             );
             $insert->execute([
                 'application_id' => $applicationId,

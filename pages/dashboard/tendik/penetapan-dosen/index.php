@@ -13,7 +13,7 @@ $active = 'penetapan-dosen';
 <body class="overflow-x-hidden bg-slate-50 font-[Poppins] text-gray-900">
 
     <?php include __DIR__ . '/../../../../components/dashboard/tendik/Sidebar.php'; ?>
-    <?php include __DIR__ . '/../../../../components/dashboard/tendik/Header.php'; ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
 
     <main class="min-h-screen bg-slate-50 pt-20 lg:ml-64">
 

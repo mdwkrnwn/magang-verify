@@ -1,4 +1,3 @@
-
 <?php
 
 $active = 'pengaturan';
@@ -21,10 +20,8 @@ include __DIR__
         . '/../../../../components/dashboard/tendik/Sidebar.php';
     ?>
 
-    <?php
-    include __DIR__
-        . '/../../../../components/dashboard/tendik/Header.php';
-    ?>
+    <?php include __DIR__ . '/../../../../components/dashboard/shared/Header.php'; ?>
+
 
     <main class="min-h-screen pt-20 lg:ml-64">
 
@@ -41,4 +38,5 @@ include __DIR__
     ?>
 
 </body>
+
 </html>
