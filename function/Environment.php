@@ -21,34 +21,37 @@ function hasEnvironmentValues(array $names): bool
 
 function loadEnvironmentFileIfRequired(array $requiredNames, string $envPath): void
 {
-    if (hasEnvironmentValues($requiredNames)) {
-        return;
-    }
+    if (is_file($envPath)) {
+        $values = parse_ini_file($envPath, false, INI_SCANNER_RAW);
 
-    if (!is_file($envPath)) {
-        throw new RuntimeException('Required environment values are incomplete and no environment file is available.');
-    }
-
-    $values = parse_ini_file($envPath, false, INI_SCANNER_RAW);
-    if ($values === false) {
-        throw new RuntimeException('Environment file could not be parsed.');
-    }
-
-    foreach ($values as $key => $value) {
-        if (!is_string($value)) {
-            continue;
+        if ($values === false) {
+            throw new RuntimeException('Environment file could not be parsed.');
         }
 
-        $currentValue = getenv((string) $key);
-        if ($currentValue !== false && $currentValue !== '') {
-            continue;
-        }
+        foreach ($values as $key => $value) {
+            if (!is_string($value)) {
+                continue;
+            }
 
-        putenv($key . '=' . $value);
-        $_ENV[$key] = $value;
+            $currentValue = getenv((string) $key);
+
+            // Prioritaskan environment variable dari server.
+            if ($currentValue !== false && $currentValue !== '') {
+                continue;
+            }
+
+            putenv($key . '=' . $value);
+            $_ENV[$key] = $value;
+        }
+    } elseif ($requiredNames !== []) {
+        throw new RuntimeException(
+            'Environment file is unavailable.'
+        );
     }
 
     if (!hasEnvironmentValues($requiredNames)) {
-        throw new RuntimeException('Environment file does not provide all required non-empty values.');
+        throw new RuntimeException(
+            'Required environment values are incomplete.'
+        );
     }
 }

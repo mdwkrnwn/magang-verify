@@ -11,3 +11,5 @@ storage/private/
 
 # Dokumen pendaftaran pengguna - jangan commit
 /storage/pendaftaran/
+.neon
+backups/

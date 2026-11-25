@@ -31,6 +31,8 @@ final class LoginAuthenticator
 
     public static function accepts(string $requestedRole, array $user, string $password): bool
     {
+        $password = trim($password);
+
         $roles = self::normalizeRoles($user);
         if (
             $requestedRole === 'mitra'
