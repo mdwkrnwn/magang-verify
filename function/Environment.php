@@ -5,12 +5,13 @@ declare(strict_types=1);
 function hasEnvironmentValues(array $names): bool
 {
     foreach ($names as $name) {
-        if (!is_string($name) || $name === '') {
+        if (!is_string($name) || trim($name) === '') {
             return false;
         }
 
         $value = getenv($name);
-        if ($value === false || $value === '' || $value === '0') {
+
+        if ($value === false || trim($value) === '') {
             return false;
         }
     }
