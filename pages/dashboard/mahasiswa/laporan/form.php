@@ -234,11 +234,13 @@ foreach ($templates as $template) {
                     ================================================== -->
                     <div>
 
+
                         <label
                             for="judul"
                             class="block mb-2 text-sm font-semibold text-gray-700">
-                            Judul Laporan
+                            Judul Laporan <span class="text-red-500">*</span>
                         </label>
+
 
                         <input
                             type="text"

@@ -1,4 +1,3 @@
-
 <section class="py-20 bg-slate-50" id="tentang-sistem">
     <div class="max-w-7xl mx-auto px-6 lg:px-8">
 
@@ -24,7 +23,20 @@
             <!-- Card 1 -->
             <div class="bg-white rounded-3xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition">
                 <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6">
-                    <i class="fas fa-layer-group text-2xl"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-7 h-7"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true">
+                        <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                        <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                        <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                        <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                    </svg>
                 </div>
 
                 <h3 class="text-xl font-bold text-slate-900">
@@ -40,7 +52,19 @@
             <!-- Card 2 -->
             <div class="bg-white rounded-3xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition">
                 <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-6">
-                    <i class="fas fa-tasks text-2xl"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-7 h-7"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="17" rx="2" />
+                        <path d="M16 2v4M8 2v4M3 10h18" />
+                        <path d="m9 16 2 2 4-4" />
+                    </svg>
                 </div>
 
                 <h3 class="text-xl font-bold text-slate-900">
@@ -56,7 +80,19 @@
             <!-- Card 3 -->
             <div class="bg-white rounded-3xl p-8 border border-slate-200 hover:border-blue-300 hover:shadow-lg transition">
                 <div class="w-14 h-14 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mb-6">
-                    <i class="fas fa-chart-line text-2xl"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-7 h-7"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true">
+                        <path d="M3 3v18h18" />
+                        <path d="m7 14 4-4 4 3 6-7" />
+                        <path d="M16 6h5v5" />
+                    </svg>
                 </div>
 
                 <h3 class="text-xl font-bold text-slate-900">

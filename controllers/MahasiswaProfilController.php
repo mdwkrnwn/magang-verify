@@ -101,8 +101,8 @@ class MahasiswaProfilController
 
         header(
             'Content-Disposition: ' .
-            ($download ? 'attachment' : 'inline') .
-            '; filename="' . $namaFile . '"'
+                ($download ? 'attachment' : 'inline') .
+                '; filename="' . $namaFile . '"'
         );
 
         readfile($filePath);
@@ -136,6 +136,7 @@ class MahasiswaProfilController
             ['uploads/profil']
         );
 
+
         if ($filePath === null || !is_readable($filePath)) {
             http_response_code(404);
             exit('Foto mahasiswa tidak ditemukan.');
@@ -161,7 +162,7 @@ class MahasiswaProfilController
 
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . (string) filesize($filePath));
-        header('Cache-Control: public, max-age=3600');
+        header('Cache-Control: no-cache, must-revalidate');
         header('X-Content-Type-Options: nosniff');
 
         readfile($filePath);

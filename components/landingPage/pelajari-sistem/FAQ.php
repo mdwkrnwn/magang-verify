@@ -1,4 +1,3 @@
-
 <section class="py-20 bg-slate-50" id="faq">
     <div class="max-w-4xl mx-auto px-6 lg:px-8">
 
@@ -57,7 +56,18 @@
                         </span>
 
                         <span class="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 group-open:bg-blue-100 group-open:text-blue-600 transition flex-shrink-0">
-                            <i class="fas fa-plus group-open:rotate-45 transition-transform"></i>
+                            <svg
+                                class="w-4 h-4 transition-transform group-open:rotate-45"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                aria-hidden="true">
+                                <path d="M12 5v14" />
+                                <path d="M5 12h14" />
+                            </svg>
                         </span>
                     </summary>
 

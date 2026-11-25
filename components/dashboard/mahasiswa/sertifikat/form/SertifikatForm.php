@@ -7,43 +7,22 @@
  * @var array $errors
  */
 
-$isEdit =
-    $mode === 'edit';
+$isEdit = $mode === 'edit';
 
-$action =
-    $isEdit
+$action = $isEdit
     ? url('/dashboard/mahasiswa/sertifikat/edit/' . $slug)
     : url('/dashboard/mahasiswa/sertifikat/tambah');
 
-$nama =
-    $old['nama'] ?? '';
-
-$jenis =
-    $old['jenis'] ?? '';
-
-$penerbit =
-    $old['penerbit'] ?? '';
-
-$tanggalTerbit =
-    $old['tanggal_terbit'] ?? '';
-
-$tanggalKedaluwarsa =
-    $old['tanggal_kedaluwarsa'] ?? '';
-
-$nomorSertifikat =
-    $old['nomor_sertifikat'] ?? '';
-
-$deskripsi =
-    $old['deskripsi'] ?? '';
-
-$tautan =
-    $old['tautan'] ?? '';
-
-$gambar =
-    $old['gambar'] ?? '';
-
-$slug =
-    $old['slug'] ?? '';
+$nama = $old['nama'] ?? '';
+$jenis = $old['jenis'] ?? '';
+$penerbit = $old['penerbit'] ?? '';
+$tanggalTerbit = $old['tanggal_terbit'] ?? '';
+$tanggalKedaluwarsa = $old['tanggal_kedaluwarsa'] ?? '';
+$nomorSertifikat = $old['nomor_sertifikat'] ?? '';
+$deskripsi = $old['deskripsi'] ?? '';
+$tautan = $old['tautan'] ?? '';
+$gambar = $old['gambar'] ?? '';
+$slug = $old['slug'] ?? '';
 
 ?>
 
@@ -52,6 +31,7 @@ $slug =
     method="POST"
     enctype="multipart/form-data"
     class="space-y-6">
+
     <input
         type="hidden"
         name="_csrf_token"
@@ -60,7 +40,6 @@ $slug =
     <section class="p-5 bg-white border border-gray-200 rounded-xl shadow-sm sm:p-6">
 
         <div class="mb-6">
-
             <h2 class="text-lg font-bold text-gray-900">
                 Informasi Sertifikat
             </h2>
@@ -68,20 +47,16 @@ $slug =
             <p class="mt-1 text-sm text-gray-500">
                 Lengkapi informasi utama sertifikat.
             </p>
-
         </div>
-
 
         <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
 
-            <!-- Nama -->
-
+            <!-- Nama (Wajib) -->
             <div class="md:col-span-2">
-
                 <label
                     for="nama"
                     class="block mb-2 text-sm font-medium text-gray-700">
-                    Nama Sertifikat
+                    Nama Sertifikat <span class="text-red-500">*</span>
                 </label>
 
                 <input
@@ -94,23 +69,19 @@ $slug =
                     class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900">
 
                 <?php if (!empty($errors['nama'])): ?>
-
                     <p class="mt-1.5 text-sm text-red-600">
                         <?= e($errors['nama']) ?>
                     </p>
-
                 <?php endif; ?>
-
             </div>
 
-
-            <!-- Jenis Sertifikat -->
-
+            <!-- Jenis Sertifikat (Opsional) -->
             <div>
                 <label
                     for="jenis"
                     class="block mb-2 text-sm font-medium text-gray-700">
                     Jenis Sertifikat
+                    <span class="text-xs font-normal text-gray-400">(Opsional)</span>
                 </label>
 
                 <input
@@ -129,15 +100,12 @@ $slug =
                 <?php endif; ?>
             </div>
 
-
-            <!-- Penerbit -->
-
+            <!-- Penerbit (Wajib) -->
             <div>
-
                 <label
                     for="penerbit"
                     class="block mb-2 text-sm font-medium text-gray-700">
-                    Penerbit
+                    Penerbit <span class="text-red-500">*</span>
                 </label>
 
                 <input
@@ -150,24 +118,19 @@ $slug =
                     class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900">
 
                 <?php if (!empty($errors['penerbit'])): ?>
-
                     <p class="mt-1.5 text-sm text-red-600">
                         <?= e($errors['penerbit']) ?>
                     </p>
-
                 <?php endif; ?>
-
             </div>
 
-
-            <!-- Tanggal -->
-
+            <!-- Tanggal Terbit (Opsional) -->
             <div>
-
                 <label
                     for="tanggal_terbit"
                     class="block mb-2 text-sm font-medium text-gray-700">
                     Tanggal Terbit
+                    <span class="text-xs font-normal text-gray-400">(Opsional)</span>
                 </label>
 
                 <input
@@ -178,23 +141,19 @@ $slug =
                     class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900">
 
                 <?php if (!empty($errors['tanggal_terbit'])): ?>
-
                     <p class="mt-1.5 text-sm text-red-600">
                         <?= e($errors['tanggal_terbit']) ?>
                     </p>
-
                 <?php endif; ?>
-
             </div>
 
-
-            <!-- Tanggal Kedaluwarsa -->
-
+            <!-- Tanggal Kedaluwarsa (Opsional) -->
             <div>
                 <label
                     for="tanggal_kedaluwarsa"
                     class="block mb-2 text-sm font-medium text-gray-700">
                     Tanggal Kedaluwarsa
+                    <span class="text-xs font-normal text-gray-400">(Opsional)</span>
                 </label>
 
                 <input
@@ -206,7 +165,7 @@ $slug =
                     class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900">
 
                 <p class="mt-1.5 text-xs text-gray-500">
-                    Opsional, isi jika sertifikat memiliki masa berlaku.
+                    Isi jika sertifikat memiliki masa berlaku.
                 </p>
 
                 <?php if (!empty($errors['tanggal_kedaluwarsa'])): ?>
@@ -216,15 +175,12 @@ $slug =
                 <?php endif; ?>
             </div>
 
-
-            <!-- Nomor -->
-
+            <!-- Nomor Sertifikat (Wajib) -->
             <div class="md:col-span-2">
-
                 <label
                     for="nomor_sertifikat"
                     class="block mb-2 text-sm font-medium text-gray-700">
-                    Nomor Sertifikat
+                    Nomor Sertifikat <span class="text-red-500">*</span>
                 </label>
 
                 <input
@@ -237,24 +193,19 @@ $slug =
                     class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900">
 
                 <?php if (!empty($errors['nomor_sertifikat'])): ?>
-
                     <p class="mt-1.5 text-sm text-red-600">
                         <?= e($errors['nomor_sertifikat']) ?>
                     </p>
-
                 <?php endif; ?>
-
             </div>
 
-
-            <!-- Deskripsi -->
-
+            <!-- Deskripsi (Opsional) -->
             <div class="md:col-span-2">
-
                 <label
                     for="deskripsi"
                     class="block mb-2 text-sm font-medium text-gray-700">
                     Deskripsi
+                    <span class="text-xs font-normal text-gray-400">(Opsional)</span>
                 </label>
 
                 <textarea
@@ -263,18 +214,15 @@ $slug =
                     rows="5"
                     placeholder="Tuliskan deskripsi singkat mengenai sertifikat."
                     class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg outline-none transition resize-y focus:border-gray-900 focus:ring-1 focus:ring-gray-900"><?= e($deskripsi) ?></textarea>
-
             </div>
 
-
-            <!-- Tautan -->
-
+            <!-- Tautan (Opsional) -->
             <div class="md:col-span-2">
-
                 <label
                     for="tautan"
                     class="block mb-2 text-sm font-medium text-gray-700">
                     Tautan Sertifikat
+                    <span class="text-xs font-normal text-gray-400">(Opsional)</span>
                 </label>
 
                 <input
@@ -286,28 +234,28 @@ $slug =
                     class="w-full px-3.5 py-2.5 text-sm text-gray-900 bg-white border border-gray-300 rounded-lg outline-none transition focus:border-gray-900 focus:ring-1 focus:ring-gray-900">
 
                 <p class="mt-1.5 text-xs text-gray-500">
-                    Opsional. Digunakan untuk membuka sertifikat secara online.
+                    Digunakan untuk membuka sertifikat secara online.
                 </p>
 
                 <?php if (!empty($errors['tautan'])): ?>
-
                     <p class="mt-1.5 text-sm text-red-600">
                         <?= e($errors['tautan']) ?>
                     </p>
-
                 <?php endif; ?>
-
             </div>
 
-
-            <!-- Gambar -->
-
+            <!-- Gambar (Wajib saat tambah, opsional saat edit) -->
             <div class="md:col-span-2">
-
                 <label
                     for="gambar"
                     class="block mb-2 text-sm font-medium text-gray-700">
                     Foto Sertifikat
+
+                    <?php if ($isEdit): ?>
+                        <span class="text-xs font-normal text-gray-400">(Opsional)</span>
+                    <?php else: ?>
+                        <span class="text-red-500">*</span>
+                    <?php endif; ?>
                 </label>
 
                 <?php if ($isEdit && $gambar !== ''): ?>
@@ -320,7 +268,6 @@ $slug =
                     ?>
 
                     <?php if (is_file($filePath)): ?>
-
                         <div class="p-3 mb-4 border border-gray-200 rounded-xl bg-slate-50">
 
                             <p class="mb-3 text-xs font-medium text-gray-500">
@@ -328,16 +275,15 @@ $slug =
                             </p>
 
                             <?php if (in_array($fileExtension, ['jpg', 'jpeg', 'png', 'webp'], true)): ?>
-
                                 <img
                                     src="<?= e(url('/dashboard/mahasiswa/sertifikat/pratinjau/' . rawurlencode($slug))) ?>"
                                     alt="Foto sertifikat <?= e($nama) ?>"
                                     class="object-contain w-full max-h-[280px] rounded-lg">
 
                             <?php elseif ($fileExtension === 'pdf'): ?>
-
                                 <div class="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg">
                                     <span class="text-sm font-medium text-gray-700">Dokumen PDF</span>
+
                                     <a
                                         href="<?= e(url('/dashboard/mahasiswa/sertifikat/download/' . $slug)) ?>"
                                         target="_blank"
@@ -346,15 +292,12 @@ $slug =
                                         Buka file
                                     </a>
                                 </div>
-
                             <?php endif; ?>
 
                         </div>
-
                     <?php endif; ?>
 
                 <?php endif; ?>
-
 
                 <input
                     type="file"
@@ -366,26 +309,25 @@ $slug =
 
                 <p class="mt-1.5 text-xs text-gray-500">
                     JPG, PNG, WEBP, atau PDF. Maksimal 5 MB.
-                    <?= $isEdit ? 'Kosongkan jika tetap menggunakan foto saat ini.' : '' ?>
+                    <?= $isEdit ? 'Kosongkan jika tetap menggunakan foto saat ini.' : 'Wajib mengunggah file sertifikat.' ?>
                 </p>
 
                 <?php if (!empty($errors['gambar'])): ?>
-
                     <p class="mt-1.5 text-sm text-red-600">
                         <?= e($errors['gambar']) ?>
                     </p>
-
                 <?php endif; ?>
-
             </div>
 
         </div>
 
+        <p class="mt-5 text-xs text-gray-400">
+            <span class="text-red-500">*</span> Wajib diisi.
+        </p>
+
     </section>
 
-
     <!-- Status -->
-
     <section class="p-5 border border-amber-200 rounded-xl bg-amber-50 sm:p-6">
 
         <div class="flex gap-3">
@@ -404,7 +346,6 @@ $slug =
             </svg>
 
             <div>
-
                 <p class="text-sm font-semibold text-amber-800">
                     Status Verifikasi
                 </p>
@@ -413,16 +354,13 @@ $slug =
                     Sertifikat baru akan berstatus <strong>Belum Terverifikasi</strong>.
                     Setelah sertifikat diverifikasi, data tidak dapat lagi diedit atau dihapus.
                 </p>
-                    
             </div>
 
         </div>
 
     </section>
 
-
     <!-- Action -->
-
     <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
 
         <a
