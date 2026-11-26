@@ -1015,26 +1015,39 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+
     /*
-     * ==========================================
-     * SEARCH NAMA MAHASISWA
-     * ==========================================
-     */
+    |--------------------------------------------------------------------------
+    | SEARCH NAMA MAHASISWA
+    |--------------------------------------------------------------------------
+    */
 
     if (searchInput) {
-        searchInput.addEventListener(
-            'input',
-            () => {
-                clearTimeout(searchTimer);
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimer);
 
-                searchTimer = setTimeout(
-                    () => {
-                        form.submit();
-                    },
-                    400
-                );
+            // Tunggu pengguna selesai mengetik
+            searchTimer = setTimeout(() => {
+                const keyword = searchInput.value.trim();
+
+                // Jangan mencari jika input kosong atau kurang dari 2 karakter
+                if (keyword.length === 1) {
+                    return;
+                }
+
+                form.requestSubmit();
+            }, 1000);
+        });
+
+        // Tetap bisa mencari langsung dengan tombol Enter
+        searchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+
+                clearTimeout(searchTimer);
+                form.requestSubmit();
             }
-        );
+        });
     }
 
     /*

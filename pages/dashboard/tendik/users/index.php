@@ -92,7 +92,7 @@ $buildPageUrl = static function (int $page) use ($selectedRole, $filters): strin
                                 <span class="inline-flex items-center justify-center w-12 h-12 text-2xl rounded-xl <?= e($classes['icon']) ?>">
                                     <?= e($cardTheme['icon']) ?>
                                 </span>
-                                <span class="text-gray-300 transition group-hover:translate-x-1 group-hover:text-gray-500">→</span>
+                                <span class="text-gray-300 transition group-hover:translate-x-1 group-hover:text-gray-500"></span>
                             </div>
                             <h2 class="mt-5 text-lg font-semibold text-gray-900"><?= e($roleLabels[$role] ?? $role) ?></h2>
                             <p class="mt-1 text-sm text-gray-500"><?= e($cardTheme['description']) ?></p>
@@ -106,7 +106,7 @@ $buildPageUrl = static function (int $page) use ($selectedRole, $filters): strin
                                     <p><span class="font-semibold text-gray-600"><?= number_format($stats['inactive']) ?></span> nonaktif</p>
                                 </div>
                             </div>
-                            <p class="mt-5 text-sm font-semibold <?= e($classes['link']) ?>">Lihat daftar pengguna <span aria-hidden="true">→</span></p>
+                            <p class="mt-5 text-sm font-semibold <?= e($classes['link']) ?>">Lihat daftar pengguna <span aria-hidden="true"></span></p>
                         </a>
                     <?php endforeach; ?>
                 </div>
@@ -206,11 +206,13 @@ $buildPageUrl = static function (int $page) use ($selectedRole, $filters): strin
                                         </tr>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <tr><td colspan="4" class="px-6 py-16 text-center">
-                                        <div class="text-3xl">🔎</div>
-                                        <h3 class="mt-3 text-sm font-semibold text-gray-900">Pengguna tidak ditemukan</h3>
-                                        <p class="mt-1 text-sm text-gray-500">Coba ubah kata pencarian atau filter status.</p>
-                                    </td></tr>
+                                    <tr>
+                                        <td colspan="4" class="px-6 py-16 text-center">
+                                            <div class="text-3xl">🔎</div>
+                                            <h3 class="mt-3 text-sm font-semibold text-gray-900">Pengguna tidak ditemukan</h3>
+                                            <p class="mt-1 text-sm text-gray-500">Coba ubah kata pencarian atau filter status.</p>
+                                        </td>
+                                    </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
@@ -248,4 +250,5 @@ $buildPageUrl = static function (int $page) use ($selectedRole, $filters): strin
         </div>
     </main>
 </body>
+
 </html>

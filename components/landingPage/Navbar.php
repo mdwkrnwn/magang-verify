@@ -46,6 +46,17 @@ $userRole = $isLoggedIn
     ? trim((string) ($_SESSION['user']['role'] ?? ''))
     : '';
 
+$profilePhoto = $_SESSION['user']['foto_path'] ?? '';
+
+$profilePhotoUrl = '';
+
+if ($userRole === 'mahasiswa' && !empty($profilePhoto)) {
+    $profilePhotoUrl = url(
+        '/mahasiswa/profil/foto/' .
+            rawurlencode(basename($profilePhoto))
+    );
+}
+
 /*
  * Dashboard berdasarkan role
  */
@@ -136,10 +147,17 @@ if (!empty($nameParts)) {
                         class="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-slate-50 transition"
                         aria-expanded="false">
 
-                        <span
-                            class="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">
-                            <?= e($initial) ?>
-                        </span>
+                        <?php if (!empty($profilePhotoUrl)): ?>
+                            <img
+                                src="<?= e($profilePhotoUrl) ?>"
+                                alt="Foto Profil"
+                                class="w-9 h-9 rounded-full object-cover shrink-0">
+                        <?php else: ?>
+                            <span
+                                class="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">
+                                <?= e($initial) ?>
+                            </span>
+                        <?php endif; ?>
 
                         <span class="hidden xl:block max-w-[140px] truncate text-sm font-semibold text-slate-700">
                             <?= e($userName) ?>
@@ -297,10 +315,17 @@ if (!empty($nameParts)) {
                     <div class="flex items-center gap-3">
 
                         <!-- Avatar -->
-                        <div
-                            class="w-11 h-11 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
-                            <?= e($initial) ?>
-                        </div>
+                        <?php if (!empty($profilePhotoUrl)): ?>
+                            <img
+                                src="<?= e($profilePhotoUrl) ?>"
+                                alt="Foto Profil"
+                                class="w-11 h-11 rounded-full object-cover shrink-0">
+                        <?php else: ?>
+                            <div
+                                class="w-11 h-11 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-sm font-bold shrink-0">
+                                <?= e($initial) ?>
+                            </div>
+                        <?php endif; ?>
 
                         <!-- User Info -->
                         <div class="min-w-0">

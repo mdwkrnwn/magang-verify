@@ -63,16 +63,21 @@ class User
             return null;
         }
         $sql = "
-             SELECT
-            u.id,
-            u.login_id,
-            u.name,
-            u.password,
-            u.role,
-            u.is_active,
-            TRUE AS has_dosen_profile
-        FROM {$table} p
-        INNER JOIN users u ON u.id = p.user_id
+    SELECT
+        u.id,
+        u.login_id,
+        u.name,
+        u.password,
+        u.role,
+        u.is_active,
+        CASE
+            WHEN :profile_role = 'mahasiswa'
+            THEN p.foto_path
+            ELSE NULL
+        END AS foto_path,
+        TRUE AS has_dosen_profile
+    FROM {$table} p
+    INNER JOIN users u ON u.id = p.user_id
         WHERE p.{$identityColumn} = :identity
         AND u.is_active = TRUE
         AND (
@@ -90,7 +95,7 @@ class User
             'identity' => $identity,
             'requested_role' => $requestedRole,
             'assigned_role' => $requestedRole,
-
+            'profile_role'   => $requestedRole,
         ]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$user) {
@@ -463,7 +468,7 @@ class User
 
         if (in_array($status, ['active', 'inactive'], true)) {
             $where[] = 'u.is_active = :is_active';
-            $params['is_active'] = $status === 'active';
+            $params['is_active'] = $status === 'active' ? 'true' : 'false';
         }
 
         $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -513,7 +518,7 @@ class User
 
         if (in_array($status, ['active', 'inactive'], true)) {
             $where[] = 'u.is_active = :is_active';
-            $params['is_active'] = $status === 'active';
+            $params['is_active'] = $status === 'active' ? 'true' : 'false';
         }
 
         $whereSql = $where
@@ -530,7 +535,7 @@ class User
          FROM users u
          {$whereSql}
          ORDER BY u.created_at DESC, u.id DESC" .
-            ($limit !== null ? ' LIMIT ' . max(1, min(100, $limit)) . ' OFFSET ' . max(0, $offset) : ''),
+                ($limit !== null ? ' LIMIT ' . max(1, min(100, $limit)) . ' OFFSET ' . max(0, $offset) : ''),
         );
 
         $stmt->execute($params);

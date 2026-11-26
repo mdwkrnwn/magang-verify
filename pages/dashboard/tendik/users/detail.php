@@ -153,9 +153,9 @@ $formatDate = static function ($value): string {
 
                         <div>
                             <label for="email" class="block mb-2 text-sm font-medium text-slate-600">
-                                Email <span class="text-red-500">*</span>
+                                Email
                             </label>
-                            <input id="email" name="email" type="email" required maxlength="255"
+                            <input id="email" name="email" type="email" maxlength="255"
                                 value="<?= e($profile['email'] ?? '') ?>"
                                 class="w-full px-4 py-3 text-sm border outline-none rounded-xl border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
                         </div>

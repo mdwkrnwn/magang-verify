@@ -367,19 +367,21 @@ final class TendikUserController
     }
 
     /** Download template CSV untuk import akun pengguna. */
+
     public function downloadImportTemplate(): void
     {
         $this->actorId();
 
-        $filename = 'template_import_user.csv';
-        header('Content-Type: text/csv; charset=UTF-8');
-        header('Content-Disposition: attachment; filename="' . $filename . '"');
-        header('Cache-Control: no-store, no-cache, must-revalidate');
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
 
-        // BOM membantu Excel mengenali UTF-8.
-        echo "\xEF\xBB\xBF";
-        $output = fopen('php://output', 'wb');
-        fputcsv($output, [
+        // ==========================================
+        // SHEET 1: TEMPLATE IMPORT
+        // ==========================================
+
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Template Import');
+
+        $headers = [
             'nama',
             'email',
             'role',
@@ -389,8 +391,172 @@ final class TendikUserController
             'no_telepon',
             'program_studi',
             'angkatan',
+        ];
+
+        // Header
+        $sheet->fromArray($headers, null, 'A1');
+
+        // Styling header
+        $sheet->getStyle('A1:I1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => [
+                    'rgb' => 'FFFFFF',
+                ],
+                'size' => 11,
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => [
+                    'rgb' => '164E63',
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'bottom' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_MEDIUM,
+                    'color' => [
+                        'rgb' => '22D3EE',
+                    ],
+                ],
+            ],
         ]);
-        fclose($output);
+
+        $sheet->getRowDimension(1)->setRowHeight(28);
+
+        // Lebar kolom
+        $widths = [
+            'A' => 26,
+            'B' => 32,
+            'C' => 24,
+            'D' => 18,
+            'E' => 18,
+            'F' => 18,
+            'G' => 20,
+            'H' => 24,
+            'I' => 14,
+        ];
+
+        foreach ($widths as $column => $width) {
+            $sheet->getColumnDimension($column)->setWidth($width);
+        }
+
+        // Freeze header dan aktifkan filter
+        $sheet->freezePane('A2');
+        $sheet->setAutoFilter('A1:I1');
+
+        // ==========================================
+        // SHEET 2: PANDUAN PENGISIAN
+        // ==========================================
+
+        $guide = $spreadsheet->createSheet();
+        $guide->setTitle('Panduan');
+
+        $guide->mergeCells('A1:B1');
+        $guide->setCellValue('A1', 'PANDUAN PENGISIAN TEMPLATE USER');
+
+        $guide->setCellValue('A3', 'KATEGORI');
+        $guide->setCellValue('B3', 'KETERANGAN');
+
+        $guideData = [
+            ['Semua Role', 'nama, email, role'],
+            ['Mahasiswa', 'nim, program_studi, angkatan'],
+            ['Dosen', 'nidn, no_telepon'],
+            ['Koordinator Magang', 'nidn, no_telepon'],
+            ['Tendik', 'nip, no_telepon'],
+            ['Nilai Role', 'mahasiswa, dosen, koordinator_magang, tendik'],
+            ['Password Awal', 'Dibuat otomatis dari NIM, NIDN, atau NIP sesuai role.'],
+            ['Kolom Tidak Berlaku', 'Kosongkan kolom yang tidak digunakan oleh role tersebut.'],
+            ['Penting', 'Jangan mengubah nama atau urutan header pada sheet Template Import.'],
+        ];
+
+        $guide->fromArray($guideData, null, 'A4');
+
+        // Judul panduan
+        $guide->getStyle('A1:B1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+                'size' => 14,
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '164E63'],
+            ],
+            'alignment' => [
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+
+        $guide->getRowDimension(1)->setRowHeight(32);
+
+        // Header tabel panduan
+        $guide->getStyle('A3:B3')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '0E7490'],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+
+        // Kolom kategori
+        $guide->getStyle('A4:A12')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => '164E63'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'CFFAFE'],
+            ],
+        ]);
+
+        // Border dan alignment
+        $guide->getStyle('A3:B12')->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => 'D1D5DB'],
+                ],
+            ],
+            'alignment' => [
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'wrapText' => true,
+            ],
+        ]);
+
+        $guide->getColumnDimension('A')->setWidth(26);
+        $guide->getColumnDimension('B')->setWidth(85);
+
+        foreach (range(4, 12) as $row) {
+            $guide->getRowDimension($row)->setRowHeight(30);
+        }
+
+        // ==========================================
+        // DOWNLOAD FILE
+        // ==========================================
+
+        $filename = 'template_import_user.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer->save('php://output');
+
+        $spreadsheet->disconnectWorksheets();
+
         exit;
     }
 

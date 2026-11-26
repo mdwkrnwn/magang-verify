@@ -42,6 +42,8 @@ perfMark('index: routes/web.php loaded');
 
 require_once __DIR__ . '/controllers/MitraAccessController.php';
 
+require_once __DIR__ . '/vendor/autoload.php';
+
 // require_once __DIR__ . '/middleware/AuthMiddleware.php';
 // perfMark('index: AuthMiddleware.php');
 

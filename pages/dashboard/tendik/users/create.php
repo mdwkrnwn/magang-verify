@@ -87,7 +87,7 @@ $currentRole = (string) ($form['role'] ?? '');
                         <div class="mb-6">
                             <h2 class="text-base font-semibold text-gray-900">Informasi Akun</h2>
                             <p class="mt-1 text-xs text-gray-500">
-                                Masukkan nama dan email pengguna. Identitas login serta password awal dibuat berdasarkan role.
+                                Masukkan nama pengguna. Identitas login serta password awal dibuat berdasarkan role.
                             </p>
                         </div>
 
@@ -103,10 +103,10 @@ $currentRole = (string) ($form['role'] ?? '');
 
                             <div>
                                 <label for="email" class="block mb-2 text-sm font-medium text-gray-700">
-                                    Email <span class="text-red-500">*</span>
+                                    Email
                                 </label>
                                 <input id="email" name="email" type="email" value="<?= e($form['email'] ?? '') ?>"
-                                    required maxlength="150" autocomplete="email" placeholder="nama@email.com"
+                                    maxlength="150" autocomplete="email" placeholder="nama@email.com"
                                     class="w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
                             </div>
 

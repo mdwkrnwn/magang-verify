@@ -226,6 +226,8 @@ class LoginController
             'name'     => $user['name'],
             'role'     => $role,
             'roles'    => LoginAuthenticator::normalizeRoles($user),
+            'foto_path'   => $user['foto_path'] ?? null,
+
         ];
 
         if (function_exists('perfMark')) {
