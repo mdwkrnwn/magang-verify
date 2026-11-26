@@ -35,21 +35,51 @@ final class TendikUserController
     {
         $this->actorId();
 
-        $filters = [
-            'search' => trim((string) ($_GET['search'] ?? '')),
-            'role' => trim((string) ($_GET['role'] ?? '')),
-            'status' => trim((string) ($_GET['status'] ?? '')),
-        ];
-
-        $items = $this->users->getForManagement($filters);
-
-        // Role yang dapat dikelola Tendik. Akun Mitra dikelola Koordinator Magang.
         $roles = User::managedCreationRoles();
+        $roleLabels = [
+            'mahasiswa' => 'Mahasiswa',
+            'dosen' => 'Dosen',
+            'koordinator_magang' => 'Koordinator Magang',
+            'tendik' => 'Tenaga Kependidikan',
+        ];
+        $roleIcons = [
+            'mahasiswa' => 'graduation-cap',
+            'dosen' => 'user-round-check',
+            'koordinator_magang' => 'clipboard-check',
+            'tendik' => 'briefcase-business',
+        ];
+        $roleStats = $this->users->getManagementRoleStats();
+
+        $selectedRole = trim((string) ($_GET['role'] ?? ''));
+        $isRoleDetail = in_array($selectedRole, $roles, true);
 
         $success = $_SESSION['flash_success'] ?? null;
         $error = $_SESSION['flash_error'] ?? null;
-
         unset($_SESSION['flash_success'], $_SESSION['flash_error']);
+
+        $filters = [
+            'search' => trim((string) ($_GET['search'] ?? '')),
+            'role' => $isRoleDetail ? $selectedRole : '',
+            'status' => trim((string) ($_GET['status'] ?? '')),
+        ];
+
+        $items = [];
+        $totalItems = 0;
+        $perPage = 10;
+        $currentPage = max(1, (int) ($_GET['page'] ?? 1));
+        $totalPages = 1;
+
+        if ($isRoleDetail) {
+            if (!in_array($filters['status'], ['active', 'inactive'], true)) {
+                $filters['status'] = '';
+            }
+
+            $totalItems = $this->users->countForManagement($filters);
+            $totalPages = max(1, (int) ceil($totalItems / $perPage));
+            $currentPage = min($currentPage, $totalPages);
+            $offset = ($currentPage - 1) * $perPage;
+            $items = $this->users->getForManagement($filters, $perPage, $offset);
+        }
 
         require __DIR__ . '/../../../pages/dashboard/tendik/users/index.php';
     }
@@ -62,7 +92,9 @@ final class TendikUserController
         $form = [
             'name' => '',
             'email' => '',
-            'role' => '',
+            'role' => in_array((string) ($_GET['role'] ?? ''), $roles, true)
+                ? (string) $_GET['role']
+                : '',
             'nim' => '',
             'nidn' => '',
             'nip' => '',
@@ -677,7 +709,12 @@ final class TendikUserController
             $_SESSION['flash_error'] = $exception->getMessage();
         }
 
-        header('Location: ' . url('/dashboard/tendik/users'));
+        $returnRole = (string) ($_POST['return_role'] ?? '');
+        $redirect = url('/dashboard/tendik/users');
+        if (in_array($returnRole, User::managedCreationRoles(), true)) {
+            $redirect .= '?role=' . rawurlencode($returnRole);
+        }
+        header('Location: ' . $redirect);
         exit;
     }
 }

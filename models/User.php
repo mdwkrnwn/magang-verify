@@ -63,7 +63,7 @@ class User
             return null;
         }
         $sql = "
-        SELECT
+             SELECT
             u.id,
             u.login_id,
             u.name,
@@ -397,7 +397,82 @@ class User
         }
     }
 
-    public function getForManagement(array $filters = []): array
+    /**
+     * Ringkasan jumlah akun untuk kartu kategori pada dashboard Tendik.
+     * Role tambahan pada user_roles tetap dihitung sebagai bagian dari kategori.
+     */
+    public function getManagementRoleStats(): array
+    {
+        $stats = [];
+        $hasRolesTable = $this->hasUserRolesTable();
+
+        foreach (self::managedCreationRoles() as $role) {
+            $roleCondition = $hasRolesTable
+                ? '(u.role = :role OR EXISTS (SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id AND ur.role = :assigned_role))'
+                : 'u.role = :role';
+
+            $sql = "SELECT
+                        COUNT(*) AS total,
+                        COUNT(*) FILTER (WHERE u.is_active IS TRUE) AS active,
+                        COUNT(*) FILTER (WHERE u.is_active IS FALSE) AS inactive
+                    FROM users u
+                    WHERE {$roleCondition}";
+            $statement = $this->db->prepare($sql);
+            $params = ['role' => $role];
+            if ($hasRolesTable) {
+                $params['assigned_role'] = $role;
+            }
+            $statement->execute($params);
+            $row = $statement->fetch(PDO::FETCH_ASSOC) ?: [];
+
+            $stats[$role] = [
+                'total' => (int) ($row['total'] ?? 0),
+                'active' => (int) ($row['active'] ?? 0),
+                'inactive' => (int) ($row['inactive'] ?? 0),
+            ];
+        }
+
+        return $stats;
+    }
+
+    /** Hitung total baris sesuai filter untuk kebutuhan pagination. */
+    public function countForManagement(array $filters = []): int
+    {
+        $where = [];
+        $params = [];
+        $search = trim((string) ($filters['search'] ?? ''));
+        $role = trim((string) ($filters['role'] ?? ''));
+        $status = trim((string) ($filters['status'] ?? ''));
+
+        if ($search !== '') {
+            $where[] = '(u.login_id ILIKE :search_login OR u.name ILIKE :search_name)';
+            $params['search_login'] = '%' . $search . '%';
+            $params['search_name'] = '%' . $search . '%';
+        }
+
+        if (in_array($role, self::managedCreationRoles(), true)) {
+            if ($this->hasUserRolesTable()) {
+                $where[] = '(u.role = :primary_role OR EXISTS (SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id AND ur.role = :assigned_role))';
+                $params['primary_role'] = $role;
+                $params['assigned_role'] = $role;
+            } else {
+                $where[] = 'u.role = :primary_role';
+                $params['primary_role'] = $role;
+            }
+        }
+
+        if (in_array($status, ['active', 'inactive'], true)) {
+            $where[] = 'u.is_active = :is_active';
+            $params['is_active'] = $status === 'active';
+        }
+
+        $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+        $statement = $this->db->prepare("SELECT COUNT(*) FROM users u {$whereSql}");
+        $statement->execute($params);
+        return (int) $statement->fetchColumn();
+    }
+
+    public function getForManagement(array $filters = [], ?int $limit = null, int $offset = 0): array
     {
         $where = [];
         $params = [];
@@ -454,8 +529,8 @@ class User
             u.is_active
          FROM users u
          {$whereSql}
-         ORDER BY u.created_at DESC, u.id DESC"
-
+         ORDER BY u.created_at DESC, u.id DESC" .
+            ($limit !== null ? ' LIMIT ' . max(1, min(100, $limit)) . ' OFFSET ' . max(0, $offset) : ''),
         );
 
         $stmt->execute($params);
@@ -769,23 +844,13 @@ class User
     public function setActive(int $id, bool $active, int $actorId): void
     {
         if ($id === $actorId && !$active) {
-            throw new RuntimeException('Anda tidak dapat menonaktifkan akun sendiri.');
+            throw new InvalidArgumentException('Anda tidak dapat menonaktifkan akun sendiri.');
         }
-
-        $stmt = $this->db->prepare("
-        UPDATE users
-        SET is_active = :is_active,
-            updated_at = CURRENT_TIMESTAMP
-        WHERE id = :id
-    ");
-
-        $stmt->bindValue(':is_active', $active, PDO::PARAM_BOOL);
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-
-        $stmt->execute();
-
+        $stmt = $this->db->prepare('UPDATE users SET is_active = :is_active, updated_at = CURRENT_TIMESTAMP WHERE id = :id');
+        $stmt->execute(['is_active' => $active, 'id' => $id]);
         if ($stmt->rowCount() !== 1) {
-            throw new RuntimeException('Pengguna tidak ditemukan atau status tidak berubah.');
+
+            throw new InvalidArgumentException('User tidak ditemukan.');
         }
     }
 
