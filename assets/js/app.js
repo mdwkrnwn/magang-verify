@@ -1,6 +1,6 @@
 // Dashboard - Sidebar Toggle
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
 
     const sidebar =
         document.getElementById('sidebar');
@@ -17,8 +17,7 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
 
-    if (
-        !sidebar ||
+    if (!sidebar ||
         !overlay ||
         !toggle
     ) {
@@ -125,9 +124,9 @@ document.addEventListener('DOMContentLoaded', function () {
         );
 
         sidebar.style.width =
-            collapsed
-                ? '5rem'
-                : '16rem';
+            collapsed ?
+            '5rem' :
+            '16rem';
 
 
         /*
@@ -151,9 +150,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (logoText) {
 
             logoText.style.display =
-                collapsed
-                    ? 'none'
-                    : '';
+                collapsed ?
+                'none' :
+                '';
 
         }
 
@@ -161,14 +160,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (logo) {
 
             logo.style.width =
-                collapsed
-                    ? '100%'
-                    : '';
+                collapsed ?
+                '100%' :
+                '';
 
             logo.style.justifyContent =
-                collapsed
-                    ? 'center'
-                    : '';
+                collapsed ?
+                'center' :
+                '';
 
         }
 
@@ -184,12 +183,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 '.sidebar-section-label'
             )
             .forEach(
-                function (element) {
+                function(element) {
 
                     element.style.display =
-                        collapsed
-                            ? 'none'
-                            : '';
+                        collapsed ?
+                        'none' :
+                        '';
 
                 }
             );
@@ -206,12 +205,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 '.sidebar-label'
             )
             .forEach(
-                function (element) {
+                function(element) {
 
                     element.style.display =
-                        collapsed
-                            ? 'none'
-                            : '';
+                        collapsed ?
+                        'none' :
+                        '';
 
                 }
             );
@@ -228,27 +227,27 @@ document.addEventListener('DOMContentLoaded', function () {
                 '.sidebar-nav-item'
             )
             .forEach(
-                function (element) {
+                function(element) {
 
                     element.style.justifyContent =
-                        collapsed
-                            ? 'center'
-                            : '';
+                        collapsed ?
+                        'center' :
+                        '';
 
                     element.style.gap =
-                        collapsed
-                            ? '0'
-                            : '';
+                        collapsed ?
+                        '0' :
+                        '';
 
                     element.style.paddingLeft =
-                        collapsed
-                            ? '0.5rem'
-                            : '';
+                        collapsed ?
+                        '0.5rem' :
+                        '';
 
                     element.style.paddingRight =
-                        collapsed
-                            ? '0.5rem'
-                            : '';
+                        collapsed ?
+                        '0.5rem' :
+                        '';
 
                 }
             );
@@ -261,12 +260,12 @@ document.addEventListener('DOMContentLoaded', function () {
         */
 
         headers.forEach(
-            function (header) {
+            function(header) {
 
                 header.style.left =
-                    collapsed
-                        ? '5rem'
-                        : '16rem';
+                    collapsed ?
+                    '5rem' :
+                    '16rem';
 
             }
         );
@@ -279,12 +278,12 @@ document.addEventListener('DOMContentLoaded', function () {
         */
 
         mains.forEach(
-            function (main) {
+            function(main) {
 
                 main.style.marginLeft =
-                    collapsed
-                        ? '5rem'
-                        : '16rem';
+                    collapsed ?
+                    '5rem' :
+                    '16rem';
 
             }
         );
@@ -301,16 +300,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         toggle.setAttribute(
             'aria-expanded',
-            collapsed
-                ? 'false'
-                : 'true'
+            collapsed ?
+            'false' :
+            'true'
         );
 
         toggle.setAttribute(
             'aria-label',
-            collapsed
-                ? 'Buka sidebar'
-                : 'Tutup sidebar'
+            collapsed ?
+            'Buka sidebar' :
+            'Tutup sidebar'
         );
 
     }
@@ -415,14 +414,14 @@ document.addEventListener('DOMContentLoaded', function () {
         sidebar.style.width = '';
 
         headers.forEach(
-            function (header) {
+            function(header) {
                 header.style.left = '';
             }
         );
 
 
         mains.forEach(
-            function (main) {
+            function(main) {
                 main.style.marginLeft = '';
             }
         );
@@ -433,7 +432,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '.sidebar-logo-text'
             )
             .forEach(
-                function (element) {
+                function(element) {
                     element.style.display = '';
                 }
             );
@@ -444,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '.sidebar-section-label'
             )
             .forEach(
-                function (element) {
+                function(element) {
                     element.style.display = '';
                 }
             );
@@ -455,7 +454,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '.sidebar-label'
             )
             .forEach(
-                function (element) {
+                function(element) {
                     element.style.display = '';
                 }
             );
@@ -466,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 '.sidebar-nav-item'
             )
             .forEach(
-                function (element) {
+                function(element) {
 
                     element.style.justifyContent =
                         '';
@@ -497,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     toggle.addEventListener(
         'click',
-        function () {
+        function() {
 
             /*
             |--------------------------------------------------------------------------
@@ -507,15 +506,14 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (desktopQuery.matches) {
 
-                collapsed =
-                    !collapsed;
+                collapsed = !collapsed;
 
 
                 localStorage.setItem(
                     STORAGE_KEY,
-                    collapsed
-                        ? 'true'
-                        : 'false'
+                    collapsed ?
+                    'true' :
+                    'false'
                 );
 
 
@@ -531,10 +529,9 @@ document.addEventListener('DOMContentLoaded', function () {
             |--------------------------------------------------------------------------
             */
 
-            const isOpen =
-                !sidebar.classList.contains(
-                    '-translate-x-full'
-                );
+            const isOpen = !sidebar.classList.contains(
+                '-translate-x-full'
+            );
 
 
             if (isOpen) {
@@ -559,7 +556,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     overlay.addEventListener(
         'click',
-        function () {
+        function() {
 
             closeMobile();
 
@@ -575,7 +572,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.addEventListener(
         'keydown',
-        function (event) {
+        function(event) {
 
             if (
                 event.key === 'Escape' &&
@@ -599,15 +596,13 @@ document.addEventListener('DOMContentLoaded', function () {
     sidebar
         .querySelectorAll('a')
         .forEach(
-            function (link) {
+            function(link) {
 
                 link.addEventListener(
                     'click',
-                    function () {
+                    function() {
 
-                        if (
-                            !desktopQuery.matches
-                        ) {
+                        if (!desktopQuery.matches) {
 
                             closeMobile();
 
@@ -681,12 +676,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const section =
                 document.getElementById(id);
 
-            return section
-                ? {
+            return section ? {
                     item,
                     section
-                }
-                : null;
+                } :
+                null;
         })
         .filter(Boolean);
 
@@ -817,8 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     window.addEventListener(
         'scroll',
-        updateSidebarPosition,
-        {
+        updateSidebarPosition, {
             passive: true
         }
     );
@@ -878,19 +871,17 @@ document.addEventListener('DOMContentLoaded', () => {
             entries => {
                 const visibleSections =
                     entries
-                        .filter(
-                            entry =>
-                                entry.isIntersecting
-                        )
-                        .sort(
-                            (a, b) =>
-                                a.boundingClientRect.top -
-                                b.boundingClientRect.top
-                        );
+                    .filter(
+                        entry =>
+                        entry.isIntersecting
+                    )
+                    .sort(
+                        (a, b) =>
+                        a.boundingClientRect.top -
+                        b.boundingClientRect.top
+                    );
 
-                if (
-                    !visibleSections.length
-                ) {
+                if (!visibleSections.length) {
                     return;
                 }
 
@@ -900,8 +891,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const active =
                     sections.find(
                         item =>
-                            item.section ===
-                            activeSection
+                        item.section ===
+                        activeSection
                     );
 
                 if (active) {
@@ -909,11 +900,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         active.item
                     );
                 }
-            },
-            {
+            }, {
                 root: null,
-                rootMargin:
-                    '-120px 0px -55% 0px',
+                rootMargin: '-120px 0px -55% 0px',
                 threshold: 0
             }
         );
@@ -1124,8 +1113,8 @@ document.addEventListener('DOMContentLoaded', () => {
             () => {
                 const keyword =
                     keahlianSearch.value
-                        .trim()
-                        .toLowerCase();
+                    .trim()
+                    .toLowerCase();
 
                 let visibleCount = 0;
 
@@ -1140,8 +1129,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             );
 
                         option.classList.toggle(
-                            'hidden',
-                            !cocok
+                            'hidden', !cocok
                         );
 
                         if (cocok) {
@@ -1196,15 +1184,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener(
         'click',
         event => {
-            if (
-                !keahlianMenu ||
+            if (!keahlianMenu ||
                 !keahlianToggle
             ) {
                 return;
             }
 
-            if (
-                !keahlianMenu.contains(
+            if (!keahlianMenu.contains(
                     event.target
                 ) &&
                 !keahlianToggle.contains(
@@ -1394,7 +1380,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Dashboard Mahasiswa Portofolio
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
 
     const form = document.getElementById(
         'portfolio-filter-form'
@@ -1416,8 +1402,7 @@ document.addEventListener('DOMContentLoaded', function () {
         'portfolio-teknologi'
     );
 
-    if (
-        !form ||
+    if (!form ||
         !search ||
         !tahun ||
         !status ||
@@ -1448,7 +1433,7 @@ document.addEventListener('DOMContentLoaded', function () {
             teknologi
         ];
 
-        fields.forEach(function (field) {
+        fields.forEach(function(field) {
 
             if (field.value === '') {
                 field.removeAttribute('name');
@@ -1471,12 +1456,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     search.addEventListener(
         'input',
-        function () {
+        function() {
 
             clearTimeout(timer);
 
             timer = setTimeout(
-                function () {
+                function() {
                     submitFilter();
                 },
                 300
@@ -1522,8 +1507,7 @@ document.addEventListener('DOMContentLoaded', function () {
             window.location.origin +
             window.location.pathname;
 
-        window.history.replaceState(
-            {},
+        window.history.replaceState({},
             document.title,
             cleanUrl
         );
@@ -1541,7 +1525,7 @@ function togglePortfolioMenu(menuId) {
 
     document
         .querySelectorAll('[id^="menu-"]')
-        .forEach(function (item) {
+        .forEach(function(item) {
 
             if (item.id !== menuId) {
                 item.classList.add('hidden');
@@ -1578,16 +1562,15 @@ function closeDeletePortfolioModal(modalId) {
 }
 
 
-document.addEventListener('click', function (event) {
+document.addEventListener('click', function(event) {
 
-    if (
-        !event.target.closest('[id^="menu-"]') &&
+    if (!event.target.closest('[id^="menu-"]') &&
         !event.target.closest('button[onclick^="togglePortfolioMenu"]')
     ) {
 
         document
             .querySelectorAll('[id^="menu-"]')
-            .forEach(function (menu) {
+            .forEach(function(menu) {
 
                 menu.classList.add('hidden');
 
@@ -1603,7 +1586,15 @@ document.addEventListener('click', function (event) {
 
 // Dashboard Mahasiswa Sertifikat
 
-(function () {
+(function() {
+
+    const form = document.getElementById(
+        'sertifikatFilterForm'
+    );
+
+    if (!form) {
+        return;
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -1627,7 +1618,6 @@ document.addEventListener('click', function (event) {
         currentUrl.searchParams.toString() !== '';
 
     if (isReload && hasQuery) {
-
         currentUrl.search = '';
 
         window.location.replace(
@@ -1643,14 +1633,6 @@ document.addEventListener('click', function (event) {
     | Filter
     |--------------------------------------------------------------------------
     */
-
-    const form = document.getElementById(
-        'sertifikatFilterForm'
-    );
-
-    if (!form) {
-        return;
-    }
 
     const search = document.getElementById(
         'sertifikat-search'
@@ -1676,7 +1658,7 @@ document.addEventListener('click', function (event) {
 
         const formData = new FormData(form);
 
-        formData.forEach(function (value, key) {
+        formData.forEach(function(value, key) {
 
             value = String(value).trim();
 
@@ -1713,7 +1695,7 @@ document.addEventListener('click', function (event) {
 
         search.addEventListener(
             'input',
-            function () {
+            function() {
 
                 clearTimeout(searchTimer);
 
@@ -1759,4 +1741,3 @@ document.addEventListener('click', function (event) {
 
     }
 })();
-
