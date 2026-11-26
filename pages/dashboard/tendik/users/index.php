@@ -124,6 +124,28 @@ $active = 'users';
                 </form>
             </section>
 
+            <!-- Success Message -->
+            <?php if (!empty($success)): ?>
+                <div class="flex items-start gap-3 p-4 mb-6 border border-emerald-200 rounded-xl bg-emerald-50">
+                    <svg
+                        class="mt-0.5 h-5 w-5 shrink-0 text-emerald-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 13l4 4L19 7" />
+                    </svg>
+
+                    <p class="text-sm text-emerald-700">
+                        <?= e($success) ?>
+                    </p>
+                </div>
+            <?php endif; ?>
+
 
             <!-- Error Message -->
             <?php if (!empty($error)): ?>
@@ -255,29 +277,51 @@ $active = 'users';
                                         </td>
 
                                         <td class="px-6 py-4">
-                                            <a
-                                                href="<?= e(url('/dashboard/tendik/users/' . (int) $item['id'])) ?>"
-                                                class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-blue-700 transition border border-blue-200 rounded-lg bg-blue-50 hover:bg-blue-100">
+                                            <div class="flex flex-wrap items-center gap-2">
+                                                <a
+                                                    href="<?= e(url('/dashboard/tendik/users/' . (int) $item['id'])) ?>"
+                                                    class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-blue-700 transition border border-blue-200 rounded-lg bg-blue-50 hover:bg-blue-100">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                    </svg>
+                                                    Edit
+                                                </a>
 
-                                                <svg
-                                                    class="w-4 h-4"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24">
-                                                    <path
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="1.8"
-                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0Z" />
-                                                    <path
-                                                        stroke-linecap="round"
-                                                        stroke-linejoin="round"
-                                                        stroke-width="1.8"
-                                                        d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7-9.5-7-9.5-7Z" />
-                                                </svg>
+                                                <?php if (!empty($item['is_active'])): ?>
+                                                    <form
+                                                        method="POST"
+                                                        action="<?= e(url('/dashboard/tendik/users/' . (int) $item['id'] . '/status')) ?>"
+                                                        onsubmit="return confirm('Yakin ingin menonaktifkan akun ini?');">
 
-                                                Detail
-                                            </a>
+                                                        <input type="hidden" name="_csrf_token"
+                                                            value="<?= e(csrfToken()) ?>">
+                                                        <input type="hidden" name="status" value="inactive">
+
+                                                        <button type="submit"
+                                                            class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold text-red-700 transition border border-red-200 rounded-lg bg-red-50 hover:bg-red-100">
+                                                            Nonaktifkan
+                                                        </button>
+                                                    </form>
+                                                <?php else: ?>
+                                                    <form
+                                                        method="POST"
+                                                        action="<?= e(url('/dashboard/tendik/users/' . (int) $item['id'] . '/status')) ?>"
+                                                        onsubmit="return confirm('Yakin ingin mengaktifkan akun ini?');">
+
+                                                        <input type="hidden" name="_csrf_token"
+                                                            value="<?= e(csrfToken()) ?>">
+                                                        <input type="hidden" name="status" value="active">
+
+                                                        <button type="submit"
+                                                            class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold transition border rounded-lg text-emerald-700 border-emerald-200 bg-emerald-50 hover:bg-emerald-100">
+                                                            Aktifkan
+                                                        </button>
+                                                    </form>
+                                                <?php endif; ?>
+                                            </div>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

@@ -273,6 +273,8 @@ $routes = [
     ],
 
 
+
+
     // Menu Logbook Dosen
 
     '/dashboard/dosen/logbook' => [
@@ -368,6 +370,16 @@ $routes = [
     '/dashboard/tendik/users' => [
         'controller' => TendikUserController::class,
         'method' => 'index',
+    ],
+
+    '/dashboard/tendik/users/import' => [
+        'controller' => TendikUserController::class,
+        'method' => 'import',
+    ],
+
+    '/dashboard/tendik/users/import/template' => [
+        'controller' => TendikUserController::class,
+        'method' => 'downloadImportTemplate',
     ],
 
     // Menu Verifikasi Laporan Magang
@@ -687,6 +699,22 @@ function route(string $uri): ?array
 
             'params' => [
                 'slug' => $matches[1],
+            ],
+        ];
+    }
+
+    if (preg_match(
+        '#^/dashboard/tendik/users/(\d+)/status$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => TendikUserController::class,
+                'method' => 'updateStatus',
+            ],
+            'params' => [
+                'id' => (int) $matches[1],
             ],
         ];
     }
@@ -1234,22 +1262,56 @@ function route(string $uri): ?array
     }
 
     if ($path === '/dashboard/mitra/formasi/tambah') {
+        MitraAuthMiddleware::check();
+
         (new MitraFormasiController())->create();
         exit;
     }
 
+    if (preg_match('#^/dashboard/mitra/formasi/edit/(\d+)$', $path, $matches)) {
+        MitraAuthMiddleware::check();
+
+        (new MitraFormasiController())->edit([
+            'id' => (int) $matches[1]
+        ]);
+        exit;
+    }
+
+    // TAMBAH FORMASI
+    if ($path === '/dashboard/mitra/formasi/tambah') {
+        MitraAuthMiddleware::check();
+
+        (new MitraFormasiController())->create();
+        exit;
+    }
+
+    // EDIT FORMASI
     if (preg_match('#^/dashboard/mitra/formasi/edit/(\d+)$#', $path, $matches)) {
-        (new MitraFormasiController())->edit(['id' => (int) $matches[1]]);
+        MitraAuthMiddleware::check();
+
+        (new MitraFormasiController())->edit([
+            'id' => (int) $matches[1]
+        ]);
         exit;
     }
 
+    // UBAH STATUS FORMASI
     if (preg_match('#^/dashboard/mitra/formasi/status/(\d+)$#', $path, $matches)) {
-        (new MitraFormasiController())->changeStatus(['id' => (int) $matches[1]]);
+        MitraAuthMiddleware::check();
+
+        (new MitraFormasiController())->changeStatus([
+            'id' => (int) $matches[1]
+        ]);
         exit;
     }
 
+    // HAPUS FORMASI
     if (preg_match('#^/dashboard/mitra/formasi/hapus/(\d+)$#', $path, $matches)) {
-        (new MitraFormasiController())->delete(['id' => (int) $matches[1]]);
+        MitraAuthMiddleware::check();
+
+        (new MitraFormasiController())->delete([
+            'id' => (int) $matches[1]
+        ]);
         exit;
     }
 

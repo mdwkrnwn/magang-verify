@@ -8,7 +8,28 @@
  */
 
 $controllerPath = dirname(__DIR__) . '/controllers';
+$middlewarePath = dirname(__DIR__) . '/middleware';
 
+$middlewareMap = [
+    'MitraAuthMiddleware' =>
+    $middlewarePath . '/MitraAuthMiddleware.php',
+];
+
+spl_autoload_register(function (string $class) use ($middlewareMap): void {
+
+    if (!isset($middlewareMap[$class])) {
+        return;
+    }
+
+    $file = $middlewareMap[$class];
+
+    if (is_file($file)) {
+        error_log("[AUTOLOAD] Loading middleware: {$class}");
+        require_once $file;
+    } else {
+        error_log("[AUTOLOAD ERROR] Middleware not found: {$file}");
+    }
+});
 $controllerMap = [
 
     /*
@@ -30,7 +51,7 @@ $controllerMap = [
     'ForgotPasswordController' => $controllerPath . '/ForgotPasswordController.php',
     'LogoutController' => $controllerPath . '/LogoutController.php',
 
-'ErrorTestController' => $controllerPath . '/ErrorTestController.php',
+    'ErrorTestController' => $controllerPath . '/ErrorTestController.php',
     //
     'ForgotPasswordController' => $controllerPath . '/ForgotPasswordController.php',
 
