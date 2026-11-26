@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS public.pengalaman (
     tanggal_mulai DATE,
     tanggal_selesai DATE,
     status_publikasi VARCHAR(20) NOT NULL DEFAULT 'publik',
+    COLUMN bukti_path VARCHAR(255) NULL,
+    COLUMN link_pendukung VARCHAR(500) NULL,
     is_otomatis BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,

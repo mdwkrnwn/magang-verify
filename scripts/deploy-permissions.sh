@@ -53,6 +53,7 @@ mkdir -p \
   "$UPLOADS_DIR/profil" \
   "$UPLOADS_DIR/portofolio" \
   "$UPLOADS_DIR/sertifikat" \
+  "$UPLOADS_DIR/pengalaman" \
   "$STORAGE_DIR/logs" \
   "$STORAGE_DIR/pendaftaran"
 

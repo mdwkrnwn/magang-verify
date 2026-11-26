@@ -748,6 +748,31 @@ function route(string $uri): ?array
     }
 
     /*
+|--------------------------------------------------------------------------
+| Detail Pengalaman Mahasiswa
+|--------------------------------------------------------------------------
+| Contoh:
+| /dashboard/mahasiswa/pengalaman/detail/software-developer-intern-9
+*/
+
+    if (preg_match(
+        '#^/dashboard/mahasiswa/pengalaman/detail/([^/]+)$#',
+        $path,
+        $matches
+    )) {
+        return [
+            'route' => [
+                'controller' => PengalamanController::class,
+                'method' => 'detail',
+            ],
+
+            'params' => [
+                'slug' => $matches[1],
+            ],
+        ];
+    }
+
+    /*
     |-----------------------
     | Detail Formasi Magang
     |-----------------------
@@ -756,6 +781,7 @@ function route(string $uri): ?array
     | Pengalaman
     |---------------------
     | /dashboard/mahasiswa/pengalaman
+    | /dashboard/mahasiswa/pengalaman/detail/backend-developer-manual-12
     | /dashboard/mahasiswa/pengalaman/tambah
     | /dashboard/mahasiswa/pengalaman/edit/1
     | /dashboard/mahasiswa/pengalaman/hapus/1
@@ -763,6 +789,18 @@ function route(string $uri): ?array
 
     if ($path === '/dashboard/mahasiswa/pengalaman') {
         (new PengalamanController())->index();
+        exit;
+    }
+
+    if (preg_match(
+        '#^/dashboard/mahasiswa/pengalaman/detail/([^/]+)$#',
+        $path,
+        $matches
+    )) {
+        (new PengalamanController())->detail([
+            'slug' => $matches[1],
+        ]);
+
         exit;
     }
 
@@ -1268,7 +1306,7 @@ function route(string $uri): ?array
         exit;
     }
 
-    if (preg_match('#^/dashboard/mitra/formasi/edit/(\d+)$', $path, $matches)) {
+    if (preg_match('#^/dashboard/mitra/formasi/edit/(\d+)$#', $path, $matches)) {
         MitraAuthMiddleware::check();
 
         (new MitraFormasiController())->edit([

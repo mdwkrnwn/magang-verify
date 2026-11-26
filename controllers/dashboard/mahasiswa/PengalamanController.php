@@ -44,6 +44,7 @@ class PengalamanController
             'deskripsi' => trim($_POST['deskripsi'] ?? ''),
             'tanggal_mulai' => trim($_POST['tanggal_mulai'] ?? ''),
             'tanggal_selesai' => trim($_POST['tanggal_selesai'] ?? ''),
+            'link_pendukung' => trim($_POST['link_pendukung'] ?? ''),
         ];
         if (!in_array($data['jenis'], ['pekerjaan', 'organisasi', 'freelance', 'proyek', 'lainnya'], true)) {
             $data['jenis'] = 'lainnya';
@@ -57,7 +58,81 @@ class PengalamanController
             }
         }
         if ($data['tanggal_mulai'] !== '' && $data['tanggal_selesai'] !== '' && $data['tanggal_selesai'] < $data['tanggal_mulai']) throw new InvalidArgumentException('Tanggal selesai tidak boleh mendahului tanggal mulai.');
+        if ($data['link_pendukung'] !== '') {
+            if (
+                mb_strlen($data['link_pendukung']) > 500 ||
+                !filter_var($data['link_pendukung'], FILTER_VALIDATE_URL) ||
+                !in_array(
+                    strtolower((string) parse_url($data['link_pendukung'], PHP_URL_SCHEME)),
+                    ['http', 'https'],
+                    true
+                )
+            ) {
+                throw new InvalidArgumentException('Link pendukung harus berupa URL HTTP/HTTPS yang valid dan maksimal 500 karakter.');
+            }
+        }
         return $data;
+    }
+
+    private function uploadBukti(): ?string
+    {
+        if (
+            !isset($_FILES['bukti_file']) ||
+            $_FILES['bukti_file']['error'] === UPLOAD_ERR_NO_FILE
+        ) {
+            return null;
+        }
+
+        $file = $_FILES['bukti_file'];
+
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            throw new RuntimeException('Gagal mengunggah bukti pendukung.');
+        }
+
+        if ($file['size'] > 2 * 1024 * 1024) {
+            throw new InvalidArgumentException('Ukuran file maksimal 2 MB.');
+        }
+
+        $finfo = new finfo(FILEINFO_MIME_TYPE);
+        $mime = $finfo->file($file['tmp_name']);
+
+        $allowed = [
+            'application/pdf' => 'pdf',
+            'image/jpeg'      => 'jpg',
+            'image/png'       => 'png',
+        ];
+
+        if (!isset($allowed[$mime])) {
+            throw new InvalidArgumentException('Format bukti harus PDF, JPG, atau PNG.');
+        }
+
+        $directory = __DIR__ . '/../../../uploads/pengalaman';
+
+        if (!is_dir($directory) && !mkdir($directory, 0755, true)) {
+            throw new RuntimeException('Folder upload bukti tidak dapat dibuat.');
+        }
+
+        $filename = bin2hex(random_bytes(16)) . '.' . $allowed[$mime];
+        $destination = $directory . '/' . $filename;
+
+        if (!move_uploaded_file($file['tmp_name'], $destination)) {
+            throw new RuntimeException('Gagal menyimpan file bukti.');
+        }
+
+        return 'uploads/pengalaman/' . $filename;
+    }
+
+    private function deleteBuktiFile(?string $path): void
+    {
+        if (!$path || !str_starts_with($path, 'uploads/pengalaman/')) {
+            return;
+        }
+
+        $fullPath = __DIR__ . '/../../../' . $path;
+
+        if (is_file($fullPath)) {
+            unlink($fullPath);
+        }
     }
 
     public function index(): void
@@ -93,6 +168,29 @@ class PengalamanController
         require __DIR__ . '/../../../pages/dashboard/mahasiswa/pengalaman/index.php';
     }
 
+
+    public function detail($params = []): void
+    {
+        $id = $this->userId();
+
+        $slug = trim((string) ($params['slug'] ?? ''));
+
+        if ($slug === '') {
+            http_response_code(404);
+            exit('Pengalaman tidak ditemukan.');
+        }
+
+        $item = $this->model->getBySlug($slug, $id);
+
+        if (!$item) {
+            http_response_code(404);
+            exit('Pengalaman tidak ditemukan.');
+        }
+
+        require __DIR__ . '/../../../pages/dashboard/mahasiswa/pengalaman/detail.php';
+    }
+
+
     public function create(): void
     {
         $this->userId();
@@ -111,6 +209,7 @@ class PengalamanController
         }
         try {
             $data = $this->dataFromPost();
+            $data['bukti_path'] = $this->uploadBukti();
             $newId = $this->model->create($id, $data);
             $this->aktivitasModel->log(
                 $id,
@@ -148,16 +247,33 @@ class PengalamanController
         }
         try {
             $data = $this->dataFromPost();
+
             $itemId = (int) ($params['id'] ?? 0);
+            $item = $this->model->getById($itemId, $id);
+
+            if (!$item) {
+                http_response_code(404);
+                exit('Pengalaman tidak ditemukan.');
+            }
+
+            $newBukti = $this->uploadBukti();
+
+            $data['bukti_path'] = $newBukti ?? $item['bukti_path'];
+
+            // Jika mahasiswa mencentang hapus bukti lama.
+            if (isset($_POST['hapus_bukti']) && $_POST['hapus_bukti'] === '1') {
+                $data['bukti_path'] = $newBukti;
+            }
+
             $this->model->update($itemId, $id, $data);
-            $this->aktivitasModel->log(
-                $id,
-                'Pengalaman diperbarui',
-                'Pengalaman "' . $data['posisi'] . '" di "' . $data['instansi'] . '" berhasil diperbarui.',
-                'pengalaman',
-                'pengalaman',
-                $itemId
-            );
+
+            // Hapus file lama hanya setelah database berhasil diperbarui.
+            if (
+                $item['bukti_path'] &&
+                $item['bukti_path'] !== $data['bukti_path']
+            ) {
+                $this->deleteBuktiFile($item['bukti_path']);
+            }
             $this->redirect('/dashboard/mahasiswa/pengalaman');
         } catch (Throwable $e) {
             http_response_code(422);
@@ -184,6 +300,7 @@ class PengalamanController
                 $itemId
             );
         }
+        $this->deleteBuktiFile($item['bukti_path'] ?? null);
         $this->redirect('/dashboard/mahasiswa/pengalaman');
     }
 }

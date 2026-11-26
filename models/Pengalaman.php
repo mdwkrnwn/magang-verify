@@ -156,7 +156,9 @@ class Pengalaman
                 p.status_publikasi,
                 p.is_otomatis,
                 p.pendaftaran_id,
-                p.created_at
+                p.created_at,
+                p.link_pendukung,
+                p.bukti_path
             FROM pengalaman p
             JOIN profil_mahasiswa pm ON pm.id = p.mahasiswa_id
             WHERE pm.user_id = :user_id
@@ -175,7 +177,9 @@ class Pengalaman
                 'publik' AS status_publikasi,
                 TRUE AS is_otomatis,
                 pendaftaran.id AS pendaftaran_id,
-                pendaftaran.created_at
+                pendaftaran.created_at,
+                NULL::VARCHAR(500) AS link_pendukung,
+                NULL::VARCHAR(255) AS bukti_path
             FROM penempatan_magang pmg
             JOIN pendaftaran_magang pendaftaran ON pendaftaran.id = pmg.pendaftaran_id
             JOIN profil_mahasiswa pm ON pm.id = pendaftaran.mahasiswa_id
@@ -209,6 +213,79 @@ class Pengalaman
         return array_map('strval', $stmt->fetchAll(PDO::FETCH_COLUMN));
     }
 
+
+    /**
+     * Mengambil detail pengalaman berdasarkan slug.
+     * Mendukung pengalaman manual dan otomatis.
+     *
+     * Format slug:
+     * nama-pengalaman-manual-12
+     * nama-pengalaman-magang-12
+     */
+    public function getBySlug(string $slug, int $userId): ?array
+    {
+        global $pdo;
+
+        // Ambil jenis sumber dan ID dari bagian akhir slug.
+        if (!preg_match('/^(.*)-(manual|magang)-(\d+)$/', $slug, $matches)) {
+            return null;
+        }
+
+        $source = $matches[2];
+        $id = (int) $matches[3];
+
+        if ($id <= 0) {
+            return null;
+        }
+
+        // ID otomatis menggunakan angka negatif.
+        $targetId = $source === 'magang' ? -$id : $id;
+
+        $sql = "
+        SELECT *
+        FROM (" . $this->getCombinedQuery() . ") pengalaman_gabungan
+        WHERE id = :target_id
+        LIMIT 1
+    ";
+
+        $stmt = $pdo->prepare($sql);
+
+        $stmt->execute([
+            'user_id' => $userId,
+            'user_id_auto' => $userId,
+            'target_id' => $targetId,
+        ]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            return null;
+        }
+
+        // Validasi agar slug sesuai dengan nama pengalaman.
+        $namaSlug = $this->slugify($row['posisi'] ?? '');
+
+        $canonicalSlug = $namaSlug . '-' . $source . '-' . $id;
+
+        if ($slug !== $canonicalSlug) {
+            return null;
+        }
+
+        return $row;
+    }
+
+    /**
+     * Mengubah teks menjadi slug URL.
+     */
+    private function slugify(string $text): string
+    {
+        $text = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text);
+        $text = strtolower($text);
+        $text = preg_replace('/[^a-z0-9]+/', '-', $text);
+
+        return trim($text, '-');
+    }
+
     public function getById(int $id, int $userId): ?array
     {
         global $pdo;
@@ -227,11 +304,37 @@ class Pengalaman
     {
         global $pdo;
         $stmt = $pdo->prepare("
-            INSERT INTO pengalaman (mahasiswa_id, jenis, posisi, instansi, lokasi, deskripsi, tanggal_mulai, tanggal_selesai, status_publikasi, is_otomatis)
-            SELECT id, :jenis, :posisi, :instansi, :lokasi, :deskripsi, :tanggal_mulai, :tanggal_selesai, 'publik', FALSE
-            FROM profil_mahasiswa WHERE user_id = :user_id
-            RETURNING id
-        ");
+    INSERT INTO pengalaman (
+        mahasiswa_id,
+        jenis,
+        posisi,
+        instansi,
+        lokasi,
+        deskripsi,
+        tanggal_mulai,
+        tanggal_selesai,
+        link_pendukung,
+        bukti_path,
+        status_publikasi,
+        is_otomatis
+    )
+    SELECT
+        id,
+        :jenis,
+        :posisi,
+        :instansi,
+        :lokasi,
+        :deskripsi,
+        :tanggal_mulai,
+        :tanggal_selesai,
+        :link_pendukung,
+        :bukti_path,
+        'publik',
+        FALSE
+    FROM profil_mahasiswa
+    WHERE user_id = :user_id
+    RETURNING id
+");
         $stmt->execute([
             'jenis' => $data['jenis'],
             'posisi' => $data['posisi'],
@@ -240,6 +343,11 @@ class Pengalaman
             'deskripsi' => $data['deskripsi'] !== '' ? $data['deskripsi'] : null,
             'tanggal_mulai' => $data['tanggal_mulai'] !== '' ? $data['tanggal_mulai'] : null,
             'tanggal_selesai' => $data['tanggal_selesai'] !== '' ? $data['tanggal_selesai'] : null,
+            'link_pendukung' => $data['link_pendukung'] !== ''
+                ? $data['link_pendukung']
+                : null,
+
+            'bukti_path' => $data['bukti_path'] ?? null,
             'user_id' => $userId
         ]);
         return (int) $stmt->fetchColumn();
@@ -251,7 +359,8 @@ class Pengalaman
         $stmt = $pdo->prepare("
             UPDATE pengalaman p SET
                 jenis=:jenis, posisi=:posisi, instansi=:instansi, lokasi=:lokasi, deskripsi=:deskripsi,
-                tanggal_mulai=:tanggal_mulai, tanggal_selesai=:tanggal_selesai, updated_at=CURRENT_TIMESTAMP
+                tanggal_mulai=:tanggal_mulai, tanggal_selesai=:tanggal_selesai, updated_at=CURRENT_TIMESTAMP,
+                link_pendukung = :link_pendukung, bukti_path = :bukti_path
             FROM profil_mahasiswa pm
             WHERE p.id=:id AND p.mahasiswa_id=pm.id AND pm.user_id=:user_id AND p.is_otomatis=FALSE
         ");
@@ -264,7 +373,12 @@ class Pengalaman
             'lokasi' => $data['lokasi'] !== '' ? $data['lokasi'] : null,
             'deskripsi' => $data['deskripsi'] !== '' ? $data['deskripsi'] : null,
             'tanggal_mulai' => $data['tanggal_mulai'] !== '' ? $data['tanggal_mulai'] : null,
-            'tanggal_selesai' => $data['tanggal_selesai'] !== '' ? $data['tanggal_selesai'] : null
+            'tanggal_selesai' => $data['tanggal_selesai'] !== '' ? $data['tanggal_selesai'] : null,
+            'link_pendukung' => $data['link_pendukung'] !== ''
+                ? $data['link_pendukung']
+                : null,
+
+            'bukti_path' => $data['bukti_path'] ?? null,
         ]);
     }
 

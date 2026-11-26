@@ -92,5 +92,6 @@ $internalTarget = static function (string $path): ?string {
                 </ul>
             <?php endif; ?>
         </section>
+        <?php include __DIR__ . '/Footer.php'; ?>
     </div>
 </main>

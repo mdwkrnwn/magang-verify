@@ -14,6 +14,8 @@ $lokasi = $item['lokasi'] ?? '';
 $tanggalMulai = $item['tanggal_mulai'] ?? '';
 $tanggalSelesai = $item['tanggal_selesai'] ?? '';
 $deskripsi = $item['deskripsi'] ?? '';
+$linkPendukung = $item['link_pendukung'] ?? '';
+$buktiPath = $item['bukti_path'] ?? '';
 
 ?>
 
@@ -109,6 +111,7 @@ $deskripsi = $item['deskripsi'] ?? '';
             <!-- Form -->
             <form
                 method="POST"
+                enctype="multipart/form-data"
                 action="<?= e(
                             url(
                                 $editing
@@ -126,23 +129,23 @@ $deskripsi = $item['deskripsi'] ?? '';
 
                 <!-- Form Header -->
                 <div class="border-b border-gray-100 px-5 py-5 sm:px-6">
-    <div class="flex items-start justify-between gap-4">
-        <div>
-            <h2 class="text-base font-semibold text-gray-900">
-                Informasi Pengalaman
-            </h2>
+                    <div class="flex items-start justify-between gap-4">
+                        <div>
+                            <h2 class="text-base font-semibold text-gray-900">
+                                Informasi Pengalaman
+                            </h2>
 
-            <p class="mt-1 text-sm text-gray-500">
-                Lengkapi informasi berikut sesuai dengan pengalamanmu.
-            </p>
-        </div>
+                            <p class="mt-1 text-sm text-gray-500">
+                                Lengkapi informasi berikut sesuai dengan pengalamanmu.
+                            </p>
+                        </div>
 
-        <p class="shrink-0 text-xs text-gray-400">
-            <span class="text-red-500">*</span>
-            Wajib diisi
-        </p>
-    </div>
-</div>
+                        <p class="shrink-0 text-xs text-gray-400">
+                            <span class="text-red-500">*</span>
+                            Wajib diisi
+                        </p>
+                    </div>
+                </div>
 
 
                 <!-- Form Body -->
@@ -360,6 +363,90 @@ $deskripsi = $item['deskripsi'] ?? '';
                             placeholder="Contoh: Mengembangkan website internal organisasi menggunakan Laravel dan PostgreSQL..."
                             class="w-full resize-y rounded-xl border border-gray-200 px-4 py-3 text-sm leading-6 text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10"><?= e($deskripsi) ?></textarea>
 
+                    </div>
+
+                    <div>
+                        <label for="bukti_file"
+                            class="block mb-2 text-sm font-medium text-gray-700">
+                            Bukti Pendukung
+                            <span class="text-xs font-normal text-gray-400">(Opsional)</span>
+                        </label>
+
+                        <?php if (!empty($buktiPath)): ?>
+                            <div class="mb-3">
+                                <p class="mb-2 text-xs text-gray-500">File saat ini:</p>
+                                <a href="<?= e('/' . ltrim($buktiPath, '/')) ?>"
+                                    target="_blank"
+                                    class="inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700">
+                                    <i class="fas fa-file-alt"></i>
+                                    Lihat bukti pendukung
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                        <input
+                            type="file"
+                            id="bukti_file"
+                            name="bukti_file"
+                            accept="application/pdf,image/jpeg,image/png"
+                            class="w-full px-3 py-2.5 border border-slate-200 rounded-lg
+               text-sm outline-none
+               file:mr-3 file:rounded-md file:border-0
+               file:bg-blue-50 file:px-3 file:py-1.5
+               file:text-sm file:font-medium file:text-blue-700
+               hover:file:bg-blue-100
+               focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+
+                        <p class="mt-1 text-xs text-gray-400">
+                            Format PDF, JPG, atau PNG. Maksimal 2 MB.
+                            Kosongkan jika tidak ingin mengganti file.
+                        </p>
+
+                        <?php if (!empty($errors['bukti_file'])): ?>
+                            <p class="mt-1 text-xs text-red-500">
+                                <?= e($errors['bukti_file']) ?>
+                            </p>
+                        <?php endif; ?>
+
+                        <?php if (!empty($buktiPath)): ?>
+                            <label class="flex items-center gap-2 mt-3 text-sm text-gray-600">
+                                <input
+                                    type="checkbox"
+                                    name="hapus_bukti"
+                                    value="1"
+                                    class="w-4 h-4 text-blue-600 border-gray-300 rounded">
+                                Hapus bukti yang tersimpan
+                            </label>
+                        <?php endif; ?>
+                    </div>
+
+                    <div>
+                        <label for="link_pendukung"
+                            class="block mb-2 text-sm font-medium text-gray-700">
+                            Link Pendukung
+                            <span class="text-xs font-normal text-gray-400">(Opsional)</span>
+                        </label>
+
+                        <input
+                            type="url"
+                            id="link_pendukung"
+                            name="link_pendukung"
+                            value="<?= e($linkPendukung) ?>"
+                            placeholder="https://drive.google.com/..."
+                            maxlength="500"
+                            class="w-full px-3 py-2.5 border border-slate-200 rounded-lg
+               text-sm outline-none
+               focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
+
+                        <p class="mt-1 text-xs text-gray-400">
+                            Masukkan link dokumen, sertifikat, atau bukti pengalaman lainnya.
+                        </p>
+
+                        <?php if (!empty($errors['link_pendukung'])): ?>
+                            <p class="mt-1 text-xs text-red-500">
+                                <?= e($errors['link_pendukung']) ?>
+                            </p>
+                        <?php endif; ?>
                     </div>
 
                 </div>

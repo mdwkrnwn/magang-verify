@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @var string $q
  * @var string $jenis
@@ -13,8 +14,7 @@
     <form
         method="GET"
         action="<?= e(url('/dashboard/mahasiswa/pengalaman')) ?>"
-        class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5"
-    >
+        class="rounded-xl border border-slate-200 bg-white p-4 sm:p-5">
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
 
             <div class="sm:col-span-2 xl:col-span-1">
@@ -28,8 +28,7 @@
                     value="<?= e($q) ?>"
                     placeholder="Cari posisi, instansi, lokasi..."
                     autocomplete="off"
-                    class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                >
+                    class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
             </div>
 
             <div>
@@ -39,8 +38,7 @@
                 <select
                     id="pengalaman-jenis"
                     name="jenis"
-                    class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                >
+                    class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
                     <option value="">Semua Jenis</option>
                     <?php foreach ($jenisList as $itemJenis): ?>
                         <option value="<?= e($itemJenis) ?>" <?= $jenis === $itemJenis ? 'selected' : '' ?>>
@@ -57,11 +55,15 @@
                 <select
                     id="pengalaman-sumber"
                     name="sumber"
-                    class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                >
+                    onchange="this.form.submit()"
+                    class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
                     <option value="">Semua Sumber</option>
-                    <option value="manual" <?= $sumber === 'manual' ? 'selected' : '' ?>>Ditambahkan sendiri</option>
-                    <option value="otomatis" <?= $sumber === 'otomatis' ? 'selected' : '' ?>>Dari sistem / magang</option>
+                    <option value="manual" <?= $sumber === 'manual' ? 'selected' : '' ?>>
+                        Ditambahkan sendiri
+                    </option>
+                    <option value="otomatis" <?= $sumber === 'otomatis' ? 'selected' : '' ?>>
+                        Dari sistem / magang
+                    </option>
                 </select>
             </div>
 
@@ -72,8 +74,7 @@
                 <select
                     id="pengalaman-tahun"
                     name="tahun"
-                    class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
-                >
+                    class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100">
                     <option value="">Semua Tahun</option>
                     <?php foreach ($tahunList as $itemTahun): ?>
                         <option value="<?= e($itemTahun) ?>" <?= $tahun === $itemTahun ? 'selected' : '' ?>>
@@ -89,8 +90,7 @@
             <div class="mt-4">
                 <a
                     href="<?= e(url('/dashboard/mahasiswa/pengalaman')) ?>"
-                    class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-gray-600 transition hover:bg-slate-50"
-                >
+                    class="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-gray-600 transition hover:bg-slate-50">
                     Reset Filter
                 </a>
             </div>

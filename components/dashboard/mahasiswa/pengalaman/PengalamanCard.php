@@ -10,6 +10,28 @@ $deskripsi = trim((string) ($pengalamanItem['deskripsi'] ?? ''));
 
 $isOtomatis = !empty($pengalamanItem['is_otomatis']);
 
+// Membuat slug berdasarkan nama pengalaman.
+$namaSlug = iconv(
+    'UTF-8',
+    'ASCII//TRANSLIT//IGNORE',
+    $posisi
+);
+
+$namaSlug = strtolower($namaSlug);
+$namaSlug = preg_replace('/[^a-z0-9]+/', '-', $namaSlug);
+$namaSlug = trim($namaSlug, '-');
+
+// ID otomatis berasal dari ID penempatan magang (negatif).
+$sumberSlug = $isOtomatis ? 'magang' : 'manual';
+
+$slugPengalaman = $namaSlug
+    . '-' . $sumberSlug
+    . '-' . abs($pengalamanId);
+
+$detailUrl = url(
+    '/dashboard/mahasiswa/pengalaman/detail/' . $slugPengalaman
+);
+
 $tanggalMulai = $pengalamanItem['tanggal_mulai'] ?? null;
 $tanggalSelesai = $pengalamanItem['tanggal_selesai'] ?? null;
 
@@ -147,6 +169,17 @@ $modalId = 'deletePengalamanModal-' . $pengalamanId;
                 <?php if (!$isOtomatis && $pengalamanId > 0): ?>
 
                     <div class="flex shrink-0 gap-2">
+
+                     <!-- DETAIL -->
+                        <a
+                            href="<?= e($detailUrl) ?>"
+                            class="inline-flex items-center gap-2
+                                    rounded-lg border border-blue-200
+                                    bg-blue-50 px-3 py-2 text-sm
+                                    font-medium text-blue-700 transition
+                                    hover:bg-blue-100">
+                            Detail
+                        </a>
 
                         <!-- EDIT -->
                         <a
