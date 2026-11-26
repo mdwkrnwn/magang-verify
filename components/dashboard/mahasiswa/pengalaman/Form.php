@@ -126,16 +126,23 @@ $deskripsi = $item['deskripsi'] ?? '';
 
                 <!-- Form Header -->
                 <div class="border-b border-gray-100 px-5 py-5 sm:px-6">
+    <div class="flex items-start justify-between gap-4">
+        <div>
+            <h2 class="text-base font-semibold text-gray-900">
+                Informasi Pengalaman
+            </h2>
 
-                    <h2 class="text-base font-semibold text-gray-900">
-                        Informasi Pengalaman
-                    </h2>
+            <p class="mt-1 text-sm text-gray-500">
+                Lengkapi informasi berikut sesuai dengan pengalamanmu.
+            </p>
+        </div>
 
-                    <p class="mt-1 text-sm text-gray-500">
-                        Lengkapi informasi berikut sesuai dengan pengalamanmu.
-                    </p>
-
-                </div>
+        <p class="shrink-0 text-xs text-gray-400">
+            <span class="text-red-500">*</span>
+            Wajib diisi
+        </p>
+    </div>
+</div>
 
 
                 <!-- Form Body -->
@@ -357,15 +364,12 @@ $deskripsi = $item['deskripsi'] ?? '';
 
                 </div>
 
-
                 <!-- Footer -->
                 <div class="flex flex-col gap-3 border-t border-gray-100 bg-gray-50/70 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
 
                     <p class="text-xs text-gray-400">
-                        <span class="text-red-500">*</span>
-                        Wajib diisi
+                        <span class="text-red-500"></span>
                     </p>
-
 
                     <div class="flex flex-col-reverse gap-2 sm:flex-row">
 

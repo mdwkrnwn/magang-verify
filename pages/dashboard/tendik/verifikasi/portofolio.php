@@ -10,7 +10,7 @@ $studentNim = (string) ($portfolioDetailData['nim'] ?? '-');
 $description = (string) ($portfolioDetailData['deskripsi'] ?? '');
 $status = (string) ($portfolioDetailData['status_verifikasi'] ?? 'belum_diverifikasi');
 $portfolioType = (string) ($portfolioDetailData['jenis'] ?? '-');
-$role = (string) ($portfolioDetailData['peran'] ?? '-');
+$portfolioRole  = (string) ($portfolioDetailData['peran'] ?? '-');
 $organizer = (string) ($portfolioDetailData['penyelenggara'] ?? '-');
 $year = !empty($portfolioDetailData['tanggal_perolehan'])
     ? date('Y', strtotime($portfolioDetailData['tanggal_perolehan']))
@@ -157,20 +157,83 @@ $canVerify = in_array(
 
                         <div class="p-6 sm:p-7">
 
-                            <!-- Cover -->
+
+                            <!-- Cover Portfolio -->
                             <?php if (!empty($portfolioDetailData['gambar_sampul'])): ?>
 
                                 <div class="mb-6 overflow-hidden rounded-xl border border-slate-100 bg-slate-50">
                                     <img
+                                        id="portfolioCover"
                                         src="<?= e(url('/dashboard/tendik/verifikasi/portofolio/' . $portfolioId . '/sampul')) ?>"
-                                        alt="Sampul <?= e($portfolioTitle) ?>"
-                                        class="h-64 w-full object-cover"
+                                        alt="Gambar portfolio <?= e($portfolioTitle) ?>"
+                                        class="h-64 w-full cursor-pointer object-cover transition hover:opacity-90"
                                         onerror="this.hidden=true;this.nextElementSibling.hidden=false">
 
                                     <div hidden class="px-4 py-8 text-center text-sm text-slate-500">
-                                        Gambar sampul tidak tersedia.
+                                        Gambar portfolio tidak tersedia.
                                     </div>
                                 </div>
+
+                                <!-- Modal Preview -->
+                                <div
+                                    id="portfolioImageModal"
+                                    class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/80 p-4"
+                                    aria-hidden="true">
+
+                                    <!-- Tombol Tutup -->
+                                    <button
+                                        type="button"
+                                        id="closePortfolioModal"
+                                        class="absolute right-5 top-5 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/20 text-2xl text-white transition hover:bg-white/30"
+                                        aria-label="Tutup">
+                                        &times;
+                                    </button>
+
+                                    <!-- Gambar Preview -->
+                                    <div class="relative flex max-h-full max-w-6xl items-center justify-center">
+                                        <img
+                                            src="<?= e(url('/dashboard/tendik/verifikasi/portofolio/' . $portfolioId . '/sampul')) ?>"
+                                            alt="Preview <?= e($portfolioTitle) ?>"
+                                            class="max-h-[85vh] max-w-full rounded-lg object-contain shadow-2xl">
+                                    </div>
+                                </div>
+
+                                <script>
+                                    (() => {
+                                        const cover = document.getElementById('portfolioCover');
+                                        const modal = document.getElementById('portfolioImageModal');
+                                        const closeButton = document.getElementById('closePortfolioModal');
+
+                                        if (!cover || !modal || !closeButton) return;
+
+                                        const openModal = () => {
+                                            modal.classList.remove('hidden');
+                                            modal.classList.add('flex');
+                                            modal.setAttribute('aria-hidden', 'false');
+                                            document.body.classList.add('overflow-hidden');
+                                        };
+
+                                        const closeModal = () => {
+                                            modal.classList.add('hidden');
+                                            modal.classList.remove('flex');
+                                            modal.setAttribute('aria-hidden', 'true');
+                                            document.body.classList.remove('overflow-hidden');
+                                        };
+
+                                        cover.addEventListener('click', openModal);
+                                        closeButton.addEventListener('click', closeModal);
+
+                                        modal.addEventListener('click', (event) => {
+                                            if (event.target === modal) closeModal();
+                                        });
+
+                                        document.addEventListener('keydown', (event) => {
+                                            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                                                closeModal();
+                                            }
+                                        });
+                                    })();
+                                </script>
 
                             <?php endif; ?>
 
@@ -212,7 +275,7 @@ $canVerify = in_array(
                                     </p>
 
                                     <p class="mt-2 font-semibold text-slate-800">
-                                        <?= e($role) ?>
+                                        <?= e($portfolioRole) ?>
                                     </p>
                                 </div>
 

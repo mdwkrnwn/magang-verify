@@ -52,11 +52,23 @@ class SertifikatController
             }
         }
 
-        // Pastikan folder benar-benar dapat ditulisi.
-        if (!is_writable($this->uploadDirectory)) {
-            error_log('[SERTIFIKAT] Folder tidak writable: ' . $this->uploadDirectory);
+        // Pastikan folder benar-benar dapat digunakan untuk menyimpan file.
+        $probeFile = $this->uploadDirectory
+            . '/.write-test-' . bin2hex(random_bytes(8));
+
+        $writeTest = @file_put_contents($probeFile, 'test');
+
+        if ($writeTest === false) {
+            error_log(
+                '[SERTIFIKAT] Gagal menulis ke folder: '
+                    . $this->uploadDirectory
+            );
+
             $this->showStorageError();
         }
+
+        // Hapus file pengujian.
+        @unlink($probeFile);
     }
 
     private function showStorageError(): never

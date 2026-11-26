@@ -160,6 +160,10 @@ class MahasiswaProfilController
             exit('Foto mahasiswa tidak valid.');
         }
 
+        while (ob_get_level() > 0) {
+            ob_end_clean();
+        }
+
         header('Content-Type: ' . $mime);
         header('Content-Length: ' . (string) filesize($filePath));
         header('Cache-Control: no-cache, must-revalidate');

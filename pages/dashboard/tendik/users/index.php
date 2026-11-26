@@ -47,6 +47,18 @@ $active = 'users';
 
             </div>
 
+            <?php if (!empty($success)): ?>
+                <div class="mb-5 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-700">
+                    <?= e($success) ?>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($error)): ?>
+                <div class="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                    <?= e($error) ?>
+                </div>
+            <?php endif; ?>
+
 
             <!-- Search & Filter -->
             <section class="p-5 mb-6 bg-white border border-gray-100 shadow-sm rounded-2xl">
