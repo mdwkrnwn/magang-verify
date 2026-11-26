@@ -46,11 +46,10 @@ final class TendikUserController
         // Role yang dapat dikelola Tendik. Akun Mitra dikelola Koordinator Magang.
         $roles = User::managedCreationRoles();
 
-        // Ambil pesan notifikasi setelah redirect.
         $success = $_SESSION['flash_success'] ?? null;
-        unset($_SESSION['flash_success']);
+        $error = $_SESSION['flash_error'] ?? null;
 
-        $error = null;
+        unset($_SESSION['flash_success'], $_SESSION['flash_error']);
 
         require __DIR__ . '/../../../pages/dashboard/tendik/users/index.php';
     }

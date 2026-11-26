@@ -762,13 +762,23 @@ class User
     public function setActive(int $id, bool $active, int $actorId): void
     {
         if ($id === $actorId && !$active) {
-            throw new InvalidArgumentException('Anda tidak dapat menonaktifkan akun sendiri.');
+            throw new RuntimeException('Anda tidak dapat menonaktifkan akun sendiri.');
         }
-        $stmt = $this->db->prepare('UPDATE users SET is_active = :is_active, updated_at = CURRENT_TIMESTAMP WHERE id = :id');
-        $stmt->execute(['is_active' => $active, 'id' => $id]);
-        if ($stmt->rowCount() !== 1) {
 
-            throw new InvalidArgumentException('User tidak ditemukan.');
+        $stmt = $this->db->prepare("
+        UPDATE users
+        SET is_active = :is_active,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = :id
+    ");
+
+        $stmt->bindValue(':is_active', $active, PDO::PARAM_BOOL);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        if ($stmt->rowCount() !== 1) {
+            throw new RuntimeException('Pengguna tidak ditemukan atau status tidak berubah.');
         }
     }
 
