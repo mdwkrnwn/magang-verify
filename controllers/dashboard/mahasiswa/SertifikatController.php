@@ -22,8 +22,10 @@ class SertifikatController
         $this->ensureUploadDirectory();
     }
 
+
     private function ensureUploadDirectory(): void
     {
+        // Buat folder jika belum tersedia.
         if (!is_dir($this->uploadDirectory)) {
             if (
                 !mkdir($this->uploadDirectory, 0775, true)
@@ -34,6 +36,23 @@ class SertifikatController
             }
         }
 
+        // Coba memberikan izin Modify pada Windows.
+        if (PHP_OS_FAMILY === 'Windows') {
+            $directory = escapeshellarg($this->uploadDirectory);
+            $user = getenv('USERNAME');
+
+            if ($user !== false && $user !== '') {
+                $account = escapeshellarg(getenv('USERDOMAIN') . '\\' . $user);
+
+                exec(
+                    'icacls ' . $directory . ' /grant ' . $account . ':(OI)(CI)M /T /C 2>&1',
+                    $output,
+                    $result
+                );
+            }
+        }
+
+        // Pastikan folder benar-benar dapat ditulisi.
         if (!is_writable($this->uploadDirectory)) {
             error_log('[SERTIFIKAT] Folder tidak writable: ' . $this->uploadDirectory);
             $this->showStorageError();
@@ -51,6 +70,7 @@ class SertifikatController
         require __DIR__ . '/../../../pages/errors/500.php';
         exit;
     }
+
     private function getMahasiswaId(): int
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
