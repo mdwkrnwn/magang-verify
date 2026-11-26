@@ -29,19 +29,28 @@ class SertifikatController
                 !mkdir($this->uploadDirectory, 0775, true)
                 && !is_dir($this->uploadDirectory)
             ) {
-                throw new RuntimeException(
-                    'Folder penyimpanan sertifikat gagal dibuat.'
-                );
+                error_log('[SERTIFIKAT] Gagal membuat folder: ' . $this->uploadDirectory);
+                $this->showStorageError();
             }
         }
 
         if (!is_writable($this->uploadDirectory)) {
-            throw new RuntimeException(
-                'Folder penyimpanan sertifikat tidak memiliki izin tulis.'
-            );
+            error_log('[SERTIFIKAT] Folder tidak writable: ' . $this->uploadDirectory);
+            $this->showStorageError();
         }
     }
 
+    private function showStorageError(): never
+    {
+        http_response_code(500);
+
+        $errorTitle = 'Penyimpanan File Tidak Tersedia';
+        $errorMessage = 'Sistem belum dapat mengakses folder penyimpanan sertifikat. Silakan hubungi administrator atau coba kembali beberapa saat lagi.';
+        $errorInfo = 'Gangguan konfigurasi penyimpanan file';
+
+        require __DIR__ . '/../../../pages/errors/500.php';
+        exit;
+    }
     private function getMahasiswaId(): int
     {
         if (session_status() !== PHP_SESSION_ACTIVE) {
