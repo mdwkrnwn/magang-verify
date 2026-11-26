@@ -11,12 +11,35 @@ class SertifikatController
     private AktivitasPengguna $aktivitasModel;
     private string $uploadDirectory;
     private string $uploadRelativePath = 'uploads/sertifikat';
-
     public function __construct()
     {
         $this->sertifikatModel = new Sertifikat();
         $this->aktivitasModel = new AktivitasPengguna();
-        $this->uploadDirectory = dirname(__DIR__, 3) . '/' . $this->uploadRelativePath;
+
+        $this->uploadDirectory = dirname(__DIR__, 3)
+            . '/' . $this->uploadRelativePath;
+
+        $this->ensureUploadDirectory();
+    }
+
+    private function ensureUploadDirectory(): void
+    {
+        if (!is_dir($this->uploadDirectory)) {
+            if (
+                !mkdir($this->uploadDirectory, 0775, true)
+                && !is_dir($this->uploadDirectory)
+            ) {
+                throw new RuntimeException(
+                    'Folder penyimpanan sertifikat gagal dibuat.'
+                );
+            }
+        }
+
+        if (!is_writable($this->uploadDirectory)) {
+            throw new RuntimeException(
+                'Folder penyimpanan sertifikat tidak memiliki izin tulis.'
+            );
+        }
     }
 
     private function getMahasiswaId(): int
@@ -66,8 +89,10 @@ class SertifikatController
     /** Simpan unggahan gambar atau PDF. Mengembalikan path relatif untuk database. */
     private function storeUploadedFile(array &$errors, bool $required = false): ?string
     {
-        if (!isset($_FILES['gambar']) || !is_array($_FILES['gambar']) ||
-            ($_FILES['gambar']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+        if (
+            !isset($_FILES['gambar']) || !is_array($_FILES['gambar']) ||
+            ($_FILES['gambar']['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE
+        ) {
             if ($required) {
                 $errors['gambar'] = 'Sertifikat wajib diunggah.';
             }
