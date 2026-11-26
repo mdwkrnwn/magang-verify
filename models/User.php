@@ -63,21 +63,28 @@ class User
             return null;
         }
         $sql = "
-            SELECT u.id, u.login_id, u.name, u.password, u.role, u.is_active
-            FROM {$table} p
-            INNER JOIN users u ON u.id = p.user_id
-            WHERE p.{$identityColumn} = :identity
-              AND u.is_active = TRUE
-              AND (
-                    u.role = :requested_role
-                    OR EXISTS (
-                        SELECT 1 FROM user_roles ur
-                        WHERE ur.user_id = u.id
-                          AND ur.role = :assigned_role
-                    )
-              )
-            LIMIT 1
-        ";
+        SELECT
+            u.id,
+            u.login_id,
+            u.name,
+            u.password,
+            u.role,
+            u.is_active,
+            TRUE AS has_dosen_profile
+        FROM {$table} p
+        INNER JOIN users u ON u.id = p.user_id
+        WHERE p.{$identityColumn} = :identity
+        AND u.is_active = TRUE
+        AND (
+                u.role = :requested_role
+                OR EXISTS (
+                    SELECT 1 FROM user_roles ur
+                    WHERE ur.user_id = u.id
+                    AND ur.role = :assigned_role
+                )
+        )
+        LIMIT 1
+         ";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             'identity' => $identity,
