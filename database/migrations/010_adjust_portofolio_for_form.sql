@@ -9,14 +9,16 @@ ALTER TABLE public.portofolios
 
 -- Menyimpan teknologi yang digunakan pada setiap proyek.
 CREATE TABLE public.portofolio_teknologi (
-    portofolio_id BIGINT NOT NULL
-        REFERENCES public.portofolios(id) ON DELETE CASCADE,
-
+    portofolio_id BIGINT NOT NULL,
     nama_teknologi VARCHAR(100) NOT NULL,
-
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (portofolio_id, nama_teknologi)
+    PRIMARY KEY (portofolio_id, nama_teknologi),
+
+    CONSTRAINT portofolio_teknologi_portofolio_id_fkey
+        FOREIGN KEY (portofolio_id)
+        REFERENCES public.portofolios(id)
+        ON DELETE CASCADE
 );
 
 INSERT INTO schema_migrations (migration)
