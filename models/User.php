@@ -62,40 +62,42 @@ class User
         } else {
             return null;
         }
+        // Kolom foto hanya tersedia pada profil_mahasiswa
+        $fotoSelect = ($requestedRole === 'mahasiswa')
+            ? 'p.foto_path'
+            : 'NULL';
+
         $sql = "
-    SELECT
-        u.id,
-        u.login_id,
-        u.name,
-        u.password,
-        u.role,
-        u.is_active,
-        CASE
-            WHEN :profile_role = 'mahasiswa'
-            THEN p.foto_path
-            ELSE NULL
-        END AS foto_path,
-        TRUE AS has_dosen_profile
-    FROM {$table} p
-    INNER JOIN users u ON u.id = p.user_id
-        WHERE p.{$identityColumn} = :identity
-        AND u.is_active = TRUE
-        AND (
-                u.role = :requested_role
-                OR EXISTS (
-                    SELECT 1 FROM user_roles ur
-                    WHERE ur.user_id = u.id
-                    AND ur.role = :assigned_role
+                SELECT
+                    u.id,
+                    u.login_id,
+                    u.name,
+                    u.password,
+                    u.role,
+                    u.is_active,
+                    {$fotoSelect} AS foto_path,
+                    TRUE AS has_dosen_profile
+                FROM {$table} p
+                INNER JOIN users u ON u.id = p.user_id
+                WHERE p.{$identityColumn} = :identity
+                AND u.is_active = TRUE
+                AND (
+                    u.role = :requested_role
+                    OR EXISTS (
+                        SELECT 1
+                        FROM user_roles ur
+                        WHERE ur.user_id = u.id
+                            AND ur.role = :assigned_role
+                    )
                 )
-        )
-        LIMIT 1
-         ";
+                LIMIT 1
+            ";
         $stmt = $this->db->prepare($sql);
+
         $stmt->execute([
-            'identity' => $identity,
+            'identity'       => $identity,
             'requested_role' => $requestedRole,
-            'assigned_role' => $requestedRole,
-            'profile_role'   => $requestedRole,
+            'assigned_role'  => $requestedRole,
         ]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
         if (!$user) {
