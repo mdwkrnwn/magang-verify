@@ -26,12 +26,6 @@ $menuItems = [
         'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-4-4h-1M9 20H4v-2a4 4 0 014-4h1m4-8a4 4 0 11-8 0 4 4 0 018 0m6 4a3 3 0 10-3-3"/>',
     ],
     [
-        'label' => 'Pengajuan Magang',
-        'url' => '/dashboard/dosen/pengajuan',
-        'key' => 'pengajuan',
-        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h4M7 3h8l4 4v14H7a2 2 0 01-2-2V5a2 2 0 012-2Zm8 0v5h4"/>',
-    ],
-    [
         'label' => 'Verifikasi Laporan',
         'url' => '/dashboard/dosen/verifikasi-laporan',
         'key' => 'verifikasi-laporan',
@@ -59,22 +53,22 @@ $menuItems = [
     class="fixed inset-y-0 left-0 z-40 flex w-64 max-w-[85vw] -translate-x-full flex-col overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 ease-in-out lg:translate-x-0">
 
     <!-- Logo -->
-    <div class="flex h-20 shrink-0 items-center border-b border-gray-100 px-6">
-        <div id="sidebar-logo" class="flex min-w-0 items-center gap-3">
+    <div class="flex items-center h-20 px-6 border-b border-gray-100 shrink-0">
+        <div id="sidebar-logo" class="flex items-center min-w-0 gap-3">
 
-            <div class="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden">
+            <div class="flex items-center justify-center w-10 h-10 overflow-hidden shrink-0">
                 <img
                     src="<?= url('/assets/images/icon.png') ?>"
                     alt="VerifyMagang"
-                    class="h-12 w-12 object-contain">
+                    class="object-contain w-12 h-12">
             </div>
 
-            <div class="sidebar-logo-text min-w-0">
-                <h1 class="whitespace-nowrap text-lg font-bold text-gray-900">
+            <div class="min-w-0 sidebar-logo-text">
+                <h1 class="text-lg font-bold text-gray-900 whitespace-nowrap">
                     VerifyMagang
                 </h1>
 
-                <p class="whitespace-nowrap text-xs text-gray-500">
+                <p class="text-xs text-gray-500 whitespace-nowrap">
                     <?= e($roleLabel) ?>
                 </p>
             </div>
@@ -85,9 +79,9 @@ $menuItems = [
 
     <!-- Navigation -->
     <nav
-        class="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain px-4 py-6">
+        class="flex-1 min-h-0 px-4 py-6 overflow-x-hidden overflow-y-auto overscroll-contain">
 
-        <p class="sidebar-section-label mb-3 whitespace-nowrap px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
+        <p class="px-3 mb-3 text-xs font-semibold tracking-wider text-gray-400 uppercase sidebar-section-label whitespace-nowrap">
             Menu Utama
         </p>
 
@@ -107,7 +101,7 @@ $menuItems = [
                     <?= $isActive ? 'aria-current="page"' : '' ?>>
 
                     <svg
-                        class="h-5 w-5 shrink-0"
+                        class="w-5 h-5 shrink-0"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -115,7 +109,7 @@ $menuItems = [
                         <?= $menu['icon'] ?>
                     </svg>
 
-                    <span class="sidebar-label min-w-0 flex-1 whitespace-nowrap break-words text-sm leading-5">
+                    <span class="flex-1 min-w-0 text-sm leading-5 break-words sidebar-label whitespace-nowrap">
                         <?= e($menu['label']) ?>
                     </span>
 

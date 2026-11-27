@@ -338,10 +338,7 @@ $routes = [
         'method' => 'index',
     ],
 
-    '/dashboard/dosen/pengajuan' => [
-        'controller' => PengajuanMagangController::class,
-        'method' => 'index',
-    ],
+    
 
     '/dashboard/dosen/monitoring' => [
         'controller' => DosenMonitoringController::class,
